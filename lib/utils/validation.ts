@@ -304,3 +304,114 @@ export function validateApiKey(key: string): ValidationResult {
     sanitizedData: key
   }
 }
+
+// Enhanced input sanitization for SQL injection prevention
+export function sanitizeInput(input: string): string {
+  if (typeof input !== 'string') return ''
+  
+  return input
+    .trim()
+    .replace(/[<>]/g, '') // Remove potential HTML
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/['";\\]/g, '') // Remove quotes and backslashes for SQL safety
+    .replace(/--/g, '') // Remove SQL comments
+    .replace(/\/\*/g, '') // Remove block comments
+    .replace(/\*\//g, '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
+}
+
+// Validate submission data comprehensively
+export function validateSubmissionData(data: any): ValidationResult {
+  const errors: ValidationError[] = []
+  const sanitized: any = {}
+  
+  // Validate required fields
+  if (!data.businessName) {
+    errors.push(new ValidationError('Business name is required', 'businessName', 'REQUIRED'))
+  } else {
+    sanitized.businessName = sanitizeInput(data.businessName)
+    if (sanitized.businessName.length < 2) {
+      errors.push(new ValidationError('Business name too short', 'businessName', 'TOO_SHORT'))
+    }
+  }
+  
+  // URL validation
+  const urlValidation = validateUrl(data.website)
+  if (!urlValidation.isValid) {
+    errors.push(...urlValidation.errors)
+  } else {
+    sanitized.website = urlValidation.sanitizedData
+  }
+  
+  // Email validation
+  const emailValidation = validateEmail(data.email)
+  if (!emailValidation.isValid) {
+    errors.push(...emailValidation.errors)
+  } else {
+    sanitized.email = emailValidation.sanitizedData
+  }
+  
+  // Directory selection validation
+  if (!data.directories || !Array.isArray(data.directories)) {
+    errors.push(new ValidationError('Directories must be an array', 'directories', 'INVALID_TYPE'))
+  } else if (data.directories.length === 0) {
+    errors.push(new ValidationError('At least one directory required', 'directories', 'EMPTY_ARRAY'))
+  } else if (data.directories.length > 100) {
+    errors.push(new ValidationError('Too many directories selected', 'directories', 'TOO_MANY'))
+  } else {
+    sanitized.directories = data.directories.filter((id: any) => 
+      typeof id === 'string' && id.length > 0
+    ).slice(0, 100)
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors,
+    sanitizedData: sanitized
+  }
+}
+
+// IP address validation for security
+export function validateIpAddress(ip: string): boolean {
+  if (!ip || typeof ip !== 'string') return false
+  
+  // IPv4 pattern
+  const ipv4Pattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+  
+  // IPv6 pattern (simplified)
+  const ipv6Pattern = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/
+  
+  return ipv4Pattern.test(ip) || ipv6Pattern.test(ip)
+}
+
+// User agent validation
+export function validateUserAgent(userAgent: string): boolean {
+  if (!userAgent || typeof userAgent !== 'string') return false
+  
+  // Check for suspicious patterns
+  const suspiciousPatterns = [
+    /bot/i,
+    /crawler/i,
+    /scraper/i,
+    /spider/i,
+    /scanner/i,
+    /hack/i,
+    /attack/i
+  ]
+  
+  const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(userAgent))
+  
+  // Allow legitimate bots (Google, Bing, etc.)
+  const legitimateBots = [
+    /googlebot/i,
+    /bingbot/i,
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /linkedinbot/i
+  ]
+  
+  const isLegitimate = legitimateBots.some(pattern => pattern.test(userAgent))
+  
+  return !isSuspicious || isLegitimate
+}
