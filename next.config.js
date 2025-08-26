@@ -2,7 +2,8 @@
 const nextConfig = {
   // Performance and Production Optimizations
   experimental: {
-    optimizeCss: true,
+    // Disable CSS optimization for Netlify compatibility
+    optimizeCss: process.env.NETLIFY ? false : true,
     scrollRestoration: true,
   },
   
@@ -53,11 +54,15 @@ const nextConfig = {
   swcMinify: true,
   
   // Static export configuration for Netlify
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+  output: process.env.NETLIFY ? 'export' : undefined,
   trailingSlash: true,
   
   // Netlify-specific optimizations
   async rewrites() {
+    // Only apply rewrites when not in export mode
+    if (process.env.NETLIFY) {
+      return []
+    }
     return [
       {
         source: '/api/:path*',
@@ -65,6 +70,16 @@ const nextConfig = {
       },
     ]
   },
+  
+  // Netlify build optimizations
+  ...(process.env.NETLIFY && {
+    distDir: '.next',
+    generateEtags: false,
+    // Disable image optimization for static export
+    images: {
+      unoptimized: true,
+    },
+  }),
 }
 
 // Bundle analyzer for performance monitoring
