@@ -103,7 +103,7 @@ async function handleRegister(
   }
   
   // Company name validation (optional)
-  let companyName: string | null = null
+  let companyName: string | undefined = undefined
   if (data.company_name) {
     companyName = data.company_name.trim()
     if (companyName.length > 200) {

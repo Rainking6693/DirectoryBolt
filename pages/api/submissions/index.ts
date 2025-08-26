@@ -164,8 +164,8 @@ async function handleCreateSubmissions(
       business_description: businessValidation.sanitizedData!.business_description,
       business_url: businessValidation.sanitizedData!.business_url,
       business_email: businessValidation.sanitizedData!.business_email,
-      business_phone: businessValidation.sanitizedData!.business_phone || null,
-      business_address: data.business_address || null,
+      business_phone: businessValidation.sanitizedData!.business_phone || undefined,
+      business_address: data.business_address || undefined,
       business_category: businessValidation.sanitizedData!.business_category,
       status: data.auto_submit ? 'in_progress' : 'pending',
       submitted_at: data.auto_submit ? new Date() : new Date(), // Will be updated when actually submitted

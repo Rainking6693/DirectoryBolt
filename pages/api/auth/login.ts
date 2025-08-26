@@ -151,7 +151,7 @@ async function handleLogin(
   await logLoginAttempt(user.email, clientIp, userAgent, true, 'SUCCESS')
   
   // Remove sensitive data from response
-  const { password_hash, verification_token, failed_login_attempts, ...userResponse } = user
+  const { password_hash, verification_token, ...userResponse } = user
   
   const response: LoginResponse = {
     success: true,

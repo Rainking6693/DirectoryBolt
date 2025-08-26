@@ -11,9 +11,9 @@
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
     "build:analyze": "ANALYZE=true next build",
-    "export": "next export",
+    "build:netlify": "NETLIFY=true next build",
     "clean": "rm -rf .next out",
-    "deploy": "npm run build && npm run export"
+    "deploy": "npm run build:netlify"
   },
   "dependencies": {
     "next": "^14.2.15",

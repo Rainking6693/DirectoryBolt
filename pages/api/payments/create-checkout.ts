@@ -277,7 +277,7 @@ async function getUserById(userId: string): Promise<User | null> {
       credits_remaining: 25,
       is_verified: true,
       failed_login_attempts: 0,
-      stripe_customer_id: null, // Will be created
+      stripe_customer_id: undefined, // Will be created
       created_at: new Date('2024-01-01'),
       updated_at: new Date(),
     } as User
