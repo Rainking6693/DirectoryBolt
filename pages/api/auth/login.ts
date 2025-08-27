@@ -320,9 +320,9 @@ function generateRefreshToken(user: User): string {
 
 async function saveSession(
   userId: string, 
-  session: any, 
-  accessToken: string, 
-  refreshToken: string
+  _session: any, 
+  _accessToken: string, 
+  _refreshToken: string
 ): Promise<void> {
   // TODO: Implement session storage (database or Redis)
   console.log(`💾 Saved session for user ${userId}`)

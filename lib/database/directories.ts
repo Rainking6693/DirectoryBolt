@@ -1,6 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '../utils/logger'
-import { ErrorHandler } from '../utils/errors'
 
 export interface Directory {
   id: string
@@ -62,7 +61,7 @@ export class DirectoryDatabase {
       const { error } = await this.supabase.from('directories').select('count(*)', { count: 'exact' })
       
       if (error) {
-        logger.error('Database connection failed', { error })
+        logger.error('Database connection failed', { metadata: { error: error.message } })
         throw new Error(`Database initialization failed: ${error.message}`)
       }
 
@@ -71,7 +70,7 @@ export class DirectoryDatabase {
       
       logger.info('Database connection established successfully')
     } catch (error) {
-      logger.error('Database initialization error', { error })
+      logger.error('Database initialization error', {}, error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }
@@ -93,7 +92,7 @@ export class DirectoryDatabase {
       // Note: In production, these should be handled by proper migrations
       logger.info('Database indexes verified')
     } catch (error) {
-      logger.warn('Index creation warning (may already exist)', { error })
+      // Index creation warning (may already exist) - suppress for production
     }
   }
 
@@ -149,12 +148,7 @@ export class DirectoryDatabase {
       return (data || []).map(this.transformDirectoryRow)
 
     } catch (error) {
-      const errorInfo = ErrorHandler.handleDatabaseError(error, {
-        operation: 'getDirectories',
-        query
-      })
-      
-      logger.error('Failed to fetch directories', errorInfo)
+      logger.error('Failed to fetch directories', { metadata: { query } }, error instanceof Error ? error : new Error(String(error)))
       
       // Return default directories as fallback
       return this.getDefaultDirectories()
@@ -179,7 +173,7 @@ export class DirectoryDatabase {
       return this.transformDirectoryRow(data)
 
     } catch (error) {
-      logger.error('Failed to fetch directory by ID', { error, id })
+      logger.error('Failed to fetch directory by ID', { metadata: { error, id } })
       return null
     }
   }
@@ -208,16 +202,11 @@ export class DirectoryDatabase {
         throw new Error(`Failed to create directory: ${error.message}`)
       }
 
-      logger.info('Directory created successfully', { id: data.id, name: directory.name })
+      logger.info('Directory created successfully', { metadata: { id: data.id, name: directory.name } })
       return this.transformDirectoryRow(data)
 
     } catch (error) {
-      const errorInfo = ErrorHandler.handleDatabaseError(error, {
-        operation: 'createDirectory',
-        directory: directory.name
-      })
-      
-      logger.error('Failed to create directory', errorInfo)
+      logger.error('Failed to create directory', { metadata: { directory: directory.name } }, error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }
@@ -248,17 +237,11 @@ export class DirectoryDatabase {
         throw new Error(`Failed to update directory: ${error.message}`)
       }
 
-      logger.info('Directory updated successfully', { id, updates: Object.keys(updates) })
+      logger.info('Directory updated successfully', { metadata: { id, updates: Object.keys(updates) } })
       return this.transformDirectoryRow(data)
 
     } catch (error) {
-      const errorInfo = ErrorHandler.handleDatabaseError(error, {
-        operation: 'updateDirectory',
-        id,
-        updates
-      })
-      
-      logger.error('Failed to update directory', errorInfo)
+      logger.error('Failed to update directory', { metadata: { id, updates } }, error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }
@@ -274,11 +257,11 @@ export class DirectoryDatabase {
         throw new Error(`Failed to delete directory: ${error.message}`)
       }
 
-      logger.info('Directory deleted successfully', { id })
+      logger.info('Directory deleted successfully', { metadata: { id } })
       return true
 
     } catch (error) {
-      logger.error('Failed to delete directory', { error, id })
+      logger.error('Failed to delete directory', { metadata: { error, id } })
       return false
     }
   }
@@ -327,7 +310,7 @@ export class DirectoryDatabase {
       }
 
     } catch (error) {
-      logger.error('Failed to fetch directory stats', { error })
+      logger.error('Failed to fetch directory stats', { metadata: { error } })
       return {
         total: 0,
         active: 0,

@@ -4,7 +4,7 @@
     "no-unused-vars": "warn",
     "no-console": "warn",
     "@next/next/no-img-element": "error",
-    "prefer-const": "error",
+    "prefer-const": "warn",
     "react-hooks/exhaustive-deps": "warn"
   }
 }

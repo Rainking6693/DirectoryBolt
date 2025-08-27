@@ -117,16 +117,18 @@ export class WebsiteAnalyzer {
       }
 
       logger.info(`Website analysis completed for: ${url}`, {
-        seoScore,
-        currentListings: currentListings.length,
-        missedOpportunities,
-        visibility
+        metadata: {
+          seoScore,
+          currentListings: currentListings.length,
+          missedOpportunities,
+          visibility
+        }
       })
 
       return result
 
     } catch (error) {
-      logger.error(`Website analysis failed for: ${url}`, { error })
+      logger.error(`Website analysis failed for: ${url}`, { metadata: { error } })
       throw new Error(`Failed to analyze website: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
@@ -163,7 +165,7 @@ export class WebsiteAnalyzer {
         
         if (attempt < this.config.maxRetries) {
           const delay = Math.pow(2, attempt) * 1000 // Exponential backoff
-          logger.debug(`Fetch attempt ${attempt} failed, retrying in ${delay}ms`, { error: lastError.message })
+          logger.debug(`Fetch attempt ${attempt} failed, retrying in ${delay}ms`, { metadata: { error: lastError.message } })
           await new Promise(resolve => setTimeout(resolve, delay))
         }
       }
@@ -172,7 +174,7 @@ export class WebsiteAnalyzer {
     throw lastError || new Error('Failed to fetch website after all retries')
   }
 
-  private calculateSeoScore($: cheerio.CheerioAPI, html: string): number {
+  private calculateSeoScore($: cheerio.Root, html: string): number {
     let score = 100
     const issues: string[] = []
 
@@ -225,7 +227,7 @@ export class WebsiteAnalyzer {
       issues.push('Missing Open Graph tags')
     }
 
-    logger.debug(`SEO score calculated: ${score}`, { issues })
+    logger.debug(`SEO score calculated: ${score}`, { metadata: { issues } })
     return Math.max(0, Math.min(100, score))
   }
 
@@ -254,7 +256,7 @@ export class WebsiteAnalyzer {
       }
 
     } catch (error) {
-      logger.warn('Error checking current listings', { error, domain })
+      logger.warn('Error checking current listings', { metadata: { error, domain } })
     }
 
     return listings
@@ -268,7 +270,7 @@ export class WebsiteAnalyzer {
       // Mock implementation
       return Math.random() < 0.4 // 40% chance
     } catch (error) {
-      logger.warn('Google Business check failed', { error, domain })
+      logger.warn('Google Business check failed', { metadata: { error, domain } })
       return false
     }
   }
@@ -293,7 +295,7 @@ export class WebsiteAnalyzer {
       }))
 
     } catch (error) {
-      logger.warn('Error getting directory opportunities', { error })
+      logger.warn('Error getting directory opportunities', { metadata: { error } })
       
       // Fallback to hardcoded list
       return this.getDefaultDirectoryOpportunities()
@@ -350,7 +352,7 @@ export class WebsiteAnalyzer {
     return Math.round((advantage / averageCompetitorListings) * 100)
   }
 
-  private generateIssues($: cheerio.CheerioAPI, currentListings: string[], seoScore: number): AnalysisIssue[] {
+  private generateIssues($: cheerio.Root, currentListings: string[], seoScore: number): AnalysisIssue[] {
     const issues: AnalysisIssue[] = []
 
     if (currentListings.length < 10) {

@@ -3,7 +3,6 @@ import { rateLimit } from '../../lib/utils/rate-limit'
 import { validateUrl, sanitizeInput } from '../../lib/utils/validation'
 import { logger } from '../../lib/utils/logger'
 import { WebsiteAnalyzer } from '../../lib/services/website-analyzer'
-import { ErrorHandler } from '../../lib/utils/errors'
 
 // Rate limiting configuration
 const limiter = rateLimit({
@@ -108,10 +107,12 @@ export default async function handler(
     // Log the analysis request
     logger.info('Website analysis requested', {
       requestId,
-      url: sanitizedUrl,
-      userAgent: req.headers['user-agent'],
-      ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-      options
+      userAgent: req.headers['user-agent'] as string,
+      ipAddress: (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string,
+      metadata: {
+        url: sanitizedUrl,
+        options
+      }
     })
 
     // Initialize website analyzer
@@ -133,10 +134,12 @@ export default async function handler(
     // Log successful analysis
     logger.info('Website analysis completed', {
       requestId,
-      url: sanitizedUrl,
-      score: analysisResult.seoScore,
-      issues: analysisResult.issues.length,
-      opportunities: analysisResult.directoryOpportunities.length
+      metadata: {
+        url: sanitizedUrl,
+        score: analysisResult.seoScore,
+        issues: analysisResult.issues.length,
+        opportunities: analysisResult.directoryOpportunities.length
+      }
     })
 
     // Return successful response
@@ -148,14 +151,12 @@ export default async function handler(
 
   } catch (error) {
     // Handle and log errors appropriately
-    const errorInfo = ErrorHandler.handleApiError(error, {
+    logger.error('Website analysis failed', { 
       requestId,
-      endpoint: '/api/analyze',
-      method: req.method,
-      url: req.body?.url
-    })
-
-    logger.error('Website analysis failed', errorInfo)
+      httpMethod: req.method,
+      httpUrl: '/api/analyze',
+      metadata: { url: req.body?.url }
+    }, error instanceof Error ? error : new Error(String(error)))
 
     // Return appropriate error response
     if (error instanceof Error) {

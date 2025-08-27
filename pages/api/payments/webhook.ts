@@ -52,7 +52,7 @@ export default async function handler(
 async function handleWebhook(
   req: NextApiRequest,
   res: NextApiResponse,
-  requestId: string
+  _requestId: string
 ) {
   const signature = req.headers['stripe-signature'] as string
   
@@ -135,7 +135,7 @@ async function handleWebhook(
 }
 
 // Webhook signature verification
-async function verifyWebhookSignature(body: any, signature: string): Promise<StripeWebhookEvent> {
+async function verifyWebhookSignature(_body: any, _signature: string): Promise<StripeWebhookEvent> {
   // TODO: Implement actual Stripe signature verification
   // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
   // const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET

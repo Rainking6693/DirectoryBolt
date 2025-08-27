@@ -60,10 +60,12 @@ export function rateLimit(config: RateLimitConfig) {
         res.setHeader('Retry-After', retryAfter.toString())
         
         logger.warn('Rate limit exceeded', {
-          token: token.substring(0, 8) + '...',
-          count: data.count,
-          limit,
-          resetTime: new Date(data.resetTime).toISOString()
+          metadata: {
+            token: token.substring(0, 8) + '...',
+            count: data.count,
+            limit,
+            resetTime: new Date(data.resetTime).toISOString()
+          }
         })
         
         throw new Error('Rate limit exceeded')
@@ -129,7 +131,7 @@ export class AdvancedRateLimit {
     const now = Date.now()
     const key = `bucket_${token}`
     
-    let bucket = this.store.get(key) || {
+    const bucket = this.store.get(key) || {
       tokens: capacity,
       lastRefill: now
     }
@@ -280,7 +282,7 @@ export function withRateLimit(
 
       next()
     } catch (error) {
-      logger.error('Rate limiting error', { error, endpoint })
+      logger.error('Rate limiting error', { metadata: { error, endpoint } })
       // Allow request to continue on rate limit errors
       next()
     }

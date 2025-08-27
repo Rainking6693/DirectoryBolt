@@ -193,7 +193,7 @@ export class ScrapingService {
   }
   
   // Directory discovery scraping
-  private async discoverDirectory(url: string, payload: any): Promise<any> {
+  private async discoverDirectory(url: string, _payload: any): Promise<any> {
     const response = await this.makeRequest(url)
     const html = response.body
     
@@ -213,7 +213,7 @@ export class ScrapingService {
   }
   
   // Contact extraction scraping
-  private async extractContacts(url: string, payload: any): Promise<any> {
+  private async extractContacts(url: string, _payload: any): Promise<any> {
     const response = await this.makeRequest(url)
     const html = response.body
     

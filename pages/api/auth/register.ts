@@ -188,7 +188,7 @@ function checkRegistrationRateLimit(key: string): boolean {
 }
 
 // Mock database functions (replace with actual database calls)
-async function findUserByEmail(email: string): Promise<User | null> {
+async function findUserByEmail(_email: string): Promise<User | null> {
   // TODO: Implement actual database query
   // const user = await db.users.findFirst({ where: { email } })
   // return user

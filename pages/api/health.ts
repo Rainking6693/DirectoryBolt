@@ -23,7 +23,7 @@ interface HealthCheckResult {
   details?: any
 }
 
-let startTime = Date.now()
+const startTime = Date.now()
 
 export default async function handler(
   req: NextApiRequest,
@@ -99,20 +99,22 @@ export default async function handler(
 
     // Log health check for monitoring
     logger.info('Health check completed', {
-      status: overallStatus,
-      responseTime,
-      checks: {
-        database: database.status,
-        memory: memory.status,
-        disk: disk.status,
-        external_apis: external_apis.status
+      metadata: {
+        status: overallStatus,
+        responseTime,
+        checks: {
+          database: database.status,
+          memory: memory.status,
+          disk: disk.status,
+          external_apis: external_apis.status
+        }
       }
     })
 
     res.status(statusCode).json(healthStatus)
 
   } catch (error) {
-    logger.error('Health check failed', { error })
+    logger.error('Health check failed', { metadata: { error } })
     
     res.setHeader('X-Health-Status', 'unhealthy')
     res.status(503).json({

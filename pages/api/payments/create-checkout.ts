@@ -136,7 +136,7 @@ async function handleCreateCheckout(
       payment_method_type: 'card' // Will be updated after payment
     }
     
-    const paymentRecord = await createPaymentRecord(payment)
+    await createPaymentRecord(payment)
     
     // Log payment attempt
     await logPaymentAttempt(userId, packageDetails.name, packageDetails.price, 'CHECKOUT_CREATED')

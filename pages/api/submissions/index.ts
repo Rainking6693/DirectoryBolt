@@ -84,9 +84,9 @@ async function handleCreateSubmissions(
   const data: SubmissionCreateRequest = req.body
   
   // Rate limiting check
-  const clientIp = req.headers['x-forwarded-for'] as string || 
-                   req.headers['x-real-ip'] as string || 
-                   req.socket.remoteAddress || ''
+  const _clientIp = req.headers['x-forwarded-for'] as string || 
+                    req.headers['x-real-ip'] as string || 
+                    req.socket.remoteAddress || ''
   
   const hourlyRateCheck = validateRateLimit(
     `submissions:${userId}:hour`,
@@ -256,7 +256,7 @@ async function handleGetSubmissions(
 
 // Mock functions (replace with actual database calls)
 async function getMockDirectoriesByIds(ids: string[]) {
-  const allDirectories = await import('./index').then(m => m.default)
+  const _allDirectories = await import('./index').then(m => m.default)
   // Simulate fetching directories by IDs
   return [
     {
@@ -282,7 +282,7 @@ async function getMockDirectoriesByIds(ids: string[]) {
   ].filter(d => ids.includes(d.id))
 }
 
-async function checkExistingSubmissions(userId: string, businessUrl: string, directoryIds: string[]) {
+async function checkExistingSubmissions(_userId: string, _businessUrl: string, _directoryIds: string[]) {
   // TODO: Implement actual database check
   return [] // No duplicates found
 }
@@ -307,7 +307,7 @@ async function scheduleSubmissionJob(submission: Submission, directory: any) {
 
 async function getMockSubmissionsByUser(
   userId: string, 
-  filters: { status?: SubmissionStatus; directoryId?: string; page: number; limit: number }
+  _filters: { status?: SubmissionStatus; directoryId?: string; page: number; limit: number }
 ) {
   // TODO: Implement actual database query
   return [
