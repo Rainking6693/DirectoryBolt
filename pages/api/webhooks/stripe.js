@@ -2,7 +2,7 @@
 // POST /api/webhooks/stripe - Handle Stripe webhook events for subscriptions
 
 import Stripe from 'stripe';
-import { buffer } from 'micro';
+// Removed micro dependency - using Next.js built-in raw body parsing
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -27,7 +27,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const buf = await buffer(req);
+  // Get raw body as buffer for webhook signature verification
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  const buf = Buffer.concat(chunks);
   const sig = req.headers['stripe-signature'];
 
   let event;

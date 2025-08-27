@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Layout } from '../components/layout/Layout'
+import Layout from '../components/layout/Layout'
 import PricingPage from '../components/PricingPage'
 
 export default function Pricing() {
@@ -64,7 +64,7 @@ export default function Pricing() {
                 {
                   "@type": "Offer",
                   "name": "Professional Plan",
-                  "price": "149.00",
+                  "price": "129.00",
                   "priceCurrency": "USD",
                   "priceValidUntil": "2025-12-31",
                   "availability": "https://schema.org/InStock",

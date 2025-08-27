@@ -333,8 +333,18 @@ async function getUserByStripeCustomerId(stripeCustomerId: string): Promise<User
     return {
       id: 'usr_test_123',
       email: 'test@directorybolt.com',
-      subscription_tier: 'pro',
-      stripe_customer_id: stripeCustomerId
+      password_hash: 'hashed',
+      full_name: 'Test User',
+      company_name: 'Test Company',
+      subscription_tier: 'professional',
+      credits_remaining: 50,
+      is_verified: true,
+      failed_login_attempts: 0,
+      stripe_customer_id: stripeCustomerId,
+      created_at: new Date('2024-01-01'),
+      updated_at: new Date(),
+      directories_used_this_period: 25,
+      directory_limit: 100
     } as User
   }
   
@@ -361,13 +371,13 @@ async function updateUserSubscription(userId: string, updates: Partial<User>): P
 }
 
 // Utility functions
-function getSubscriptionTier(priceId: string): 'free' | 'pro' | 'enterprise' {
+function getSubscriptionTier(priceId: string): 'free' | 'starter' | 'growth' | 'professional' | 'enterprise' {
   // Map Stripe price IDs to subscription tiers
-  const tierMap: Record<string, 'free' | 'pro' | 'enterprise'> = {
-    'price_pro_monthly': 'pro',
-    'price_pro_yearly': 'pro',
-    'price_enterprise_monthly': 'enterprise',
-    'price_enterprise_yearly': 'enterprise'
+  const tierMap: Record<string, 'free' | 'starter' | 'growth' | 'professional' | 'enterprise'> = {
+    [process.env.STRIPE_STARTER_PRICE_ID || 'price_starter_monthly']: 'starter',
+    [process.env.STRIPE_GROWTH_PRICE_ID || 'price_growth_monthly']: 'growth', 
+    [process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional_monthly']: 'professional',
+    [process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise_monthly']: 'enterprise'
   }
   
   return tierMap[priceId] || 'free'

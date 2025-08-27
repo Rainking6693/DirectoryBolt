@@ -132,6 +132,7 @@ async function handleCreateCheckout(
       currency: 'usd',
       status: 'pending',
       description: `Purchase of ${packageDetails.name}`,
+      payment_type: 'credits', // One-time credit purchase
       credits_purchased: packageDetails.credits,
       payment_method_type: 'card' // Will be updated after payment
     }
@@ -273,13 +274,16 @@ async function getUserById(userId: string): Promise<User | null> {
       password_hash: 'hashed',
       full_name: 'Test User',
       company_name: 'Test Company',
-      subscription_tier: 'pro',
+      subscription_tier: 'professional',
       credits_remaining: 25,
       is_verified: true,
       failed_login_attempts: 0,
       stripe_customer_id: undefined, // Will be created
       created_at: new Date('2024-01-01'),
       updated_at: new Date(),
+      // New required fields
+      directories_used_this_period: 10,
+      directory_limit: 100
     } as User
   }
   

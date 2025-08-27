@@ -260,12 +260,15 @@ async function findUserByEmail(email: string): Promise<User | null> {
       password_hash: 'hashed_password_123',
       full_name: 'Test User',
       company_name: 'Test Company',
-      subscription_tier: 'pro',
+      subscription_tier: 'professional',
       credits_remaining: 50,
       is_verified: true,
       failed_login_attempts: 0,
       created_at: new Date('2024-01-01'),
       updated_at: new Date(),
+      // New subscription-related fields
+      directories_used_this_period: 15,
+      directory_limit: 100
     } as User
   }
   

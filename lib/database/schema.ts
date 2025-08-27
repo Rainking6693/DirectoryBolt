@@ -7,7 +7,7 @@ export interface User {
   password_hash: string // bcrypt hashed
   full_name: string
   company_name?: string
-  subscription_tier: 'free' | 'pro' | 'enterprise'
+  subscription_tier: 'free' | 'starter' | 'growth' | 'professional' | 'enterprise'
   credits_remaining: number
   is_verified: boolean
   created_at: Date
@@ -21,11 +21,28 @@ export interface User {
   password_reset_expires?: Date
   verification_token?: string
   
-  // Billing & Payments
+  // Billing & Payments - Enhanced for new subscription system
   stripe_customer_id?: string
   subscription_id?: string
-  subscription_status?: 'active' | 'cancelled' | 'past_due'
+  subscription_status?: 'active' | 'trialing' | 'past_due' | 'cancelled' | 'unpaid' | 'incomplete' | 'incomplete_expired'
   trial_ends_at?: Date
+  current_period_start?: Date
+  current_period_end?: Date
+  cancel_at_period_end?: boolean
+  cancelled_at?: Date
+  
+  // Usage Tracking for Directory Submissions
+  directories_used_this_period: number
+  directory_limit: number // Based on subscription tier
+  billing_period_reset_at?: Date
+  
+  // Portal & Customer Management
+  last_portal_access_at?: Date
+  subscription_created_at?: Date
+  
+  // Upgrade/Downgrade Tracking
+  pending_plan_change?: 'starter' | 'growth' | 'professional' | 'enterprise'
+  plan_change_effective_at?: Date
 }
 
 export interface Directory {
@@ -124,19 +141,59 @@ export interface ScrapingJob {
   updated_at: Date
 }
 
-export interface Payment {
+export interface Subscription {
   id: string // UUID primary key
   user_id: string // Foreign key to User
   
   // Stripe Integration
+  stripe_subscription_id: string
+  stripe_customer_id: string
+  stripe_price_id: string
+  
+  // Subscription Details
+  tier: 'starter' | 'growth' | 'professional' | 'enterprise'
+  status: 'active' | 'trialing' | 'past_due' | 'cancelled' | 'unpaid' | 'incomplete' | 'incomplete_expired'
+  current_period_start: Date
+  current_period_end: Date
+  
+  // Trial Information
+  trial_start?: Date
+  trial_end?: Date
+  
+  // Cancellation
+  cancel_at_period_end: boolean
+  canceled_at?: Date
+  ended_at?: Date
+  
+  // Plan Changes
+  pending_plan_change?: string
+  plan_change_proration_amount?: number
+  
+  // Usage Tracking
+  directory_limit: number
+  directories_used_current_period: number
+  period_reset_count: number
+  
+  created_at: Date
+  updated_at: Date
+}
+
+export interface Payment {
+  id: string // UUID primary key
+  user_id: string // Foreign key to User
+  subscription_id?: string // Foreign key to Subscription
+  
+  // Stripe Integration
   stripe_payment_intent_id: string
   stripe_charge_id?: string
+  stripe_invoice_id?: string
   
   // Payment Details
   amount: number // In cents
   currency: string // ISO currency code
   status: PaymentStatus
   description: string
+  payment_type: 'subscription' | 'one_time' | 'credits'
   
   // Associated Records
   submission_ids?: string[] // Array of submission IDs this payment covers
@@ -145,7 +202,11 @@ export interface Payment {
   // Metadata
   payment_method_type: string // card, bank_transfer, etc.
   receipt_url?: string
-  invoice_id?: string
+  invoice_pdf_url?: string
+  
+  // Billing Period
+  period_start?: Date
+  period_end?: Date
   
   created_at: Date
   updated_at: Date
@@ -246,9 +307,22 @@ export type ApiPermission =
 export const DATABASE_INDEXES = {
   users: [
     { fields: ['email'], unique: true },
-    { fields: ['stripe_customer_id'] },
+    { fields: ['stripe_customer_id'], unique: true },
+    { fields: ['subscription_id'] },
     { fields: ['created_at'] },
-    { fields: ['subscription_tier', 'is_verified'] }
+    { fields: ['subscription_tier', 'is_verified'] },
+    { fields: ['subscription_status'] },
+    { fields: ['current_period_end'] },
+    { fields: ['trial_ends_at'] }
+  ],
+  subscriptions: [
+    { fields: ['user_id'], unique: true },
+    { fields: ['stripe_subscription_id'], unique: true },
+    { fields: ['stripe_customer_id'] },
+    { fields: ['tier', 'status'] },
+    { fields: ['status', 'current_period_end'] },
+    { fields: ['trial_end'] },
+    { fields: ['cancel_at_period_end', 'current_period_end'] }
   ],
   directories: [
     { fields: ['url'], unique: true },
@@ -269,8 +343,11 @@ export const DATABASE_INDEXES = {
   ],
   payments: [
     { fields: ['user_id', 'created_at'] },
+    { fields: ['subscription_id'] },
     { fields: ['stripe_payment_intent_id'], unique: true },
-    { fields: ['status'] }
+    { fields: ['stripe_invoice_id'] },
+    { fields: ['status'] },
+    { fields: ['payment_type', 'status'] }
   ]
 } as const
 

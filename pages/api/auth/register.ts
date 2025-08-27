@@ -136,7 +136,10 @@ async function handleRegister(
     failed_login_attempts: 0,
     verification_token: verificationToken,
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
+    // New subscription-related fields
+    directories_used_this_period: 0,
+    directory_limit: 5 // Free tier limit
   }
   
   // Save user to database

@@ -4,41 +4,18 @@ import { useRouter } from 'next/router'
 
 const PRICING_TIERS = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    period: 'forever',
-    description: 'Perfect for testing the waters',
-    features: [
-      '5 directory submissions',
-      'Basic website analysis', 
-      'Email support',
-      'Monthly reporting',
-      '1 website only'
-    ],
-    limitations: [
-      'No AI optimization',
-      'Standard support',
-      'Limited directories'
-    ],
-    cta: 'Get Started Free',
-    highlight: false,
-    stripePackage: null,
-    badge: null
-  },
-  {
     id: 'starter',
     name: 'Starter',
     price: 49,
     period: 'month',
-    description: 'Great for small businesses',
+    description: 'Perfect for small businesses getting started',
     features: [
-      '25 premium directories',
+      '25 directory submissions per month',
       'Basic website analysis',
       'Email support',
       'Monthly reporting',
-      '3 websites included',
-      'Success tracking'
+      'Standard processing speed',
+      '14-day free trial'
     ],
     limitations: [],
     cta: 'Start Free Trial',
@@ -47,48 +24,67 @@ const PRICING_TIERS = [
     badge: 'POPULAR'
   },
   {
-    id: 'professional',
-    name: 'Professional', 
-    price: 149,
+    id: 'growth',
+    name: 'Growth',
+    price: 79,
     period: 'month',
-    description: 'AI-powered optimization for serious growth',
+    description: 'Most popular for growing businesses',
     features: [
-      '100+ premium directories',
-      'AI-powered optimization',
-      'Success rate predictions',
-      '10 optimized descriptions per directory',
-      'Competitor analysis',
-      'Priority phone support',
-      '10 websites included',
-      'Advanced analytics',
-      'Custom reporting'
+      '50 directory submissions per month',
+      'Advanced analytics & reporting',
+      'Priority email support',
+      'Faster processing',
+      'Bulk submission tools',
+      '14-day free trial',
+      'Success tracking dashboard'
     ],
     limitations: [],
-    cta: 'Start Pro Trial',
+    cta: 'Start Free Trial',
     highlight: true,
-    stripePackage: 'professional',
+    stripePackage: 'growth',
     badge: 'MOST POPULAR'
+  },
+  {
+    id: 'professional',
+    name: 'Professional', 
+    price: 129,
+    period: 'month',
+    description: 'Advanced features for serious growth',
+    features: [
+      '100+ directory submissions per month',
+      'Premium analytics & custom reports',
+      'Phone & email support',
+      'Priority processing',
+      'API access for integrations',
+      'Custom submission workflows',
+      '14-day free trial',
+      'Advanced success metrics'
+    ],
+    limitations: [],
+    cta: 'Start Free Trial',
+    highlight: false,
+    stripePackage: 'professional',
+    badge: null
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 399,
+    price: 299,
     period: 'month', 
-    description: 'White-label solution for agencies',
+    description: 'Complete solution for agencies & enterprises',
     features: [
-      '500+ premium directories',
-      'Unlimited websites',
-      'White-label branding',
-      'Team collaboration tools',
-      'Advanced analytics dashboard',
-      'API access',
+      '500+ directory submissions per month',
+      'Enterprise analytics & custom dashboards',
       'Dedicated account manager',
-      'Custom integrations',
-      'Priority onboarding',
-      'SLA guarantees'
+      'White-label branding options',
+      'Full API access & webhooks',
+      'Custom integrations & workflows',
+      'SLA guarantees & priority support',
+      '14-day free trial',
+      'Team collaboration tools'
     ],
     limitations: [],
-    cta: 'Contact Sales',
+    cta: 'Start Free Trial',
     highlight: false,
     stripePackage: 'enterprise',
     badge: 'ENTERPRISE'
@@ -107,31 +103,22 @@ export default function PricingPage() {
   }, [])
 
   const handleSelectPlan = async (tier) => {
-    if (tier.id === 'free') {
-      router.push('/analyze')
-      return
-    }
-
-    if (tier.id === 'enterprise') {
-      // Open contact form or redirect to sales
-      window.open('mailto:sales@directorybolt.com?subject=Enterprise Plan Inquiry', '_blank')
-      return
-    }
-
     setIsLoading(true)
     setSelectedTier(tier.id)
 
     try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/payments/create-checkout', {
+      // Create Stripe checkout session for subscription
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          package: tier.stripePackage,
-          success_url: `${window.location.origin}/success`,
-          cancel_url: `${window.location.origin}/pricing`
+          plan: tier.stripePackage,
+          user_email: 'test@directorybolt.com', // TODO: Get from auth context
+          user_id: 'user_123', // TODO: Get from auth context
+          success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${window.location.origin}/pricing?cancelled=true`
         }),
       })
 
@@ -141,7 +128,7 @@ export default function PricingPage() {
         // Redirect to Stripe Checkout
         window.location.href = data.data.checkout_session.url
       } else {
-        throw new Error('Failed to create checkout session')
+        throw new Error(data.error?.message || 'Failed to create checkout session')
       }
     } catch (error) {
       console.error('Checkout error:', error)
