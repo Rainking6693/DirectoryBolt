@@ -299,7 +299,7 @@ export class DirectoryMigration {
     }
   }
 
-  private async generateStatistics(): Promise<any> {
+  async generateStatistics(): Promise<any> {
     try {
       const { data: allDirectories, error } = await this.supabase
         .from('directories')
@@ -426,5 +426,4 @@ export async function runDirectoryMigration(options: MigrationOptions = {}): Pro
   await migration.runMigration(options);
 }
 
-// Export for use in other parts of the application
-export { DirectoryMigration };
+// DirectoryMigration class is already exported above on line 15

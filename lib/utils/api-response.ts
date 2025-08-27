@@ -804,3 +804,32 @@ export class AnalysisResponseTransformer {
     return Math.floor((opportunity.authority || 50) * 0.5 + (opportunity.estimatedTraffic || 1000) * 0.001)
   }
 }
+
+// Simplified API response creator function for backward compatibility
+export function createApiResponse(
+  success: boolean,
+  message: string,
+  data: any = null,
+  errors: string[] | null = null,
+  stats: any = null
+): any {
+  const response: any = {
+    success,
+    message,
+    timestamp: new Date().toISOString()
+  }
+
+  if (data !== null) {
+    response.data = data
+  }
+
+  if (stats !== null) {
+    response.stats = stats
+  }
+
+  if (errors && errors.length > 0) {
+    response.errors = errors
+  }
+
+  return response
+}
