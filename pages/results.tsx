@@ -198,8 +198,100 @@ export default function ResultsPage() {
   return (
     <>
       <Head>
-        <title>Analysis Results - DirectoryBolt</title>
-        <meta name="description" content="Your personalized directory recommendations and business analysis results." />
+        <title>Website Analysis Results - DirectoryBolt | Personalized Directory Recommendations</title>
+        <meta name="description" content="Your personalized directory recommendations and business analysis results. Discover the best directories for your business with AI-powered insights and optimization suggestions." />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="canonical" href="https://directorybolt.com/results" />
+        
+        {/* Additional SEO Meta Tags */}
+        <meta name="keywords" content="analysis results, directory recommendations, business analysis results, website audit results, SEO analysis results, directory opportunities, business visibility report" />
+        <meta name="author" content="DirectoryBolt" />
+        <meta name="publisher" content="DirectoryBolt" />
+        <meta name="copyright" content="DirectoryBolt" />
+        <meta name="language" content="English" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Website Analysis Results - Personalized Directory Recommendations" />
+        <meta property="og:description" content="Get your personalized directory recommendations and business analysis results with AI-powered insights." />
+        <meta property="og:image" content="https://directorybolt.com/images/results-og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content="https://directorybolt.com/results" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="DirectoryBolt" />
+        
+        {/* Twitter Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Website Analysis Results - DirectoryBolt" />
+        <meta name="twitter:description" content="Your personalized directory recommendations and business analysis results." />
+        <meta name="twitter:image" content="https://directorybolt.com/images/results-twitter-card.jpg" />
+        <meta name="twitter:creator" content="@DirectoryBolt" />
+        <meta name="twitter:site" content="@DirectoryBolt" />
+        
+        {/* Mobile Optimization */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#f59e0b" />
+        <meta name="msapplication-TileColor" content="#f59e0b" />
+        
+        {/* Dynamic Structured Data based on results */}
+        {results && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org/",
+                "@type": "WebPage",
+                "name": "Analysis Results - DirectoryBolt",
+                "description": "Personalized directory recommendations and business analysis results.",
+                "url": "https://directorybolt.com/results",
+                "breadcrumb": {
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://directorybolt.com/"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "Analyze",
+                      "item": "https://directorybolt.com/analyze"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 3,
+                      "name": "Results",
+                      "item": "https://directorybolt.com/results"
+                    }
+                  ]
+                },
+                "mainEntity": {
+                  "@type": "AnalysisReport",
+                  "name": `Analysis Report for ${results.aiAnalysis?.businessProfile?.name || results.title || 'Business'}`,
+                  "description": "Comprehensive website analysis report with directory recommendations",
+                  "author": {
+                    "@type": "Organization",
+                    "name": "DirectoryBolt"
+                  },
+                  "datePublished": new Date().toISOString(),
+                  "about": {
+                    "@type": "WebSite",
+                    "name": results.aiAnalysis?.businessProfile?.name || results.title || 'Business Website',
+                    "url": results.url
+                  }
+                }
+              })
+            }}
+          />
+        )}
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900">
@@ -243,6 +335,9 @@ export default function ResultsPage() {
             </p>
             
             {/* Enhanced Key Metrics */}
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-white">
+              Your Website Metrics
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
                 <div className="text-3xl font-black text-volt-400 mb-2">{results.visibility}%</div>
@@ -448,6 +543,9 @@ export default function ResultsPage() {
               <span className="text-volt-400 font-bold"> maximum results</span>.
             </p>
             
+            <h3 className="text-xl font-bold text-center mb-6 text-volt-400">
+              Premium Features Include
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
                 <div className="text-4xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || 100}+</div>

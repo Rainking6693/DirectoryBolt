@@ -42,6 +42,9 @@ export default function LandingPage() {
 
           {/* Agitation - Pain Points */}
           <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-danger-400">
+              Common Problems Businesses Face
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
               <div className="bg-gradient-to-br from-danger-900/50 to-danger-800/30 p-6 rounded-xl border border-danger-700/50 backdrop-blur-sm">
                 <div className="text-4xl mb-4">😱</div>
@@ -75,6 +78,12 @@ export default function LandingPage() {
               <p className="text-lg md:text-xl text-secondary-200">
                 Submit your business to <strong className="text-volt-400">500+ directories</strong> in minutes, not months
               </p>
+              <div className="mt-6">
+                <h3 className="text-xl font-bold text-volt-300 mb-3">AI-Powered Optimization</h3>
+                <p className="text-secondary-200">
+                  Our intelligent system analyzes your business and creates optimized listings for maximum visibility and conversion rates.
+                </p>
+              </div>
             </div>
           </div>
 

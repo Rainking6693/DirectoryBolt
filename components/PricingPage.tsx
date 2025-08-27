@@ -229,10 +229,14 @@ export default function PricingPage() {
           </div>
 
           {/* Value Proposition Cards */}
-          <div className="animate-slide-up grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto" style={{ animationDelay: '0.3s' }}>
-            <div className="bg-gradient-to-br from-success-900/50 to-success-800/30 p-6 rounded-xl border border-success-600/50 backdrop-blur-sm">
-              <div className="text-4xl mb-4">⏱️</div>
-              <h3 className="text-lg font-bold text-success-300 mb-2">Save 40+ Hours Monthly</h3>
+          <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-white">
+              Why Choose DirectoryBolt
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
+              <div className="bg-gradient-to-br from-success-900/50 to-success-800/30 p-6 rounded-xl border border-success-600/50 backdrop-blur-sm">
+                <div className="text-4xl mb-4">⏱️</div>
+                <h3 className="text-lg font-bold text-success-300 mb-2">Save 40+ Hours Monthly</h3>
               <p className="text-sm text-secondary-300">Automated directory submissions vs manual work</p>
             </div>
             
@@ -246,6 +250,7 @@ export default function PricingPage() {
               <div className="text-4xl mb-4">🎯</div>
               <h3 className="text-lg font-bold text-success-300 mb-2">Results in 30 Days</h3>
               <p className="text-sm text-secondary-300">Or your money back - guaranteed</p>
+            </div>
             </div>
           </div>
 
@@ -286,6 +291,9 @@ export default function PricingPage() {
       {/* Pricing Cards Section */}
       <section className="px-4 pb-16">
         <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-white">
+            Choose Your Plan
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
             {pricingTiers.map((tier, index) => {
               const roi = calculateROI(tier)

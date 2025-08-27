@@ -141,8 +141,126 @@ export default function AnalyzePage() {
   return (
     <>
       <Head>
-        <title>Analyze Your Website - DirectoryBolt</title>
-        <meta name="description" content="Get AI-powered directory recommendations for your website. Analyze your business profile and discover the best directories for maximum visibility." />
+        <title>Free Website Analysis - DirectoryBolt | AI-Powered Directory Recommendations</title>
+        <meta name="description" content="Get AI-powered directory recommendations for your website. Analyze your business profile and discover the best directories for maximum visibility. Free analysis in 30 seconds." />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="canonical" href="https://directorybolt.com/analyze" />
+        
+        {/* Additional SEO Meta Tags */}
+        <meta name="keywords" content="website analysis, directory recommendations, business analysis, AI website analyzer, free website audit, directory submission analysis, local SEO analysis, business visibility check" />
+        <meta name="author" content="DirectoryBolt" />
+        <meta name="publisher" content="DirectoryBolt" />
+        <meta name="copyright" content="DirectoryBolt" />
+        <meta name="language" content="English" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Free Website Analysis - Get AI Directory Recommendations" />
+        <meta property="og:description" content="Analyze your website and get personalized directory recommendations. Free AI-powered analysis in 30 seconds." />
+        <meta property="og:image" content="https://directorybolt.com/images/analyze-og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content="https://directorybolt.com/analyze" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="DirectoryBolt" />
+        
+        {/* Twitter Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free Website Analysis - DirectoryBolt" />
+        <meta name="twitter:description" content="Get AI-powered directory recommendations for your business. Free analysis in 30 seconds." />
+        <meta name="twitter:image" content="https://directorybolt.com/images/analyze-twitter-card.jpg" />
+        <meta name="twitter:creator" content="@DirectoryBolt" />
+        <meta name="twitter:site" content="@DirectoryBolt" />
+        
+        {/* Mobile Optimization */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#f59e0b" />
+        <meta name="msapplication-TileColor" content="#f59e0b" />
+        
+        {/* Structured Data - WebPage */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "WebPage",
+              "name": "Free Website Analysis - DirectoryBolt",
+              "description": "Get AI-powered directory recommendations for your website. Analyze your business profile and discover the best directories for maximum visibility.",
+              "url": "https://directorybolt.com/analyze",
+              "breadcrumb": {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://directorybolt.com/"
+                  },
+                  {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Analyze",
+                    "item": "https://directorybolt.com/analyze"
+                  }
+                ]
+              },
+              "mainEntity": {
+                "@type": "SoftwareApplication",
+                "name": "Website Analysis Tool",
+                "applicationCategory": "Business Software",
+                "operatingSystem": "Web Browser",
+                "description": "AI-powered website analysis tool that provides directory recommendations and business insights.",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD"
+                }
+              }
+            })
+          }}
+        />
+        
+        {/* FAQ Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "How long does the website analysis take?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Our AI-powered website analysis takes approximately 30 seconds to complete and provides personalized directory recommendations."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is the website analysis free?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, our website analysis tool is completely free and provides valuable insights about directory submission opportunities."
+                  }
+                },
+                {
+                  "@type": "Question", 
+                  "name": "What information does the analysis provide?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The analysis provides your website's visibility score, SEO score, directory opportunities, potential leads, and AI-powered recommendations for the best directories to submit to."
+                  }
+                }
+              ]
+            })
+          }}
+        />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 relative overflow-hidden">
@@ -189,6 +307,9 @@ export default function AnalyzePage() {
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-volt-500/30 p-8 max-w-2xl mx-auto shadow-2xl hover:shadow-volt-500/20 transition-all duration-500">
                 <form onSubmit={handleAnalyze} className="space-y-6">
                   <div>
+                    <h2 className="text-2xl font-bold text-volt-400 mb-6 text-center">
+                      Enter Your Website Details
+                    </h2>
                     <label htmlFor="url" className="block text-left text-lg font-bold text-volt-400 mb-3">
                       🌐 Website URL
                     </label>
@@ -261,6 +382,9 @@ export default function AnalyzePage() {
               </p>
 
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-volt-500/30 p-8 max-w-2xl mx-auto shadow-2xl">
+                <h2 className="text-2xl font-bold text-volt-400 mb-6 text-center">
+                  Analysis Progress
+                </h2>
                 {/* Enhanced Progress Bar */}
                 <div className="mb-8">
                   <div className="flex justify-between text-sm text-secondary-300 mb-3">
