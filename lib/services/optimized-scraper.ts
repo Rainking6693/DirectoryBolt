@@ -360,7 +360,7 @@ export class OptimizedScraper {
       }
 
       // Retry logic
-      if (errorResult.error.retryable && job.retryCount! < this.config.maxRetries) {
+      if (errorResult.error?.retryable && job.retryCount! < this.config.maxRetries) {
         job.retryCount = (job.retryCount || 0) + 1
         
         // Exponential backoff
@@ -444,12 +444,15 @@ export class OptimizedScraper {
       const size = Buffer.byteLength(html, 'utf8')
       this.stats.total.bytes += size
 
+      // Convert axios headers to safe Record<string, string>
+      const safeHeaders = this.normalizeHeaders(response.headers)
+
       return {
         success: response.status >= 200 && response.status < 400,
         url: job.url,
         finalUrl: response.request.res?.responseUrl || job.url,
         statusCode: response.status,
-        headers: response.headers,
+        headers: safeHeaders,
         html,
         redirectChain: redirectChain.length > 0 ? redirectChain : undefined,
         timing: {
@@ -462,10 +465,10 @@ export class OptimizedScraper {
         cache: { hit: false },
         metadata: {
           size,
-          encoding: this.detectEncoding(response.headers),
-          contentType: response.headers['content-type'],
-          lastModified: response.headers['last-modified'],
-          etag: response.headers['etag']
+          encoding: this.detectEncoding(safeHeaders),
+          contentType: safeHeaders['content-type'],
+          lastModified: safeHeaders['last-modified'],
+          etag: safeHeaders['etag']
         }
       }
 
@@ -634,6 +637,20 @@ export class OptimizedScraper {
     } catch {
       return ['scraping', 'invalid-url']
     }
+  }
+
+  private normalizeHeaders(headers: any): Record<string, string> {
+    const normalized: Record<string, string> = {}
+    
+    if (headers && typeof headers === 'object') {
+      for (const [key, value] of Object.entries(headers)) {
+        if (value !== undefined && value !== null) {
+          normalized[key.toLowerCase()] = String(value)
+        }
+      }
+    }
+    
+    return normalized
   }
 
   private detectEncoding(headers: Record<string, string>): string {
