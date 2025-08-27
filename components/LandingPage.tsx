@@ -1,10 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { InteractiveDemo } from './InteractiveDemo'
 import { WebsiteAnalyzer } from './WebsiteAnalyzer'
 import { DirectorySelector } from './DirectorySelector'
 
 export default function LandingPage() {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState<'hero' | 'pricing' | 'demo' | 'analyzer' | 'selector'>('hero')
   const [isVisible, setIsVisible] = useState(false)
 
@@ -80,7 +82,7 @@ export default function LandingPage() {
           <div className="animate-zoom-in" style={{ animationDelay: '0.9s' }}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button 
-                onClick={() => setCurrentStep('pricing')}
+                onClick={() => router.push('/analyze')}
                 className="group relative px-10 py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
               >
                 <span className="relative z-10">🚀 Start Free Trial - $49/mo</span>
@@ -88,7 +90,7 @@ export default function LandingPage() {
               </button>
               
               <button 
-                onClick={() => setCurrentStep('analyzer')}
+                onClick={() => router.push('/analyze')}
                 className="px-8 py-4 border-2 border-volt-500 text-volt-500 font-bold text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300"
               >
                 ⚡ Free Analysis First
@@ -197,7 +199,10 @@ export default function LandingPage() {
                     </div>
                   </div>
                   
-                  <button className="w-full py-3 bg-secondary-700 text-white font-bold rounded-lg hover:bg-secondary-600 transition-colors">
+                  <button 
+                    onClick={() => router.push('/analyze')}
+                    className="w-full py-3 bg-secondary-700 text-white font-bold rounded-lg hover:bg-secondary-600 transition-colors"
+                  >
                     Start Free Trial
                   </button>
                 </div>
@@ -256,7 +261,10 @@ export default function LandingPage() {
                     </div>
                   </div>
                   
-                  <button className="w-full py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg rounded-lg hover:from-volt-400 hover:to-volt-500 transition-all">
+                  <button 
+                    onClick={() => router.push('/analyze')}
+                    className="w-full py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg rounded-lg hover:from-volt-400 hover:to-volt-500 transition-all"
+                  >
                     Start Pro Trial 🚀
                   </button>
                 </div>
@@ -309,7 +317,10 @@ export default function LandingPage() {
                     </div>
                   </div>
                   
-                  <button className="w-full py-3 bg-secondary-700 text-white font-bold rounded-lg hover:bg-secondary-600 transition-colors">
+                  <button 
+                    onClick={() => router.push('/analyze')}
+                    className="w-full py-3 bg-secondary-700 text-white font-bold rounded-lg hover:bg-secondary-600 transition-colors"
+                  >
                     Contact Sales
                   </button>
                 </div>
@@ -327,7 +338,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <button 
-                    onClick={() => setCurrentStep('analyzer')}
+                    onClick={() => router.push('/analyze')}
                     className="px-8 py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300"
                   >
                     Start Free Analysis
@@ -393,7 +404,7 @@ export default function LandingPage() {
         </button>
         
         <button 
-          onClick={() => setCurrentStep('analyzer')}
+          onClick={() => router.push('/analyze')}
           className="w-12 h-12 bg-secondary-700 hover:bg-secondary-600 text-volt-400 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center font-bold"
           title="Free Analysis"
         >
