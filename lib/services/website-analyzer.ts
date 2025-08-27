@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import * as cheerio from 'cheerio'
 import { logger } from '../utils/logger'
 import { DirectoryDatabase } from '../database/directories'
+import { AI, AIAnalysisResult, BusinessProfile } from './ai-service'
 
 export interface WebsiteAnalyzerConfig {
   timeout: number
@@ -54,6 +55,16 @@ export interface AnalysisResult {
   issues: AnalysisIssue[]
   recommendations: AnalysisRecommendation[]
   directoryOpportunities: DirectoryOpportunity[]
+  // AI-Enhanced Fields
+  aiAnalysis?: AIAnalysisResult
+  businessProfile?: BusinessProfile
+  aiConfidence?: number
+  smartRecommendations?: Array<{
+    directory: string
+    reasoning: string
+    optimizedDescription: string
+    successProbability: number
+  }>
 }
 
 export class WebsiteAnalyzer {
@@ -101,6 +112,45 @@ export class WebsiteAnalyzer {
       const issues = this.generateIssues($, currentListings, seoScore)
       const recommendations = this.generateRecommendations(issues, directoryOpportunities)
 
+      // 🚀 AI-Enhanced Analysis (if enabled)
+      let aiAnalysis: AIAnalysisResult | undefined
+      let businessProfile: BusinessProfile | undefined
+      let smartRecommendations: any[] | undefined
+
+      if (AI.isEnabled()) {
+        try {
+          logger.info('Starting AI-powered analysis', { metadata: { url } })
+          
+          // Get all available directories for AI analysis
+          const allDirectories = await this.directoryDb.getDirectories({ limit: 100 })
+          
+          // Run AI analysis
+          aiAnalysis = await AI.analyzeWebsite(url, websiteData.html, allDirectories)
+          businessProfile = aiAnalysis.businessProfile
+          
+          // Transform AI recommendations to our format
+          smartRecommendations = aiAnalysis.recommendations.map(rec => ({
+            directory: rec.name,
+            reasoning: rec.reasoning,
+            optimizedDescription: rec.optimizedDescription,
+            successProbability: rec.successProbability
+          }))
+
+          logger.info('AI analysis completed successfully', {
+            metadata: {
+              url,
+              category: businessProfile.category,
+              confidence: aiAnalysis.confidence,
+              recommendationCount: smartRecommendations.length
+            }
+          })
+        } catch (error) {
+          logger.warn('AI analysis failed, continuing with basic analysis', {
+            metadata: { url, error }
+          })
+        }
+      }
+
       const result: AnalysisResult = {
         url,
         title,
@@ -113,7 +163,12 @@ export class WebsiteAnalyzer {
         seoScore,
         issues,
         recommendations,
-        directoryOpportunities
+        directoryOpportunities,
+        // AI-Enhanced Fields
+        aiAnalysis,
+        businessProfile,
+        aiConfidence: aiAnalysis?.confidence,
+        smartRecommendations
       }
 
       logger.info(`Website analysis completed for: ${url}`, {

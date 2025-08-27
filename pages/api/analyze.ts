@@ -50,6 +50,29 @@ export interface AnalysisResponse {
       submissionDifficulty: string
       cost: number
     }>
+    // 🚀 AI-Enhanced Fields (Pro Feature)
+    aiAnalysis?: {
+      businessProfile?: {
+        name: string
+        category: string
+        industry: string
+        targetAudience: string[]
+        businessModel: string
+      }
+      smartRecommendations?: Array<{
+        directory: string
+        reasoning: string
+        successProbability: number
+        optimizedDescription: string
+      }>
+      insights?: {
+        marketPosition: string
+        competitiveAdvantages: string[]
+        improvementSuggestions: string[]
+        successFactors: string[]
+      }
+      confidence?: number
+    }
   }
   error?: string
   requestId?: string
@@ -142,10 +165,27 @@ export default async function handler(
       }
     })
 
+    // Prepare response data with AI enhancements
+    const responseData = {
+      ...analysisResult,
+      aiAnalysis: analysisResult.aiAnalysis ? {
+        businessProfile: analysisResult.businessProfile ? {
+          name: analysisResult.businessProfile.name,
+          category: analysisResult.businessProfile.category,
+          industry: analysisResult.businessProfile.industry,
+          targetAudience: analysisResult.businessProfile.targetAudience,
+          businessModel: analysisResult.businessProfile.businessModel
+        } : undefined,
+        smartRecommendations: analysisResult.smartRecommendations,
+        insights: analysisResult.aiAnalysis.insights,
+        confidence: analysisResult.aiConfidence
+      } : undefined
+    }
+
     // Return successful response
     return res.status(200).json({
       success: true,
-      data: analysisResult,
+      data: responseData,
       requestId
     })
 
