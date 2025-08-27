@@ -124,20 +124,20 @@ async function handleLogin(
   const passwordValid = await verifyPassword(data.password, user.password_hash)
   if (!passwordValid) {
     // Increment failed login attempts
-    await incrementFailedLoginAttempts(user.id, user.email)
+    await incrementFailedLoginAttempts(user.id, user.email, requestId)
     await logLoginAttempt(user.email, clientIp, userAgent, false, 'INVALID_PASSWORD')
     throw Errors.invalidCredentials()
   }
   
   // Reset failed login attempts on successful authentication
-  await resetFailedLoginAttempts(user.id)
+  await resetFailedLoginAttempts(user.id, requestId)
   
   // Generate tokens
   const accessToken = generateAccessToken(user)
   const refreshToken = generateRefreshToken(user)
   
   // Update user login timestamp
-  await updateLastLogin(user.id, clientIp)
+  await updateLastLogin(user.id, clientIp, requestId)
   
   // Create session record
   const session = {
@@ -146,7 +146,7 @@ async function handleLogin(
     ip_address: clientIp
   }
   
-  await saveSession(user.id, session, accessToken, refreshToken)
+  await saveSession(user.id)
   
   // Log successful login
   await logLoginAttempt(user.email, clientIp, userAgent, true, 'SUCCESS')
@@ -207,7 +207,7 @@ function checkIpRateLimit(key: string): boolean {
   return true
 }
 
-async function incrementFailedLoginAttempts(userId: string, email: string): Promise<void> {
+async function incrementFailedLoginAttempts(userId: string, email: string, requestId: string): Promise<void> {
   // TODO: Implement database update
   // const user = await db.users.update({
   //   where: { id: userId },
@@ -239,7 +239,7 @@ async function incrementFailedLoginAttempts(userId: string, email: string): Prom
   })
 }
 
-async function resetFailedLoginAttempts(userId: string): Promise<void> {
+async function resetFailedLoginAttempts(userId: string, requestId: string): Promise<void> {
   // TODO: Implement database update
   // await db.users.update({
   //   where: { id: userId },
@@ -294,7 +294,7 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
   return password === 'test123' && hash === 'hashed_password_123'
 }
 
-async function updateLastLogin(userId: string, ipAddress: string): Promise<void> {
+async function updateLastLogin(userId: string, ipAddress: string, requestId: string): Promise<void> {
   // TODO: Implement database update
   // await db.users.update({
   //   where: { id: userId },
