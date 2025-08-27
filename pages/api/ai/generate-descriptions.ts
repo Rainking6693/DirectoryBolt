@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { rateLimit } from '../../../lib/utils/rate-limit'
-import { validateUrl, sanitizeInput } from '../../../lib/utils/validation'
 import { logger } from '../../../lib/utils/logger'
 import { AI, BusinessProfile } from '../../../lib/services/ai-service'
-import { Errors } from '../../../lib/utils/errors'
 
 // Rate limiting for premium AI features
 const limiter = rateLimit({

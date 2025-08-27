@@ -11,7 +11,6 @@ import { handleApiError } from '../../lib/utils/errors'
 
 // Enhanced configuration
 const ANALYSIS_VERSION = '2.0.0'
-const MAX_PROCESSING_TIME = 5 * 60 * 1000 // 5 minutes
 
 export interface AnalysisRequest {
   url: string

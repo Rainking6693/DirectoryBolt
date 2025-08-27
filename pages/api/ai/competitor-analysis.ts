@@ -115,7 +115,7 @@ export default async function handler(
     // Filter and enhance results based on user tier
     let competitors = analysis.competitors || []
     let marketGaps = analysis.marketGaps || []
-    let positioningAdvice = analysis.positioningAdvice || ''
+    const positioningAdvice = analysis.positioningAdvice || ''
 
     if (userTier === 'pro') {
       // Pro tier gets top 5 competitors

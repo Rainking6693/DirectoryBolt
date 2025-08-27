@@ -30,6 +30,7 @@
     "seo:test:ci": "NODE_ENV=production VERBOSE=false node tests/seo-comprehensive-test-runner.js"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^15.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "@types/node": "^20.16.10",
     "@types/react": "^18.3.11",
@@ -37,6 +38,7 @@
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0",
+    "critters": "^0.0.23",
     "isomorphic-dompurify": "^2.15.0",
     "jsonwebtoken": "^9.0.2",
     "next": "^14.2.15",

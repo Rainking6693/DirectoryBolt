@@ -1,13 +1,15 @@
 // 🔒 JORDAN'S LOGGING SYSTEM - Enterprise-grade logging with structured data
 // Comprehensive logging, monitoring, and alerting for production systems
 
-export enum LogLevel {
+enum LogLevel {
   ERROR = 0,
   WARN = 1,
   INFO = 2,
   DEBUG = 3,
   TRACE = 4
 }
+
+export { LogLevel }
 
 export interface LogEntry {
   timestamp: string
@@ -266,13 +268,13 @@ class Logger {
     
     switch (entry.level) {
       case LogLevel.ERROR:
-        console.error(logString)
+        if (this.environment === 'development') console.error(logString)
         break
       case LogLevel.WARN:
-        console.warn(logString)
+        if (this.environment === 'development') console.warn(logString)
         break
       default:
-        console.log(logString)
+        if (this.environment === 'development') console.log(logString)
         break
     }
     
@@ -295,7 +297,9 @@ class Logger {
       type
     }
     
-    console.log(`📊 METRIC:`, JSON.stringify(metric))
+    if (this.environment === 'development') {
+      console.log(`📊 METRIC:`, JSON.stringify(metric))
+    }
     
     // In production, send to metrics service:
     // - Prometheus: await this.sendToPrometheus(metric)
@@ -309,7 +313,7 @@ class Logger {
     // - Slack for team notifications
     // - Email for security events
     
-    if (this.shouldAlert(logEntry)) {
+    if (this.shouldAlert(logEntry) && this.environment === 'development') {
       console.log(`🚨 ALERT: ${logEntry.message}`)
     }
   }
