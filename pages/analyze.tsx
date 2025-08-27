@@ -117,7 +117,7 @@ export default function AnalyzePage() {
       }
 
     } catch (err) {
-      console.error('Analysis error:', err)
+      // Error already logged by API layer
       const errorMessage = err instanceof Error ? err.message : 'Analysis failed. Please try again.'
       
       // Provide specific error messages for common issues

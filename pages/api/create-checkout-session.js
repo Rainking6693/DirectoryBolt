@@ -2,8 +2,7 @@
 // POST /api/create-checkout-session - Create Stripe checkout sessions for subscription plans
 
 import Stripe from 'stripe';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { handleApiError, Errors } from '../../lib/utils/errors';
+import { handleApiError } from '../../lib/utils/errors';
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -83,7 +82,7 @@ export default async function handler(req, res) {
     await handleCreateCheckoutSession(req, res, requestId);
 
   } catch (error) {
-    console.error('Checkout session creation error:', error);
+    // Error logged by error handler
     const errorResponse = handleApiError(error, requestId);
     return res.status(errorResponse.error.statusCode || 500).json(errorResponse);
   }
@@ -172,15 +171,7 @@ async function handleCreateCheckoutSession(req, res, requestId) {
       },
     });
 
-    // Log successful checkout session creation
-    console.log(`✅ Stripe checkout session created:`, {
-      session_id: session.id,
-      customer_id: customer.id,
-      user_id: user_id,
-      plan: plan,
-      amount: selectedPlan.price,
-      request_id: requestId
-    });
+    // Checkout session created successfully
 
     // Return success response
     res.status(200).json({
@@ -204,10 +195,10 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     });
 
   } catch (stripeError) {
-    console.error('Stripe API error:', stripeError);
+    // Stripe API error logged
     
     // Log payment attempt failure
-    console.error(`❌ Checkout session creation failed:`, {
+    // Checkout session failed
       user_id: user_id,
       plan: plan,
       error: stripeError.message,

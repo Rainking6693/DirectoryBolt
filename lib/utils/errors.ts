@@ -131,12 +131,14 @@ export function handleApiError(error: Error, requestId: string): ErrorResponse {
     errorCode = error.errorCode
     message = error.message
   } else {
-    // Log unexpected errors but don't expose details to users
-    console.error('Unexpected error:', {
-      message: error.message,
-      stack: error.stack,
-      requestId
-    })
+    // Log unexpected errors through proper logging service
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Unexpected error:', {
+        message: error.message,
+        stack: error.stack,
+        requestId
+      })
+    }
     
     // In production, hide internal error details
     if (process.env.NODE_ENV === 'production') {

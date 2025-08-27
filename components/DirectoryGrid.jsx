@@ -1,6 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo } from 'react'
-import { Directory } from '../lib/database/directories'
+import { useState, useMemo } from 'react'
 import DirectoryCard from './DirectoryCard'
 import BulkSelectControls from './BulkSelectControls'
 

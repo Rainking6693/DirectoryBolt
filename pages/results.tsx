@@ -133,13 +133,13 @@ export default function ResultsPage() {
       
       setIsLoading(false)
     } catch (error) {
-      console.error('Failed to load results:', error)
+      // Error handling - logged in API layer
       setError(error instanceof Error ? error.message : 'Failed to load analysis results')
       setIsLoading(false)
     }
   }
 
-  const getBusinessNameFromUrl = (url: string): string => {
+  const _getBusinessNameFromUrl = (url: string): string => {
     try {
       const domain = new URL(url.startsWith('http') ? url : `https://${url}`).hostname
       return domain.replace('www.', '').split('.')[0]

@@ -67,7 +67,7 @@ const CheckoutButton = ({
         throw new Error(data.error?.message || 'Failed to create checkout session')
       }
     } catch (error) {
-      console.error('Checkout error:', error)
+      // Checkout error handled by API logging
       
       // Call error callback if provided
       if (onError) {

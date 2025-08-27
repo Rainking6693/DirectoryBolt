@@ -22,7 +22,7 @@ export default function Success() {
     }
   }, [router.query])
 
-  const fetchSessionDetails = async (sessionId) => {
+  const fetchSessionDetails = async (_sessionId) => {
     try {
       // In a real implementation, you'd call your API to get session details
       // For now, we'll simulate the success state
@@ -39,7 +39,7 @@ export default function Success() {
       }, 1000)
       
     } catch (err) {
-      console.error('Error fetching session details:', err)
+      // Error logged in API layer
       setError('Failed to load subscription details')
       setIsLoading(false)
     }

@@ -4,6 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, Errors, ValidationError } from '../../../lib/utils/errors'
 import { validateEmail, validatePassword } from '../../../lib/utils/validation'
+import { logger } from '../../../lib/utils/logger'
 import type { User } from '../../../lib/database/schema'
 
 // Registration rate limiting (use Redis in production)
@@ -143,7 +144,7 @@ async function handleRegister(
   }
   
   // Save user to database
-  await saveUser(newUser)
+  await saveUser(newUser, requestId)
   
   // Send verification email
   await sendVerificationEmail(newUser.email, verificationToken, newUser.full_name)
@@ -152,7 +153,7 @@ async function handleRegister(
   await logRegistrationAttempt(clientIp, newUser.email, true)
   
   // Remove sensitive data from response
-  const { password_hash, verification_token, ...userResponse } = newUser
+  const { password_hash: _password_hash, verification_token: _verification_token, ...userResponse } = newUser
   
   const response: RegisterResponse = {
     success: true,
@@ -200,11 +201,14 @@ async function findUserByEmail(_email: string): Promise<User | null> {
   return null
 }
 
-async function saveUser(user: User): Promise<void> {
+async function saveUser(user: User, requestId?: string): Promise<void> {
   // TODO: Implement actual database save
   // await db.users.create({ data: user })
   
-  console.log(`💾 Saved user: ${user.email}`)
+  logger.info(`User registration saved`, {
+    requestId,
+    metadata: { email: user.email }
+  })
 }
 
 // Security utilities
@@ -235,7 +239,7 @@ async function sendVerificationEmail(email: string, token: string, fullName: str
   // TODO: Implement actual email sending service (SendGrid, AWS SES, etc.)
   const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/verify?token=${token}`
   
-  const emailContent = {
+  const _emailContent = {
     to: email,
     subject: 'Verify Your DirectoryBolt Account',
     html: `
@@ -271,8 +275,9 @@ async function sendVerificationEmail(email: string, token: string, fullName: str
     `
   }
   
-  console.log(`📧 Verification email sent to ${email}`)
-  console.log(`🔗 Verification URL: ${verificationUrl}`)
+  logger.info(`Verification email sent`, {
+    metadata: { email, verificationUrl }
+  })
   
   // In production, use actual email service:
   // await emailService.send(emailContent)
@@ -293,7 +298,9 @@ async function logRegistrationAttempt(
     user_agent: 'request.headers["user-agent"]' // Would be actual user agent
   }
   
-  console.log(`📝 Registration attempt:`, logEntry)
+  logger.info(`Registration attempt logged`, {
+    metadata: { email: logEntry.email, success: logEntry.success }
+  })
   
   // TODO: Save to audit log database
   // await db.audit_logs.create({ data: logEntry })

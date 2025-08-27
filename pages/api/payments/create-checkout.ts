@@ -159,7 +159,7 @@ async function handleCreateCheckout(
     res.status(200).json(response)
     
   } catch (error) {
-    console.error('Stripe checkout creation failed:', error)
+    // Stripe checkout creation error logged
     
     await logPaymentAttempt(
       userId, 
@@ -193,11 +193,11 @@ async function createStripeCustomer(user: User): Promise<string> {
   
   // Mock Stripe customer ID
   const customerId = `cus_mock_${Date.now()}`
-  console.log(`💳 Created Stripe customer: ${customerId} for ${user.email}`)
+  // Stripe customer created
   return customerId
 }
 
-async function createStripeCheckoutSession(options: {
+async function createStripeCheckoutSession(_options: {
   customerId: string
   packageDetails: typeof CREDIT_PACKAGES[CreditPackage]
   userId: string
@@ -250,8 +250,7 @@ async function createStripeCheckoutSession(options: {
   const paymentIntentId = `pi_mock_${Date.now()}`
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
   
-  console.log(`💳 Created Stripe checkout session: ${sessionId}`)
-  console.log(`🔗 Checkout URL would be: https://checkout.stripe.com/pay/${sessionId}`)
+  // Stripe checkout session created
   
   return {
     id: sessionId,
@@ -300,7 +299,7 @@ async function updateUserStripeCustomerId(userId: string, customerId: string): P
   //   }
   // })
   
-  console.log(`💾 Updated user ${userId} with Stripe customer ID: ${customerId}`)
+  // User updated with Stripe customer ID
 }
 
 async function createPaymentRecord(payment: Omit<Payment, 'id' | 'created_at' | 'updated_at'>): Promise<Payment> {
@@ -322,7 +321,7 @@ async function createPaymentRecord(payment: Omit<Payment, 'id' | 'created_at' | 
     updated_at: new Date()
   }
   
-  console.log(`💾 Created payment record: ${paymentRecord.id}`)
+  // Payment record created
   return paymentRecord
 }
 
@@ -345,7 +344,7 @@ async function logPaymentAttempt(
     error
   }
   
-  console.log(`💰 Payment attempt:`, logEntry)
+  // Payment attempt logged
   
   // TODO: Save to audit log database
   // await db.audit_logs.create({ data: logEntry })

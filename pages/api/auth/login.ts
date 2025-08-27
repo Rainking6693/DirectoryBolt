@@ -4,6 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, Errors, AuthenticationError } from '../../../lib/utils/errors'
 import { validateEmail } from '../../../lib/utils/validation'
+import { logger } from '../../../lib/utils/logger'
 import type { User } from '../../../lib/database/schema'
 
 // Login attempt tracking (use Redis in production)
@@ -151,7 +152,7 @@ async function handleLogin(
   await logLoginAttempt(user.email, clientIp, userAgent, true, 'SUCCESS')
   
   // Remove sensitive data from response
-  const { password_hash, verification_token, ...userResponse } = user
+  const { password_hash: _password_hash, verification_token: _verification_token, ...userResponse } = user
   
   const response: LoginResponse = {
     success: true,
@@ -223,13 +224,19 @@ async function incrementFailedLoginAttempts(userId: string, email: string): Prom
     const lockUntil = Date.now() + SECURITY_CONFIG.LOCKOUT_DURATION
     accountLocks.set(userId, lockUntil)
     
-    console.log(`🔒 Account locked: ${email} (${failedAttempts} failed attempts)`)
+    logger.warn(`Account locked: ${email}`, {
+      requestId,
+      metadata: { failedAttempts, email }
+    })
     
     // TODO: Send account lockout notification email
     await sendAccountLockoutEmail(email, new Date(lockUntil))
   }
   
-  console.log(`⚠️ Failed login attempt ${failedAttempts}/${SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS} for ${email}`)
+  logger.warn(`Failed login attempt for ${email}`, {
+    requestId,
+    metadata: { failedAttempts, maxAttempts: SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS, email }
+  })
 }
 
 async function resetFailedLoginAttempts(userId: string): Promise<void> {
@@ -244,7 +251,10 @@ async function resetFailedLoginAttempts(userId: string): Promise<void> {
   // })
   
   accountLocks.delete(userId)
-  console.log(`✅ Reset failed login attempts for user ${userId}`)
+  logger.info(`Reset failed login attempts`, {
+    requestId,
+    metadata: { userId }
+  })
 }
 
 // Database functions (mock implementations)
@@ -294,7 +304,10 @@ async function updateLastLogin(userId: string, ipAddress: string): Promise<void>
   //   }
   // })
   
-  console.log(`📝 Updated last login for user ${userId} from ${ipAddress}`)
+  logger.info(`Updated last login`, {
+    requestId,
+    metadata: { userId, ipAddress }
+  })
 }
 
 // Token generation (simplified - use proper JWT library in production)
@@ -322,19 +335,20 @@ function generateRefreshToken(user: User): string {
 }
 
 async function saveSession(
-  userId: string, 
-  _session: any, 
-  _accessToken: string, 
-  _refreshToken: string
+  userId: string
 ): Promise<void> {
   // TODO: Implement session storage (database or Redis)
-  console.log(`💾 Saved session for user ${userId}`)
+  logger.info(`Saved session`, {
+    metadata: { userId }
+  })
 }
 
 // Notification functions
 async function sendAccountLockoutEmail(email: string, lockUntil: Date): Promise<void> {
   // TODO: Implement email notification
-  console.log(`📧 Account lockout email sent to ${email}, locked until ${lockUntil.toISOString()}`)
+  logger.info(`Account lockout email sent`, {
+    metadata: { email, lockUntil: lockUntil.toISOString() }
+  })
 }
 
 // Audit logging
@@ -355,7 +369,9 @@ async function logLoginAttempt(
     reason
   }
   
-  console.log(`📝 Login attempt:`, logEntry)
+  logger.info(`Login attempt logged`, {
+    metadata: { email: logEntry.email, success: logEntry.success }
+  })
   
   // TODO: Save to audit log database
   // await db.audit_logs.create({ data: logEntry })

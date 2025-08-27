@@ -9,12 +9,7 @@ const TIER_REQUIREMENTS = {
   enterprise: ['easy', 'medium', 'hard']
 }
 
-const TIER_COLORS = {
-  starter: 'border-green-500 bg-green-500/10 text-green-400',
-  growth: 'border-volt-500 bg-volt-500/10 text-volt-400', 
-  professional: 'border-purple-500 bg-purple-500/10 text-purple-400',
-  enterprise: 'border-red-500 bg-red-500/10 text-red-400'
-}
+// TIER_COLORS removed as it's not used in this component
 
 const DIFFICULTY_CONFIG = {
   easy: {

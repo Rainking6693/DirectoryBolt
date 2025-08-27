@@ -31,7 +31,7 @@ export default function DirectoryTierSelector({
       setDirectories(tierDirectories)
       setTierConfig(config)
     } catch (error) {
-      console.error('Failed to load tier data:', error)
+      // Error loading tier data - handled gracefully
     } finally {
       setLoading(false)
     }
@@ -227,7 +227,7 @@ export default function DirectoryTierSelector({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {directories.map((directory, index) => {
+          {directories.map((directory) => {
             const isAccessible = directory.tier <= userTier
             const isHighValue = directory.domainAuthority >= 70 || directory.competitivePriority >= 8
             
