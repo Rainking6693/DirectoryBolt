@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  directorybolt-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: directorybolt-production
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - app-logs:/app/logs
+    networks:
+      - directorybolt-network
+
+  # Optional: Add a reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: directorybolt-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - directorybolt-app
+    restart: unless-stopped
+    networks:
+      - directorybolt-network
+
+  # Optional: Add monitoring
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: directorybolt-monitor
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    restart: unless-stopped
+    networks:
+      - directorybolt-network
+
+volumes:
+  app-logs:
+    driver: local
+  portainer-data:
+    driver: local
+
+networks:
+  directorybolt-network:
+    driver: bridge

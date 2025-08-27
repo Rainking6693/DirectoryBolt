@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '../utils/logger'
-import { DirectoryTierManager, DirectoryTierData, TierConfig } from './directory-tiers'
+import { DirectoryTierManager, DirectoryTierData } from './directory-tiers'
 
 export interface Directory {
   id: string
@@ -61,14 +61,19 @@ export class DirectoryDatabase {
       this.supabase = null
       this.connectionPool = new Map()
       // Use fallback data when Supabase isn't available
-      console.warn('⚠️ DirectoryDatabase: Using fallback data - Supabase not configured')
+      logger.warn('DirectoryDatabase: Using fallback data - Supabase not configured')
     }
   }
 
   private async initializeDatabase(): Promise<void> {
     try {
       // Test connection
-      const { error } = await this.supabase.from('directories').select('count(*)', { count: 'exact' })
+      if (!this.supabase) {
+        throw new Error('Supabase client is not initialized')
+      }
+      
+      const response = await this.supabase.from('directories').select('count(*)', { count: 'exact' })
+      const { error } = response || {}
       
       if (error) {
         logger.error('Database connection failed', { metadata: { error: error.message } })
@@ -88,17 +93,6 @@ export class DirectoryDatabase {
   private async ensureIndexes(): Promise<void> {
     try {
       // These would typically be run as migrations
-      // Including here for completeness
-      const indexes = [
-        'CREATE INDEX IF NOT EXISTS idx_directories_category ON directories(category)',
-        'CREATE INDEX IF NOT EXISTS idx_directories_authority ON directories(authority DESC)',
-        'CREATE INDEX IF NOT EXISTS idx_directories_active ON directories(is_active)',
-        'CREATE INDEX IF NOT EXISTS idx_directories_price ON directories(price)',
-        'CREATE INDEX IF NOT EXISTS idx_submissions_user_id ON submissions(user_id)',
-        'CREATE INDEX IF NOT EXISTS idx_submissions_status ON submissions(status)',
-        'CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(created_at DESC)'
-      ]
-
       // Note: In production, these should be handled by proper migrations
       logger.info('Database indexes verified')
     } catch (error) {
@@ -168,8 +162,13 @@ export class DirectoryDatabase {
         throw new Error(`Failed to fetch directories: ${error.message}`)
       }
 
+      if (!data) {
+        logger.warn('No data returned from directories query')
+        return []
+      }
+
       // Transform to our interface
-      return (data || []).map(this.transformDirectoryRow)
+      return data.map(this.transformDirectoryRow)
 
     } catch (error) {
       logger.error('Failed to fetch directories', { metadata: { query } }, error instanceof Error ? error : new Error(String(error)))
@@ -243,17 +242,29 @@ export class DirectoryDatabase {
 
   async getDirectoryById(id: string): Promise<Directory | null> {
     try {
-      const { data, error } = await this.supabase
+      if (!this.supabase) {
+        logger.warn('Supabase client not available, returning null')
+        return null
+      }
+      
+      const response = await this.supabase
         .from('directories')
         .select('*')
         .eq('id', id)
         .single()
+      
+      const { data, error } = response || {}
 
       if (error) {
         if (error.code === 'PGRST116') { // Not found
           return null
         }
         throw new Error(`Failed to fetch directory: ${error.message}`)
+      }
+
+      if (!data) {
+        logger.warn('Directory not found', { metadata: { id } })
+        return null
       }
 
       return this.transformDirectoryRow(data)
@@ -266,7 +277,11 @@ export class DirectoryDatabase {
 
   async createDirectory(directory: Partial<Directory>): Promise<Directory> {
     try {
-      const { data, error } = await this.supabase
+      if (!this.supabase) {
+        throw new Error('Supabase client is not initialized')
+      }
+      
+      const response = await this.supabase
         .from('directories')
         .insert([{
           name: directory.name,
@@ -283,9 +298,15 @@ export class DirectoryDatabase {
         }])
         .select()
         .single()
+      
+      const { data, error } = response || {}
 
       if (error) {
         throw new Error(`Failed to create directory: ${error.message}`)
+      }
+
+      if (!data) {
+        throw new Error('No data returned from directory creation')
       }
 
       logger.info('Directory created successfully', { metadata: { id: data.id, name: directory.name } })
@@ -299,7 +320,11 @@ export class DirectoryDatabase {
 
   async updateDirectory(id: string, updates: Partial<Directory>): Promise<Directory> {
     try {
-      const { data, error } = await this.supabase
+      if (!this.supabase) {
+        throw new Error('Supabase client is not initialized')
+      }
+      
+      const response = await this.supabase
         .from('directories')
         .update({
           ...(updates.name && { name: updates.name }),
@@ -318,9 +343,15 @@ export class DirectoryDatabase {
         .eq('id', id)
         .select()
         .single()
+      
+      const { data, error } = response || {}
 
       if (error) {
         throw new Error(`Failed to update directory: ${error.message}`)
+      }
+
+      if (!data) {
+        throw new Error('No data returned from directory update')
       }
 
       logger.info('Directory updated successfully', { metadata: { id, updates: Object.keys(updates) } })
@@ -334,10 +365,17 @@ export class DirectoryDatabase {
 
   async deleteDirectory(id: string): Promise<boolean> {
     try {
-      const { error } = await this.supabase
+      if (!this.supabase) {
+        logger.warn('Supabase client not available, cannot delete directory')
+        return false
+      }
+      
+      const response = await this.supabase
         .from('directories')
         .delete()
         .eq('id', id)
+      
+      const { error } = response || {}
 
       if (error) {
         throw new Error(`Failed to delete directory: ${error.message}`)
@@ -359,22 +397,36 @@ export class DirectoryDatabase {
     byDifficulty: Record<string, number>
   }> {
     try {
-      const { data: totalData } = await this.supabase
+      if (!this.supabase) {
+        logger.warn('Supabase client not available, returning empty stats')
+        return {
+          total: 0,
+          active: 0,
+          byCategory: {},
+          byDifficulty: {}
+        }
+      }
+      
+      const totalResponse = await this.supabase
         .from('directories')
         .select('*', { count: 'exact' })
+      const { data: totalData } = totalResponse || {}
 
-      const { data: activeData } = await this.supabase
+      const activeResponse = await this.supabase
         .from('directories')
         .select('*', { count: 'exact' })
         .eq('is_active', true)
+      const { data: activeData } = activeResponse || {}
 
-      const { data: categoryData } = await this.supabase
+      const categoryResponse = await this.supabase
         .from('directories')
         .select('category')
+      const { data: categoryData } = categoryResponse || {}
 
-      const { data: difficultyData } = await this.supabase
+      const difficultyResponse = await this.supabase
         .from('directories')
         .select('difficulty')
+      const { data: difficultyData } = difficultyResponse || {}
 
       // Aggregate stats
       const byCategory: Record<string, number> = {}
@@ -407,21 +459,25 @@ export class DirectoryDatabase {
   }
 
   private transformDirectoryRow(row: any): Directory {
+    if (!row || typeof row !== 'object') {
+      throw new Error('Invalid directory row data')
+    }
+
     return {
-      id: row.id,
-      name: row.name,
-      category: row.category,
-      authority: row.authority || 50,
-      estimatedTraffic: row.estimated_traffic || 1000,
+      id: row.id || '',
+      name: row.name || '',
+      category: row.category || '',
+      authority: typeof row.authority === 'number' ? row.authority : 50,
+      estimatedTraffic: typeof row.estimated_traffic === 'number' ? row.estimated_traffic : 1000,
       timeToApproval: row.time_to_approval || '1-3 days',
-      difficulty: row.difficulty || 'medium',
-      price: row.price || 0,
+      difficulty: ['easy', 'medium', 'hard'].includes(row.difficulty) ? row.difficulty : 'medium',
+      price: typeof row.price === 'number' ? row.price : 0,
       features: Array.isArray(row.features) ? row.features : [],
-      submissionUrl: row.submission_url,
+      submissionUrl: row.submission_url || '',
       isActive: row.is_active !== false,
       requiresApproval: row.requires_approval !== false,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at || row.created_at)
+      createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+      updatedAt: row.updated_at ? new Date(row.updated_at) : (row.created_at ? new Date(row.created_at) : new Date())
     }
   }
 
@@ -643,7 +699,7 @@ export class DirectoryDatabase {
     }
 
     if (query.maxPrice !== undefined) {
-      filtered = filtered.filter(d => d.price <= query.maxPrice)
+      filtered = filtered.filter(d => d.price <= query.maxPrice!)
     }
 
     if (query.isActive !== undefined) {
@@ -651,7 +707,7 @@ export class DirectoryDatabase {
     }
 
     if (query.minAuthority !== undefined) {
-      filtered = filtered.filter(d => d.authority >= query.minAuthority)
+      filtered = filtered.filter(d => d.authority >= query.minAuthority!)
     }
 
     // Apply sorting
