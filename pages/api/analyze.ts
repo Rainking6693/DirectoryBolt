@@ -90,6 +90,10 @@ export default async function handler(
   const startTime = Date.now()
   let progressTracker: ProgressTracker | null = null
   
+  // Define userAgent at function scope so it's available in catch block
+  const userAgent = req.headers['user-agent'] || 'unknown'
+  let ipAddress: string | undefined
+  
   try {
     // Only allow POST requests
     if (req.method !== 'POST') {
@@ -100,8 +104,7 @@ export default async function handler(
     }
 
     // Get client information
-    const ipAddress = getClientIP(req)
-    const userAgent = req.headers['user-agent'] || 'unknown'
+    ipAddress = getClientIP(req)
     
     // Determine user tier (you would get this from auth/database)
     const userTier = determineUserTier(null, null) // Free tier for now
