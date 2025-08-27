@@ -5,19 +5,19 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>DirectoryBolt - Get Listed in 500+ Directories | Stop Losing Customers to Competitors</title>
-        <meta name="description" content="Your business is INVISIBLE online! Get listed in 500+ high-authority directories and dominate local search. Stop losing customers to competitors who found directory marketing first." />
-        <meta property="og:title" content="DirectoryBolt - Stop Losing Customers to Competitors" />
-        <meta property="og:description" content="Get your business listed in 500+ directories and dominate local search results. See the transformation that converts browsers into buyers." />
+        <title>DirectoryBolt - Get Listed in 500+ Directories | Starting at $49/mo</title>
+        <meta name="description" content="Stop losing customers! Get listed in 500+ directories starting at $49/mo. AI-powered directory submissions with 300-500% ROI. Free trial + 30-day guarantee." />
+        <meta property="og:title" content="DirectoryBolt - AI-Powered Directory Submissions Starting at $49/mo" />
+        <meta property="og:description" content="Stop losing customers! Get listed in 500+ directories with AI optimization. Plans from $49-399/mo. Free trial + 30-day guarantee. 300-500% ROI guaranteed." />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://directorybolt.com/og-image.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Your Business Is INVISIBLE Online - Fix It Now" />
-        <meta name="twitter:description" content="Stop losing customers to competitors! Get listed in 500+ directories and watch your visibility explode." />
+        <meta name="twitter:title" content="DirectoryBolt - $49/mo Directory Submissions with AI" />
+        <meta name="twitter:description" content="AI-powered directory submissions starting at $49/mo. 300-500% ROI. Free trial + 30-day money-back guarantee." />
         <link rel="canonical" href="https://directorybolt.com" />
         
         {/* Conversion-optimized meta tags */}
-        <meta name="keywords" content="directory submission, local SEO, business listings, online visibility, local search, directory marketing, business directory, get more customers" />
+        <meta name="keywords" content="directory submission, local SEO, business listings, online visibility, local search, directory marketing, AI optimization, $49 directory service, automated submissions" />
         <meta name="author" content="DirectoryBolt" />
         <meta name="robots" content="index, follow" />
         
