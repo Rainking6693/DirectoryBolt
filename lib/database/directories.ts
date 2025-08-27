@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '../utils/logger'
+import { DirectoryTierManager, DirectoryTierData, TierConfig } from './directory-tiers'
 
 export interface Directory {
   id: string
@@ -26,6 +27,10 @@ export interface DirectoryQuery {
   maxPrice?: number
   isActive?: boolean
   orderBy?: string
+  tier?: number
+  userTier?: number // Filter directories based on user's subscription tier
+  minAuthority?: number
+  trafficPotential?: 'low' | 'medium' | 'high' | 'premium'
 }
 
 export class DirectoryDatabase {
@@ -98,6 +103,11 @@ export class DirectoryDatabase {
 
   async getDirectories(query: DirectoryQuery = {}): Promise<Directory[]> {
     try {
+      // If user has a tier specified, use the tier system
+      if (query.userTier) {
+        return this.getDirectoriesByTier(query.userTier, query)
+      }
+
       let queryBuilder = this.supabase
         .from('directories')
         .select('*')
@@ -117,6 +127,10 @@ export class DirectoryDatabase {
 
       if (query.isActive !== undefined) {
         queryBuilder = queryBuilder.eq('is_active', query.isActive)
+      }
+
+      if (query.minAuthority !== undefined) {
+        queryBuilder = queryBuilder.gte('authority', query.minAuthority)
       }
 
       // Apply ordering
@@ -152,6 +166,68 @@ export class DirectoryDatabase {
       
       // Return default directories as fallback
       return this.getDefaultDirectories()
+    }
+  }
+
+  /**
+   * Get directories based on user's subscription tier
+   */
+  async getDirectoriesByTier(userTier: number, additionalFilters: Partial<DirectoryQuery> = {}): Promise<Directory[]> {
+    try {
+      // Get tier-specific directories from our strategic system
+      const tierDirectories = DirectoryTierManager.getDirectoriesForTier(userTier)
+      
+      // Convert to our Directory interface and apply additional filters
+      let directories = tierDirectories.map(this.convertTierToDirectory)
+
+      // Apply additional filters
+      if (additionalFilters.category) {
+        directories = directories.filter(d => d.category === additionalFilters.category)
+      }
+
+      if (additionalFilters.difficulty) {
+        directories = directories.filter(d => d.difficulty === additionalFilters.difficulty)
+      }
+
+      if (additionalFilters.minAuthority !== undefined) {
+        directories = directories.filter(d => d.authority >= additionalFilters.minAuthority!)
+      }
+
+      // Apply limit
+      if (additionalFilters.limit) {
+        directories = directories.slice(0, additionalFilters.limit)
+      }
+
+      logger.info(`Retrieved ${directories.length} directories for tier ${userTier}`)
+      return directories
+
+    } catch (error) {
+      logger.error('Failed to get directories by tier', { metadata: { userTier, additionalFilters } }, error instanceof Error ? error : new Error(String(error)))
+      
+      // Fallback to regular directory query
+      return this.getDirectories(additionalFilters)
+    }
+  }
+
+  /**
+   * Convert DirectoryTierData to Directory interface
+   */
+  private convertTierToDirectory(tierData: DirectoryTierData): Directory {
+    return {
+      id: tierData.id,
+      name: tierData.name,
+      category: tierData.category,
+      authority: tierData.domainAuthority,
+      estimatedTraffic: tierData.estimatedTrafficValue,
+      timeToApproval: tierData.submissionTime,
+      difficulty: tierData.difficulty,
+      price: 0, // Directory submissions are included in subscription
+      features: tierData.features,
+      submissionUrl: tierData.submissionUrl,
+      isActive: true,
+      requiresApproval: tierData.requiresApproval,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   }
 

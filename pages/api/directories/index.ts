@@ -268,74 +268,50 @@ async function handleCreateDirectory(
   })
 }
 
-// Mock data for development (replace with database calls)
+// Enhanced directory data access using the comprehensive seed data
 async function getMockDirectories(): Promise<Directory[]> {
-  return [
-    {
-      id: 'dir_001',
-      name: 'Product Hunt',
-      url: 'https://producthunt.com',
-      category: 'tech_startups',
-      authority_score: 95,
-      submission_fee: undefined,
-      turnaround_time_days: 1,
-      submission_url: 'https://producthunt.com/posts/new',
-      contact_email: undefined,
-      submission_guidelines: 'Submit your product for community voting',
-      is_active: true,
-      last_checked_at: new Date(),
-      response_rate: 85,
-      avg_approval_time: 2,
-      domain_authority: 89,
-      monthly_traffic: 5000000,
-      language: 'en',
-      country_code: 'us',
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-15')
-    },
-    {
-      id: 'dir_002',
-      name: 'Yelp',
-      url: 'https://yelp.com',
-      category: 'local_business',
-      authority_score: 92,
-      submission_fee: undefined,
-      turnaround_time_days: 3,
-      submission_url: 'https://biz.yelp.com',
-      contact_email: 'support@yelp.com',
-      submission_guidelines: 'Add your business to Yelp directory',
-      is_active: true,
-      last_checked_at: new Date(),
-      response_rate: 90,
-      avg_approval_time: 24,
-      domain_authority: 94,
-      monthly_traffic: 15000000,
-      language: 'en',
-      country_code: 'us',
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-15')
-    },
-    {
-      id: 'dir_003',
-      name: 'AngelList',
-      url: 'https://angel.co',
-      category: 'tech_startups',
-      authority_score: 88,
-      submission_fee: undefined,
-      turnaround_time_days: 5,
-      submission_url: 'https://angel.co/companies/new',
-      contact_email: undefined,
-      submission_guidelines: 'List your startup for investors and talent',
-      is_active: true,
-      last_checked_at: new Date(),
-      response_rate: 75,
-      avg_approval_time: 72,
-      domain_authority: 85,
-      monthly_traffic: 2000000,
-      language: 'en',
-      country_code: 'us',
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-15')
-    }
-  ]
+  // Import seed data and transform to Directory interface
+  const { DIRECTORY_SEED_DATA } = await import('../../../lib/database/directory-seed')
+  
+  return DIRECTORY_SEED_DATA.map(seedDir => ({
+    id: `dir_${Math.random().toString(36).substr(2, 9)}`,
+    name: seedDir.name,
+    url: seedDir.website,
+    category: seedDir.category as DirectoryCategory,
+    authority_score: seedDir.domain_authority,
+    submission_fee: seedDir.price > 0 ? seedDir.price : undefined,
+    turnaround_time_days: parseTurnaroundTime(seedDir.time_to_approval),
+    submission_url: seedDir.submission_url,
+    contact_email: undefined,
+    submission_guidelines: `${seedDir.difficulty} difficulty. ${seedDir.features.slice(0, 3).join(', ')}`,
+    is_active: seedDir.active,
+    last_checked_at: new Date(),
+    response_rate: Math.floor(Math.random() * 30) + 70, // 70-100%
+    avg_approval_time: parseTurnaroundTime(seedDir.time_to_approval) * 24, // Convert to hours
+    domain_authority: seedDir.domain_authority,
+    monthly_traffic: seedDir.estimated_traffic,
+    language: seedDir.language || 'en',
+    country_code: seedDir.country_code || 'us',
+    created_at: new Date('2024-01-01'),
+    updated_at: new Date()
+  }))
+}
+
+function parseTurnaroundTime(timeString: string): number {
+  // Convert time strings like "1-3 days", "2-4 weeks", "Instant" to days
+  if (timeString.toLowerCase().includes('instant') || timeString.toLowerCase().includes('same day')) {
+    return 1
+  }
+  
+  // Extract number from string like "1-3 days" or "2-4 weeks"
+  const matches = timeString.match(/(\d+)/)
+  if (!matches) return 7 // Default to 7 days
+  
+  const number = parseInt(matches[1])
+  
+  if (timeString.toLowerCase().includes('week')) {
+    return number * 7
+  }
+  
+  return number // Assume days if no unit specified
 }

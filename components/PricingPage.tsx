@@ -31,20 +31,21 @@ const pricingTiers: PricingTier[] = [
     name: 'Starter',
     price: 49,
     annualPrice: 39,
-    description: 'Perfect for small businesses getting started',
-    directories: 100,
+    description: 'Top 25 highest DA directories - Perfect for testing ROI',
+    directories: 25,
     support: 'Email support',
     features: [
-      '100 premium directory submissions',
-      'Basic website analysis',
-      'Standard listing optimization',
-      'Monthly progress reports',
-      'Email support',
-      'Basic analytics dashboard'
+      '🚀 Top 25 highest DA directories (60-91 DA)',
+      '⭐ Product Hunt, Crunchbase, G2.com access',
+      '✅ 85%+ approval rates guaranteed',
+      '⚡ Easy-to-medium difficulty only',
+      '📊 Basic analytics dashboard',
+      '📧 Email support',
+      '🎯 Focus on easiest high-value wins'
     ],
     roi: {
-      timesSaved: '20+ hours/month',
-      visibilityIncrease: '+25% search visibility',
+      timesSaved: '8-12 hours total submission time',
+      visibilityIncrease: '+35% search visibility',
       newCustomers: '5-8 new customers/month'
     },
     buttonText: 'Start Free Trial',
@@ -55,25 +56,25 @@ const pricingTiers: PricingTier[] = [
     name: 'Growth',
     price: 79,
     annualPrice: 63,
-    description: 'Most popular choice for growing businesses',
-    directories: 250,
+    description: 'All Starter + 25 more premium directories',
+    directories: 50,
     support: 'Priority email & chat',
     highlighted: true,
     popular: true,
     badge: 'MOST POPULAR',
     features: [
-      '250+ premium directory submissions',
-      'AI-powered listing optimization',
-      'Advanced competitor analysis',
-      'Bi-weekly progress reports',
-      'Priority email & chat support',
-      'Advanced analytics dashboard',
-      'Local SEO recommendations',
-      'Review monitoring alerts'
+      '🎯 All Starter directories PLUS 25 more',
+      '🔥 Hacker News, AlternativeTo, GetApp access',
+      '🤖 AI-powered listing optimization',
+      '📈 Advanced competitor analysis',
+      '💬 Priority email & chat support',
+      '📊 Advanced analytics dashboard',
+      '🎨 All AI-specific directories included',
+      '⚡ 40-93 DA range coverage'
     ],
     roi: {
-      timesSaved: '40+ hours/month',
-      visibilityIncrease: '+45% search visibility',
+      timesSaved: '15-25 hours total submission time',
+      visibilityIncrease: '+55% search visibility',
       newCustomers: '12-18 new customers/month',
       roiPercentage: '400-600%'
     },
@@ -83,25 +84,24 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'professional',
     name: 'Professional',
-    price: 149,
+    price: 129,
     annualPrice: 119,
-    description: 'Advanced features for established businesses',
-    directories: 500,
+    description: 'All Growth + 50 medium DA sites + pro features',
+    directories: 100,
     support: 'Phone & priority support',
     features: [
-      '500+ premium directory submissions',
-      'AI content generation for listings',
-      'Advanced success rate predictions',
-      'Weekly detailed reports',
-      'Phone & priority support',
-      'White-label reporting',
-      'Custom branded analytics',
-      'API access for integrations',
-      'Dedicated account manager'
+      '🚀 All Growth directories PLUS 50 more',
+      '📊 Custom branded analytics',
+      '🔧 API access for integrations',
+      '📞 Phone & priority support',
+      '📈 White-label reporting',
+      '👤 Dedicated account manager',
+      '🎯 30-93 DA range coverage',
+      '⚡ Professional features unlocked'
     ],
     roi: {
-      timesSaved: '60+ hours/month',
-      visibilityIncrease: '+65% search visibility',
+      timesSaved: '35-50 hours total submission time',
+      visibilityIncrease: '+75% search visibility',
       newCustomers: '25-35 new customers/month',
       roiPercentage: '600-800%'
     },
@@ -113,24 +113,22 @@ const pricingTiers: PricingTier[] = [
     name: 'Enterprise',
     price: 299,
     annualPrice: 239,
-    description: 'Complete solution for agencies & large businesses',
-    directories: 1000,
+    description: 'Complete database: 500+ directories + communities',
+    directories: 500,
     support: 'Dedicated account manager',
     features: [
-      'Unlimited directory submissions',
-      'Multi-location management',
-      'White-label client dashboards',
-      'Custom integrations & API',
-      'Dedicated account manager',
-      'Team collaboration tools',
-      'Advanced reporting suite',
-      'Priority feature requests',
-      'Custom training sessions',
-      'SLA guarantee'
+      '🌐 Complete directory database (500+)',
+      '💬 All Reddit communities & Discord servers',
+      '🏢 Niche industry directories',
+      '🌍 Regional/local networks',
+      '🏢 Multi-location management',
+      '🔧 Custom integrations & API',
+      '👨‍💼 Dedicated success manager',
+      '📋 SLA guarantees & enterprise support'
     ],
     roi: {
-      timesSaved: '100+ hours/month',
-      visibilityIncrease: '+80% search visibility',
+      timesSaved: '100+ hours total submission time',
+      visibilityIncrease: '+95% search visibility',
       newCustomers: '50+ new customers/month',
       roiPercentage: '800-1200%'
     },
@@ -376,9 +374,45 @@ export default function PricingPage() {
                       )}
                     </button>
 
-                    {/* Directory Count */}
-                    <div className="text-center mt-4 text-sm text-secondary-400">
-                      Up to <span className="text-volt-400 font-bold">{tier.directories}+</span> directories
+                    {/* Directory Examples */}
+                    <div className="text-center mt-4 p-3 bg-secondary-900/30 rounded-lg border border-secondary-600/30">
+                      <div className="text-xs font-bold text-secondary-300 mb-2">
+                        🎯 {tier.directories} Premium Directories
+                      </div>
+                      <div className="text-xs text-secondary-400 space-y-1">
+                        {tier.id === 'starter' && (
+                          <>
+                            <div>• Product Hunt (DA 91)</div>
+                            <div>• Crunchbase (DA 91)</div>
+                            <div>• G2.com (DA 80)</div>
+                            <div>• F6S (DA 72) + 21 more</div>
+                          </>
+                        )}
+                        {tier.id === 'growth' && (
+                          <>
+                            <div>• All Starter directories PLUS:</div>
+                            <div>• Hacker News (DA 89)</div>
+                            <div>• AlternativeTo (DA 87)</div>
+                            <div>• GetApp (DA 91) + 22 more</div>
+                          </>
+                        )}
+                        {tier.id === 'professional' && (
+                          <>
+                            <div>• All Growth directories PLUS:</div>
+                            <div>• 50 medium DA sites (30-65)</div>
+                            <div>• Industry-specific directories</div>
+                            <div>• Regional platforms</div>
+                          </>
+                        )}
+                        {tier.id === 'enterprise' && (
+                          <>
+                            <div>• Complete database (500+)</div>
+                            <div>• Reddit communities</div>
+                            <div>• Discord servers</div>
+                            <div>• Niche industry platforms</div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

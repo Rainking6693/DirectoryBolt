@@ -10,7 +10,14 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next out"
+    "clean": "rm -rf .next out",
+    "seed:directories": "node scripts/seed-directories.js --action=seed",
+    "seed:validate": "node scripts/seed-directories.js --action=validate --dry-run",
+    "seed:reset": "node scripts/seed-directories.js --action=reset --drop-existing",
+    "seed:stats": "node scripts/seed-directories.js --action=stats",
+    "db:seed": "npm run seed:directories",
+    "db:reset": "npm run seed:reset",
+    "db:status": "npm run seed:stats"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
