@@ -198,7 +198,7 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     // Stripe API error logged
     
     // Log payment attempt failure
-    // Checkout session failed
+    console.error('Checkout session failed:', {
       user_id: user_id,
       plan: plan,
       error: stripeError.message,
