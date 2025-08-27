@@ -2,100 +2,139 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
+// Import the API response types for consistency
 interface DirectoryRecommendation {
-  id: number
   name: string
-  category: string
-  description: string
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  estimatedTraffic: string
-  successRate: number
-  submissionTips: string[]
-  pricing: 'Free' | 'Paid' | 'Freemium'
-  timeToApproval: string
+  authority: number
+  estimatedTraffic: number
+  submissionDifficulty: string
+  cost: number
 }
 
-interface AnalysisResult {
-  businessName: string
-  industry: string
-  websiteHealth: number
+interface ApiAnalysisResponse {
+  url: string
+  title: string
+  description: string
+  currentListings: number
+  missedOpportunities: number
+  competitorAdvantage: number
+  potentialLeads: number
+  visibility: number
   seoScore: number
-  recommendations: DirectoryRecommendation[]
-  totalDirectories: number
-  freeRecommendations: number
-  proRecommendations: number
+  issues: Array<{
+    type: 'critical' | 'warning' | 'info'
+    title: string
+    description: string
+    impact: string
+    priority: number
+  }>
+  recommendations: Array<{
+    action: string
+    impact: string
+    effort: 'low' | 'medium' | 'high'
+  }>
+  directoryOpportunities: DirectoryRecommendation[]
+  aiAnalysis?: {
+    businessProfile?: {
+      name: string
+      category: string
+      industry: string
+      targetAudience: string[]
+      businessModel: string
+    }
+    smartRecommendations?: Array<{
+      directory: string
+      reasoning: string
+      successProbability: number
+      optimizedDescription: string
+    }>
+    insights?: {
+      marketPosition: string
+      competitiveAdvantages: string[]
+      improvementSuggestions: string[]
+      successFactors: string[]
+    }
+    confidence?: number
+  }
+}
+
+interface StoredAnalysisResult {
+  url: string
+  data: ApiAnalysisResponse
+  timestamp: number
 }
 
 export default function ResultsPage() {
   const router = useRouter()
   const { url } = router.query
   const [isLoading, setIsLoading] = useState(true)
-  const [results, setResults] = useState<AnalysisResult | null>(null)
+  const [results, setResults] = useState<ApiAnalysisResponse | null>(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [error, setError] = useState<string>('')
 
   useEffect(() => {
-    if (url) {
-      loadResults()
-    }
-  }, [url])
+    loadResults()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const loadResults = async () => {
     try {
-      // Simulate API call with realistic data
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const mockResults: AnalysisResult = {
-        businessName: getBusinessNameFromUrl(url as string),
-        industry: 'Technology',
-        websiteHealth: 78,
-        seoScore: 82,
-        totalDirectories: 147,
-        freeRecommendations: 3,
-        proRecommendations: 15,
-        recommendations: [
-          {
-            id: 1,
-            name: 'Google My Business',
-            category: 'Local Search',
-            description: 'Essential for local visibility and customer reviews',
-            difficulty: 'Easy',
-            estimatedTraffic: '500-2,000/month',
-            successRate: 95,
-            submissionTips: ['Verify business address', 'Add photos', 'Complete all fields'],
-            pricing: 'Free',
-            timeToApproval: '1-3 days'
+      // Try to load from sessionStorage first (from the analyze page)
+      const storedResults = sessionStorage.getItem('analysisResults')
+      if (storedResults) {
+        const parsed: StoredAnalysisResult = JSON.parse(storedResults)
+        
+        // Check if results are still fresh (within 1 hour)
+        if (Date.now() - parsed.timestamp < 3600000) {
+          setResults(parsed.data)
+          setIsLoading(false)
+          return
+        }
+      }
+
+      // If no stored results or they're stale, and we have a URL from query params, try to analyze
+      if (url && typeof url === 'string') {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          {
-            id: 2,
-            name: 'Yelp Business',
-            category: 'Reviews',
-            description: 'Critical for customer reviews and local search',
-            difficulty: 'Easy',
-            estimatedTraffic: '200-800/month',
-            successRate: 88,
-            submissionTips: ['Claim existing listing', 'Add business hours', 'Respond to reviews'],
-            pricing: 'Free',
-            timeToApproval: '1-2 days'
-          },
-          {
-            id: 3,
-            name: 'Product Hunt',
-            category: 'Tech',
-            description: 'Perfect for SaaS and tech startups launching new products',
-            difficulty: 'Medium',
-            estimatedTraffic: '1,000-5,000/month',
-            successRate: 72,
-            submissionTips: ['Prepare launch assets', 'Build email list', 'Time launch carefully'],
-            pricing: 'Free',
-            timeToApproval: '1-2 weeks'
-          }
-        ]
+          body: JSON.stringify({ 
+            url,
+            options: {
+              deep: true,
+              includeCompetitors: true,
+              checkDirectories: true
+            }
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Analysis failed' }))
+          throw new Error(errorData.error || `HTTP ${response.status}`)
+        }
+
+        const analysisResult = await response.json()
+        if (analysisResult.success && analysisResult.data) {
+          setResults(analysisResult.data)
+          
+          // Store results for potential reuse
+          sessionStorage.setItem('analysisResults', JSON.stringify({
+            url,
+            data: analysisResult.data,
+            timestamp: Date.now()
+          }))
+        } else {
+          throw new Error('Analysis returned no data')
+        }
+      } else {
+        throw new Error('No analysis data available. Please run an analysis first.')
       }
       
-      setResults(mockResults)
       setIsLoading(false)
     } catch (error) {
       console.error('Failed to load results:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load analysis results')
       setIsLoading(false)
     }
   }
@@ -120,28 +159,37 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-6">🤖</div>
+          <div className="text-6xl mb-6 animate-bounce">🤖</div>
           <h1 className="text-2xl text-white font-bold mb-4">Finalizing Results...</h1>
-          <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-8 h-8 border-2 border-volt-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
     )
   }
 
-  if (!results) {
+  if (error || !results) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
           <div className="text-6xl mb-6">❌</div>
           <h1 className="text-2xl text-white font-bold mb-4">Analysis Failed</h1>
-          <button 
-            onClick={() => router.push('/analyze')}
-            className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-bold"
-          >
-            Try Again
-          </button>
+          <p className="text-secondary-300 mb-6">{error || 'No analysis data available'}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={() => router.push('/analyze')}
+              className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 px-6 py-3 rounded-xl font-bold hover:from-volt-400 hover:to-volt-500 transition-all"
+            >
+              Start New Analysis
+            </button>
+            <button 
+              onClick={() => router.push('/')}
+              className="border-2 border-volt-500 text-volt-500 px-6 py-3 rounded-xl font-bold hover:bg-volt-500 hover:text-secondary-900 transition-all"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -154,19 +202,25 @@ export default function ResultsPage() {
         <meta name="description" content="Your personalized directory recommendations and business analysis results." />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900">
+        {/* Volt Yellow Lightning Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-volt-500 rounded-full blur-3xl opacity-10 animate-pulse-volt"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-volt-400 rounded-full blur-3xl opacity-10 animate-pulse-volt" style={{ animationDelay: '1s' }}></div>
+        </div>
+
         {/* Header */}
-        <nav className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <nav className="relative z-20 bg-secondary-900/80 backdrop-blur-sm border-b border-volt-500/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
-                <span className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent animate-glow">
                   ⚡ DirectoryBolt
                 </span>
               </div>
               <button
                 onClick={() => router.push('/')}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
               >
                 ← Back to Home
               </button>
@@ -174,108 +228,142 @@ export default function ResultsPage() {
           </div>
         </nav>
 
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
           {/* Results Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Analysis Complete! 🎉
+          <div className="text-center mb-12 animate-slide-up">
+            <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
+              Analysis Complete! 
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600 animate-glow">
+                🎉
+              </span>
             </h1>
-            <p className="text-xl text-gray-300 mb-6">
-              Here are your personalized directory recommendations for <span className="text-yellow-400 font-semibold">{results.businessName}</span>
+            <p className="text-xl md:text-2xl text-secondary-200 mb-6 max-w-3xl mx-auto font-medium">
+              Here are your personalized directory recommendations for 
+              <span className="text-volt-400 font-bold"> {results.aiAnalysis?.businessProfile?.name || results.title || 'Your Business'}</span>
             </p>
             
-            {/* Key Metrics */}
+            {/* Enhanced Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
-                <div className="text-2xl font-bold text-yellow-400">{results.websiteHealth}</div>
-                <div className="text-sm text-gray-400">Website Health</div>
+              <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
+                <div className="text-3xl font-black text-volt-400 mb-2">{results.visibility}%</div>
+                <div className="text-sm text-secondary-300 font-medium">Visibility Score</div>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
-                <div className="text-2xl font-bold text-green-400">{results.seoScore}</div>
-                <div className="text-sm text-gray-400">SEO Score</div>
+              <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-success-500/30 p-6 hover:shadow-lg hover:shadow-success-500/20 transition-all duration-300">
+                <div className="text-3xl font-black text-success-400 mb-2">{results.seoScore}%</div>
+                <div className="text-sm text-secondary-300 font-medium">SEO Score</div>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
-                <div className="text-2xl font-bold text-blue-400">{results.totalDirectories}</div>
-                <div className="text-sm text-gray-400">Total Directories</div>
+              <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
+                <div className="text-3xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || 0}</div>
+                <div className="text-sm text-secondary-300 font-medium">Directory Opportunities</div>
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
-                <div className="text-2xl font-bold text-purple-400">{results.industry}</div>
-                <div className="text-sm text-gray-400">Industry</div>
+              <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
+                <div className="text-3xl font-black text-volt-400 mb-2">{results.potentialLeads}</div>
+                <div className="text-sm text-secondary-300 font-medium">Potential Monthly Leads</div>
               </div>
             </div>
+
+            {/* Business Profile Section */}
+            {results.aiAnalysis?.businessProfile && (
+              <div className="bg-gradient-to-r from-volt-500/10 to-volt-600/10 rounded-2xl border border-volt-500/30 p-6 mb-8 max-w-4xl mx-auto">
+                <h3 className="text-xl font-bold text-volt-400 mb-4">🎯 Business Profile Detected</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-secondary-400">Industry:</span>
+                    <div className="text-white font-semibold">{results.aiAnalysis.businessProfile.industry}</div>
+                  </div>
+                  <div>
+                    <span className="text-secondary-400">Category:</span>
+                    <div className="text-white font-semibold">{results.aiAnalysis.businessProfile.category}</div>
+                  </div>
+                  <div>
+                    <span className="text-secondary-400">Business Model:</span>
+                    <div className="text-white font-semibold">{results.aiAnalysis.businessProfile.businessModel}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Free Recommendations */}
+          {/* Directory Opportunities */}
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">
-                🎯 Top {results.freeRecommendations} Directories (Free Preview)
+              <h2 className="text-2xl md:text-4xl font-black text-white">
+                🎯 Top Directory Opportunities
+                <span className="block text-lg font-medium text-secondary-300 mt-2">
+                  Based on your website analysis and industry
+                </span>
               </h2>
             </div>
             
             <div className="space-y-6">
-              {results.recommendations.map((rec, index) => (
+              {results.directoryOpportunities?.slice(0, 5).map((dir, index) => (
                 <div 
-                  key={rec.id}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all"
+                  key={index}
+                  className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-bold text-white">{index + 1}. {rec.name}</h3>
+                      <div className="flex items-center gap-3 mb-4">
+                        <h3 className="text-xl font-bold text-white">{index + 1}. {dir.name}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          rec.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
-                          rec.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                          'bg-red-500/20 text-red-300'
+                          dir.submissionDifficulty.toLowerCase() === 'easy' ? 'bg-success-500/20 text-success-300' :
+                          dir.submissionDifficulty.toLowerCase() === 'medium' ? 'bg-volt-500/20 text-volt-300' :
+                          'bg-danger-500/20 text-danger-300'
                         }`}>
-                          {rec.difficulty}
+                          {dir.submissionDifficulty}
                         </span>
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold">
-                          {rec.category}
+                        <span className="px-3 py-1 bg-volt-500/20 text-volt-300 rounded-full text-xs font-bold">
+                          Authority: {dir.authority}/100
                         </span>
                       </div>
-                      
-                      <p className="text-gray-300 mb-4">{rec.description}</p>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <span className="text-sm text-gray-400">Est. Traffic:</span>
-                          <div className="text-white font-semibold">{rec.estimatedTraffic}</div>
+                        <div className="bg-secondary-900/30 rounded-lg p-3">
+                          <span className="text-sm text-secondary-400">Est. Monthly Traffic:</span>
+                          <div className="text-white font-semibold">{dir.estimatedTraffic.toLocaleString()}</div>
                         </div>
-                        <div>
-                          <span className="text-sm text-gray-400">Success Rate:</span>
-                          <div className="text-white font-semibold">{rec.successRate}%</div>
+                        <div className="bg-secondary-900/30 rounded-lg p-3">
+                          <span className="text-sm text-secondary-400">Authority Score:</span>
+                          <div className="text-white font-semibold">{dir.authority}/100</div>
                         </div>
-                        <div>
-                          <span className="text-sm text-gray-400">Approval Time:</span>
-                          <div className="text-white font-semibold">{rec.timeToApproval}</div>
+                        <div className="bg-secondary-900/30 rounded-lg p-3">
+                          <span className="text-sm text-secondary-400">Submission Cost:</span>
+                          <div className="text-white font-semibold">{dir.cost === 0 ? 'FREE' : `$${dir.cost}`}</div>
                         </div>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <span className="text-sm text-gray-400">Quick Tips:</span>
-                        <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
-                          {rec.submissionTips.map((tip, tipIndex) => (
-                            <li key={tipIndex}>{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
+
+                      {/* AI Smart Recommendations */}
+                      {results.aiAnalysis?.smartRecommendations && 
+                       results.aiAnalysis.smartRecommendations.find(rec => rec.directory.toLowerCase().includes(dir.name.toLowerCase())) && (
+                        <div className="bg-gradient-to-r from-volt-500/10 to-volt-600/10 rounded-lg p-4 mt-4 border border-volt-500/20">
+                          <h4 className="text-sm font-bold text-volt-400 mb-2">🤖 AI Insight:</h4>
+                          <p className="text-sm text-secondary-200">
+                            {results.aiAnalysis.smartRecommendations.find(rec => 
+                              rec.directory.toLowerCase().includes(dir.name.toLowerCase())
+                            )?.reasoning}
+                          </p>
+                          <div className="mt-2 text-xs text-volt-300">
+                            Success Probability: {results.aiAnalysis.smartRecommendations.find(rec => 
+                              rec.directory.toLowerCase().includes(dir.name.toLowerCase())
+                            )?.successProbability}%
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex flex-col items-center gap-3 lg:w-48">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl ${
-                        rec.pricing === 'Free' ? 'bg-green-500/20 text-green-400' :
-                        rec.pricing === 'Paid' ? 'bg-red-500/20 text-red-400' :
-                        'bg-yellow-500/20 text-yellow-400'
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 ${
+                        dir.cost === 0 
+                          ? 'bg-success-500/20 text-success-400 border-success-500/30' 
+                          : 'bg-volt-500/20 text-volt-400 border-volt-500/30'
                       }`}>
-                        {rec.pricing === 'Free' ? '🎯' : rec.pricing === 'Paid' ? '💎' : '⚡'}
+                        {dir.cost === 0 ? '🎯' : '💎'}
                       </div>
                       <span className={`font-bold text-sm ${
-                        rec.pricing === 'Free' ? 'text-green-400' :
-                        rec.pricing === 'Paid' ? 'text-red-400' :
-                        'text-yellow-400'
+                        dir.cost === 0 ? 'text-success-400' : 'text-volt-400'
                       }`}>
-                        {rec.pricing}
+                        {dir.cost === 0 ? 'FREE' : 'PREMIUM'}
                       </span>
                     </div>
                   </div>
@@ -284,74 +372,156 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          {/* Upgrade Prompt */}
-          <div className="bg-gradient-to-r from-yellow-400/10 to-orange-500/10 rounded-2xl border border-yellow-400/20 p-8 text-center">
-            <div className="text-6xl mb-4">🚀</div>
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Want All {results.proRecommendations} Premium Recommendations?
+          {/* Issues and Recommendations */}
+          {(results.issues?.length > 0 || results.recommendations?.length > 0) && (
+            <div className="mb-12">
+              <h2 className="text-2xl md:text-4xl font-black text-white mb-6">
+                📊 Analysis Insights
+              </h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Issues */}
+                {results.issues?.length > 0 && (
+                  <div className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-danger-500/30 p-6">
+                    <h3 className="text-xl font-bold text-danger-400 mb-4">⚠️ Issues Found</h3>
+                    <div className="space-y-3">
+                      {results.issues.slice(0, 3).map((issue, index) => (
+                        <div key={index} className="bg-danger-500/10 rounded-lg p-3 border border-danger-500/20">
+                          <div className="flex items-start gap-3">
+                            <span className={`text-lg ${
+                              issue.type === 'critical' ? 'text-danger-400' :
+                              issue.type === 'warning' ? 'text-volt-400' :
+                              'text-secondary-400'
+                            }`}>
+                              {issue.type === 'critical' ? '🔥' : issue.type === 'warning' ? '⚠️' : 'ℹ️'}
+                            </span>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-white text-sm">{issue.title}</h4>
+                              <p className="text-xs text-secondary-300 mt-1">{issue.description}</p>
+                              <span className="text-xs text-volt-300 font-medium">Impact: {issue.impact}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                {results.recommendations?.length > 0 && (
+                  <div className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-success-500/30 p-6">
+                    <h3 className="text-xl font-bold text-success-400 mb-4">✅ Recommended Actions</h3>
+                    <div className="space-y-3">
+                      {results.recommendations.slice(0, 3).map((rec, index) => (
+                        <div key={index} className="bg-success-500/10 rounded-lg p-3 border border-success-500/20">
+                          <div className="flex items-start gap-3">
+                            <span className={`text-lg ${
+                              rec.effort === 'low' ? 'text-success-400' :
+                              rec.effort === 'medium' ? 'text-volt-400' :
+                              'text-danger-400'
+                            }`}>
+                              {rec.effort === 'low' ? '🎯' : rec.effort === 'medium' ? '⚡' : '🚀'}
+                            </span>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-white text-sm">{rec.action}</h4>
+                              <p className="text-xs text-secondary-300 mt-1">Impact: {rec.impact}</p>
+                              <span className="text-xs text-volt-300 font-medium">Effort: {rec.effort}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced Upgrade Prompt with Volt Theme */}
+          <div className="bg-gradient-to-r from-volt-500/10 to-volt-600/10 rounded-2xl border border-volt-500/30 p-8 text-center">
+            <div className="text-6xl mb-4 animate-bounce">🚀</div>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+              Want <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600">ALL</span> Premium Recommendations?
             </h2>
-            <p className="text-lg text-gray-300 mb-6">
-              Unlock AI-powered descriptions, competitor analysis, and success probability scoring for maximum results.
+            <p className="text-lg md:text-xl text-secondary-200 mb-8 max-w-3xl mx-auto font-medium">
+              Unlock AI-powered descriptions, competitor analysis, and success probability scoring for 
+              <span className="text-volt-400 font-bold"> maximum results</span>.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400">{results.proRecommendations}</div>
-                <div className="text-sm text-gray-400">Premium Directories</div>
+              <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
+                <div className="text-4xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || 100}+</div>
+                <div className="text-sm text-secondary-300 font-medium">Premium Directories</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-400">10x</div>
-                <div className="text-sm text-gray-400">AI-Generated Descriptions</div>
+              <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
+                <div className="text-4xl font-black text-success-400 mb-2">10x</div>
+                <div className="text-sm text-secondary-300 font-medium">AI-Generated Descriptions</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-400">40%</div>
-                <div className="text-sm text-gray-400">Higher Success Rate</div>
+              <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
+                <div className="text-4xl font-black text-volt-400 mb-2">300%</div>
+                <div className="text-sm text-secondary-300 font-medium">Higher Success Rate</div>
               </div>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 onClick={handleUpgrade}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-4 px-8 text-lg rounded-xl hover:shadow-lg hover:shadow-yellow-400/25 transition-all transform hover:scale-105"
+                className="group relative bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-4 px-8 text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-volt-500/50 animate-glow"
               >
-                🚀 Upgrade to Pro - $149/mo
+                <span className="relative z-10">🚀 Upgrade to Pro - $149/mo</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
               <button
                 onClick={() => router.push('/')}
-                className="border-2 border-yellow-400 text-yellow-400 font-bold py-4 px-8 text-lg rounded-xl hover:bg-yellow-400 hover:text-black transition-all"
+                className="border-2 border-volt-500 text-volt-500 font-bold py-4 px-8 text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300 transform hover:scale-105"
               >
                 Maybe Later
               </button>
             </div>
             
-            <div className="mt-4 text-sm text-gray-400">
-              💰 30-day money-back guarantee • Cancel anytime
+            <div className="mt-6 text-sm text-secondary-300">
+              💰 <strong className="text-volt-400">30-day money-back guarantee</strong> • Cancel anytime • <strong className="text-volt-400">Results guaranteed</strong>
+            </div>
+
+            {/* Social Proof */}
+            <div className="mt-6">
+              <div className="inline-flex items-center gap-2 bg-success-500/10 border border-success-500/30 rounded-full px-4 py-2">
+                <div className="flex -space-x-1">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="w-6 h-6 bg-gradient-to-r from-volt-400 to-volt-600 rounded-full border-2 border-secondary-800"></div>
+                  ))}
+                </div>
+                <span className="text-sm text-success-300 font-medium">500+ businesses already upgraded</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Upgrade Modal */}
+        {/* Enhanced Upgrade Modal */}
         {showUpgrade && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 max-w-md w-full">
+          <div className="fixed inset-0 bg-secondary-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+            <div className="bg-secondary-800/90 backdrop-blur-md rounded-2xl border border-volt-500/30 p-8 max-w-md w-full shadow-2xl animate-zoom-in">
               <div className="text-center">
-                <div className="text-6xl mb-4">🎉</div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Coming Soon!
+                <div className="text-6xl mb-4 animate-bounce">🎉</div>
+                <h3 className="text-2xl font-black text-white mb-4">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600">
+                    Coming Soon!
+                  </span>
                 </h3>
-                <p className="text-gray-300 mb-6">
-                  We're putting the finishing touches on our Pro features. Join the waitlist to be first in line!
+                <p className="text-secondary-200 mb-6 font-medium">
+                  We're putting the finishing touches on our Pro features. Join the waitlist to be first in line for 
+                  <span className="text-volt-400 font-bold"> exclusive early access!</span>
                 </p>
                 <div className="flex gap-4">
                   <button
                     onClick={() => setShowUpgrade(false)}
-                    className="flex-1 bg-yellow-400 text-black font-bold py-3 px-6 rounded-lg"
+                    className="flex-1 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-3 px-6 rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105"
                   >
                     Join Waitlist
                   </button>
                   <button
                     onClick={() => setShowUpgrade(false)}
-                    className="flex-1 border border-gray-600 text-gray-300 font-bold py-3 px-6 rounded-lg"
+                    className="flex-1 border-2 border-secondary-600 text-secondary-300 font-bold py-3 px-6 rounded-xl hover:bg-secondary-600 hover:text-white transition-all duration-300"
                   >
                     Close
                   </button>
