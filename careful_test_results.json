@@ -1,0 +1,117 @@
+{
+  "timestamp": "2025-08-27T21:47:43.855Z",
+  "tests": [
+    {
+      "test": "Health Endpoint Test",
+      "status": "FAIL",
+      "details": {
+        "error": "Request failed with status code 503"
+      },
+      "timestamp": "2025-08-27T21:47:44.657Z"
+    },
+    {
+      "test": "API Response Success",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "url": "https://www.example.com",
+          "title": "Example Domain...",
+          "seoScore": 55,
+          "visibility": 20,
+          "potentialLeads": 223,
+          "directoryCount": 10,
+          "currentListings": 2,
+          "missedOpportunities": 9
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Real Title Extraction",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "title": "Example Domain"
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "SEO Score Calculation",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "seoScore": 55
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Visibility Score Calculation",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "visibility": 20
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Directory Opportunities",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "count": 10,
+          "sample": {
+            "name": "Google Business Profile",
+            "authority": 100,
+            "cost": 0
+          }
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Issues Generation",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "count": 3,
+          "sample": "Missing from 89% of Key Directories"
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Recommendations Generation",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "count": 3,
+          "sample": "Submit to 9 high-priority directories"
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.949Z"
+    },
+    {
+      "test": "Results Page Accessible",
+      "status": "PASS",
+      "details": {
+        "data": {
+          "statusCode": 200,
+          "contentLength": 7203
+        }
+      },
+      "timestamp": "2025-08-27T21:47:46.966Z"
+    },
+    {
+      "test": "Volt Yellow Theme",
+      "status": "PASS",
+      "details": {
+        "data": "Theme elements found in HTML"
+      },
+      "timestamp": "2025-08-27T21:47:46.966Z"
+    }
+  ],
+  "issues": []
+}

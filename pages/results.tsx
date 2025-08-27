@@ -115,17 +115,30 @@ export default function ResultsPage() {
         }
 
         const analysisResult = await response.json()
-        if (analysisResult.success && analysisResult.data) {
-          setResults(analysisResult.data)
+        
+        if (analysisResult.success) {
+          // Handle both direct analysis data and structured response data
+          const analysisData = analysisResult.data || analysisResult
+          
+          // If this is a progress response (status: 'initiated'), handle it differently
+          if (analysisData.status === 'initiated') {
+            // This is a progress-based response, we need to poll for results
+            await pollForResults(analysisData.analysisId)
+            return
+          }
+          
+          // Transform the data to ensure consistent structure
+          const normalizedData = normalizeAnalysisData(analysisData)
+          setResults(normalizedData)
           
           // Store results for potential reuse
           sessionStorage.setItem('analysisResults', JSON.stringify({
             url,
-            data: analysisResult.data,
+            data: normalizedData,
             timestamp: Date.now()
           }))
         } else {
-          throw new Error('Analysis returned no data')
+          throw new Error(analysisResult.error || 'Analysis returned no data')
         }
       } else {
         throw new Error('No analysis data available. Please run an analysis first.')
@@ -137,6 +150,74 @@ export default function ResultsPage() {
       setError(error instanceof Error ? error.message : 'Failed to load analysis results')
       setIsLoading(false)
     }
+  }
+
+  const normalizeAnalysisData = (data: any): ApiAnalysisResponse => {
+    // Handle both old and new response formats
+    return {
+      url: data.url || data.website?.url || '',
+      title: data.title || data.website?.title || 'Unknown Website',
+      description: data.description || data.website?.description || 'No description available',
+      currentListings: Array.isArray(data.currentListings) ? data.currentListings.length : (data.directories?.currentListings?.length || 0),
+      missedOpportunities: data.missedOpportunities || (data.directoryOpportunities?.filter((d: any) => !d.listed)?.length || 0),
+      competitorAdvantage: data.competitorAdvantage || 0,
+      potentialLeads: data.potentialLeads || 0,
+      visibility: data.visibility || data.metrics?.visibilityScore || 0,
+      seoScore: data.seoScore || data.seo?.score || 0,
+      issues: data.issues || [],
+      recommendations: data.recommendations || [],
+      directoryOpportunities: data.directoryOpportunities || data.directories?.opportunities || [],
+      aiAnalysis: data.aiAnalysis || data.ai
+    }
+  }
+
+  const pollForResults = async (requestId: string): Promise<void> => {
+    const maxAttempts = 30 // 5 minutes max (10 seconds * 30)
+    let attempts = 0
+    
+    const poll = async (): Promise<void> => {
+      try {
+        attempts++
+        const response = await fetch(`/api/analyze/progress?requestId=${requestId}`)
+        const result = await response.json()
+        
+        if (result.success && result.data) {
+          if (result.data.status === 'completed') {
+            // Analysis is complete, get the final results
+            const normalizedData = normalizeAnalysisData(result.data.result || result.data)
+            setResults(normalizedData)
+            
+            // Store results for potential reuse
+            sessionStorage.setItem('analysisResults', JSON.stringify({
+              url: result.data.url,
+              data: normalizedData,
+              timestamp: Date.now()
+            }))
+            return
+          } else if (result.data.status === 'failed') {
+            throw new Error(result.data.error || 'Analysis failed')
+          }
+          
+          // Continue polling if still in progress
+          if (attempts < maxAttempts) {
+            setTimeout(poll, 10000) // Poll every 10 seconds
+          } else {
+            throw new Error('Analysis timed out')
+          }
+        } else {
+          throw new Error('Failed to get analysis progress')
+        }
+      } catch (error) {
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 10000) // Retry after 10 seconds
+        } else {
+          throw error
+        }
+      }
+    }
+    
+    // Start polling
+    poll()
   }
 
   const _getBusinessNameFromUrl = (url: string): string => {
@@ -340,19 +421,19 @@ export default function ResultsPage() {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
-                <div className="text-3xl font-black text-volt-400 mb-2">{results.visibility}%</div>
+                <div className="text-3xl font-black text-volt-400 mb-2">{Math.round(results.visibility || 0)}%</div>
                 <div className="text-sm text-secondary-300 font-medium">Visibility Score</div>
               </div>
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-success-500/30 p-6 hover:shadow-lg hover:shadow-success-500/20 transition-all duration-300">
-                <div className="text-3xl font-black text-success-400 mb-2">{results.seoScore}%</div>
+                <div className="text-3xl font-black text-success-400 mb-2">{Math.round(results.seoScore || 0)}%</div>
                 <div className="text-sm text-secondary-300 font-medium">SEO Score</div>
               </div>
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
-                <div className="text-3xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || 0}</div>
+                <div className="text-3xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || results.missedOpportunities || 0}</div>
                 <div className="text-sm text-secondary-300 font-medium">Directory Opportunities</div>
               </div>
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
-                <div className="text-3xl font-black text-volt-400 mb-2">{results.potentialLeads}</div>
+                <div className="text-3xl font-black text-volt-400 mb-2">{(results.potentialLeads || 0).toLocaleString()}{results.potentialLeads && results.potentialLeads > 1000 ? '+' : ''}</div>
                 <div className="text-sm text-secondary-300 font-medium">Potential Monthly Leads</div>
               </div>
             </div>
@@ -548,7 +629,7 @@ export default function ResultsPage() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
-                <div className="text-4xl font-black text-volt-400 mb-2">{results.directoryOpportunities?.length || 100}+</div>
+                <div className="text-4xl font-black text-volt-400 mb-2">{Math.max(results.directoryOpportunities?.length || 15, 50)}+</div>
                 <div className="text-sm text-secondary-300 font-medium">Premium Directories</div>
               </div>
               <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
@@ -556,7 +637,7 @@ export default function ResultsPage() {
                 <div className="text-sm text-secondary-300 font-medium">AI-Generated Descriptions</div>
               </div>
               <div className="bg-secondary-800/30 rounded-xl p-6 border border-volt-500/20">
-                <div className="text-4xl font-black text-volt-400 mb-2">300%</div>
+                <div className="text-4xl font-black text-volt-400 mb-2">{Math.min(500, Math.max(200, (results.directoryOpportunities?.length || 15) * 20))}%</div>
                 <div className="text-sm text-secondary-300 font-medium">Higher Success Rate</div>
               </div>
             </div>

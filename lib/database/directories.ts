@@ -34,30 +34,35 @@ export interface DirectoryQuery {
 }
 
 export class DirectoryDatabase {
-  private supabase: SupabaseClient
+  private supabase: SupabaseClient | null
   private connectionPool: Map<string, SupabaseClient>
+  private isSupabaseEnabled: boolean
 
   constructor() {
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    this.supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: false
-        },
-        db: {
-          schema: 'public'
+    this.isSupabaseEnabled = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+    
+    if (this.isSupabaseEnabled) {
+      this.supabase = createClient(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: false
+          },
+          db: {
+            schema: 'public'
+          }
         }
-      }
-    )
-
-    this.connectionPool = new Map()
-    this.initializeDatabase()
+      )
+      this.connectionPool = new Map()
+      this.initializeDatabase()
+    } else {
+      this.supabase = null
+      this.connectionPool = new Map()
+      // Use fallback data when Supabase isn't available
+      console.warn('⚠️ DirectoryDatabase: Using fallback data - Supabase not configured')
+    }
   }
 
   private async initializeDatabase(): Promise<void> {
@@ -103,6 +108,11 @@ export class DirectoryDatabase {
 
   async getDirectories(query: DirectoryQuery = {}): Promise<Directory[]> {
     try {
+      // Return fallback data if Supabase isn't configured
+      if (!this.isSupabaseEnabled || !this.supabase) {
+        return this.getFallbackDirectories(query)
+      }
+
       // If user has a tier specified, use the tier system
       if (query.userTier) {
         return this.getDirectoriesByTier(query.userTier, query)
@@ -452,5 +462,214 @@ export class DirectoryDatabase {
       }
       // Add more default directories as needed
     ]
+  }
+
+  /**
+   * Get fallback directories when Supabase isn't available
+   */
+  private getFallbackDirectories(query: DirectoryQuery = {}): Directory[] {
+    const fallbackDirectories: Directory[] = [
+      {
+        id: '1',
+        name: 'Google Business Profile',
+        category: 'search-engines',
+        authority: 100,
+        estimatedTraffic: 50000,
+        timeToApproval: '1-3 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Free listing', 'Reviews', 'Photos', 'Business hours'],
+        submissionUrl: 'https://business.google.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '2',
+        name: 'Yelp',
+        category: 'review-sites',
+        authority: 95,
+        estimatedTraffic: 25000,
+        timeToApproval: '1-2 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Free business page', 'Customer reviews', 'Photos'],
+        submissionUrl: 'https://business.yelp.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '3',
+        name: 'Facebook Business',
+        category: 'social-media',
+        authority: 98,
+        estimatedTraffic: 35000,
+        timeToApproval: '1-2 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Business page', 'Events', 'Messaging', 'Reviews'],
+        submissionUrl: 'https://business.facebook.com',
+        isActive: true,
+        requiresApproval: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '4',
+        name: 'Yellow Pages',
+        category: 'general-directories',
+        authority: 85,
+        estimatedTraffic: 15000,
+        timeToApproval: '2-5 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Basic listing', 'Contact info', 'Website link'],
+        submissionUrl: 'https://yellowpages.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '5',
+        name: 'Bing Places',
+        category: 'search-engines',
+        authority: 90,
+        estimatedTraffic: 20000,
+        timeToApproval: '3-7 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Search visibility', 'Business details', 'Customer engagement'],
+        submissionUrl: 'https://places.bing.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '6',
+        name: 'Apple Maps',
+        category: 'map-services',
+        authority: 92,
+        estimatedTraffic: 18000,
+        timeToApproval: '5-10 days',
+        difficulty: 'medium',
+        price: 0,
+        features: ['Maps listing', 'Business info', 'Customer reviews'],
+        submissionUrl: 'https://mapsconnect.apple.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '7',
+        name: 'TripAdvisor',
+        category: 'travel-hospitality',
+        authority: 88,
+        estimatedTraffic: 30000,
+        timeToApproval: '3-7 days',
+        difficulty: 'medium',
+        price: 0,
+        features: ['Business listing', 'Reviews', 'Photos', 'Travel insights'],
+        submissionUrl: 'https://tripadvisor.com/owners',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '8',
+        name: 'Better Business Bureau',
+        category: 'business-associations',
+        authority: 93,
+        estimatedTraffic: 8000,
+        timeToApproval: '7-14 days',
+        difficulty: 'medium',
+        price: 299,
+        features: ['Accreditation', 'Trust badge', 'Complaint resolution'],
+        submissionUrl: 'https://bbb.org',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '9',
+        name: 'Angie\'s List',
+        category: 'service-directories',
+        authority: 85,
+        estimatedTraffic: 14000,
+        timeToApproval: '2-5 days',
+        difficulty: 'medium',
+        price: 0,
+        features: ['Service provider listing', 'Reviews', 'Lead generation'],
+        submissionUrl: 'https://angieslist.com',
+        isActive: true,
+        requiresApproval: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '10',
+        name: 'Thumbtack',
+        category: 'service-directories',
+        authority: 82,
+        estimatedTraffic: 22000,
+        timeToApproval: '1-3 days',
+        difficulty: 'easy',
+        price: 0,
+        features: ['Professional services', 'Lead generation', 'Customer matching'],
+        submissionUrl: 'https://thumbtack.com/pro',
+        isActive: true,
+        requiresApproval: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ]
+
+    // Apply filters to fallback data
+    let filtered = fallbackDirectories
+
+    if (query.category) {
+      filtered = filtered.filter(d => d.category === query.category)
+    }
+
+    if (query.difficulty) {
+      filtered = filtered.filter(d => d.difficulty === query.difficulty)
+    }
+
+    if (query.maxPrice !== undefined) {
+      filtered = filtered.filter(d => d.price <= query.maxPrice)
+    }
+
+    if (query.isActive !== undefined) {
+      filtered = filtered.filter(d => d.isActive === query.isActive)
+    }
+
+    if (query.minAuthority !== undefined) {
+      filtered = filtered.filter(d => d.authority >= query.minAuthority)
+    }
+
+    // Apply sorting
+    if (query.orderBy) {
+      if (query.orderBy.includes('authority DESC')) {
+        filtered.sort((a, b) => b.authority - a.authority)
+      } else if (query.orderBy.includes('authority ASC')) {
+        filtered.sort((a, b) => a.authority - b.authority)
+      } else if (query.orderBy.includes('price ASC')) {
+        filtered.sort((a, b) => a.price - b.price)
+      }
+    }
+
+    // Apply limit
+    if (query.limit) {
+      filtered = filtered.slice(0, query.limit)
+    }
+
+    return filtered
   }
 }

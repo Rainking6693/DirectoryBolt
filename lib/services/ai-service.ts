@@ -421,21 +421,48 @@ Focus on:
   }
 }
 
-// Singleton instance
-export const aiService = new AIService()
+// Lazy singleton instance
+let aiServiceInstance: AIService | null = null
+
+function getAIService(): AIService {
+  if (!aiServiceInstance) {
+    if (!AIService.isAIEnabled()) {
+      throw new Error('AI service is not enabled - OpenAI API key is required')
+    }
+    aiServiceInstance = new AIService()
+  }
+  return aiServiceInstance
+}
 
 // Convenience functions for easy integration
 export const AI = {
-  analyzeWebsite: (url: string, content: string, directories: any[]) => 
-    aiService.analyzeBusinessWebsite(url, content, directories),
+  analyzeWebsite: (url: string, content: string, directories: any[]) => {
+    if (!AIService.isAIEnabled()) {
+      throw new Error('AI service is not enabled')
+    }
+    return getAIService().analyzeBusinessWebsite(url, content, directories)
+  },
   
-  generateDescriptions: (profile: BusinessProfile, directory: any, count?: number) =>
-    aiService.generateMultipleDescriptions(profile, directory, count),
+  generateDescriptions: (profile: BusinessProfile, directory: any, count?: number) => {
+    if (!AIService.isAIEnabled()) {
+      throw new Error('AI service is not enabled')
+    }
+    return getAIService().generateMultipleDescriptions(profile, directory, count)
+  },
   
-  analyzeCompetitors: (profile: BusinessProfile) =>
-    aiService.analyzeCompetitors(profile),
+  analyzeCompetitors: (profile: BusinessProfile) => {
+    if (!AIService.isAIEnabled()) {
+      throw new Error('AI service is not enabled')
+    }
+    return getAIService().analyzeCompetitors(profile)
+  },
   
   isEnabled: () => AIService.isAIEnabled(),
   
-  healthCheck: () => aiService.healthCheck()
+  healthCheck: () => {
+    if (!AIService.isAIEnabled()) {
+      return Promise.resolve(false)
+    }
+    return getAIService().healthCheck()
+  }
 }

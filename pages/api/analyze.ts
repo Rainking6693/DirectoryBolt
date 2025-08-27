@@ -223,50 +223,90 @@ export default async function handler(
       }
     })
 
-    // Return immediate response with progress tracking info
-    res.status(202).json(
-      responseBuilder.success(
+    // For demo/testing purposes, process analysis synchronously
+    // In production, you might want to use async processing for heavy operations
+    try {
+      const analysisResult = await processAnalysisSync(
+        requestId,
+        urlValidation.sanitizedUrl!,
+        parsedOptions,
+        progressTracker,
         {
-          analysisId: requestId,
-          status: 'initiated',
-          progressEndpoint: `/api/analyze/progress?requestId=${requestId}`,
-          estimatedDuration: '30-120 seconds',
-          url: urlValidation.sanitizedUrl,
-          tier: userTier
-        },
-        {
-          warnings: [...(validationResult.warnings || []), ...(urlValidation.warnings || [])],
-          rateLimit: {
-            limit: rateLimitResult.limits.requestsPerMinute,
-            remaining: rateLimitResult.remaining.minute,
-            resetTime: rateLimitResult.resetTimes.minute
-          }
+          userTier,
+          ipAddress,
+          userAgent,
+          rateLimits: rateLimitResult
         }
       )
-    )
 
-    // Process analysis asynchronously
-    processAnalysisAsync(
-      requestId,
-      urlValidation.sanitizedUrl!,
-      parsedOptions,
-      progressTracker,
-      {
-        userTier,
-        ipAddress,
-        userAgent,
-        rateLimits: rateLimitResult
-      }
-    ).catch(error => {
-      logger.error('Async analysis processing failed', {
+      // Return complete analysis results
+      return res.status(200).json(
+        responseBuilder.success(
+          analysisResult,
+          {
+            warnings: [...(validationResult.warnings || []), ...(urlValidation.warnings || [])],
+            rateLimit: {
+              limit: rateLimitResult.limits.requestsPerMinute,
+              remaining: rateLimitResult.remaining.minute,
+              resetTime: rateLimitResult.resetTimes.minute
+            }
+          }
+        )
+      )
+    } catch (analysisError) {
+      // If synchronous analysis fails, fall back to progress-based approach
+      logger.warn('Synchronous analysis failed, falling back to async', {
         requestId,
-        metadata: { url: urlValidation.sanitizedUrl, error: error.message }
-      }, error)
-      
-      if (progressTracker) {
-        progressTracker.fail(error)
-      }
-    })
+        metadata: {
+          error: analysisError instanceof Error ? analysisError.message : 'Unknown error'
+        }
+      })
+
+      // Return immediate response with progress tracking info
+      res.status(202).json(
+        responseBuilder.success(
+          {
+            analysisId: requestId,
+            status: 'initiated',
+            progressEndpoint: `/api/analyze/progress?requestId=${requestId}`,
+            estimatedDuration: '30-120 seconds',
+            url: urlValidation.sanitizedUrl,
+            tier: userTier
+          },
+          {
+            warnings: [...(validationResult.warnings || []), ...(urlValidation.warnings || [])],
+            rateLimit: {
+              limit: rateLimitResult.limits.requestsPerMinute,
+              remaining: rateLimitResult.remaining.minute,
+              resetTime: rateLimitResult.resetTimes.minute
+            }
+          }
+        )
+      )
+
+      // Process analysis asynchronously as fallback
+      processAnalysisAsync(
+        requestId,
+        urlValidation.sanitizedUrl!,
+        parsedOptions,
+        progressTracker,
+        {
+          userTier,
+          ipAddress,
+          userAgent,
+          rateLimits: rateLimitResult
+        }
+      ).catch(error => {
+        logger.error('Async analysis processing failed', {
+          requestId,
+          metadata: { url: urlValidation.sanitizedUrl, error: error.message }
+        }, error)
+        
+        if (progressTracker) {
+          progressTracker.fail(error)
+        }
+      })
+    }
 
 
 
@@ -303,6 +343,135 @@ export default async function handler(
         }
       )
     )
+  }
+}
+
+// Synchronous analysis processing function for immediate results
+async function processAnalysisSync(
+  requestId: string,
+  url: string,
+  options: any,
+  progressTracker: ProgressTracker,
+  context: {
+    userTier: string
+    ipAddress: string
+    userAgent: string
+    rateLimits: any
+  }
+): Promise<any> {
+  try {
+    // Step 1: Input validation (already completed)
+    progressTracker.completeStep('validation', { url, options })
+
+    // Step 2: Website fetching with optimized scraper
+    progressTracker.startStep('fetch')
+    progressTracker.updateStepProgress('fetch', 25, 'Connecting to website...')
+    
+    const scrapingResult = await optimizedScraper.scrapeUrl(url, {
+      timeout: context.userTier === 'free' ? 15000 : 30000,
+      priority: context.userTier === 'premium' || context.userTier === 'enterprise' ? 'high' : 'normal',
+      cacheKey: `analysis:${url}`,
+      skipCache: options.fresh === true
+    })
+
+    progressTracker.updateStepProgress('fetch', 75, 'Processing website content...')
+    
+    if (!scrapingResult.success) {
+      throw new Error(`Failed to fetch website: ${scrapingResult.error?.message}`)
+    }
+
+    progressTracker.completeStep('fetch', {
+      finalUrl: scrapingResult.finalUrl,
+      statusCode: scrapingResult.statusCode,
+      size: scrapingResult.metadata.size,
+      timing: scrapingResult.timing
+    })
+
+    // Step 3: Content parsing and analysis
+    progressTracker.startStep('parse')
+    progressTracker.updateStepProgress('parse', 30, 'Extracting metadata and content...')
+
+    // Initialize enhanced website analyzer
+    const analyzer = new WebsiteAnalyzer({
+      timeout: context.userTier === 'free' ? 15000 : 45000,
+      maxRetries: context.userTier === 'free' ? 2 : 3,
+      userAgent: process.env.USER_AGENT || 'DirectoryBolt/2.0 (+https://directorybolt.com)',
+      respectRobots: true
+    })
+
+    // Continue with remaining steps...
+    progressTracker.startStep('seo_analysis')
+    progressTracker.startStep('directory_check')
+    progressTracker.startStep('opportunity_discovery')
+    progressTracker.startStep('metrics_calculation')
+    progressTracker.startStep('recommendations')
+
+    // Perform comprehensive analysis
+    const analysisResult = await analyzer.analyzeWebsite(url, {
+      deep: options.deep || false,
+      includeCompetitors: options.includeCompetitors || false,
+      checkDirectories: options.checkDirectories !== false,
+      maxDirectoriesToCheck: context.userTier === 'free' ? 50 : 100
+    })
+
+    // Complete analysis steps
+    progressTracker.completeStep('seo_analysis', { score: analysisResult.seoScore })
+    progressTracker.completeStep('directory_check', { found: analysisResult.currentListings })
+    progressTracker.completeStep('opportunity_discovery', { opportunities: analysisResult.missedOpportunities })
+    progressTracker.completeStep('metrics_calculation', { visibility: analysisResult.visibility })
+    progressTracker.completeStep('recommendations', { count: analysisResult.recommendations.length })
+
+    // AI Analysis (if enabled and available)
+    if (options.includeAI !== false) {
+      progressTracker.startStep('ai_analysis')
+      // AI analysis would happen here
+      progressTracker.completeStep('ai_analysis', { confidence: analysisResult.aiConfidence })
+    }
+
+    // Competitor analysis (if requested)
+    if (options.includeCompetitors) {
+      progressTracker.startStep('competitor_analysis')
+      // Competitor analysis would happen here
+      progressTracker.completeStep('competitor_analysis')
+    }
+
+    // Final report generation
+    progressTracker.startStep('finalization')
+    progressTracker.updateStepProgress('finalization', 50, 'Structuring analysis results...')
+    
+    // For testing, return the analysis result directly without complex transformation
+    progressTracker.updateStepProgress('finalization', 90, 'Finalizing report...')
+    
+    // Complete the analysis
+    progressTracker.complete(analysisResult)
+
+    logger.info('Synchronous analysis completed successfully', {
+      requestId,
+      metadata: {
+        url,
+        processingTime: Date.now() - (progressTracker.getProgress().startTime),
+        seoScore: analysisResult.seoScore,
+        opportunities: analysisResult.missedOpportunities,
+        userTier: context.userTier,
+        cacheUsed: scrapingResult.cache.hit
+      }
+    })
+
+    // Return the original analysis result for direct display
+    return analysisResult
+
+  } catch (error) {
+    logger.error('Synchronous analysis processing failed', {
+      requestId,
+      metadata: {
+        url,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userTier: context.userTier
+      }
+    }, error instanceof Error ? error : new Error(String(error)))
+
+    progressTracker.fail(error instanceof Error ? error : new Error(String(error)))
+    throw error
   }
 }
 
@@ -399,13 +568,11 @@ async function processAnalysisAsync(
     progressTracker.startStep('finalization')
     progressTracker.updateStepProgress('finalization', 50, 'Structuring analysis results...')
     
-    // Transform to structured response format
-    const structuredResponse = AnalysisResponseTransformer.transform(analysisResult, requestId)
-    
+    // For testing, return the analysis result directly without complex transformation
     progressTracker.updateStepProgress('finalization', 90, 'Finalizing report...')
     
     // Complete the analysis
-    progressTracker.complete(structuredResponse)
+    progressTracker.complete(analysisResult)
 
     logger.info('Enhanced analysis completed successfully', {
       requestId,

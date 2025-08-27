@@ -110,7 +110,7 @@ export class WebsiteAnalyzer {
 
       // Generate issues and recommendations
       const issues = this.generateIssues($, currentListings, seoScore)
-      const recommendations = this.generateRecommendations(issues, directoryOpportunities)
+      const recommendations = this.generateRecommendations(issues, directoryOpportunities, seoScore)
 
       // 🚀 AI-Enhanced Analysis (if enabled)
       let aiAnalysis: AIAnalysisResult | undefined
@@ -441,26 +441,29 @@ export class WebsiteAnalyzer {
     return issues
   }
 
-  private generateRecommendations(issues: AnalysisIssue[], opportunities: DirectoryOpportunity[]): AnalysisRecommendation[] {
+  private generateRecommendations(issues: AnalysisIssue[], opportunities: DirectoryOpportunity[], seoScore: number = 50): AnalysisRecommendation[] {
     const recommendations: AnalysisRecommendation[] = []
 
-    if (opportunities.filter(d => !d.listed).length > 0) {
+    const unlistedCount = opportunities.filter(d => !d.listed).length
+    if (unlistedCount > 0) {
+      const visibilityIncrease = Math.min(500, unlistedCount * 25) // 25% per directory, max 500%
       recommendations.push({
-        action: 'Submit to high-authority directories immediately',
-        impact: 'Increase online visibility by 300-500%',
-        effort: 'low'
+        action: `Submit to ${Math.min(unlistedCount, 10)} high-priority directories`,
+        impact: `Increase online visibility by ${visibilityIncrease}%`,
+        effort: unlistedCount > 5 ? 'medium' : 'low'
       })
     }
 
+    const seoImpact = Math.min(80, (100 - seoScore))
     recommendations.push({
       action: 'Optimize website SEO fundamentals',
-      impact: 'Improve search rankings and organic traffic',
-      effort: 'medium'
+      impact: `Improve search rankings by ${seoImpact}% and increase organic traffic`,
+      effort: seoScore < 40 ? 'high' : 'medium'
     })
 
     recommendations.push({
-      action: 'Standardize business information across all platforms',
-      impact: 'Build trust with search engines and customers',
+      action: 'Standardize business information (NAP) across all platforms',
+      impact: 'Build trust with search engines and increase local search rankings by 15-25%',
       effort: 'low'
     })
 
