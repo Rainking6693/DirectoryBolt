@@ -692,7 +692,7 @@ export class OptimizedScraper {
     }
 
     let cleared = 0
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (tags.some(tag => entry.tags.includes(tag))) {
         this.cache.delete(key)
         cleared++
