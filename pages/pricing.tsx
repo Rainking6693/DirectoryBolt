@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Layout from '../components/layout/Layout'
-import PricingPage from '../components/PricingPage'
+import PricingPage from '../components/PricingPage.tsx'
 
 export default function Pricing() {
   return (

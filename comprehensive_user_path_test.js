@@ -16,7 +16,7 @@ const axios = require('axios');
 const { URL } = require('url');
 
 // Test Configuration
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3003";
 const TEST_TIMEOUT = 30000;
 
 // Test tracking
