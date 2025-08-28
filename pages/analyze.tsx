@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import Header from '../components/Header'
 
 interface AnalysisProgress {
   step: number
@@ -271,24 +272,7 @@ export default function AnalyzePage() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-volt-600 rounded-full blur-3xl opacity-5 animate-float"></div>
         </div>
 
-        {/* Header */}
-        <nav className="relative z-20 bg-secondary-900/80 backdrop-blur-sm border-b border-volt-500/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <span className="text-2xl font-bold bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent animate-glow">
-                  ⚡ DirectoryBolt
-                </span>
-              </div>
-              <button
-                onClick={() => router.push('/')}
-                className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
-              >
-                ← Back to Home
-              </button>
-            </div>
-          </div>
-        </nav>
+        <Header showBackButton={true} />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 py-16">
           {!isAnalyzing ? (

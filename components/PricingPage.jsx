@@ -97,9 +97,19 @@ export default function PricingPage() {
   const [selectedTier, setSelectedTier] = useState(null)
   const [isAnnual, setIsAnnual] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  const [hasExtendedTrial, setHasExtendedTrial] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
+    
+    // Check if user is returning from cancel page
+    if (typeof window !== 'undefined') {
+      const returningFromCancel = localStorage.getItem('returning_from_cancel');
+      if (returningFromCancel === 'true') {
+        setHasExtendedTrial(true);
+        localStorage.removeItem('returning_from_cancel');
+      }
+    }
   }, [])
 
   const handleSelectPlan = async (tier) => {
@@ -118,7 +128,8 @@ export default function PricingPage() {
           user_email: 'test@directorybolt.com', // TODO: Get from auth context
           user_id: 'user_123', // TODO: Get from auth context
           success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/pricing?cancelled=true`
+          cancel_url: `${window.location.origin}/cancel`,
+          extended_trial: hasExtendedTrial
         }),
       })
 
@@ -154,6 +165,21 @@ export default function PricingPage() {
         </div>
 
         <div className="relative z-10 container mx-auto max-w-6xl text-center">
+          {/* Extended Trial Banner */}
+          {hasExtendedTrial && (
+            <div className="animate-slide-up mb-8">
+              <div className="bg-gradient-to-r from-green-500/20 to-green-600/10 border border-green-500/30 rounded-xl p-6 max-w-2xl mx-auto">
+                <div className="flex items-center justify-center mb-4">
+                  <span className="text-3xl mr-3">🎁</span>
+                  <h2 className="text-2xl font-bold text-green-400">Extended Trial Activated!</h2>
+                </div>
+                <p className="text-secondary-300">
+                  You now get <strong className="text-green-400">21 days free</strong> instead of 14, plus personal onboarding and priority support!
+                </p>
+              </div>
+            </div>
+          )}
+          
           <div className="animate-slide-up">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
               Choose Your
@@ -254,12 +280,25 @@ export default function PricingPage() {
 
                     {/* Features */}
                     <ul className="space-y-3 mb-8">
-                      {tier.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="text-success-400 mt-1">✓</span>
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
+                      {tier.features.map((feature, idx) => {
+                        // Replace trial period dynamically
+                        let displayFeature = feature;
+                        if (hasExtendedTrial && feature.includes('14-day free trial')) {
+                          displayFeature = feature.replace('14-day free trial', '21-day free trial + onboarding');
+                        }
+                        
+                        return (
+                          <li key={idx} className="flex items-start gap-3">
+                            <span className="text-success-400 mt-1">✓</span>
+                            <span className="text-sm">
+                              {displayFeature}
+                              {hasExtendedTrial && feature.includes('14-day free trial') && (
+                                <span className="ml-2 text-green-400 font-semibold">🎁</span>
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
                       {tier.limitations.map((limitation, idx) => (
                         <li key={idx} className="flex items-start gap-3">
                           <span className="text-danger-400 mt-1">✗</span>

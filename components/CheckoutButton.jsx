@@ -36,16 +36,18 @@ const CheckoutButton = ({
     setIsLoading(true)
 
     try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/payments/create-checkout', {
+      // Create Stripe checkout session for subscription
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          package: plan,
-          success_url: successUrl || `${window.location.origin}/success`,
-          cancel_url: cancelUrl || `${window.location.origin}/pricing`
+          plan: plan,
+          user_email: `user@example.com`, // In real app, get from auth
+          user_id: `user_${Date.now()}`, // In real app, get from auth
+          success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true`
         }),
       })
 
@@ -55,7 +57,7 @@ const CheckoutButton = ({
 
       const data = await response.json()
       
-      if (data.success && data.data.checkout_session.url) {
+      if (data.success && data.data?.checkout_session?.url) {
         // Call success callback if provided
         if (onSuccess) {
           onSuccess(data)

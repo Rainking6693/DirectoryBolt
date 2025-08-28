@@ -179,12 +179,40 @@ export default function PricingPage() {
     setIsVisible(true)
   }, [])
 
-  const handleCTAClick = (tier: PricingTier) => {
+  const handleCTAClick = async (tier: PricingTier) => {
     if (tier.id === 'enterprise') {
       // Contact sales for enterprise
       window.open('mailto:sales@directorybolt.com?subject=Enterprise Plan Inquiry', '_blank')
     } else {
-      router.push(`/analyze?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+      // Create checkout session for direct payment
+      try {
+        const response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            plan: tier.id,
+            user_email: `user@example.com`, // In real app, get from auth
+            user_id: `user_${Date.now()}`, // In real app, get from auth
+            success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${window.location.origin}/pricing?cancelled=true`,
+          }),
+        })
+
+        const { data } = await response.json()
+        
+        if (data?.checkout_session?.url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.checkout_session.url
+        } else {
+          throw new Error('Failed to create checkout session')
+        }
+      } catch (error) {
+        console.error('Checkout error:', error)
+        // Fallback to analyze page if checkout fails
+        router.push(`/analyze?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+      }
     }
   }
 
@@ -598,7 +626,7 @@ export default function PricingPage() {
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
               <button
-                onClick={() => router.push('/analyze?plan=growth&billing=annual')}
+                onClick={() => handleCTAClick(pricingTiers.find(t => t.id === 'growth')!)}
                 className="group px-10 py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
               >
                 <span className="relative z-10">🚀 Start 14-Day Free Trial</span>

@@ -13,11 +13,19 @@ export default function Cancel() {
   }, [])
 
   const handleTryAgain = () => {
-    router.push('/pricing')
+    // Track that user returned from cancel page
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('returning_from_cancel', 'true');
+    }
+    router.push('/pricing');
   }
 
   const handleContactSupport = () => {
-    window.open('mailto:support@directorybolt.com?subject=Payment Issue - Need Help', '_blank')
+    window.open('mailto:support@directorybolt.com?subject=Payment Issue - Need Help&body=Hi, I was trying to sign up for DirectoryBolt but encountered an issue during checkout. Please help me resolve this.', '_blank');
+  }
+
+  const handleScheduleDemo = () => {
+    window.open('https://calendly.com/directorybolt/demo', '_blank');
   }
 
   return (
@@ -121,24 +129,52 @@ export default function Cancel() {
                   </Link>
                 </div>
 
-                {/* Contact Support */}
+                {/* Schedule Demo */}
                 <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-6 hover:scale-105 transform transition-all duration-300">
-                  <div className="text-4xl mb-4">💬</div>
-                  <h4 className="text-xl font-bold text-blue-400 mb-3">Need Help?</h4>
+                  <div className="text-4xl mb-4">📞</div>
+                  <h4 className="text-xl font-bold text-blue-400 mb-3">Schedule Demo</h4>
                   <p className="text-secondary-300 text-sm mb-6">
-                    Having trouble with payment or have questions? Our support team is here to help.
+                    See DirectoryBolt in action with a personalized demo. Perfect if you have questions.
                   </p>
                   <button
-                    onClick={handleContactSupport}
+                    onClick={handleScheduleDemo}
                     className="w-full px-6 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-400 transform hover:scale-105 transition-all duration-300"
                   >
-                    Contact Support
+                    Book Demo Call
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Alternative Options */}
+            {/* Special Offer */}
+            <div className="bg-gradient-to-r from-green-500/20 to-green-600/10 p-8 rounded-2xl border border-green-500/30 mb-12">
+              <div className="text-center mb-8">
+                <div className="text-5xl mb-4">🎁</div>
+                <h3 className="text-2xl font-bold mb-4">Wait! Don't leave empty-handed</h3>
+                <p className="text-secondary-300 mb-6">Since you came this far, here's an exclusive offer just for you:</p>
+                
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6 mb-6 max-w-md mx-auto">
+                  <h4 className="text-xl font-bold text-green-400 mb-2">🚀 Extended Trial Offer</h4>
+                  <p className="text-secondary-300 text-sm mb-4">
+                    Get <strong className="text-green-400">21 days free</strong> instead of 14 days, plus:
+                  </p>
+                  <ul className="text-left text-sm text-secondary-300 space-y-1">
+                    <li>• Personal onboarding call</li>
+                    <li>• Custom directory recommendations</li>
+                    <li>• Priority support during trial</li>
+                  </ul>
+                </div>
+                
+                <button
+                  onClick={handleTryAgain}
+                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg rounded-xl hover:from-green-400 hover:to-green-500 transform hover:scale-105 transition-all duration-300 shadow-xl"
+                >
+                  Claim Extended Trial
+                </button>
+              </div>
+            </div>
+
+            {/* Social Proof */}
             <div className="bg-gradient-to-r from-volt-500/10 to-volt-600/10 p-8 rounded-2xl border border-volt-500/20 mb-12">
               <h3 className="text-2xl font-bold mb-6">Still not sure? Here's what our customers say:</h3>
               

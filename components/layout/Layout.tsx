@@ -1,16 +1,20 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { ReactNode } from 'react'
+import Header from '../Header'
 
 interface LayoutProps {
   children: ReactNode
   title?: string
   description?: string
+  showBackButton?: boolean
 }
 
 export default function Layout({ 
   children, 
   title = 'DirectoryBolt',
-  description = 'Enterprise-grade business directory platform'
+  description = 'AI-powered directory submission service',
+  showBackButton = false
 }: LayoutProps) {
   return (
     <>
@@ -20,75 +24,67 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
-      <div className="min-h-screen bg-white">
-        <header className="bg-white shadow-sm border-b border-secondary-200">
-          <div className="container">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-gradient">
-                  DirectoryBolt
-                </h1>
-              </div>
-              
-              <nav className="hidden md:flex space-x-8">
-                <a href="#" className="text-secondary-700 hover:text-primary-600 transition-colors">
-                  Dashboard
-                </a>
-                <a href="#" className="text-secondary-700 hover:text-primary-600 transition-colors">
-                  Directory
-                </a>
-                <a href="#" className="text-secondary-700 hover:text-primary-600 transition-colors">
-                  Analytics
-                </a>
-              </nav>
-              
-              <div className="flex items-center space-x-4">
-                <button className="btn-secondary">
-                  Sign In
-                </button>
-                <button className="btn-primary">
-                  Get Started
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900">
+        <Header showBackButton={showBackButton} />
 
         <main>{children}</main>
 
-        <footer className="bg-secondary-900 text-white py-12">
-          <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer className="bg-secondary-900/80 backdrop-blur-sm text-white py-12 border-t border-volt-500/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-xl font-bold mb-4">DirectoryBolt</h3>
+                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent">
+                  ⚡ DirectoryBolt
+                </h3>
                 <p className="text-secondary-300">
-                  Enterprise-grade business directory platform built for scale and performance.
+                  AI-powered directory submission service helping businesses get found online.
                 </p>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">Infrastructure</h4>
+                <h4 className="font-semibold mb-4 text-volt-400">Product</h4>
                 <ul className="space-y-2 text-secondary-300">
-                  <li>99.9% Uptime SLA</li>
-                  <li>Global CDN</li>
-                  <li>Auto-scaling</li>
-                  <li>Real-time monitoring</li>
+                  <li>
+                    <Link href="/analyze" className="hover:text-volt-400 transition-colors">
+                      Free Analysis
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/pricing" className="hover:text-volt-400 transition-colors">
+                      Pricing Plans
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/pricing" className="hover:text-volt-400 transition-colors">
+                      Directory Database
+                    </Link>
+                  </li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">Support</h4>
+                <h4 className="font-semibold mb-4 text-volt-400">Features</h4>
                 <ul className="space-y-2 text-secondary-300">
-                  <li>24/7 Monitoring</li>
-                  <li>DevOps Support</li>
-                  <li>Performance Reports</li>
-                  <li>Health Checks</li>
+                  <li>AI-Powered Optimization</li>
+                  <li>500+ Premium Directories</li>
+                  <li>Automated Submissions</li>
+                  <li>Real-time Analytics</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-4 text-volt-400">Support</h4>
+                <ul className="space-y-2 text-secondary-300">
+                  <li>24/7 Customer Support</li>
+                  <li>30-Day Money Back</li>
+                  <li>Free Trial Available</li>
+                  <li>Success Guarantee</li>
                 </ul>
               </div>
             </div>
             
             <div className="mt-8 pt-8 border-t border-secondary-800 text-center text-secondary-400">
-              <p>&copy; 2024 DirectoryBolt. Built with enterprise infrastructure.</p>
+              <p>&copy; 2024 DirectoryBolt. Get listed everywhere that matters.</p>
             </div>
           </div>
         </footer>

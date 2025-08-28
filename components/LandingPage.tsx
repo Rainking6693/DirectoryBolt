@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import Header from './Header'
 
 export default function LandingPage() {
   const router = useRouter()
@@ -12,6 +13,8 @@ export default function LandingPage() {
 
   return (
     <div className="bg-secondary-900 text-white font-sans">
+      <Header />
+      
       {/* Hero Section */}
       <section className={`px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center bg-gradient-to-r from-secondary-800 via-secondary-900 to-black text-white transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-4xl mx-auto">

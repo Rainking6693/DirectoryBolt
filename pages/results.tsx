@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import Header from '../components/Header'
 
 // Import the API response types for consistency
 interface DirectoryRecommendation {
@@ -69,7 +70,6 @@ export default function ResultsPage() {
   const { url } = router.query
   const [isLoading, setIsLoading] = useState(true)
   const [results, setResults] = useState<ApiAnalysisResponse | null>(null)
-  const [showUpgrade, setShowUpgrade] = useState(false)
   const [error, setError] = useState<string>('')
 
   useEffect(() => {
@@ -233,9 +233,36 @@ export default function ResultsPage() {
     }
   }
 
-  const handleUpgrade = () => {
-    // In a real app, this would redirect to a payment flow
-    setShowUpgrade(true)
+  const handleUpgrade = async () => {
+    // Route to Stripe checkout for Professional plan
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          plan: 'professional',
+          user_email: `user@example.com`, // In real app, get from auth
+          user_id: `user_${Date.now()}`, // In real app, get from auth
+          success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${window.location.origin}/results?cancelled=true`,
+        }),
+      })
+
+      const { data } = await response.json()
+      
+      if (data?.checkout_session?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.checkout_session.url
+      } else {
+        throw new Error('Failed to create checkout session')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      // Fallback to pricing page if checkout fails
+      router.push('/pricing')
+    }
   }
 
   if (isLoading) {
@@ -382,24 +409,7 @@ export default function ResultsPage() {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-volt-400 rounded-full blur-3xl opacity-10 animate-pulse-volt" style={{ animationDelay: '1s' }}></div>
         </div>
 
-        {/* Header */}
-        <nav className="relative z-20 bg-secondary-900/80 backdrop-blur-sm border-b border-volt-500/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <span className="text-2xl font-bold bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent animate-glow">
-                  ⚡ DirectoryBolt
-                </span>
-              </div>
-              <button
-                onClick={() => router.push('/')}
-                className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
-              >
-                ← Back to Home
-              </button>
-            </div>
-          </div>
-        </nav>
+        <Header showBackButton={true} />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
           {/* Results Header */}
@@ -647,7 +657,7 @@ export default function ResultsPage() {
                 onClick={handleUpgrade}
                 className="group relative bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-4 px-8 text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-volt-500/50 animate-glow"
               >
-                <span className="relative z-10">🚀 Upgrade to Pro - $149/mo</span>
+                <span className="relative z-10">🚀 Start Free Trial - Professional Plan</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
               <button
@@ -676,39 +686,6 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* Enhanced Upgrade Modal */}
-        {showUpgrade && (
-          <div className="fixed inset-0 bg-secondary-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-secondary-800/90 backdrop-blur-md rounded-2xl border border-volt-500/30 p-8 max-w-md w-full shadow-2xl animate-zoom-in">
-              <div className="text-center">
-                <div className="text-6xl mb-4 animate-bounce">🎉</div>
-                <h3 className="text-2xl font-black text-white mb-4">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600">
-                    Coming Soon!
-                  </span>
-                </h3>
-                <p className="text-secondary-200 mb-6 font-medium">
-                  We're putting the finishing touches on our Pro features. Join the waitlist to be first in line for 
-                  <span className="text-volt-400 font-bold"> exclusive early access!</span>
-                </p>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setShowUpgrade(false)}
-                    className="flex-1 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-3 px-6 rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105"
-                  >
-                    Join Waitlist
-                  </button>
-                  <button
-                    onClick={() => setShowUpgrade(false)}
-                    className="flex-1 border-2 border-secondary-600 text-secondary-300 font-bold py-3 px-6 rounded-xl hover:bg-secondary-600 hover:text-white transition-all duration-300"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </>
   )

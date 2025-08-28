@@ -31,6 +31,8 @@
     "seo:validate:meta": "node -e \"const SEOValidators = require('./tests/seo-automated-validators'); const v = new SEOValidators(); v.validateMetaTags().then(r => console.log(JSON.stringify(r, null, 2)));\"",
     "seo:validate:structured": "node -e \"const SEOValidators = require('./tests/seo-automated-validators'); const v = new SEOValidators(); v.validateStructuredData().then(r => console.log(JSON.stringify(r, null, 2)));\"",
     "seo:test:ci": "cross-env NODE_ENV=production VERBOSE=false node tests/seo-comprehensive-test-runner.js",
+    "stripe:test": "node scripts/test-stripe-integration.js",
+    "stripe:test:local": "TEST_BASE_URL=http://localhost:3000 node scripts/test-stripe-integration.js",
     "deploy": "vercel --prod",
     "docker:build": "docker build -t directorybolt .",
     "docker:run": "docker run -p 3000:3000 directorybolt",

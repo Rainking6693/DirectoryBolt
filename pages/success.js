@@ -22,24 +22,38 @@ export default function Success() {
     }
   }, [router.query])
 
-  const fetchSessionDetails = async (_sessionId) => {
+  const fetchSessionDetails = async (sessionId) => {
     try {
-      // In a real implementation, you'd call your API to get session details
-      // For now, we'll simulate the success state
+      const response = await fetch(`/api/checkout-session/${sessionId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch session details')
+      }
+
+      const data = await response.json()
       
-      setTimeout(() => {
+      if (data.success) {
         setSessionData({
-          customer_email: 'customer@example.com',
-          plan_name: 'Growth Plan',
-          amount_total: 7900, // $79.00 in cents
-          trial_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
-          next_billing_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+          customer_email: data.data.customer_email,
+          plan_name: data.data.plan_name,
+          amount_total: data.data.amount_total,
+          trial_end: new Date(data.data.trial_end),
+          next_billing_date: new Date(data.data.next_billing_date),
+          subscription_id: data.data.subscription_id,
+          customer_id: data.data.customer_id
         })
-        setIsLoading(false)
-      }, 1000)
+      } else {
+        throw new Error(data.error?.message || 'Invalid session data')
+      }
       
+      setIsLoading(false)
     } catch (err) {
-      // Error logged in API layer
+      console.error('Failed to fetch session details:', err)
       setError('Failed to load subscription details')
       setIsLoading(false)
     }

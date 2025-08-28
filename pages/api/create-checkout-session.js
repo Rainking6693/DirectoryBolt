@@ -89,7 +89,7 @@ export default async function handler(req, res) {
 }
 
 async function handleCreateCheckoutSession(req, res, requestId) {
-  const { plan, user_email, user_id, success_url, cancel_url } = req.body;
+  const { plan, user_email, user_id, success_url, cancel_url, extended_trial } = req.body;
 
   // Validate required fields
   if (!plan || !SUBSCRIPTION_PLANS[plan]) {
@@ -160,9 +160,10 @@ async function handleCreateCheckoutSession(req, res, requestId) {
         metadata: {
           user_id: user_id,
           plan_tier: plan,
-          directory_limit: selectedPlan.directory_limit.toString()
+          directory_limit: selectedPlan.directory_limit.toString(),
+          extended_trial: extended_trial ? 'true' : 'false'
         },
-        trial_period_days: 14, // 14-day free trial for all plans
+        trial_period_days: extended_trial ? 21 : 14, // Extended 21-day trial for returning users
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required',
@@ -189,7 +190,7 @@ async function handleCreateCheckoutSession(req, res, requestId) {
           features: selectedPlan.features
         },
         customer_id: customer.id,
-        trial_period_days: 14
+        trial_period_days: extended_trial ? 21 : 14
       },
       requestId
     });
