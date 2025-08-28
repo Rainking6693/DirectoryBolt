@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Header from '../Header'
+import { StartTrialButton } from '../CheckoutButton'
 
 export default function EnhancedLandingPage() {
   const router = useRouter()
@@ -70,12 +71,14 @@ export default function EnhancedLandingPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-volt-300 to-volt-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
             
-            <button 
-              onClick={handleSecondaryCTA}
+            <StartTrialButton
+              plan="growth"
+              variant="secondary"
+              size="lg"
               className="border-2 border-volt-500 text-volt-500 font-bold py-4 px-8 rounded-lg hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300 text-lg sm:text-xl transform hover:scale-105"
             >
               Skip Analysis - Start Trial Now
-            </button>
+            </StartTrialButton>
           </div>
           
           <div className="mb-6 flex flex-wrap justify-center items-center gap-6 text-sm text-secondary-400">
@@ -252,12 +255,14 @@ export default function EnhancedLandingPage() {
               <span className="relative z-10">🎯 Discover My Hidden Opportunities</span>
             </button>
             
-            <button 
-              onClick={handleSecondaryCTA}
+            <StartTrialButton
+              plan="growth"
+              variant="outline"
+              size="lg"
               className="border-3 border-secondary-900 text-secondary-900 font-bold py-4 px-8 rounded-lg hover:bg-secondary-900 hover:text-volt-400 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl"
             >
               Start Trial Immediately
-            </button>
+            </StartTrialButton>
           </div>
           
           <div className="bg-secondary-900/20 backdrop-blur-sm rounded-xl p-6 max-w-2xl mx-auto">

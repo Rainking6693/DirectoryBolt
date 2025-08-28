@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { StartTrialButton } from './CheckoutButton'
 
 interface HeaderProps {
   showBackButton?: boolean
@@ -37,12 +38,13 @@ export default function Header({ showBackButton = false }: HeaderProps) {
             >
               Pricing
             </Link>
-            <Link 
-              href="/pricing"
-              className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-6 py-2 rounded-lg hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105"
+            <StartTrialButton
+              plan="growth"
+              size="md"
+              className="px-6 py-2"
             >
               Start Free Trial
-            </Link>
+            </StartTrialButton>
           </div>
 
           {/* Mobile Menu & Back Button */}
@@ -55,12 +57,13 @@ export default function Header({ showBackButton = false }: HeaderProps) {
                 ← Back
               </button>
             ) : (
-              <button
-                onClick={() => router.push('/pricing')}
-                className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-4 py-2 rounded-lg text-sm hover:from-volt-400 hover:to-volt-500 transition-all duration-300"
+              <StartTrialButton
+                plan="growth"
+                size="sm"
+                className="px-4 py-2 text-sm"
               >
                 Start Trial
-              </button>
+              </StartTrialButton>
             )}
           </div>
         </div>

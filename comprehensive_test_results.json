@@ -1,483 +1,294 @@
 {
-  "timestamp": "2025-08-28T13:32:40.425Z",
-  "baseUrl": "http://localhost:3003",
-  "totalTests": 66,
-  "passed": 43,
-  "failed": 3,
-  "warnings": 20,
+  "timestamp": "2025-08-28T13:43:15.406Z",
+  "baseUrl": "https://directorybolt-mt9jegl54-ben-stones-projects-ff17da1d.vercel.app",
+  "totalTests": 39,
+  "passed": 11,
+  "failed": 24,
+  "warnings": 4,
   "tests": [
     {
       "name": "Waitlist Check",
       "status": "PASS",
       "details": "No waitlist page at /waitlist",
       "url": "/waitlist",
-      "timestamp": "2025-08-28T13:32:40.594Z"
+      "timestamp": "2025-08-28T13:43:15.736Z"
     },
     {
       "name": "Waitlist Check",
       "status": "PASS",
       "details": "No waitlist page at /wait-list",
       "url": "/wait-list",
-      "timestamp": "2025-08-28T13:32:40.610Z"
+      "timestamp": "2025-08-28T13:43:15.796Z"
     },
     {
       "name": "Waitlist Check",
       "status": "PASS",
       "details": "No waitlist page at /join-waitlist",
       "url": "/join-waitlist",
-      "timestamp": "2025-08-28T13:32:40.622Z"
+      "timestamp": "2025-08-28T13:43:15.856Z"
     },
     {
       "name": "Waitlist Removal",
       "status": "PASS",
       "details": "No waitlist functionality found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.057Z"
-    },
-    {
-      "name": "Page Title: /",
-      "status": "WARN",
-      "details": "Expected \"Homepage\", got \"DirectoryBolt - AI-Powered Directory Submissions Starting at $49/mo\"",
-      "url": "/",
-      "timestamp": "2025-08-28T13:32:41.096Z"
+      "timestamp": "2025-08-28T13:43:16.029Z"
     },
     {
       "name": "Page Load: /",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/",
-      "timestamp": "2025-08-28T13:32:41.096Z"
-    },
-    {
-      "name": "Page Title: /analyze",
-      "status": "WARN",
-      "details": "Expected \"Free Analysis\", got \"Free Website Analysis - DirectoryBolt | AI-Powered Directory Recommendations\"",
-      "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.110Z"
+      "timestamp": "2025-08-28T13:43:16.146Z"
     },
     {
       "name": "Page Load: /analyze",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.110Z"
-    },
-    {
-      "name": "Page Title: /pricing",
-      "status": "WARN",
-      "details": "Expected \"Pricing\", got \"DirectoryBolt\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.139Z"
+      "timestamp": "2025-08-28T13:43:16.205Z"
     },
     {
       "name": "Page Load: /pricing",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.139Z"
-    },
-    {
-      "name": "Footer Link: /privacy",
-      "status": "WARN",
-      "details": "Link returns 404 - may need implementation",
-      "url": "/privacy",
-      "timestamp": "2025-08-28T13:32:41.154Z"
-    },
-    {
-      "name": "Footer Link: /terms",
-      "status": "WARN",
-      "details": "Link returns 404 - may need implementation",
-      "url": "/terms",
-      "timestamp": "2025-08-28T13:32:41.165Z"
-    },
-    {
-      "name": "Footer Link: /support",
-      "status": "WARN",
-      "details": "Link returns 404 - may need implementation",
-      "url": "/support",
-      "timestamp": "2025-08-28T13:32:41.177Z"
-    },
-    {
-      "name": "Footer Link: /contact",
-      "status": "WARN",
-      "details": "Link returns 404 - may need implementation",
-      "url": "/contact",
-      "timestamp": "2025-08-28T13:32:41.188Z"
-    },
-    {
-      "name": "Page Title: /pricing",
-      "status": "WARN",
-      "details": "Expected \"Pricing\", got \"DirectoryBolt\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.207Z"
+      "timestamp": "2025-08-28T13:43:16.261Z"
     },
     {
       "name": "Page Load: /pricing",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.207Z"
-    },
-    {
-      "name": "Primary CTA Destination",
-      "status": "PASS",
-      "details": "Pricing page accessible for main CTAs",
-      "url": "",
-      "timestamp": "2025-08-28T13:32:41.207Z"
-    },
-    {
-      "name": "Page Title: /analyze",
-      "status": "PASS",
-      "details": "Title contains \"Analysis\"",
-      "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.219Z"
+      "timestamp": "2025-08-28T13:43:16.555Z"
     },
     {
       "name": "Page Load: /analyze",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.219Z"
-    },
-    {
-      "name": "Analysis CTA Destination",
-      "status": "PASS",
-      "details": "Analysis page accessible for analysis CTAs",
-      "url": "",
-      "timestamp": "2025-08-28T13:32:41.219Z"
+      "timestamp": "2025-08-28T13:43:16.610Z"
     },
     {
       "name": "Pricing Tier: starter",
-      "status": "PASS",
-      "details": "Found starter tier with $49",
+      "status": "FAIL",
+      "details": "Missing starter tier or $49 price",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "name": "Pricing Tier: growth",
       "status": "FAIL",
       "details": "Missing growth tier or $79 price",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "name": "Pricing Tier: professional",
       "status": "FAIL",
       "details": "Missing professional tier or $129 price",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "name": "Pricing Tier: enterprise",
       "status": "FAIL",
       "details": "Missing enterprise tier or $299 price",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
-    },
-    {
-      "name": "Page Title: /",
-      "status": "WARN",
-      "details": "Expected \"Homepage\", got \"DirectoryBolt - AI-Powered Directory Submissions Starting at $49/mo\"",
-      "url": "/",
-      "timestamp": "2025-08-28T13:32:41.255Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "name": "Page Load: /",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/",
-      "timestamp": "2025-08-28T13:32:41.255Z"
-    },
-    {
-      "name": "Page Title: /pricing",
-      "status": "WARN",
-      "details": "Expected \"Pricing\", got \"DirectoryBolt\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.276Z"
+      "timestamp": "2025-08-28T13:43:16.718Z"
     },
     {
       "name": "Page Load: /pricing",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.276Z"
-    },
-    {
-      "name": "Page Title: /analyze",
-      "status": "PASS",
-      "details": "Title contains \"Analysis\"",
-      "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.290Z"
+      "timestamp": "2025-08-28T13:43:16.768Z"
     },
     {
       "name": "Page Load: /analyze",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.290Z"
-    },
-    {
-      "name": "Page Title: /results",
-      "status": "WARN",
-      "details": "Expected \"Results\", got \"\"",
-      "url": "/results",
-      "timestamp": "2025-08-28T13:32:41.417Z"
+      "timestamp": "2025-08-28T13:43:16.833Z"
     },
     {
       "name": "Page Load: /results",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/results",
-      "timestamp": "2025-08-28T13:32:41.417Z"
-    },
-    {
-      "name": "Page Title: /success",
-      "status": "WARN",
-      "details": "Expected \"Success\", got \"DirectoryBolt\"",
-      "url": "/success",
-      "timestamp": "2025-08-28T13:32:41.532Z"
+      "timestamp": "2025-08-28T13:43:16.887Z"
     },
     {
       "name": "Page Load: /success",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/success",
-      "timestamp": "2025-08-28T13:32:41.532Z"
-    },
-    {
-      "name": "Page Title: /cancel",
-      "status": "WARN",
-      "details": "Expected \"Cancel\", got \"DirectoryBolt\"",
-      "url": "/cancel",
-      "timestamp": "2025-08-28T13:32:41.641Z"
+      "timestamp": "2025-08-28T13:43:16.939Z"
     },
     {
       "name": "Page Load: /cancel",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/cancel",
-      "timestamp": "2025-08-28T13:32:41.641Z"
+      "timestamp": "2025-08-28T13:43:16.993Z"
     },
     {
       "name": "Direct Navigation",
-      "status": "PASS",
-      "details": "All pages: Accessible",
+      "status": "FAIL",
+      "details": "All pages: Some pages broken",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.641Z"
-    },
-    {
-      "name": "Page Title: /",
-      "status": "PASS",
-      "details": "Title contains \"DirectoryBolt\"",
-      "url": "/",
-      "timestamp": "2025-08-28T13:32:41.657Z"
+      "timestamp": "2025-08-28T13:43:16.993Z"
     },
     {
       "name": "Page Load: /",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/",
-      "timestamp": "2025-08-28T13:32:41.657Z"
-    },
-    {
-      "name": "Page Title: /pricing",
-      "status": "WARN",
-      "details": "Expected \"Pricing\", got \"DirectoryBolt\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.682Z"
-    },
-    {
-      "name": "Page Content: /pricing",
-      "status": "WARN",
-      "details": "Missing expected content: \"$79\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.682Z"
-    },
-    {
-      "name": "Page Content: /pricing",
-      "status": "WARN",
-      "details": "Missing expected content: \"$129\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.682Z"
-    },
-    {
-      "name": "Page Content: /pricing",
-      "status": "WARN",
-      "details": "Missing expected content: \"$299\"",
-      "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.683Z"
+      "timestamp": "2025-08-28T13:43:17.065Z"
     },
     {
       "name": "Page Load: /pricing",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/pricing",
-      "timestamp": "2025-08-28T13:32:41.683Z"
+      "timestamp": "2025-08-28T13:43:17.125Z"
     },
     {
       "name": "Stripe Checkout Endpoint",
       "status": "PASS",
       "details": "/api/create-checkout-session exists",
       "url": "/api/create-checkout-session",
-      "timestamp": "2025-08-28T13:32:41.762Z"
-    },
-    {
-      "name": "Page Title: /success",
-      "status": "WARN",
-      "details": "Expected \"Success\", got \"DirectoryBolt\"",
-      "url": "/success",
-      "timestamp": "2025-08-28T13:32:41.806Z"
-    },
-    {
-      "name": "Page Content: /success",
-      "status": "WARN",
-      "details": "Missing expected content: \"Welcome\"",
-      "url": "/success",
-      "timestamp": "2025-08-28T13:32:41.806Z"
+      "timestamp": "2025-08-28T13:43:17.188Z"
     },
     {
       "name": "Page Load: /success",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/success",
-      "timestamp": "2025-08-28T13:32:41.806Z"
+      "timestamp": "2025-08-28T13:43:17.242Z"
     },
     {
       "name": "User Path 1 Complete",
-      "status": "PASS",
-      "details": "Landing → Pricing → Stripe → Success: All steps work",
+      "status": "FAIL",
+      "details": "Landing → Pricing → Stripe → Success: Some steps broken",
       "url": "",
-      "timestamp": "2025-08-28T13:32:41.806Z"
-    },
-    {
-      "name": "Page Title: /",
-      "status": "PASS",
-      "details": "Title contains \"DirectoryBolt\"",
-      "url": "/",
-      "timestamp": "2025-08-28T13:32:41.826Z"
+      "timestamp": "2025-08-28T13:43:17.242Z"
     },
     {
       "name": "Page Load: /",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/",
-      "timestamp": "2025-08-28T13:32:41.826Z"
-    },
-    {
-      "name": "Page Title: /analyze",
-      "status": "PASS",
-      "details": "Title contains \"Analysis\"",
-      "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.844Z"
+      "timestamp": "2025-08-28T13:43:17.295Z"
     },
     {
       "name": "Page Load: /analyze",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/analyze",
-      "timestamp": "2025-08-28T13:32:41.844Z"
+      "timestamp": "2025-08-28T13:43:17.349Z"
     },
     {
       "name": "Analysis API",
       "status": "PASS",
-      "details": "Analysis endpoint returns 200",
+      "details": "Analysis endpoint returns 401",
       "url": "/api/analyze",
-      "timestamp": "2025-08-28T13:32:42.360Z"
-    },
-    {
-      "name": "Page Title: /results",
-      "status": "WARN",
-      "details": "Expected \"Results\", got \"\"",
-      "url": "/results",
-      "timestamp": "2025-08-28T13:32:42.379Z"
+      "timestamp": "2025-08-28T13:43:17.408Z"
     },
     {
       "name": "Page Load: /results",
-      "status": "PASS",
-      "details": "HTTP 200",
+      "status": "FAIL",
+      "details": "HTTP 401: Unauthorized",
       "url": "/results",
-      "timestamp": "2025-08-28T13:32:42.379Z"
+      "timestamp": "2025-08-28T13:43:17.471Z"
     },
     {
       "name": "User Path 2 Complete",
-      "status": "PASS",
-      "details": "Analysis flow: Core steps work",
+      "status": "FAIL",
+      "details": "Analysis flow: Some steps broken",
       "url": "",
-      "timestamp": "2025-08-28T13:32:42.379Z"
+      "timestamp": "2025-08-28T13:43:17.471Z"
     },
     {
       "name": "404 Handling",
-      "status": "PASS",
-      "details": "404 page returned for invalid URLs",
+      "status": "WARN",
+      "details": "Expected 404, got 401",
       "url": "",
-      "timestamp": "2025-08-28T13:32:42.391Z"
+      "timestamp": "2025-08-28T13:43:17.530Z"
     },
     {
       "name": "API Error Handling",
       "status": "PASS",
       "details": "API properly handles invalid requests",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.090Z"
+      "timestamp": "2025-08-28T13:43:17.587Z"
     },
     {
       "name": "Mobile Viewport: /",
       "status": "PASS",
       "details": "Proper viewport meta tag found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.109Z"
+      "timestamp": "2025-08-28T13:43:17.653Z"
     },
     {
       "name": "Mobile Responsive: /",
-      "status": "PASS",
-      "details": "Responsive classes detected",
+      "status": "WARN",
+      "details": "Limited responsive classes found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.109Z"
+      "timestamp": "2025-08-28T13:43:17.653Z"
     },
     {
       "name": "Mobile Viewport: /pricing",
       "status": "PASS",
       "details": "Proper viewport meta tag found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.130Z"
+      "timestamp": "2025-08-28T13:43:17.711Z"
     },
     {
       "name": "Mobile Responsive: /pricing",
-      "status": "PASS",
-      "details": "Responsive classes detected",
+      "status": "WARN",
+      "details": "Limited responsive classes found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.130Z"
+      "timestamp": "2025-08-28T13:43:17.711Z"
     },
     {
       "name": "Mobile Viewport: /analyze",
       "status": "PASS",
       "details": "Proper viewport meta tag found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.150Z"
+      "timestamp": "2025-08-28T13:43:17.761Z"
     },
     {
       "name": "Mobile Responsive: /analyze",
-      "status": "PASS",
-      "details": "Responsive classes detected",
+      "status": "WARN",
+      "details": "Limited responsive classes found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.151Z"
+      "timestamp": "2025-08-28T13:43:17.761Z"
     },
     {
       "name": "Mobile Experience",
       "status": "PASS",
       "details": "0 mobile issues found",
       "url": "",
-      "timestamp": "2025-08-28T13:32:45.151Z"
+      "timestamp": "2025-08-28T13:43:17.761Z"
     }
   ],
   "userPaths": {
     "Path1_Landing_To_Success": [
       {
         "step": "Landing",
-        "success": true
+        "success": false
       },
       {
         "step": "Pricing",
-        "success": true
+        "success": false
       },
       {
         "step": "Stripe Checkout",
@@ -485,17 +296,17 @@
       },
       {
         "step": "Success",
-        "success": true
+        "success": false
       }
     ],
     "Path2_Analysis_Flow": [
       {
         "step": "Landing",
-        "success": true
+        "success": false
       },
       {
         "step": "Analysis",
-        "success": true
+        "success": false
       },
       {
         "step": "Analysis API",
@@ -503,7 +314,7 @@
       },
       {
         "step": "Results",
-        "success": true
+        "success": false
       },
       {
         "step": "Upgrade to Stripe",
@@ -517,165 +328,151 @@
   },
   "issues": [
     {
-      "type": "seo_issue",
-      "message": "/ has incorrect title",
-      "priority": "medium",
+      "type": "broken_page",
+      "message": "/ returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /",
+      "timestamp": "2025-08-28T13:43:16.146Z"
+    },
+    {
+      "type": "broken_page",
+      "message": "/analyze returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /analyze",
+      "timestamp": "2025-08-28T13:43:16.205Z"
+    },
+    {
+      "type": "broken_page",
+      "message": "/pricing returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /pricing",
+      "timestamp": "2025-08-28T13:43:16.261Z"
+    },
+    {
+      "type": "broken_page",
+      "message": "/pricing returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /pricing",
+      "timestamp": "2025-08-28T13:43:16.555Z"
+    },
+    {
+      "type": "broken_page",
+      "message": "/analyze returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /analyze",
+      "timestamp": "2025-08-28T13:43:16.610Z"
+    },
+    {
+      "type": "missing_pricing_tier",
+      "message": "starter pricing tier incomplete",
+      "priority": "high",
       "fix": "",
-      "timestamp": "2025-08-28T13:32:41.096Z"
-    },
-    {
-      "type": "seo_issue",
-      "message": "/analyze has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.110Z"
-    },
-    {
-      "type": "seo_issue",
-      "message": "/pricing has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.139Z"
-    },
-    {
-      "type": "missing_page",
-      "message": "Footer link /privacy returns 404",
-      "priority": "low",
-      "fix": "Implement /privacy page or remove link",
-      "timestamp": "2025-08-28T13:32:41.154Z"
-    },
-    {
-      "type": "missing_page",
-      "message": "Footer link /terms returns 404",
-      "priority": "low",
-      "fix": "Implement /terms page or remove link",
-      "timestamp": "2025-08-28T13:32:41.165Z"
-    },
-    {
-      "type": "missing_page",
-      "message": "Footer link /support returns 404",
-      "priority": "low",
-      "fix": "Implement /support page or remove link",
-      "timestamp": "2025-08-28T13:32:41.177Z"
-    },
-    {
-      "type": "missing_page",
-      "message": "Footer link /contact returns 404",
-      "priority": "low",
-      "fix": "Implement /contact page or remove link",
-      "timestamp": "2025-08-28T13:32:41.188Z"
-    },
-    {
-      "type": "seo_issue",
-      "message": "/pricing has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.207Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "type": "missing_pricing_tier",
       "message": "growth pricing tier incomplete",
       "priority": "high",
       "fix": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "type": "missing_pricing_tier",
       "message": "professional pricing tier incomplete",
       "priority": "high",
       "fix": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
       "type": "missing_pricing_tier",
       "message": "enterprise pricing tier incomplete",
       "priority": "high",
       "fix": "",
-      "timestamp": "2025-08-28T13:32:41.242Z"
+      "timestamp": "2025-08-28T13:43:16.662Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/ has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.255Z"
+      "type": "broken_page",
+      "message": "/ returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /",
+      "timestamp": "2025-08-28T13:43:16.719Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/pricing has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.276Z"
+      "type": "broken_page",
+      "message": "/pricing returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /pricing",
+      "timestamp": "2025-08-28T13:43:16.768Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/results has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.417Z"
+      "type": "broken_page",
+      "message": "/analyze returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /analyze",
+      "timestamp": "2025-08-28T13:43:16.833Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/success has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.532Z"
+      "type": "broken_page",
+      "message": "/results returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /results",
+      "timestamp": "2025-08-28T13:43:16.888Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/cancel has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.641Z"
+      "type": "broken_page",
+      "message": "/success returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /success",
+      "timestamp": "2025-08-28T13:43:16.939Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/pricing has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.682Z"
+      "type": "broken_page",
+      "message": "/cancel returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /cancel",
+      "timestamp": "2025-08-28T13:43:16.993Z"
     },
     {
-      "type": "missing_content",
-      "message": "/pricing missing \"$79\"",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.682Z"
+      "type": "broken_page",
+      "message": "/ returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /",
+      "timestamp": "2025-08-28T13:43:17.065Z"
     },
     {
-      "type": "missing_content",
-      "message": "/pricing missing \"$129\"",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.682Z"
+      "type": "broken_page",
+      "message": "/pricing returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /pricing",
+      "timestamp": "2025-08-28T13:43:17.125Z"
     },
     {
-      "type": "missing_content",
-      "message": "/pricing missing \"$299\"",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.683Z"
+      "type": "broken_page",
+      "message": "/success returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /success",
+      "timestamp": "2025-08-28T13:43:17.242Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/success has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.806Z"
+      "type": "broken_page",
+      "message": "/ returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /",
+      "timestamp": "2025-08-28T13:43:17.295Z"
     },
     {
-      "type": "missing_content",
-      "message": "/success missing \"Welcome\"",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:41.806Z"
+      "type": "broken_page",
+      "message": "/analyze returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /analyze",
+      "timestamp": "2025-08-28T13:43:17.349Z"
     },
     {
-      "type": "seo_issue",
-      "message": "/results has incorrect title",
-      "priority": "medium",
-      "fix": "",
-      "timestamp": "2025-08-28T13:32:42.379Z"
+      "type": "broken_page",
+      "message": "/results returns HTTP 401",
+      "priority": "high",
+      "fix": "Fix routing for /results",
+      "timestamp": "2025-08-28T13:43:17.471Z"
     }
   ]
 }

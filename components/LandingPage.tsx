@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Header from './Header'
+import { StartTrialButton } from './CheckoutButton'
 
 export default function LandingPage() {
   const router = useRouter()
@@ -24,13 +25,13 @@ export default function LandingPage() {
           <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-secondary-300 max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Make your business visible online in minutes. DirectoryBolt uses smart automation and AI to put your business where customers are already searching.
           </p>
-          <button 
-            onClick={() => router.push('/pricing')}
-            className="bg-gradient-to-r from-volt-400 to-volt-600 text-secondary-900 font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-lg sm:text-xl hover:from-volt-300 hover:to-volt-500 animate-zoom-in"
+          <StartTrialButton
+            plan="growth"
+            className="animate-zoom-in"
             style={{ animationDelay: '0.4s' }}
           >
             Start Your Free Trial Today
-          </button>
+          </StartTrialButton>
           <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>Risk-free 7 days | Cancel anytime</p>
         </div>
       </section>
@@ -124,12 +125,13 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6">Let's Get You Found</h2>
           <p className="mb-8 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">Stop being invisible. Start showing up where your ideal customers are searching.</p>
-          <button 
-            onClick={() => router.push('/pricing')}
+          <StartTrialButton
+            plan="growth"
+            variant="outline"
             className="bg-secondary-900 text-volt-400 font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl"
           >
             Start My Free Trial Today
-          </button>
+          </StartTrialButton>
           <p className="mt-4 text-xs sm:text-sm opacity-90">Fast setup | 500+ directories | 100% visibility control</p>
         </div>
       </section>
