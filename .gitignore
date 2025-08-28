@@ -122,3 +122,4 @@ temp/
 
 # Bundle analyzer
 .next/analyze/
+.vercel
