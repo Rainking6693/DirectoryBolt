@@ -231,15 +231,12 @@ export function LoadingPage(props: Omit<StatusPageProps, 'status'>) {
 }
 
 export function ErrorPage(props: Omit<StatusPageProps, 'status'> & { error: ErrorInfo | string }) {
+  const { error, ...otherProps } = props;
   return (
     <StatusPage 
       status="error" 
-      error={{ 
-        error: props.error,
-        onRetry: props.error?.onRetry,
-        showSupportContact: true
-      }}
-      {...props} 
+      error={error}
+      {...otherProps} 
     />
   )
 }

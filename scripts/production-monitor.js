@@ -2,392 +2,393 @@
 
 /**
  * DirectoryBolt Production Monitoring System
- * Monitors deployment health, API performance, and error rates
+ * Continuous monitoring with alerting and reporting
+ * 
+ * Usage: npm run deploy:monitor
  */
 
 const https = require('https');
-const fs = require('fs');
+const http = require('http');
+const fs = require('fs').promises;
 const path = require('path');
 
 class ProductionMonitor {
-    constructor(baseUrl) {
-        this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
-        this.startTime = Date.now();
-        this.monitoringId = `monitor-${Date.now()}`;
-        
+    constructor() {
+        this.baseUrl = process.env.PRODUCTION_URL || 'https://directorybolt.com';
+        this.monitoringInterval = parseInt(process.env.MONITOR_INTERVAL) || 300000; // 5 minutes
+        this.alertThreshold = parseFloat(process.env.ALERT_THRESHOLD) || 7.0; // Alert if score < 7.0
+        this.isRunning = false;
         this.metrics = {
-            totalRequests: 0,
-            successfulRequests: 0,
-            failedRequests: 0,
-            avgResponseTime: 0,
-            errors: [],
-            endpointStats: {}
+            uptime: 0,
+            totalChecks: 0,
+            successfulChecks: 0,
+            failedChecks: 0,
+            averageResponseTime: 0,
+            lastHealthScore: 0,
+            incidents: [],
+            responseTimeHistory: []
         };
         
-        console.log(`🔍 DirectoryBolt Production Monitor Started`);
-        console.log(`🌐 Monitoring: ${this.baseUrl}`);
-        console.log(`⏰ Started at: ${new Date().toISOString()}\n`);
+        this.endpoints = [
+            { path: '/api/health', name: 'Health Check', critical: true },
+            { path: '/api/analyze', name: 'Analysis API', critical: true },
+            { path: '/api/create-checkout-session', name: 'Stripe Integration', critical: true },
+            { path: '/', name: 'Homepage', critical: false },
+            { path: '/pricing', name: 'Pricing Page', critical: false }
+        ];
     }
 
     log(message, level = 'info') {
         const timestamp = new Date().toISOString();
-        const colors = {
-            info: '\x1b[36m',    // Cyan
-            success: '\x1b[32m', // Green
-            warning: '\x1b[33m', // Yellow
-            error: '\x1b[31m',   // Red
-            reset: '\x1b[0m'     // Reset
-        };
+        const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+        console.log(logEntry);
         
-        console.log(`${colors[level] || colors.info}[${timestamp}] ${message}${colors.reset}`);
+        // Also write to file
+        this.writeLogToFile(logEntry);
     }
 
-    async makeRequest(endpoint, method = 'GET', expectedStatus = 200) {
-        return new Promise((resolve, reject) => {
-            const startTime = Date.now();
-            const url = require('url').parse(`${this.baseUrl}${endpoint}`);
+    async writeLogToFile(logEntry) {
+        try {
+            const logDir = path.join(__dirname, '..', 'logs');
+            await fs.mkdir(logDir, { recursive: true });
             
-            const options = {
-                hostname: url.hostname,
-                port: url.port || 443,
-                path: url.path,
-                method: method,
-                timeout: 30000, // 30 second timeout for analyze endpoint
-                headers: {
-                    'User-Agent': 'DirectoryBolt-Monitor/1.0',
-                    'Accept': 'application/json, text/html',
-                    'Content-Type': 'application/json'
-                }
-            };
+            const logFile = path.join(logDir, `monitor-${new Date().toISOString().split('T')[0]}.log`);
+            await fs.appendFile(logFile, logEntry + '\n');
+        } catch (error) {
+            // Ignore file write errors to prevent infinite loops
+        }
+    }
 
-            const req = https.request(options, (res) => {
+    async checkEndpoint(endpoint) {
+        const startTime = Date.now();
+        
+        return new Promise((resolve) => {
+            const url = `${this.baseUrl}${endpoint.path}`;
+            const client = url.startsWith('https://') ? https : http;
+            
+            const req = client.get(url, { 
+                timeout: 30000,
+                headers: {
+                    'User-Agent': 'DirectoryBolt-Monitor/1.0'
+                }
+            }, (res) => {
                 let data = '';
                 res.on('data', chunk => data += chunk);
                 res.on('end', () => {
                     const responseTime = Date.now() - startTime;
                     resolve({
+                        endpoint: endpoint.path,
+                        name: endpoint.name,
+                        critical: endpoint.critical,
                         status: res.statusCode,
+                        success: res.statusCode >= 200 && res.statusCode < 400,
                         responseTime,
-                        data: data.slice(0, 1000), // Limit data size
-                        headers: res.headers,
-                        success: res.statusCode === expectedStatus || (expectedStatus === 'any' && res.statusCode < 500)
+                        timestamp: new Date().toISOString(),
+                        response: data.substring(0, 1000) // First 1000 chars
                     });
                 });
             });
-
+            
             req.on('error', (error) => {
                 const responseTime = Date.now() - startTime;
-                reject({
-                    error: error.message,
+                resolve({
+                    endpoint: endpoint.path,
+                    name: endpoint.name,
+                    critical: endpoint.critical,
+                    status: 0,
+                    success: false,
                     responseTime,
-                    success: false
+                    timestamp: new Date().toISOString(),
+                    error: error.message
                 });
             });
-
+            
             req.on('timeout', () => {
                 req.destroy();
                 const responseTime = Date.now() - startTime;
-                reject({
-                    error: 'Request timeout',
+                resolve({
+                    endpoint: endpoint.path,
+                    name: endpoint.name,
+                    critical: endpoint.critical,
+                    status: 408,
+                    success: false,
                     responseTime,
-                    success: false
+                    timestamp: new Date().toISOString(),
+                    error: 'Request timeout'
+                });
+            });
+        });
+    }
+
+    async performHealthCheck() {
+        this.log('🔍 Performing health check...');
+        
+        const results = [];
+        let successCount = 0;
+        let totalResponseTime = 0;
+        let criticalIssues = 0;
+        
+        for (const endpoint of this.endpoints) {
+            const result = await this.checkEndpoint(endpoint);
+            results.push(result);
+            totalResponseTime += result.responseTime;
+            
+            if (result.success) {
+                successCount++;
+                this.log(`✅ ${result.name} - ${result.status} (${result.responseTime}ms)`);
+            } else {
+                if (result.critical) {
+                    criticalIssues++;
+                    this.log(`❌ ${result.name} - ${result.error || result.status} (${result.responseTime}ms)`, 'error');
+                } else {
+                    this.log(`⚠️  ${result.name} - ${result.error || result.status} (${result.responseTime}ms)`, 'warn');
+                }
+            }
+        }
+
+        const healthScore = (successCount / this.endpoints.length) * 10;
+        const avgResponseTime = Math.round(totalResponseTime / this.endpoints.length);
+        
+        // Update metrics
+        this.metrics.totalChecks++;
+        this.metrics.successfulChecks += successCount === this.endpoints.length ? 1 : 0;
+        this.metrics.failedChecks += successCount < this.endpoints.length ? 1 : 0;
+        this.metrics.lastHealthScore = healthScore;
+        this.metrics.averageResponseTime = avgResponseTime;
+        this.metrics.responseTimeHistory.push({
+            timestamp: new Date().toISOString(),
+            responseTime: avgResponseTime
+        });
+
+        // Keep only last 100 response time entries
+        if (this.metrics.responseTimeHistory.length > 100) {
+            this.metrics.responseTimeHistory = this.metrics.responseTimeHistory.slice(-100);
+        }
+
+        // Check for incidents
+        if (criticalIssues > 0 || healthScore < this.alertThreshold) {
+            await this.recordIncident(results, healthScore, criticalIssues);
+        }
+
+        this.log(`📊 Health Score: ${healthScore.toFixed(1)}/10 | Avg Response: ${avgResponseTime}ms`);
+        
+        return {
+            score: healthScore,
+            avgResponseTime,
+            results,
+            criticalIssues,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    async recordIncident(results, healthScore, criticalIssues) {
+        const incident = {
+            id: `incident-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            healthScore,
+            criticalIssues,
+            details: results.filter(r => !r.success),
+            resolved: false
+        };
+
+        this.metrics.incidents.push(incident);
+        
+        // Keep only last 50 incidents
+        if (this.metrics.incidents.length > 50) {
+            this.metrics.incidents = this.metrics.incidents.slice(-50);
+        }
+
+        this.log(`🚨 INCIDENT RECORDED: ${incident.id} - Score: ${healthScore.toFixed(1)}/10`, 'error');
+        
+        // Send alert if configured
+        await this.sendAlert(incident);
+    }
+
+    async sendAlert(incident) {
+        // This is where you'd integrate with your alerting system
+        // Examples: Slack webhook, email, PagerDuty, etc.
+        
+        const alertMessage = `
+🚨 DirectoryBolt Production Alert 🚨
+
+Incident ID: ${incident.id}
+Time: ${incident.timestamp}
+Health Score: ${incident.healthScore.toFixed(1)}/10
+Critical Issues: ${incident.criticalIssues}
+
+Failed Endpoints:
+${incident.details.map(d => `• ${d.name}: ${d.error || d.status}`).join('\n')}
+
+Production URL: ${this.baseUrl}
+        `;
+
+        this.log(`📧 ALERT: ${alertMessage}`, 'error');
+        
+        // You can add webhook calls here:
+        // await this.sendSlackAlert(alertMessage);
+        // await this.sendEmailAlert(alertMessage);
+    }
+
+    async generateStatusReport() {
+        const uptime = Math.round((Date.now() - this.startTime) / 1000);
+        const uptimeHours = (uptime / 3600).toFixed(1);
+        const successRate = this.metrics.totalChecks > 0 ? 
+            ((this.metrics.successfulChecks / this.metrics.totalChecks) * 100).toFixed(1) : 0;
+
+        const report = {
+            timestamp: new Date().toISOString(),
+            baseUrl: this.baseUrl,
+            uptime: {
+                seconds: uptime,
+                hours: uptimeHours
+            },
+            metrics: {
+                ...this.metrics,
+                successRate: `${successRate}%`
+            },
+            currentStatus: this.metrics.lastHealthScore >= this.alertThreshold ? 'HEALTHY' : 'DEGRADED',
+            recentIncidents: this.metrics.incidents.slice(-5) // Last 5 incidents
+        };
+
+        // Write status report
+        const reportsDir = path.join(__dirname, '..', 'monitoring-reports');
+        await fs.mkdir(reportsDir, { recursive: true });
+        
+        const reportPath = path.join(reportsDir, 'current-status.json');
+        await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
+
+        return report;
+    }
+
+    async testApiPerformance() {
+        this.log('⚡ Testing API performance...');
+        
+        // Test analysis endpoint with a real request
+        const testUrl = 'https://example.com';
+        const startTime = Date.now();
+        
+        try {
+            const testResult = await this.makeAnalysisRequest(testUrl, 'starter');
+            const analysisTime = Date.now() - startTime;
+            
+            if (analysisTime > 15000) {
+                this.log(`⚠️  Analysis API slow: ${analysisTime}ms (>15s)`, 'warn');
+            } else {
+                this.log(`✅ Analysis API performance: ${analysisTime}ms`);
+            }
+            
+            return {
+                success: true,
+                responseTime: analysisTime,
+                result: testResult
+            };
+        } catch (error) {
+            this.log(`❌ Analysis API test failed: ${error.message}`, 'error');
+            return {
+                success: false,
+                error: error.message,
+                responseTime: Date.now() - startTime
+            };
+        }
+    }
+
+    async makeAnalysisRequest(url, tier) {
+        return new Promise((resolve, reject) => {
+            const postData = JSON.stringify({ url, tier });
+            const options = {
+                hostname: this.baseUrl.replace('https://', '').replace('http://', ''),
+                port: this.baseUrl.startsWith('https://') ? 443 : 80,
+                path: '/api/analyze',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            };
+
+            const client = this.baseUrl.startsWith('https://') ? https : http;
+            const req = client.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    if (res.statusCode === 200) {
+                        resolve(JSON.parse(data));
+                    } else {
+                        reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+                    }
                 });
             });
 
-            req.setTimeout(30000);
-            
-            // Send POST data for analyze endpoint
-            if (method === 'POST' && endpoint === '/api/analyze') {
-                const postData = JSON.stringify({
-                    url: 'https://example.com',
-                    categories: ['technology']
-                });
-                req.write(postData);
-            }
-            
+            req.on('error', reject);
+            req.write(postData);
             req.end();
         });
     }
 
-    async testEndpoint(endpoint, method = 'GET', expectedStatus = 200, name = null) {
-        const displayName = name || `${method} ${endpoint}`;
+    async start() {
+        this.log('🚀 Starting production monitoring...');
+        this.isRunning = true;
+        this.startTime = Date.now();
         
-        try {
-            this.metrics.totalRequests++;
+        const runMonitoringCycle = async () => {
+            if (!this.isRunning) return;
             
-            const result = await this.makeRequest(endpoint, method, expectedStatus);
-            
-            if (result.success) {
-                this.metrics.successfulRequests++;
-                this.log(`✅ ${displayName}: ${result.status} (${result.responseTime}ms)`, 'success');
-            } else {
-                this.metrics.failedRequests++;
-                this.log(`⚠️  ${displayName}: ${result.status} (${result.responseTime}ms)`, 'warning');
-            }
-            
-            // Update endpoint stats
-            if (!this.metrics.endpointStats[endpoint]) {
-                this.metrics.endpointStats[endpoint] = {
-                    requests: 0,
-                    successes: 0,
-                    failures: 0,
-                    avgResponseTime: 0,
-                    totalResponseTime: 0
-                };
-            }
-            
-            const stats = this.metrics.endpointStats[endpoint];
-            stats.requests++;
-            stats.totalResponseTime += result.responseTime;
-            stats.avgResponseTime = Math.round(stats.totalResponseTime / stats.requests);
-            
-            if (result.success) {
-                stats.successes++;
-            } else {
-                stats.failures++;
-            }
-            
-            return result;
-            
-        } catch (error) {
-            this.metrics.totalRequests++;
-            this.metrics.failedRequests++;
-            this.metrics.errors.push({
-                endpoint,
-                method,
-                error: error.error || error.message,
-                timestamp: new Date().toISOString(),
-                responseTime: error.responseTime || 0
-            });
-            
-            this.log(`❌ ${displayName}: ${error.error || error.message} (${error.responseTime || 0}ms)`, 'error');
-            return { success: false, error: error.error || error.message };
-        }
-    }
-
-    async runHealthChecks() {
-        this.log('🏥 Running health checks...');
-        
-        const healthChecks = [
-            { endpoint: '/', method: 'GET', status: 200, name: 'Homepage' },
-            { endpoint: '/pricing', method: 'GET', status: 200, name: 'Pricing Page' },
-            { endpoint: '/api/health', method: 'GET', status: 200, name: 'Health API' },
-            { endpoint: '/api/analyze', method: 'POST', status: 200, name: 'Analyze API (with test data)' },
-            { endpoint: '/api/create-checkout-session', method: 'GET', status: 405, name: 'Checkout API (method check)' }
-        ];
-        
-        for (const check of healthChecks) {
-            await this.testEndpoint(check.endpoint, check.method, check.status, check.name);
-            // Wait between requests to avoid overwhelming the server
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-    }
-
-    async runPerformanceTest() {
-        this.log('🚀 Running performance tests...');
-        
-        // Test homepage performance multiple times
-        const iterations = 3;
-        const responseTimes = [];
-        
-        for (let i = 0; i < iterations; i++) {
-            const result = await this.testEndpoint('/', 'GET', 200, `Homepage Performance Test ${i + 1}`);
-            if (result.success) {
-                responseTimes.push(result.responseTime);
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        if (responseTimes.length > 0) {
-            const avgResponseTime = Math.round(responseTimes.reduce((a, b) => a + b) / responseTimes.length);
-            const minResponseTime = Math.min(...responseTimes);
-            const maxResponseTime = Math.max(...responseTimes);
-            
-            this.log(`📊 Homepage Performance - Avg: ${avgResponseTime}ms, Min: ${minResponseTime}ms, Max: ${maxResponseTime}ms`, 'info');
-            this.metrics.avgResponseTime = avgResponseTime;
-        }
-    }
-
-    async testAnalyzeWorkflow() {
-        this.log('🔍 Testing analyze workflow...');
-        
-        // Test with different scenarios that Nathan validated
-        const testScenarios = [
-            {
-                name: 'Valid URL Test',
-                data: { url: 'https://stripe.com', categories: ['technology', 'finance'] }
-            },
-            {
-                name: 'DNS Resolution Test', 
-                data: { url: 'https://nonexistent-domain-12345.com', categories: ['technology'] }
-            },
-            {
-                name: 'Invalid URL Test',
-                data: { url: 'not-a-url', categories: ['technology'] }
-            }
-        ];
-        
-        for (const scenario of testScenarios) {
             try {
-                this.log(`Testing: ${scenario.name}`);
-                const result = await this.makeRequest('/api/analyze', 'POST');
+                // Perform health check
+                await this.performHealthCheck();
                 
-                if (result.success) {
-                    this.log(`✅ ${scenario.name}: API responded correctly`, 'success');
-                } else {
-                    this.log(`⚠️  ${scenario.name}: Status ${result.status}`, 'warning');
+                // Test API performance every 3rd check
+                if (this.metrics.totalChecks % 3 === 0) {
+                    await this.testApiPerformance();
                 }
+                
+                // Generate status report
+                await this.generateStatusReport();
+                
             } catch (error) {
-                this.log(`❌ ${scenario.name}: ${error.error || error.message}`, 'error');
+                this.log(`❌ Monitoring error: ${error.message}`, 'error');
             }
             
-            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait longer between analyze tests
-        }
-    }
-
-    async testPricingTiers() {
-        this.log('💳 Testing pricing tiers...');
-        
-        // Test that pricing page loads and contains tier information
-        try {
-            const result = await this.testEndpoint('/pricing', 'GET', 200, 'Pricing Page Load');
-            if (result.success && result.data) {
-                const hasStarterTier = result.data.includes('Starter') || result.data.includes('$9');
-                const hasGrowthTier = result.data.includes('Growth') || result.data.includes('$29');
-                const hasProfessionalTier = result.data.includes('Professional') || result.data.includes('$79');
-                const hasEnterpriseTier = result.data.includes('Enterprise') || result.data.includes('$199');
-                
-                if (hasStarterTier && hasGrowthTier && hasProfessionalTier && hasEnterpriseTier) {
-                    this.log('✅ All 4 pricing tiers detected on pricing page', 'success');
-                } else {
-                    this.log('⚠️  Some pricing tiers may be missing from pricing page', 'warning');
-                }
-            }
-        } catch (error) {
-            this.log(`❌ Pricing tiers test failed: ${error.message}`, 'error');
-        }
-    }
-
-    generateReport() {
-        const duration = Math.round((Date.now() - this.startTime) / 1000);
-        const successRate = this.metrics.totalRequests > 0 
-            ? Math.round((this.metrics.successfulRequests / this.metrics.totalRequests) * 100) 
-            : 0;
-        
-        const report = {
-            monitoringId: this.monitoringId,
-            timestamp: new Date().toISOString(),
-            duration: `${duration} seconds`,
-            baseUrl: this.baseUrl,
-            summary: {
-                totalRequests: this.metrics.totalRequests,
-                successfulRequests: this.metrics.successfulRequests,
-                failedRequests: this.metrics.failedRequests,
-                successRate: `${successRate}%`,
-                avgResponseTime: `${this.metrics.avgResponseTime}ms`
-            },
-            endpointStats: this.metrics.endpointStats,
-            errors: this.metrics.errors,
-            healthStatus: successRate >= 80 ? 'HEALTHY' : successRate >= 50 ? 'DEGRADED' : 'UNHEALTHY',
-            recommendations: []
+            // Schedule next check
+            setTimeout(runMonitoringCycle, this.monitoringInterval);
         };
+
+        // Initial check
+        await runMonitoringCycle();
         
-        // Add recommendations
-        if (successRate < 80) {
-            report.recommendations.push('⚠️  Success rate below 80% - investigate failing endpoints');
-        }
-        if (this.metrics.avgResponseTime > 3000) {
-            report.recommendations.push('🐌 Average response time above 3s - consider performance optimization');
-        }
-        if (this.metrics.errors.length > 0) {
-            report.recommendations.push(`❌ ${this.metrics.errors.length} errors detected - review error logs`);
-        }
-        if (report.recommendations.length === 0) {
-            report.recommendations.push('✅ All systems operating within normal parameters');
-        }
-        
-        // Save report
-        const reportFile = `monitoring-report-${this.monitoringId}.json`;
-        fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-        
-        // Display summary
-        console.log('\n' + '='.repeat(80));
-        console.log('🔍 DirectoryBolt Production Monitoring Report');
-        console.log('='.repeat(80));
-        console.log(`🌐 URL: ${this.baseUrl}`);
-        console.log(`⏱️  Duration: ${report.duration}`);
-        console.log(`📊 Requests: ${report.summary.totalRequests} (${report.summary.successfulRequests} success, ${report.summary.failedRequests} failed)`);
-        console.log(`✅ Success Rate: ${report.summary.successRate}`);
-        console.log(`⚡ Avg Response Time: ${report.summary.avgResponseTime}`);
-        console.log(`🏥 Health Status: ${report.healthStatus}`);
-        console.log(`📋 Report saved: ${reportFile}`);
-        
-        console.log('\n📈 Endpoint Performance:');
-        Object.entries(report.endpointStats).forEach(([endpoint, stats]) => {
-            const successRate = stats.requests > 0 ? Math.round((stats.successes / stats.requests) * 100) : 0;
-            console.log(`  ${endpoint}: ${successRate}% success, ${stats.avgResponseTime}ms avg`);
-        });
-        
-        if (report.errors.length > 0) {
-            console.log('\n❌ Errors Detected:');
-            report.errors.forEach(error => {
-                console.log(`  ${error.endpoint}: ${error.error} (${error.responseTime}ms)`);
-            });
-        }
-        
-        console.log('\n💡 Recommendations:');
-        report.recommendations.forEach(rec => console.log(`  ${rec}`));
-        
-        console.log('\n' + '='.repeat(80));
-        
-        return report;
+        this.log(`📊 Monitoring active - checking every ${this.monitoringInterval/1000}s`);
     }
 
-    async monitor() {
-        try {
-            await this.runHealthChecks();
-            await this.runPerformanceTest();
-            await this.testAnalyzeWorkflow();
-            await this.testPricingTiers();
-            
-            const report = this.generateReport();
-            
-            return {
-                success: true,
-                healthStatus: report.healthStatus,
-                successRate: report.summary.successRate,
-                report: report
-            };
-            
-        } catch (error) {
-            this.log(`💥 Monitoring failed: ${error.message}`, 'error');
-            throw error;
-        }
+    stop() {
+        this.log('🛑 Stopping production monitoring...');
+        this.isRunning = false;
+    }
+
+    async getStatus() {
+        return await this.generateStatusReport();
     }
 }
 
-// Run monitoring if called directly
+// Command line interface
 if (require.main === module) {
-    const baseUrl = process.argv[2] || process.env.DEPLOYMENT_URL;
+    const monitor = new ProductionMonitor();
     
-    if (!baseUrl) {
-        console.error('❌ Usage: node production-monitor.js <base-url>');
-        console.error('   Example: node production-monitor.js https://your-app.vercel.app');
+    // Handle graceful shutdown
+    process.on('SIGINT', () => {
+        monitor.stop();
+        process.exit(0);
+    });
+    
+    process.on('SIGTERM', () => {
+        monitor.stop();
+        process.exit(0);
+    });
+    
+    // Start monitoring
+    monitor.start().catch(error => {
+        console.error('Failed to start monitoring:', error);
         process.exit(1);
-    }
-    
-    const monitor = new ProductionMonitor(baseUrl);
-    
-    monitor.monitor()
-        .then(result => {
-            console.log(`\n🎉 MONITORING COMPLETE - Status: ${result.healthStatus}`);
-            process.exit(result.healthStatus === 'HEALTHY' ? 0 : 1);
-        })
-        .catch(error => {
-            console.error('\n💥 MONITORING FAILED!');
-            console.error(`❌ Error: ${error.message}`);
-            process.exit(1);
-        });
+    });
 }
 
 module.exports = ProductionMonitor;

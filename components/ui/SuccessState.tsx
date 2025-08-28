@@ -41,9 +41,9 @@ export function SuccessState({
           if (prev && prev <= 1) {
             setIsVisible(false)
             onClose?.()
-            return null
+            return undefined
           }
-          return prev ? prev - 1 : null
+          return prev ? prev - 1 : undefined
         })
       }, 1000)
 

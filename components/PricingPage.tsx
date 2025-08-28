@@ -381,30 +381,28 @@ export default function PricingPage() {
                         className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${tier.buttonStyle}`}
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
-                        onSuccess={(data) => {
+                        onSuccess={(data: any) => {
                           console.log('Checkout success:', data)
                           // Track conversion event
-                          if (typeof window !== 'undefined' && window.gtag) {
-                            window.gtag('event', 'purchase_initiated', {
+                          if (typeof window !== 'undefined' && (window as any).gtag) {
+                            (window as any).gtag('event', 'purchase_initiated', {
                               plan: tier.id,
                               billing: isAnnual ? 'annual' : 'monthly',
                               value: isAnnual ? tier.annualPrice : tier.price
                             })
                           }
                         }}
-                        onError={(error) => {
+                        onError={(error: any) => {
                           console.error('Checkout error for plan:', tier.id, error)
                           // Fallback: redirect to analysis with plan pre-selected
                           router.push(`/analyze?recommended_plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
                         }}
                       >
-                        <div>
-                          {tier.buttonText}
-                          {tier.id !== 'enterprise' && (
-                            <span className="block text-sm opacity-80 font-normal">14-day free trial</span>
-                          )}
-                        </div>
+                        {tier.buttonText}
                       </CheckoutButton>
+                      {tier.id !== 'enterprise' && (
+                        <div className="text-center text-sm text-secondary-400 mt-2">14-day free trial</div>
+                      )}
                     </div>
 
                     {/* Directory Examples */}
@@ -629,10 +627,10 @@ export default function PricingPage() {
                 className="group px-10 py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
                 successUrl={getSuccessUrl('growth')}
                 cancelUrl={getCancelUrl('growth')}
-                onSuccess={(data) => {
+                onSuccess={(data: any) => {
                   console.log('Final CTA checkout success:', data)
-                  if (typeof window !== 'undefined' && window.gtag) {
-                    window.gtag('event', 'purchase_initiated', {
+                  if (typeof window !== 'undefined' && (window as any).gtag) {
+                    (window as any).gtag('event', 'purchase_initiated', {
                       plan: 'growth',
                       billing: isAnnual ? 'annual' : 'monthly',
                       value: isAnnual ? 63 : 79,
@@ -640,9 +638,11 @@ export default function PricingPage() {
                     })
                   }
                 }}
+                onError={(error: any) => {
+                  console.error('Final CTA checkout error:', error)
+                }}
               >
-                <span className="relative z-10">🚀 Start 14-Day Free Trial</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                🚀 Start 14-Day Free Trial
               </CheckoutButton>
               
               <button

@@ -377,7 +377,7 @@ async function processAnalysisSync(
     }
     
     const scrapingResult = await optimizedScraper.scrapeUrl(url, {
-      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      timeout: timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free,
       priority: ['professional', 'enterprise'].includes(context.userTier) ? 'high' : 'normal',
       cacheKey: `analysis:${url}`,
       skipCache: options.fresh === true,
@@ -394,7 +394,7 @@ async function processAnalysisSync(
       let userFriendlyMessage = errorMessage
       switch (errorCode) {
         case 'TIMEOUT':
-          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
+          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
           break
         case 'DNS_ERROR':
           userFriendlyMessage = 'Could not find the website. Please check the URL and try again.'
@@ -435,7 +435,7 @@ async function processAnalysisSync(
 
     // Initialize enhanced website analyzer with tier-based configuration
     const analyzerConfig = {
-      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      timeout: timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free,
       maxRetries: context.userTier === 'free' ? 1 : 2, // Reduced retries for faster response
       userAgent: process.env.USER_AGENT || 'DirectoryBolt/2.0 (+https://directorybolt.com)',
       respectRobots: true
@@ -559,7 +559,7 @@ async function processAnalysisAsync(
     }
     
     const scrapingResult = await optimizedScraper.scrapeUrl(url, {
-      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      timeout: timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free,
       priority: ['professional', 'enterprise'].includes(context.userTier) ? 'high' : 'normal',
       cacheKey: `analysis:${url}`,
       skipCache: options.fresh === true,
@@ -576,7 +576,7 @@ async function processAnalysisAsync(
       let userFriendlyMessage = errorMessage
       switch (errorCode) {
         case 'TIMEOUT':
-          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
+          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
           break
         case 'DNS_ERROR':
           userFriendlyMessage = 'Could not find the website. Please check the URL and try again.'
@@ -617,7 +617,7 @@ async function processAnalysisAsync(
 
     // Initialize enhanced website analyzer with tier-based configuration
     const analyzerConfig = {
-      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      timeout: timeoutConfig[context.userTier as keyof typeof timeoutConfig] || timeoutConfig.free,
       maxRetries: context.userTier === 'free' ? 1 : 2, // Reduced retries for faster response
       userAgent: process.env.USER_AGENT || 'DirectoryBolt/2.0 (+https://directorybolt.com)',
       respectRobots: true

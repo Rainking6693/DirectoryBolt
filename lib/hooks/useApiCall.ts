@@ -226,8 +226,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
       retryable: true,
       recoverable: true,
       details: {
-        attempt,
-        maxAttempts
+        supportId: `Attempt ${attempt}/${maxAttempts}`
       }
     }
   }
@@ -240,8 +239,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
       retryable: true,
       recoverable: true,
       details: {
-        attempt,
-        maxAttempts
+        supportId: `Attempt ${attempt}/${maxAttempts}`
       }
     }
   }
@@ -259,7 +257,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'Invalid request. Please check your input and try again.',
             retryable: false,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
 
         case 401:
@@ -268,7 +266,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'Authentication failed. Please refresh the page and try again.',
             retryable: false,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
 
         case 403:
@@ -277,7 +275,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'Access denied. You may have reached your usage limit.',
             retryable: false,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
 
         case 404:
@@ -286,7 +284,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'The requested resource was not found.',
             retryable: false,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
 
         case 429:
@@ -295,7 +293,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'Too many requests. Please wait a moment before trying again.',
             retryable: true,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts, retryAfter: 60000 }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}`, retryAfter: 60000 }
           }
 
         case 500:
@@ -307,7 +305,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: 'Server error. Please try again in a few moments.',
             retryable: true,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
 
         default:
@@ -316,7 +314,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
             message: error.message || 'An unexpected error occurred.',
             retryable: statusCode >= 500,
             recoverable: true,
-            details: { statusCode, attempt, maxAttempts }
+            details: { statusCode, supportId: `Attempt ${attempt}/${maxAttempts}` }
           }
       }
     }
@@ -332,7 +330,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
         message: error.message,
         retryable: true,
         recoverable: true,
-        details: { attempt, maxAttempts }
+        details: { supportId: `Attempt ${attempt}/${maxAttempts}` }
       }
     }
 
@@ -342,7 +340,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
         message: error.message,
         retryable: false,
         recoverable: true,
-        details: { attempt, maxAttempts }
+        details: { supportId: `Attempt ${attempt}/${maxAttempts}` }
       }
     }
 
@@ -352,7 +350,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
         message: error.message,
         retryable: false,
         recoverable: true,
-        details: { attempt, maxAttempts }
+        details: { supportId: `Attempt ${attempt}/${maxAttempts}` }
       }
     }
 
@@ -362,7 +360,7 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
         message: error.message,
         retryable: false,
         recoverable: true,
-        details: { attempt, maxAttempts }
+        details: { supportId: `Attempt ${attempt}/${maxAttempts}` }
       }
     }
   }
@@ -373,6 +371,6 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
     message: error.message || 'An unexpected error occurred. Please try again.',
     retryable: true,
     recoverable: true,
-    details: { attempt, maxAttempts }
+    details: { supportId: `Attempt ${attempt}/${maxAttempts}` }
   }
 }

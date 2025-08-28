@@ -1,0 +1,13 @@
+{
+  "deploymentId": "deploy-1756403735705",
+  "timestamp": "2025-08-28T17:55:35.710Z",
+  "deploymentTime": "0s",
+  "baseUrl": "https://directorybolt.com",
+  "log": [
+    "[2025-08-28T17:55:35.705Z] [INFO] 🚀 Starting production deployment: deploy-1756403735705",
+    "[2025-08-28T17:55:35.709Z] [INFO] 🔍 Validating environment configuration...",
+    "[2025-08-28T17:55:35.709Z] [ERROR] ❌ Missing or incomplete environment variables: STRIPE_SECRET_KEY, STRIPE_STARTER_PRICE_ID, STRIPE_GROWTH_PRICE_ID, STRIPE_PROFESSIONAL_PRICE_ID, STRIPE_ENTERPRISE_PRICE_ID, NEXTAUTH_URL",
+    "[2025-08-28T17:55:35.709Z] [ERROR] Please update your .env.production file with actual values",
+    "[2025-08-28T17:55:35.710Z] [ERROR] ❌ Deployment failed: Environment validation failed"
+  ]
+}

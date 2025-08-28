@@ -208,7 +208,7 @@ function NotificationItem({
           error={{
             type: 'unknown',
             message: notification.message,
-            details: notification.details ? { description: notification.details.join(', ') } : undefined
+            details: notification.details ? { supportId: notification.details.join(', ') } : undefined
           }}
           onDismiss={onDismiss}
           compact={true}

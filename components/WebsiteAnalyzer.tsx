@@ -210,7 +210,7 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
               </h3>
               
               <div className="space-y-4">
-                {results.issues.map((issue, index) => (
+                {results.issues.map((issue: any, index: number) => (
                   <div
                     key={index}
                     className={`p-4 rounded-lg border ${
@@ -255,7 +255,7 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
                 
                 <button 
                   onClick={() => {
-                    setResults(null)
+                    reset()
                     setShowResults(false)
                     setWebsite('')
                   }}
