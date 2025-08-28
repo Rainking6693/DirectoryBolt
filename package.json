@@ -34,6 +34,8 @@
     "stripe:test": "node scripts/test-stripe-integration.js",
     "stripe:test:local": "TEST_BASE_URL=http://localhost:3000 node scripts/test-stripe-integration.js",
     "deploy": "vercel --prod",
+    "deploy:production": "node scripts/deploy-production.js",
+    "deploy:monitor": "node scripts/production-monitor.js",
     "docker:build": "docker build -t directorybolt .",
     "docker:run": "docker run -p 3000:3000 directorybolt",
     "docker:compose": "docker-compose up -d",
@@ -75,6 +77,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.15",
     "postcss": "^8.4.47",
+    "puppeteer": "^24.17.0",
     "sharp": "^0.32.6",
     "tailwindcss": "^3.4.13"
   },

@@ -119,13 +119,13 @@ export interface ScraperStats {
   }
 }
 
-// Default configuration
+// Default configuration optimized for different user tiers
 const DEFAULT_CONFIG: ScrapingConfig = {
   maxConcurrency: 10,
-  timeout: 30000,
-  maxRetries: 3,
+  timeout: 20000, // Reduced from 30s to 20s for better UX
+  maxRetries: 2, // Reduced retries for faster failure detection
   retryDelay: 1000,
-  userAgent: 'DirectoryBolt/1.0 (+https://directorybolt.com)',
+  userAgent: 'DirectoryBolt/2.0 (+https://directorybolt.com)',
   respectRobots: true,
   cacheTTL: 5 * 60 * 1000, // 5 minutes
   maxCacheSize: 100 * 1024 * 1024, // 100MB
@@ -393,11 +393,16 @@ export class OptimizedScraper {
     const startTime = Date.now()
     const timings = { dns: 0, connect: 0, ssl: 0, download: 0 }
     
+    // Enhanced timeout configuration based on job priority
+    const baseTimeout = job.options.timeout || this.config.timeout
+    const priorityMultiplier = job.options.priority === 'high' ? 1.5 : job.options.priority === 'low' ? 0.7 : 1
+    const adjustedTimeout = Math.min(baseTimeout * priorityMultiplier, 25000) // Cap at 25 seconds
+    
     const config: AxiosRequestConfig = {
       method: job.options.method || 'GET',
       url: job.url,
-      timeout: job.options.timeout || this.config.timeout,
-      maxRedirects: job.options.maxRedirects || 5,
+      timeout: adjustedTimeout,
+      maxRedirects: job.options.maxRedirects || 3, // Reduced redirects to prevent loops
       headers: {
         ...this.config.headers,
         ...job.options.headers,
@@ -662,19 +667,31 @@ export class OptimizedScraper {
   private getErrorCode(error: any): string {
     if (error?.code) return error.code
     if (error?.response?.status) return `HTTP_${error.response.status}`
-    if (error?.message?.includes('timeout')) return 'TIMEOUT'
+    if (error?.message?.includes('timeout') || error?.code === 'ECONNABORTED') return 'TIMEOUT'
     if (error?.message?.includes('ENOTFOUND')) return 'DNS_ERROR'
     if (error?.message?.includes('ECONNREFUSED')) return 'CONNECTION_REFUSED'
     if (error?.message?.includes('ECONNRESET')) return 'CONNECTION_RESET'
+    if (error?.message?.includes('certificate') || error?.message?.includes('SSL')) return 'SSL_ERROR'
+    if (error?.message?.includes('network') || error?.message?.includes('ENETUNREACH')) return 'NETWORK_ERROR'
     return 'UNKNOWN_ERROR'
   }
 
   private isRetryableError(error: any): boolean {
     const retryableCodes = [
       'TIMEOUT', 'CONNECTION_REFUSED', 'CONNECTION_RESET', 'ECONNRESET',
-      'ENOTFOUND', 'HTTP_429', 'HTTP_502', 'HTTP_503', 'HTTP_504'
+      'ENOTFOUND', 'HTTP_429', 'HTTP_502', 'HTTP_503', 'HTTP_504', 'NETWORK_ERROR'
+    ]
+    const nonRetryableCodes = [
+      'HTTP_400', 'HTTP_401', 'HTTP_403', 'HTTP_404', 'HTTP_405', 'HTTP_410',
+      'SSL_ERROR' // Don't retry SSL certificate errors
     ]
     const errorCode = this.getErrorCode(error)
+    
+    // Don't retry if explicitly non-retryable
+    if (nonRetryableCodes.includes(errorCode)) {
+      return false
+    }
+    
     return retryableCodes.includes(errorCode)
   }
 

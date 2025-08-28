@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import FeatureTooltip from './ui/FeatureTooltip'
+import CheckoutButton from './CheckoutButton'
 
 interface PricingTier {
   id: string
@@ -179,41 +180,13 @@ export default function PricingPage() {
     setIsVisible(true)
   }, [])
 
-  const handleCTAClick = async (tier: PricingTier) => {
-    if (tier.id === 'enterprise') {
-      // Contact sales for enterprise
-      window.open('mailto:sales@directorybolt.com?subject=Enterprise Plan Inquiry', '_blank')
-    } else {
-      // Create checkout session for direct payment
-      try {
-        const response = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            plan: tier.id,
-            user_email: `user@example.com`, // In real app, get from auth
-            user_id: `user_${Date.now()}`, // In real app, get from auth
-            success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${window.location.origin}/pricing?cancelled=true`,
-          }),
-        })
+  // This function now just determines where to route, actual checkout is handled by CheckoutButton
+  const getSuccessUrl = (planId: string) => {
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&billing=${isAnnual ? 'annual' : 'monthly'}`
+  }
 
-        const { data } = await response.json()
-        
-        if (data?.checkout_session?.url) {
-          // Redirect to Stripe checkout
-          window.location.href = data.checkout_session.url
-        } else {
-          throw new Error('Failed to create checkout session')
-        }
-      } catch (error) {
-        console.error('Checkout error:', error)
-        // Fallback to analyze page if checkout fails
-        router.push(`/analyze?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
-      }
-    }
+  const getCancelUrl = (planId: string) => {
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=${planId}&billing=${isAnnual ? 'annual' : 'monthly'}`
   }
 
   const calculateROI = (tier: PricingTier) => {
@@ -399,16 +372,40 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    {/* CTA Button */}
-                    <button
-                      onClick={() => handleCTAClick(tier)}
-                      className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${tier.buttonStyle}`}
-                    >
-                      {tier.buttonText}
-                      {tier.id !== 'enterprise' && (
-                        <span className="block text-sm opacity-80 font-normal">14-day free trial</span>
-                      )}
-                    </button>
+                    {/* CTA Button - Now using CheckoutButton component */}
+                    <div className="w-full">
+                      <CheckoutButton
+                        plan={tier.id}
+                        variant={tier.highlighted ? 'primary' : tier.id === 'enterprise' ? 'outline' : 'secondary'}
+                        size="lg"
+                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${tier.buttonStyle}`}
+                        successUrl={getSuccessUrl(tier.id)}
+                        cancelUrl={getCancelUrl(tier.id)}
+                        onSuccess={(data) => {
+                          console.log('Checkout success:', data)
+                          // Track conversion event
+                          if (typeof window !== 'undefined' && window.gtag) {
+                            window.gtag('event', 'purchase_initiated', {
+                              plan: tier.id,
+                              billing: isAnnual ? 'annual' : 'monthly',
+                              value: isAnnual ? tier.annualPrice : tier.price
+                            })
+                          }
+                        }}
+                        onError={(error) => {
+                          console.error('Checkout error for plan:', tier.id, error)
+                          // Fallback: redirect to analysis with plan pre-selected
+                          router.push(`/analyze?recommended_plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+                        }}
+                      >
+                        <div>
+                          {tier.buttonText}
+                          {tier.id !== 'enterprise' && (
+                            <span className="block text-sm opacity-80 font-normal">14-day free trial</span>
+                          )}
+                        </div>
+                      </CheckoutButton>
+                    </div>
 
                     {/* Directory Examples */}
                     <div className="text-center mt-4 p-3 bg-secondary-900/30 rounded-lg border border-secondary-600/30">
@@ -625,13 +622,28 @@ export default function PricingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
-              <button
-                onClick={() => handleCTAClick(pricingTiers.find(t => t.id === 'growth')!)}
+              <CheckoutButton
+                plan="growth"
+                variant="primary"
+                size="xl"
                 className="group px-10 py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
+                successUrl={getSuccessUrl('growth')}
+                cancelUrl={getCancelUrl('growth')}
+                onSuccess={(data) => {
+                  console.log('Final CTA checkout success:', data)
+                  if (typeof window !== 'undefined' && window.gtag) {
+                    window.gtag('event', 'purchase_initiated', {
+                      plan: 'growth',
+                      billing: isAnnual ? 'annual' : 'monthly',
+                      value: isAnnual ? 63 : 79,
+                      source: 'final_cta'
+                    })
+                  }
+                }}
               >
                 <span className="relative z-10">🚀 Start 14-Day Free Trial</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
+              </CheckoutButton>
               
               <button
                 onClick={() => router.push('/analyze')}

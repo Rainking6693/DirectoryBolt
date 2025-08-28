@@ -1,5 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useWebsiteAnalysis } from '../lib/hooks/useApiCall'
+import { ErrorDisplay } from './ui/ErrorDisplay'
+import { LoadingState } from './ui/LoadingState'
+import { SuccessState } from './ui/SuccessState'
 
 interface WebsiteAnalyzerProps {
   onNext: () => void
@@ -21,13 +25,11 @@ interface AnalysisResult {
 
 export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
   const [website, setWebsite] = useState('')
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [currentStep, setCurrentStep] = useState('')
-  const [results, setResults] = useState<AnalysisResult | null>(null)
   const [showResults, setShowResults] = useState(false)
+  const { data: results, loading: isAnalyzing, error, analyzeWebsite, retry, reset } = useWebsiteAnalysis()
 
   const analysisSteps = [
+    'Validating website URL...',
     'Scanning your website...',
     'Checking directory listings...',
     'Analyzing competitor presence...',
@@ -35,83 +37,43 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
     'Generating optimization report...'
   ]
 
-  const analyzeWebsite = async () => {
-    if (!website) return
+  const handleAnalyze = async () => {
+    if (!website.trim()) return
 
-    setIsAnalyzing(true)
-    setProgress(0)
-    setResults(null)
+    reset()
     setShowResults(false)
 
-    // Simulate comprehensive analysis with smooth progress
-    for (let i = 0; i < analysisSteps.length; i++) {
-      setCurrentStep(analysisSteps[i])
+    try {
+      const result = await analyzeWebsite(website.trim(), {
+        deep: false,
+        includeCompetitors: true,
+        checkDirectories: true
+      })
       
-      // Smooth progress animation
-      const stepProgress = ((i + 1) / analysisSteps.length) * 100
-      let currentProgress = progress
-      
-      const progressInterval = setInterval(() => {
-        currentProgress += 2
-        if (currentProgress >= stepProgress) {
-          setProgress(stepProgress)
-          clearInterval(progressInterval)
-        } else {
-          setProgress(currentProgress)
-        }
-      }, 50)
-      
-      // Wait for step completion
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      clearInterval(progressInterval)
-      setProgress(stepProgress)
+      if (result) {
+        setShowResults(true)
+      }
+    } catch (error) {
+      // Error is handled by the hook
+      console.error('Analysis failed:', error)
     }
-
-    // Generate realistic results based on website
-    const mockResults: AnalysisResult = {
-      currentListings: Math.floor(Math.random() * 15) + 3,
-      missedOpportunities: Math.floor(Math.random() * 400) + 200,
-      competitorAdvantage: Math.floor(Math.random() * 300) + 100,
-      potentialLeads: Math.floor(Math.random() * 80) + 40,
-      visibility: Math.floor(Math.random() * 30) + 10,
-      issues: [
-        {
-          type: 'critical',
-          title: 'Missing from 89% of Key Directories',
-          description: 'Your business is not listed in major directories where customers search daily',
-          impact: 'Losing 150+ potential customers per month'
-        },
-        {
-          type: 'critical',
-          title: 'Competitors Dominate Local Search',
-          description: 'Competitors have 5x more directory listings than your business',
-          impact: 'They capture 80% of local search traffic'
-        },
-        {
-          type: 'warning',
-          title: 'Inconsistent Business Information',
-          description: 'Your NAP (Name, Address, Phone) varies across existing listings',
-          impact: 'Confuses search engines and customers'
-        },
-        {
-          type: 'info',
-          title: 'Zero Reviews in Most Directories',
-          description: 'Missing reviews in 47+ directories where customers make decisions',
-          impact: 'Lower trust and conversion rates'
-        }
-      ]
-    }
-
-    setResults(mockResults)
-    setIsAnalyzing(false)
-    
-    // Show results with animation delay
-    setTimeout(() => setShowResults(true), 500)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    analyzeWebsite()
+    handleAnalyze()
+  }
+
+  const handleRetry = () => {
+    retry()
+    // Since retry doesn't re-call the function, we need to call analyze again
+    handleAnalyze()
+  }
+
+  const handleStartOver = () => {
+    reset()
+    setShowResults(false)
+    setWebsite('')
   }
 
   return (
@@ -129,7 +91,7 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
           </p>
         </div>
 
-        {!isAnalyzing && !results && (
+        {!isAnalyzing && !results && !error && (
           <div className="animate-zoom-in">
             {/* URL Input Form */}
             <form onSubmit={handleSubmit} className="mb-8">
@@ -155,7 +117,7 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
                 
                 <button
                   type="submit"
-                  disabled={!website}
+                  disabled={!website.trim() || isAnalyzing}
                   className="group relative px-8 py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 disabled:opacity-50 disabled:cursor-not-allowed animate-glow"
                 >
                   <span className="relative z-10">⚡ Analyze My Website FREE</span>
@@ -189,28 +151,29 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
         {/* Analysis Progress */}
         {isAnalyzing && (
           <div className="animate-zoom-in">
-            <div className="bg-secondary-800 p-8 rounded-2xl border border-secondary-700 backdrop-blur-sm">
-              <div className="mb-6">
-                <div className="text-2xl font-bold text-volt-400 mb-4">{currentStep}</div>
-                
-                {/* Progress Bar */}
-                <div className="bg-secondary-700 rounded-full h-3 mb-4 overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-volt-500 to-volt-600 transition-all duration-500 rounded-full animate-glow"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                
-                <div className="text-lg text-secondary-300">{Math.round(progress)}% Complete</div>
-              </div>
-              
-              {/* Scanning Animation */}
-              <div className="flex justify-center items-center space-x-2">
-                <div className="w-4 h-4 bg-volt-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-4 h-4 bg-volt-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-4 h-4 bg-volt-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
-            </div>
+            <LoadingState
+              message="Analyzing Your Website"
+              submessage="We're checking hundreds of directories to give you comprehensive results"
+              steps={analysisSteps}
+              currentStep={Math.min(Math.floor(Date.now() / 2000) % analysisSteps.length, analysisSteps.length - 1)}
+              showProgress={false}
+              size="lg"
+              variant="spinner"
+              estimatedTime={60}
+              className="bg-secondary-800 rounded-2xl border border-secondary-700 backdrop-blur-sm"
+            />
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="animate-slide-up">
+            <ErrorDisplay
+              error={error}
+              onRetry={handleRetry}
+              onDismiss={handleStartOver}
+              className="mb-8"
+            />
           </div>
         )}
 

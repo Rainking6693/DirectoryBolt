@@ -29,6 +29,8 @@ export default function LandingPage() {
             plan="growth"
             className="animate-zoom-in"
             style={{ animationDelay: '0.4s' }}
+            successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth`}
+            cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=growth`}
           >
             Start Your Free Trial Today
           </StartTrialButton>
@@ -125,13 +127,23 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6">Let's Get You Found</h2>
           <p className="mb-8 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">Stop being invisible. Start showing up where your ideal customers are searching.</p>
-          <StartTrialButton
-            plan="growth"
-            variant="outline"
-            className="bg-secondary-900 text-volt-400 font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl"
-          >
-            Start My Free Trial Today
-          </StartTrialButton>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <StartTrialButton
+              plan="growth"
+              className="bg-secondary-900 text-volt-400 font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl border-2 border-volt-500 hover:border-volt-400"
+              successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth`}
+              cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=growth`}
+            >
+              Start My Free Trial Today
+            </StartTrialButton>
+            
+            <button
+              onClick={() => typeof window !== 'undefined' && (window.location.href = '/analyze')}
+              className="px-6 py-3 border-2 border-secondary-600 text-secondary-300 font-bold rounded-lg hover:border-volt-500 hover:text-volt-400 transition-all duration-300 transform hover:scale-105"
+            >
+              🔍 Free Analysis First
+            </button>
+          </div>
           <p className="mt-4 text-xs sm:text-sm opacity-90">Fast setup | 500+ directories | 100% visibility control</p>
         </div>
       </section>

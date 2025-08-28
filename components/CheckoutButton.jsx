@@ -1,6 +1,9 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useCheckout } from '../lib/hooks/useApiCall'
+import { ErrorDisplay } from './ui/ErrorDisplay'
+import { SuccessState } from './ui/SuccessState'
 
 const CheckoutButton = ({
   plan = 'starter',
@@ -15,72 +18,74 @@ const CheckoutButton = ({
   onError,
   ...props
 }) => {
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { createCheckoutSession, loading: isLoading, error, reset } = useCheckout()
+  const [showError, setShowError] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleCheckout = async () => {
     if (disabled || isLoading) return
 
-    // Handle free plan
+    // Reset any previous errors
+    reset()
+    setShowError(false)
+    setShowSuccess(false)
+
+    // Handle free plan - redirect to analysis
     if (plan === 'free') {
       router.push('/analyze')
       return
     }
 
-    // Handle enterprise plan
+    // Handle enterprise plan - open email
     if (plan === 'enterprise') {
       window.open('mailto:sales@directorybolt.com?subject=Enterprise Plan Inquiry', '_blank')
       return
     }
 
-    setIsLoading(true)
-
     try {
-      // Create Stripe checkout session for subscription
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          plan: plan,
-          user_email: `user@example.com`, // In real app, get from auth
-          user_id: `user_${Date.now()}`, // In real app, get from auth
-          success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true`
-        }),
+      const data = await createCheckoutSession(plan, {
+        user_email: `user@example.com`, // In real app, get from auth
+        user_id: `user_${Date.now()}`, // In real app, get from auth
+        success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true`
       })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
       
-      if (data.success && data.data?.checkout_session?.url) {
+      if (data?.checkout_session?.url) {
+        // Show success state briefly before redirect
+        setShowSuccess(true)
+        
         // Call success callback if provided
         if (onSuccess) {
           onSuccess(data)
         }
         
-        // Redirect to Stripe Checkout
-        window.location.href = data.data.checkout_session.url
+        // Small delay to show success state, then redirect
+        setTimeout(() => {
+          window.location.href = data.checkout_session.url
+        }, 1500)
       } else {
-        throw new Error(data.error?.message || 'Failed to create checkout session')
+        throw new Error('Invalid checkout session response')
       }
-    } catch (error) {
-      // Checkout error handled by API logging
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setShowError(true)
       
       // Call error callback if provided
       if (onError) {
-        onError(error)
-      } else {
-        // Default error handling
-        alert('Payment setup failed. Please try again or contact support.')
+        onError(error || err)
       }
-    } finally {
-      setIsLoading(false)
     }
+  }
+
+  const handleRetryCheckout = () => {
+    setShowError(false)
+    handleCheckout()
+  }
+
+  const handleDismissError = () => {
+    setShowError(false)
+    reset()
   }
 
   // Define button styles based on variant and size
@@ -109,32 +114,59 @@ const CheckoutButton = ({
     return `${baseStyles} ${variants[variant]} ${sizes[size]} ${disabledStyles} ${className}`
   }
 
+  // Show success state
+  if (showSuccess) {
+    return (
+      <SuccessState
+        title="Checkout Session Created!"
+        message="Redirecting you to secure payment..."
+        icon="🚀"
+        compact={true}
+        className="animate-zoom-in"
+      />
+    )
+  }
+
   return (
-    <button
-      onClick={handleCheckout}
-      disabled={disabled || isLoading}
-      className={getButtonStyles()}
-      {...props}
-    >
-      {isLoading ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent mr-2"></div>
-          <span>Processing...</span>
+    <>
+      <button
+        onClick={handleCheckout}
+        disabled={disabled || isLoading}
+        className={getButtonStyles()}
+        {...props}
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent mr-2"></div>
+            <span>Creating checkout...</span>
+          </div>
+        ) : (
+          <>
+            {children}
+            {plan !== 'free' && plan !== 'enterprise' && (
+              <span className="ml-2">🚀</span>
+            )}
+          </>
+        )}
+      </button>
+
+      {/* Error Display */}
+      {showError && error && (
+        <div className="mt-4">
+          <ErrorDisplay
+            error={error}
+            onRetry={handleRetryCheckout}
+            onDismiss={handleDismissError}
+            compact={true}
+          />
         </div>
-      ) : (
-        <>
-          {children}
-          {plan !== 'free' && plan !== 'enterprise' && (
-            <span className="ml-2">🚀</span>
-          )}
-        </>
       )}
-    </button>
+    </>
   )
 }
 
 // Preset button components for common use cases
-export const StartTrialButton = ({ plan = 'starter', ...props }) => (
+export const StartTrialButton = ({ plan = 'growth', ...props }) => (
   <CheckoutButton
     plan={plan}
     variant="primary"

@@ -172,9 +172,20 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     throw new ApiError(`Stripe price ID not configured for plan: ${plan}. Please check environment variables.`, 503, 'STRIPE_CONFIG_MISSING');
   }
 
-  // Check if we're in development mode with mock Stripe keys
-  const isDevelopmentMode = process.env.STRIPE_SECRET_KEY === undefined || 
-                           process.env.STRIPE_SECRET_KEY === 'sk_test_mock_key_for_testing';
+  // Enhanced development mode detection
+  const isDevelopmentMode = !process.env.STRIPE_SECRET_KEY || 
+                           process.env.STRIPE_SECRET_KEY === 'sk_test_mock_key_for_testing' ||
+                           process.env.STRIPE_SECRET_KEY.startsWith('sk_test_mock_');
+                           
+  // Log configuration status for debugging
+  console.log('Stripe configuration status:', {
+    request_id: requestId,
+    has_secret_key: !!process.env.STRIPE_SECRET_KEY,
+    key_type: process.env.STRIPE_SECRET_KEY ? 
+      (process.env.STRIPE_SECRET_KEY.startsWith('sk_live_') ? 'live' : 'test') : 'none',
+    development_mode: isDevelopmentMode,
+    plan_price_id: selectedPlan.stripe_price_id
+  });
 
   if (isDevelopmentMode) {
     // Return mock checkout session for development
@@ -307,7 +318,38 @@ async function handleCreateCheckoutSession(req, res, requestId) {
       stripe_error_type: stripeError.type
     });
 
-    throw new Error(`Payment system error: ${stripeError.message}`);
+    // Enhanced Stripe error handling with specific error types
+    let userMessage = 'Payment setup failed. Please try again.';
+    let errorCode = 'PAYMENT_ERROR';
+    
+    if (stripeError.code) {
+      switch (stripeError.code) {
+        case 'api_key_invalid':
+        case 'authentication_required':
+          userMessage = 'Payment system configuration error. Please contact support.';
+          errorCode = 'STRIPE_AUTH_ERROR';
+          break;
+        case 'price_not_found':
+        case 'resource_missing':
+          userMessage = `The selected plan (${plan}) is not properly configured. Please contact support.`;
+          errorCode = 'STRIPE_CONFIG_ERROR';
+          break;
+        case 'parameter_invalid_empty':
+        case 'parameter_missing':
+          userMessage = 'Invalid payment parameters. Please refresh and try again.';
+          errorCode = 'STRIPE_VALIDATION_ERROR';
+          break;
+        case 'rate_limit':
+          userMessage = 'Too many payment requests. Please wait a moment and try again.';
+          errorCode = 'STRIPE_RATE_LIMIT';
+          break;
+        default:
+          userMessage = `Payment system error: ${stripeError.message}`;
+          errorCode = 'STRIPE_UNKNOWN_ERROR';
+      }
+    }
+    
+    throw new ApiError(userMessage, 502, errorCode);
   }
 }
 

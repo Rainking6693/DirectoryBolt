@@ -367,17 +367,59 @@ async function processAnalysisSync(
     progressTracker.startStep('fetch')
     progressTracker.updateStepProgress('fetch', 25, 'Connecting to website...')
     
+    // Enhanced timeout configuration based on user tier and request type
+    const timeoutConfig = {
+      free: 12000,      // 12 seconds for free tier
+      starter: 18000,   // 18 seconds for starter
+      growth: 22000,    // 22 seconds for growth
+      professional: 25000, // 25 seconds for professional
+      enterprise: 30000    // 30 seconds for enterprise
+    }
+    
     const scrapingResult = await optimizedScraper.scrapeUrl(url, {
-      timeout: context.userTier === 'free' ? 15000 : 30000,
-      priority: context.userTier === 'premium' || context.userTier === 'enterprise' ? 'high' : 'normal',
+      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      priority: ['professional', 'enterprise'].includes(context.userTier) ? 'high' : 'normal',
       cacheKey: `analysis:${url}`,
-      skipCache: options.fresh === true
+      skipCache: options.fresh === true,
+      validateSSL: context.userTier !== 'free' // Free tier skips SSL validation for speed
     })
 
     progressTracker.updateStepProgress('fetch', 75, 'Processing website content...')
     
     if (!scrapingResult.success) {
-      throw new Error(`Failed to fetch website: ${scrapingResult.error?.message}`)
+      const errorCode = scrapingResult.error?.code || 'UNKNOWN_ERROR'
+      const errorMessage = scrapingResult.error?.message || 'Failed to fetch website'
+      
+      // Provide more specific error messages for different failure types
+      let userFriendlyMessage = errorMessage
+      switch (errorCode) {
+        case 'TIMEOUT':
+          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
+          break
+        case 'DNS_ERROR':
+          userFriendlyMessage = 'Could not find the website. Please check the URL and try again.'
+          break
+        case 'CONNECTION_REFUSED':
+          userFriendlyMessage = 'Website refused the connection. The site may be down or blocking requests.'
+          break
+        case 'SSL_ERROR':
+          userFriendlyMessage = 'SSL certificate error. The website may have security issues.'
+          break
+        case 'HTTP_403':
+          userFriendlyMessage = 'Website blocked our request. Some sites restrict automated access.'
+          break
+        case 'HTTP_404':
+          userFriendlyMessage = 'Page not found. Please check the URL is correct.'
+          break
+        case 'HTTP_500':
+        case 'HTTP_502':
+        case 'HTTP_503':
+        case 'HTTP_504':
+          userFriendlyMessage = 'Website is experiencing server issues. Please try again later.'
+          break
+      }
+      
+      throw new Error(userFriendlyMessage)
     }
 
     progressTracker.completeStep('fetch', {
@@ -391,13 +433,15 @@ async function processAnalysisSync(
     progressTracker.startStep('parse')
     progressTracker.updateStepProgress('parse', 30, 'Extracting metadata and content...')
 
-    // Initialize enhanced website analyzer
-    const analyzer = new WebsiteAnalyzer({
-      timeout: context.userTier === 'free' ? 15000 : 45000,
-      maxRetries: context.userTier === 'free' ? 2 : 3,
+    // Initialize enhanced website analyzer with tier-based configuration
+    const analyzerConfig = {
+      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      maxRetries: context.userTier === 'free' ? 1 : 2, // Reduced retries for faster response
       userAgent: process.env.USER_AGENT || 'DirectoryBolt/2.0 (+https://directorybolt.com)',
       respectRobots: true
-    })
+    }
+    
+    const analyzer = new WebsiteAnalyzer(analyzerConfig)
 
     // Continue with remaining steps...
     progressTracker.startStep('seo_analysis')
@@ -407,12 +451,21 @@ async function processAnalysisSync(
     progressTracker.startStep('recommendations')
 
     // Perform comprehensive analysis
-    const analysisResult = await analyzer.analyzeWebsite(url, {
+    // Configure analysis depth based on user tier
+    const analysisConfig = {
       deep: options.deep || false,
       includeCompetitors: options.includeCompetitors || false,
       checkDirectories: options.checkDirectories !== false,
-      maxDirectoriesToCheck: context.userTier === 'free' ? 50 : 100
-    })
+      maxDirectoriesToCheck: {
+        free: 25,
+        starter: 50,
+        growth: 75,
+        professional: 100,
+        enterprise: 150
+      }[context.userTier] || 25
+    }
+    
+    const analysisResult = await analyzer.analyzeWebsite(url, analysisConfig)
 
     // Complete analysis steps
     progressTracker.completeStep('seo_analysis', { score: analysisResult.seoScore })
@@ -496,17 +549,59 @@ async function processAnalysisAsync(
     progressTracker.startStep('fetch')
     progressTracker.updateStepProgress('fetch', 25, 'Connecting to website...')
     
+    // Enhanced timeout configuration based on user tier and request type
+    const timeoutConfig = {
+      free: 12000,      // 12 seconds for free tier
+      starter: 18000,   // 18 seconds for starter
+      growth: 22000,    // 22 seconds for growth
+      professional: 25000, // 25 seconds for professional
+      enterprise: 30000    // 30 seconds for enterprise
+    }
+    
     const scrapingResult = await optimizedScraper.scrapeUrl(url, {
-      timeout: context.userTier === 'free' ? 15000 : 30000,
-      priority: context.userTier === 'premium' || context.userTier === 'enterprise' ? 'high' : 'normal',
+      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      priority: ['professional', 'enterprise'].includes(context.userTier) ? 'high' : 'normal',
       cacheKey: `analysis:${url}`,
-      skipCache: options.fresh === true
+      skipCache: options.fresh === true,
+      validateSSL: context.userTier !== 'free' // Free tier skips SSL validation for speed
     })
 
     progressTracker.updateStepProgress('fetch', 75, 'Processing website content...')
     
     if (!scrapingResult.success) {
-      throw new Error(`Failed to fetch website: ${scrapingResult.error?.message}`)
+      const errorCode = scrapingResult.error?.code || 'UNKNOWN_ERROR'
+      const errorMessage = scrapingResult.error?.message || 'Failed to fetch website'
+      
+      // Provide more specific error messages for different failure types
+      let userFriendlyMessage = errorMessage
+      switch (errorCode) {
+        case 'TIMEOUT':
+          userFriendlyMessage = `Website took too long to respond (timeout: ${timeoutConfig[context.userTier] || timeoutConfig.free}ms). The site may be slow or temporarily unavailable.`
+          break
+        case 'DNS_ERROR':
+          userFriendlyMessage = 'Could not find the website. Please check the URL and try again.'
+          break
+        case 'CONNECTION_REFUSED':
+          userFriendlyMessage = 'Website refused the connection. The site may be down or blocking requests.'
+          break
+        case 'SSL_ERROR':
+          userFriendlyMessage = 'SSL certificate error. The website may have security issues.'
+          break
+        case 'HTTP_403':
+          userFriendlyMessage = 'Website blocked our request. Some sites restrict automated access.'
+          break
+        case 'HTTP_404':
+          userFriendlyMessage = 'Page not found. Please check the URL is correct.'
+          break
+        case 'HTTP_500':
+        case 'HTTP_502':
+        case 'HTTP_503':
+        case 'HTTP_504':
+          userFriendlyMessage = 'Website is experiencing server issues. Please try again later.'
+          break
+      }
+      
+      throw new Error(userFriendlyMessage)
     }
 
     progressTracker.completeStep('fetch', {
@@ -520,13 +615,15 @@ async function processAnalysisAsync(
     progressTracker.startStep('parse')
     progressTracker.updateStepProgress('parse', 30, 'Extracting metadata and content...')
 
-    // Initialize enhanced website analyzer
-    const analyzer = new WebsiteAnalyzer({
-      timeout: context.userTier === 'free' ? 15000 : 45000,
-      maxRetries: context.userTier === 'free' ? 2 : 3,
+    // Initialize enhanced website analyzer with tier-based configuration
+    const analyzerConfig = {
+      timeout: timeoutConfig[context.userTier] || timeoutConfig.free,
+      maxRetries: context.userTier === 'free' ? 1 : 2, // Reduced retries for faster response
       userAgent: process.env.USER_AGENT || 'DirectoryBolt/2.0 (+https://directorybolt.com)',
       respectRobots: true
-    })
+    }
+    
+    const analyzer = new WebsiteAnalyzer(analyzerConfig)
 
     // Continue with remaining steps...
     progressTracker.startStep('seo_analysis')
@@ -536,12 +633,21 @@ async function processAnalysisAsync(
     progressTracker.startStep('recommendations')
 
     // Perform comprehensive analysis
-    const analysisResult = await analyzer.analyzeWebsite(url, {
+    // Configure analysis depth based on user tier
+    const analysisConfig = {
       deep: options.deep || false,
       includeCompetitors: options.includeCompetitors || false,
       checkDirectories: options.checkDirectories !== false,
-      maxDirectoriesToCheck: context.userTier === 'free' ? 50 : 100
-    })
+      maxDirectoriesToCheck: {
+        free: 25,
+        starter: 50,
+        growth: 75,
+        professional: 100,
+        enterprise: 150
+      }[context.userTier] || 25
+    }
+    
+    const analysisResult = await analyzer.analyzeWebsite(url, analysisConfig)
 
     // Complete analysis steps
     progressTracker.completeStep('seo_analysis', { score: analysisResult.seoScore })
