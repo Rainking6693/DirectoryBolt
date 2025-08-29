@@ -141,7 +141,9 @@ const nextConfig = {
           },
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*',
+            value: process.env.NODE_ENV === 'production' 
+              ? 'https://directorybolt.com,https://www.directorybolt.com'
+              : 'http://localhost:3000',
           },
           {
             key: 'Access-Control-Allow-Methods',

@@ -3,9 +3,14 @@
 
 import Stripe from 'stripe';
 import { handleApiError, ValidationError, ApiError } from '../../lib/utils/errors';
+import { log } from '../../lib/utils/logger';
 
-// Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_for_testing', {
+// Initialize Stripe with secret key - NO FALLBACKS FOR SECURITY
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20',
 });
 
