@@ -40,7 +40,7 @@ async function handleGetCheckoutSession(req, res, requestId) {
   try {
     // Retrieve the checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['subscription', 'customer']
+      expand: ['subscription', 'customer', 'payment_intent']
     });
 
     // Validate session status
@@ -48,10 +48,20 @@ async function handleGetCheckoutSession(req, res, requestId) {
       throw new Error('Payment not completed');
     }
 
-    let planName = 'Unknown Plan';
+    let planName = 'DirectoryBolt Package';
     let trialEnd = null;
     let nextBillingDate = null;
     let subscriptionId = null;
+
+    // Handle DirectoryBolt packages (one-time payments)
+    if (session.metadata?.package_id) {
+      const packageMap = {
+        'starter': 'Starter Package',
+        'growth': 'Growth Package', 
+        'pro': 'Pro Package'
+      };
+      planName = packageMap[session.metadata.package_id] || 'DirectoryBolt Package';
+    }
 
     // Get subscription details if it's a subscription
     if (session.subscription) {
@@ -60,15 +70,20 @@ async function handleGetCheckoutSession(req, res, requestId) {
         ? await stripe.subscriptions.retrieve(session.subscription)
         : session.subscription;
 
-      // Get plan name from metadata
-      const planTier = subscription.metadata?.plan_tier || 'unknown';
-      const planMap = {
-        'starter': 'Starter Plan',
-        'growth': 'Growth Plan', 
-        'professional': 'Professional Plan',
-        'enterprise': 'Enterprise Plan'
-      };
-      planName = planMap[planTier] || 'Subscription Plan';
+      // Handle subscription services
+      if (subscription.metadata?.service === 'auto_update') {
+        planName = 'Auto Update & Resubmission';
+      } else {
+        // Legacy plan handling
+        const planTier = subscription.metadata?.plan_tier || 'unknown';
+        const planMap = {
+          'starter': 'Starter Plan',
+          'growth': 'Growth Plan', 
+          'professional': 'Professional Plan',
+          'enterprise': 'Enterprise Plan'
+        };
+        planName = planMap[planTier] || 'Subscription Plan';
+      }
 
       // Set trial and billing dates
       trialEnd = subscription.trial_end 
@@ -95,6 +110,21 @@ async function handleGetCheckoutSession(req, res, requestId) {
     // Return session details
     res.status(200).json({
       success: true,
+      session: {
+        id: sessionId,
+        status: session.status,
+        customer: {
+          id: customer.id,
+          email: customer.email,
+          name: customer.name
+        },
+        payment_intent: {
+          id: session.payment_intent?.id || null,
+          amount: session.amount_total,
+          currency: session.currency || 'usd'
+        },
+        metadata: session.metadata || {}
+      },
       data: {
         session_id: sessionId,
         customer_email: customer.email,
