@@ -20,10 +20,10 @@ export default function LandingPage() {
       <section className={`px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center bg-gradient-to-r from-secondary-800 via-secondary-900 to-black text-white transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent leading-tight animate-slide-up">
-            Get Listed in 500+ Directories—Without Lifting a Finger
+            Submit Your Business to 200+ Directories — Automatically
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-secondary-300 max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            Make your business visible online in minutes. DirectoryBolt uses smart automation and AI to put your business where customers are already searching.
+            Get discovered by more customers with automated directory submissions. From Google Business to Yelp, we handle everything so you don't have to.
           </p>
           <StartTrialButton
             plan="growth"

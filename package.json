@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "@next/bundle-analyzer": "^15.5.2",
+    "@stripe/stripe-js": "^7.9.0",
     "@supabase/supabase-js": "^2.45.4",
     "@types/node": "^20.16.10",
     "@types/react": "^18.3.11",
