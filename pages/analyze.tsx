@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Header from '../components/Header'
+import { StartTrialButton } from '../components/CheckoutButton'
 
 interface AnalysisProgress {
   step: number
@@ -323,6 +324,26 @@ export default function AnalyzePage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </form>
+
+                {/* Upgrade Prompt Section */}
+                <div className="mt-8 p-6 bg-gradient-to-r from-volt-500/10 to-volt-600/5 rounded-xl border border-volt-500/20">
+                  <div className="text-center">
+                    <p className="text-sm text-secondary-300 mb-4">
+                      <strong className="text-volt-400">Already know your business needs directory submissions?</strong>
+                    </p>
+                    <StartTrialButton
+                      plan="growth"
+                      variant="secondary"
+                      size="md"
+                      className="bg-transparent border-2 border-volt-500 text-volt-500 font-bold py-2 px-6 rounded-lg hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300"
+                      successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth&source=analyze_skip`}
+                      cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/analyze?cancelled=true&plan=growth`}
+                    >
+                      Skip Analysis - Start Trial Now
+                    </StartTrialButton>
+                    <div className="text-xs text-secondary-400 mt-2">14-day free trial • Cancel anytime</div>
+                  </div>
+                </div>
 
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-secondary-300">
                   <div className="flex flex-col items-center p-3 bg-secondary-900/30 rounded-lg border border-volt-500/20">

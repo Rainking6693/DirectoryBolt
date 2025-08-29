@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Header from '../components/Header'
+import CheckoutButton from '../components/CheckoutButton'
 
 // Import the API response types for consistency
 interface DirectoryRecommendation {
@@ -233,36 +234,12 @@ export default function ResultsPage() {
     }
   }
 
-  const handleUpgrade = async () => {
-    // Route to Stripe checkout for Professional plan
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          plan: 'professional',
-          user_email: `user@example.com`, // In real app, get from auth
-          user_id: `user_${Date.now()}`, // In real app, get from auth
-          success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/results?cancelled=true`,
-        }),
-      })
+  const getSuccessUrl = () => {
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=professional&source=results`
+  }
 
-      const { data } = await response.json()
-      
-      if (data?.checkout_session?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.checkout_session.url
-      } else {
-        throw new Error('Failed to create checkout session')
-      }
-    } catch (error) {
-      console.error('Checkout error:', error)
-      // Fallback to pricing page if checkout fails
-      router.push('/pricing')
-    }
+  const getCancelUrl = () => {
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/results?cancelled=true&plan=professional`
   }
 
   if (isLoading) {
@@ -653,13 +630,32 @@ export default function ResultsPage() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={handleUpgrade}
+              <CheckoutButton
+                plan="professional"
+                variant="primary"
+                size="xl"
                 className="group relative bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-4 px-8 text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-volt-500/50 animate-glow"
+                successUrl={getSuccessUrl()}
+                cancelUrl={getCancelUrl()}
+                onSuccess={(data: any) => {
+                  console.log('Professional plan checkout success:', data)
+                  // Track conversion event
+                  if (typeof window !== 'undefined' && (window as any).gtag) {
+                    (window as any).gtag('event', 'purchase_initiated', {
+                      plan: 'professional',
+                      source: 'results_page',
+                      value: 129
+                    })
+                  }
+                }}
+                onError={(error: any) => {
+                  console.error('Professional plan checkout error:', error)
+                  // Fallback to pricing page if checkout fails
+                  router.push('/pricing?recommended_plan=professional')
+                }}
               >
-                <span className="relative z-10">🚀 Start Free Trial - Professional Plan</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-volt-400 to-volt-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
+                🚀 Start Free Trial - Professional Plan
+              </CheckoutButton>
               <button
                 onClick={() => router.push('/')}
                 className="border-2 border-volt-500 text-volt-500 font-bold py-4 px-8 text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300 transform hover:scale-105"

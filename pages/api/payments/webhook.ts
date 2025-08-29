@@ -3,7 +3,13 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, ExternalServiceError } from '../../../lib/utils/errors'
+import { verifyWebhookSignature, handleStripeError } from '../../../lib/utils/stripe-client'
+import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator'
+import { log } from '../../../lib/utils/logger'
 import type { Payment, User } from '../../../lib/database/schema'
+
+// Get validated configuration
+const config = getStripeConfig()
 
 // Webhook event tracking for idempotency (use Redis in production)
 const processedEvents = new Map<string, { timestamp: number; status: 'processed' | 'failed' }>()
@@ -61,7 +67,7 @@ async function handleWebhook(
   }
   
   // Verify webhook signature
-  const event = await verifyWebhookSignature(req.body, signature)
+  const event = verifyWebhookSignatureInternal(req.body, signature)
   
   // Check idempotency - prevent duplicate processing
   const existingEvent = processedEvents.get(event.id)
@@ -134,40 +140,20 @@ async function handleWebhook(
   }
 }
 
-// Webhook signature verification
-async function verifyWebhookSignature(_body: any, _signature: string): Promise<StripeWebhookEvent> {
-  // TODO: Implement actual Stripe signature verification
-  // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-  // const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-  // 
-  // try {
-  //   const event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-  //   return event
-  // } catch (error) {
-  //   throw new ExternalServiceError('Stripe', `Webhook signature verification failed: ${error.message}`)
-  // }
-  
-  // Mock event for development
-  const mockEvent: StripeWebhookEvent = {
-    id: `evt_${Date.now()}`,
-    type: 'checkout.session.completed',
-    data: {
-      object: {
-        id: 'cs_mock_123',
-        payment_intent: 'pi_mock_123',
-        customer: 'cus_mock_123',
-        metadata: {
-          user_id: 'usr_test_123',
-          credits: '200',
-          request_id: 'req_123'
-        }
-      }
-    },
-    created: Math.floor(Date.now() / 1000)
+// Webhook signature verification using our enhanced system
+function verifyWebhookSignatureInternal(body: any, signature: string): StripeWebhookEvent {
+  try {
+    // Use our centralized webhook verification
+    return verifyWebhookSignature(body, signature) as StripeWebhookEvent
+  } catch (error) {
+    log.error('Webhook signature verification failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      hasSignature: !!signature,
+      hasWebhookSecret: !!config.webhookSecret
+    } as any)
+    
+    throw new ExternalServiceError('Stripe', 'Webhook signature verification failed')
   }
-  
-  console.log(`🔐 Verified webhook signature for event: ${mockEvent.id}`)
-  return mockEvent
 }
 
 // Event handlers

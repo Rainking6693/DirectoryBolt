@@ -3,7 +3,13 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, Errors, ExternalServiceError } from '../../../lib/utils/errors'
+import { getStripeClient, handleStripeError, testStripeConnection } from '../../../lib/utils/stripe-client'
+import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator'
 import type { User, Payment } from '../../../lib/database/schema'
+
+// Get validated Stripe client and configuration
+const stripe = getStripeClient()
+const config = getStripeConfig()
 
 // Credit packages configuration
 const CREDIT_PACKAGES = {
@@ -119,8 +125,8 @@ async function handleCreateCheckout(
       customerId: stripeCustomerId,
       packageDetails,
       userId,
-      successUrl: data.success_url || `${process.env.NEXT_PUBLIC_SITE_URL}/payment/success`,
-      cancelUrl: data.cancel_url || `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+      successUrl: data.success_url || `${config.nextAuthUrl}/payment/success`,
+      cancelUrl: data.cancel_url || `${config.nextAuthUrl}/pricing`,
       requestId
     })
     
@@ -169,9 +175,12 @@ async function handleCreateCheckout(
       error instanceof Error ? error.message : 'Unknown error'
     )
     
+    // Use our enhanced error handling
+    const stripeError = handleStripeError(error, 'credit-checkout-creation')
+    
     throw new ExternalServiceError(
       'Stripe',
-      'Failed to create checkout session',
+      stripeError.userMessage,
       error instanceof Error ? error : undefined
     )
   }

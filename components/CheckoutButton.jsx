@@ -5,7 +5,9 @@ import { useCheckout } from '../lib/hooks/useApiCall'
 import { ErrorDisplay } from './ui/ErrorDisplay'
 import { StripeErrorDisplay } from './ui/StripeErrorDisplay'
 import { SuccessState } from './ui/SuccessState'
+import { PaymentStatusDisplay } from './ui/PaymentStatusDisplay'
 import { apiDebugger } from '../lib/utils/api-debugger'
+import { getStripeClientConfig, isStripeConfigured, getStripeConfigurationMessage } from '../lib/utils/stripe-client-config'
 
 const CheckoutButton = ({
   plan = 'starter',
@@ -29,16 +31,32 @@ const CheckoutButton = ({
   const [requestPayload, setRequestPayload] = useState(null)
   const [responseData, setResponseData] = useState(null)
   const [validationErrors, setValidationErrors] = useState([])
+  const [stripeConfigured, setStripeConfigured] = useState(null)
+  const [configurationStatus, setConfigurationStatus] = useState(null)
   
-  // Check for debug mode on mount
+  // Check for debug mode and Stripe configuration on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
       const debugParam = urlParams.get('debug')
       const debugStorage = localStorage.getItem('directorybolt_debug')
       setDebugMode(debugParam === 'true' || debugStorage === 'true' || apiDebugger.isDebugMode())
+      
+      // Check Stripe configuration
+      const configured = isStripeConfigured()
+      const status = getStripeConfigurationMessage()
+      setStripeConfigured(configured)
+      setConfigurationStatus(status)
+      
+      if (debugMode) {
+        console.log('🔒 Stripe Configuration Check:', {
+          configured,
+          status,
+          config: getStripeClientConfig()
+        })
+      }
     }
-  }, [])
+  }, [debugMode])
 
   const handleCheckout = async () => {
     if (disabled || isLoading) return
@@ -52,7 +70,7 @@ const CheckoutButton = ({
     setResponseData(null)
     
     // Client-side validation
-    const validation = validateCheckoutRequest(plan)
+    const validation = validateCheckoutRequest(plan, stripeConfigured, configurationStatus)
     if (validation.errors.length > 0) {
       setValidationErrors(validation.errors)
       setShowError(true)
@@ -269,6 +287,16 @@ const CheckoutButton = ({
         </div>
       )}
       
+      {/* Payment Configuration Status */}
+      {configurationStatus && !configurationStatus.isConfigured && (
+        <div className="mt-4">
+          <PaymentStatusDisplay
+            showDebugInfo={debugMode || showDebugInfo}
+            compact={false}
+          />
+        </div>
+      )}
+      
       {/* Debug Panel */}
       {debugMode && (
         <div className="mt-4">
@@ -362,12 +390,26 @@ export const UpgradePromptButton = ({
 }
 
 // Client-side validation function
-function validateCheckoutRequest(plan) {
+function validateCheckoutRequest(plan, stripeConfigured, configurationStatus) {
   const errors = []
   
   const validPlans = ['free', 'starter', 'growth', 'professional', 'enterprise']
   if (!validPlans.includes(plan)) {
     errors.push(`Invalid plan "${plan}". Valid plans are: ${validPlans.join(', ')}`)
+  }
+  
+  // Skip Stripe validation for free and enterprise plans
+  if (plan === 'free' || plan === 'enterprise') {
+    return { errors }
+  }
+  
+  // Stripe configuration validation
+  if (stripeConfigured === false && configurationStatus) {
+    if (configurationStatus.type === 'error') {
+      errors.push(configurationStatus.message)
+    } else if (configurationStatus.type === 'warning' && process.env.NODE_ENV === 'production') {
+      errors.push('Payment system is not properly configured for production')
+    }
   }
   
   // Environment validations

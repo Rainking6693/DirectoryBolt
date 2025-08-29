@@ -322,7 +322,7 @@ I encountered an error while using your service:
 ERROR DETAILS:
 - Error Type: ${error.type}
 - Message: ${error.message}
-- Request ID: ${error.requestId || 'N/A'}
+- Request ID: ${(error as any).requestId || 'N/A'}
 - Timestamp: ${new Date().toISOString()}`
 
     if (error.type === 'payment' && 'stripeCode' in error) {
