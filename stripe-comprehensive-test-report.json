@@ -1,0 +1,837 @@
+{
+  "timestamp": "2025-08-29T12:27:02.336Z",
+  "baseUrl": "http://localhost:3000",
+  "overall_score": 52.2,
+  "max_score": 100,
+  "environment_validation": {
+    "valid": false,
+    "score": 5,
+    "maxScore": 10,
+    "timestamp": "2025-08-29T12:27:02.338Z",
+    "environment": "development",
+    "summary": {
+      "total_checks": 10,
+      "passed_checks": 5,
+      "success_rate": 50,
+      "readiness_score": "5/10",
+      "launch_ready": false
+    },
+    "issues": {
+      "errors": 0,
+      "warnings": 8,
+      "info": 14
+    },
+    "details": {
+      "errors": [],
+      "warnings": [
+        {
+          "level": "WARNING",
+          "category": "SECRET_KEY",
+          "message": "Using mock secret key - API calls will fail",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.340Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "PRICE_IDS",
+          "message": "STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
+          "data": {
+            "plan": "starter",
+            "price_id": "price_starter_test_123"
+          },
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "PRICE_IDS",
+          "message": "STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
+          "data": {
+            "plan": "growth",
+            "price_id": "price_growth_test_123"
+          },
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "PRICE_IDS",
+          "message": "STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
+          "data": {
+            "plan": "professional",
+            "price_id": "price_professional_test_123"
+          },
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "PRICE_IDS",
+          "message": "STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
+          "data": {
+            "plan": "enterprise",
+            "price_id": "price_enterprise_test_123"
+          },
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "WEBHOOKS",
+          "message": "STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "CONNECTION",
+          "message": "Cannot test connection - invalid or mock secret key",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "WARNING",
+          "category": "PRICE_VALIDATION",
+          "message": "Cannot validate prices - invalid or mock secret key",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.343Z"
+        }
+      ],
+      "info": [
+        {
+          "level": "INFO",
+          "category": "ENV_FILES",
+          "message": "Checking environment files...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.339Z"
+        },
+        {
+          "level": "SUCCESS",
+          "category": "ENV_FILES",
+          "message": "Found environment file: .env.local",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.339Z"
+        },
+        {
+          "level": "SUCCESS",
+          "category": "ENV_FILES",
+          "message": "Found environment file: .env.production",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.339Z"
+        },
+        {
+          "level": "INFO",
+          "category": "SECRET_KEY",
+          "message": "Validating STRIPE_SECRET_KEY...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.340Z"
+        },
+        {
+          "level": "INFO",
+          "category": "PUBLISHABLE_KEY",
+          "message": "Validating STRIPE_PUBLISHABLE_KEY...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.340Z"
+        },
+        {
+          "level": "SUCCESS",
+          "category": "PUBLISHABLE_KEY",
+          "message": "Valid Stripe publishable key found: TEST mode",
+          "data": {
+            "key_type": "test",
+            "key_length": 28
+          },
+          "timestamp": "2025-08-29T12:27:02.340Z"
+        },
+        {
+          "level": "INFO",
+          "category": "KEY_CONSISTENCY",
+          "message": "Validating key consistency...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "SUCCESS",
+          "category": "KEY_CONSISTENCY",
+          "message": "Keys are consistent: both are TEST keys",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "INFO",
+          "category": "PRICE_IDS",
+          "message": "Validating Stripe price IDs...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.341Z"
+        },
+        {
+          "level": "INFO",
+          "category": "WEBHOOKS",
+          "message": "Validating webhook configuration...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "INFO",
+          "category": "NEXTAUTH",
+          "message": "Validating NextAuth configuration...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "SUCCESS",
+          "category": "NEXTAUTH",
+          "message": "Valid NEXTAUTH_URL found: http://localhost:3000",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "INFO",
+          "category": "CONNECTION",
+          "message": "Testing Stripe API connection...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.342Z"
+        },
+        {
+          "level": "INFO",
+          "category": "PRICE_VALIDATION",
+          "message": "Validating Stripe prices exist...",
+          "data": null,
+          "timestamp": "2025-08-29T12:27:02.343Z"
+        }
+      ]
+    },
+    "recommendations": [
+      {
+        "priority": "MEDIUM",
+        "category": "WARNINGS",
+        "message": "Address warning-level issues for optimal functionality",
+        "actions": [
+          "Review SECRET_KEY: Using mock secret key - API calls will fail",
+          "Review PRICE_IDS: STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
+          "Review PRICE_IDS: STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
+          "Review PRICE_IDS: STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
+          "Review PRICE_IDS: STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
+          "Review WEBHOOKS: STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+          "Review CONNECTION: Cannot test connection - invalid or mock secret key",
+          "Review PRICE_VALIDATION: Cannot validate prices - invalid or mock secret key"
+        ]
+      },
+      {
+        "priority": "HIGH",
+        "category": "READINESS",
+        "message": "System is not ready for production deployment",
+        "actions": [
+          "Complete environment variable configuration",
+          "Test all Stripe integrations",
+          "Verify webhook setup"
+        ]
+      }
+    ]
+  },
+  "product_validation": {
+    "timestamp": "2025-08-29T12:27:02.344Z",
+    "valid": false,
+    "score": 0,
+    "maxScore": 20,
+    "products": {},
+    "prices": {
+      "starter": {
+        "configured": true,
+        "valid": false,
+        "price_id": "price_starter_test_123",
+        "config": {
+          "name": "Starter",
+          "expectedPrice": 4900,
+          "directoryLimit": 25,
+          "priceIdEnv": "STRIPE_STARTER_PRICE_ID"
+        },
+        "stripe_data": null
+      },
+      "growth": {
+        "configured": true,
+        "valid": false,
+        "price_id": "price_growth_test_123",
+        "config": {
+          "name": "Growth",
+          "expectedPrice": 7900,
+          "directoryLimit": 50,
+          "priceIdEnv": "STRIPE_GROWTH_PRICE_ID"
+        },
+        "stripe_data": null
+      },
+      "professional": {
+        "configured": true,
+        "valid": false,
+        "price_id": "price_professional_test_123",
+        "config": {
+          "name": "Professional",
+          "expectedPrice": 12900,
+          "directoryLimit": 100,
+          "priceIdEnv": "STRIPE_PROFESSIONAL_PRICE_ID"
+        },
+        "stripe_data": null
+      },
+      "enterprise": {
+        "configured": true,
+        "valid": false,
+        "price_id": "price_enterprise_test_123",
+        "config": {
+          "name": "Enterprise",
+          "expectedPrice": 29900,
+          "directoryLimit": 500,
+          "priceIdEnv": "STRIPE_ENTERPRISE_PRICE_ID"
+        },
+        "stripe_data": null
+      }
+    },
+    "issues": [
+      {
+        "level": "WARNING",
+        "category": "INIT",
+        "message": "Using mock Stripe key - cannot validate real products",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.345Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "LIST",
+        "message": "Cannot list products - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.345Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "LIST",
+        "message": "Cannot list prices - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.345Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE",
+        "message": "Cannot validate price price_starter_test_123 - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.346Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE",
+        "message": "Cannot validate price price_growth_test_123 - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.346Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE",
+        "message": "Cannot validate price price_professional_test_123 - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.347Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE",
+        "message": "Cannot validate price price_enterprise_test_123 - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.347Z",
+        "severity": "warning"
+      },
+      {
+        "level": "WARNING",
+        "category": "CREATE",
+        "message": "Cannot create products - no Stripe connection",
+        "data": null,
+        "timestamp": "2025-08-29T12:27:02.347Z",
+        "severity": "warning"
+      }
+    ],
+    "recommendations": [
+      {
+        "priority": "CRITICAL",
+        "category": "STRIPE_SETUP",
+        "message": "Some price IDs are invalid or not found in Stripe",
+        "actions": [
+          "Verify price IDs exist in Stripe dashboard",
+          "Check that prices are active",
+          "Ensure price configuration matches expected values"
+        ]
+      },
+      {
+        "priority": "HIGH",
+        "category": "STRIPE_CONNECTION",
+        "message": "Cannot connect to Stripe API",
+        "actions": [
+          "Verify STRIPE_SECRET_KEY is set correctly",
+          "Check API key permissions",
+          "Ensure API key is not revoked"
+        ]
+      }
+    ],
+    "summary": {
+      "total_checks": 20,
+      "passed_checks": 0,
+      "success_rate": 0,
+      "errors": 0,
+      "warnings": 8,
+      "stripe_connection": false,
+      "all_prices_configured": false
+    },
+    "plan_status": [
+      {
+        "plan": "starter",
+        "configured": true,
+        "valid": false,
+        "price_id": "price_starter_test_123",
+        "issues": [
+          "Price not found or invalid"
+        ]
+      },
+      {
+        "plan": "growth",
+        "configured": true,
+        "valid": false,
+        "price_id": "price_growth_test_123",
+        "issues": [
+          "Price not found or invalid"
+        ]
+      },
+      {
+        "plan": "professional",
+        "configured": true,
+        "valid": false,
+        "price_id": "price_professional_test_123",
+        "issues": [
+          "Price not found or invalid"
+        ]
+      },
+      {
+        "plan": "enterprise",
+        "configured": true,
+        "valid": false,
+        "price_id": "price_enterprise_test_123",
+        "issues": [
+          "Price not found or invalid"
+        ]
+      }
+    ]
+  },
+  "api_debugging": {
+    "timestamp": "2025-08-29T12:27:02.350Z",
+    "baseUrl": "http://localhost:3000",
+    "totalTests": 15,
+    "passedTests": 14,
+    "failedTests": 1,
+    "tests": [
+      {
+        "name": "Server Health Check",
+        "status": "FAILED",
+        "duration": "8106ms",
+        "result": null,
+        "error": {
+          "message": "timeout of 5000ms exceeded",
+          "code": "ECONNABORTED"
+        }
+      },
+      {
+        "name": "Valid Checkout Request",
+        "status": "PASSED",
+        "duration": "964ms",
+        "result": {
+          "status": 200,
+          "has_checkout_url": true,
+          "session_id": "cs_mock_1756470431418",
+          "plan_details": {
+            "name": "Starter",
+            "price": 4900,
+            "directory_limit": 25,
+            "features": [
+              "25 directory submissions per month",
+              "Basic analytics",
+              "Email support",
+              "Standard processing speed"
+            ]
+          }
+        },
+        "error": null
+      },
+      {
+        "name": "Missing Plan Parameter",
+        "status": "PASSED",
+        "duration": "297ms",
+        "result": {
+          "status": 400,
+          "error_message": "Plan parameter is required. Available plans: starter, growth, professional, enterprise",
+          "error_code": "VALIDATION_ERROR"
+        },
+        "error": null
+      },
+      {
+        "name": "Invalid Plan",
+        "status": "PASSED",
+        "duration": "10ms",
+        "result": {
+          "status": 400,
+          "error_message": "Invalid subscription plan: \"invalid_plan\". Available plans: starter, growth, professional, enterprise",
+          "error_code": "VALIDATION_ERROR"
+        },
+        "error": null
+      },
+      {
+        "name": "Missing User Data",
+        "status": "PASSED",
+        "duration": "8ms",
+        "result": {
+          "status": 400,
+          "error_message": "User email and ID are required",
+          "error_code": "VALIDATION_ERROR"
+        },
+        "error": null
+      },
+      {
+        "name": "Empty Request Body",
+        "status": "PASSED",
+        "duration": "7ms",
+        "result": {
+          "status": 400,
+          "error_message": "Plan parameter is required. Available plans: starter, growth, professional, enterprise",
+          "error_code": "VALIDATION_ERROR"
+        },
+        "error": null
+      },
+      {
+        "name": "Malformed JSON",
+        "status": "PASSED",
+        "duration": "8ms",
+        "result": {
+          "status": 400,
+          "error_message": "Invalid JSON in request body",
+          "error_code": "VALIDATION_ERROR"
+        },
+        "error": null
+      },
+      {
+        "name": "GET Method (Should Fail)",
+        "status": "PASSED",
+        "duration": "9ms",
+        "result": {
+          "status": 405,
+          "error_message": "Method not allowed",
+          "allowed_methods": "POST"
+        },
+        "error": null
+      },
+      {
+        "name": "Plan: starter",
+        "status": "PASSED",
+        "duration": "9ms",
+        "result": {
+          "status": 200,
+          "plan_name": "Starter",
+          "price": 4900,
+          "checkout_url": "https://checkout.stripe.com/c/pay/mock_session_1756470431766"
+        },
+        "error": null
+      },
+      {
+        "name": "Plan: growth",
+        "status": "PASSED",
+        "duration": "7ms",
+        "result": {
+          "status": 200,
+          "plan_name": "Growth",
+          "price": 7900,
+          "checkout_url": "https://checkout.stripe.com/c/pay/mock_session_1756470431773"
+        },
+        "error": null
+      },
+      {
+        "name": "Plan: professional",
+        "status": "PASSED",
+        "duration": "7ms",
+        "result": {
+          "status": 200,
+          "plan_name": "Professional",
+          "price": 12900,
+          "checkout_url": "https://checkout.stripe.com/c/pay/mock_session_1756470431781"
+        },
+        "error": null
+      },
+      {
+        "name": "Plan: enterprise",
+        "status": "PASSED",
+        "duration": "6ms",
+        "result": {
+          "status": 200,
+          "plan_name": "Enterprise",
+          "price": 29900,
+          "checkout_url": "https://checkout.stripe.com/c/pay/mock_session_1756470431787"
+        },
+        "error": null
+      },
+      {
+        "name": "Extended Trial Parameter",
+        "status": "PASSED",
+        "duration": "7ms",
+        "result": {
+          "status": 200,
+          "trial_period_days": 21,
+          "checkout_url": "https://checkout.stripe.com/c/pay/mock_session_1756470431794"
+        },
+        "error": null
+      },
+      {
+        "name": "Large Payload",
+        "status": "PASSED",
+        "duration": "6ms",
+        "result": {
+          "status": 200,
+          "payload_size": 10018,
+          "success": true
+        },
+        "error": null
+      },
+      {
+        "name": "Rapid Requests (Rate Limiting)",
+        "status": "PASSED",
+        "duration": "31ms",
+        "result": {
+          "total_requests": 10,
+          "successful_requests": 10,
+          "rate_limited_requests": 0,
+          "status_distribution": {
+            "200": 10
+          }
+        },
+        "error": null
+      }
+    ],
+    "summary": {
+      "total_tests": 15,
+      "passed": 14,
+      "failed": 1,
+      "success_rate": 93,
+      "test_duration": 9482
+    },
+    "recommendations": [
+      {
+        "priority": "HIGH",
+        "category": "FAILED_TESTS",
+        "message": "1 tests failed",
+        "details": [
+          {
+            "test": "Server Health Check",
+            "error": "timeout of 5000ms exceeded"
+          }
+        ]
+      }
+    ]
+  },
+  "categorized_issues": {
+    "critical": [
+      {
+        "category": "PRODUCT_VALIDATION",
+        "issue": "starter plan price ID invalid",
+        "price_id": "price_starter_test_123"
+      },
+      {
+        "category": "PRODUCT_VALIDATION",
+        "issue": "growth plan price ID invalid",
+        "price_id": "price_growth_test_123"
+      },
+      {
+        "category": "PRODUCT_VALIDATION",
+        "issue": "professional plan price ID invalid",
+        "price_id": "price_professional_test_123"
+      },
+      {
+        "category": "PRODUCT_VALIDATION",
+        "issue": "enterprise plan price ID invalid",
+        "price_id": "price_enterprise_test_123"
+      }
+    ],
+    "high": [],
+    "medium": [],
+    "low": [
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "SECRET_KEY",
+        "issue": "Using mock secret key - API calls will fail",
+        "data": null
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "PRICE_IDS",
+        "issue": "STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "starter",
+          "price_id": "price_starter_test_123"
+        }
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "PRICE_IDS",
+        "issue": "STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "growth",
+          "price_id": "price_growth_test_123"
+        }
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "PRICE_IDS",
+        "issue": "STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "professional",
+          "price_id": "price_professional_test_123"
+        }
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "PRICE_IDS",
+        "issue": "STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "enterprise",
+          "price_id": "price_enterprise_test_123"
+        }
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "WEBHOOKS",
+        "issue": "STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+        "data": null
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "CONNECTION",
+        "issue": "Cannot test connection - invalid or mock secret key",
+        "data": null
+      },
+      {
+        "category": "ENVIRONMENT",
+        "subcategory": "PRICE_VALIDATION",
+        "issue": "Cannot validate prices - invalid or mock secret key",
+        "data": null
+      },
+      {
+        "category": "API_TESTING",
+        "issue": "API test failed: Server Health Check",
+        "error": "timeout of 5000ms exceeded"
+      }
+    ]
+  },
+  "root_causes": [
+    {
+      "cause": "Stripe Product Configuration Issues",
+      "description": "Products or prices are not properly set up in Stripe",
+      "impact": "HIGH",
+      "affected_areas": [
+        "Checkout Creation",
+        "Price Validation",
+        "Subscription Plans"
+      ],
+      "issues": [
+        {
+          "category": "PRODUCT_VALIDATION",
+          "issue": "starter plan price ID invalid",
+          "price_id": "price_starter_test_123"
+        },
+        {
+          "category": "PRODUCT_VALIDATION",
+          "issue": "growth plan price ID invalid",
+          "price_id": "price_growth_test_123"
+        },
+        {
+          "category": "PRODUCT_VALIDATION",
+          "issue": "professional plan price ID invalid",
+          "price_id": "price_professional_test_123"
+        },
+        {
+          "category": "PRODUCT_VALIDATION",
+          "issue": "enterprise plan price ID invalid",
+          "price_id": "price_enterprise_test_123"
+        }
+      ]
+    }
+  ],
+  "launch_readiness": {
+    "ready": false,
+    "score": 26,
+    "blockers": [
+      {
+        "type": "CRITICAL_ISSUES",
+        "count": 4,
+        "message": "4 critical issues must be resolved"
+      },
+      {
+        "type": "ENVIRONMENT_CONFIG",
+        "message": "Environment configuration is incomplete or invalid"
+      },
+      {
+        "type": "PRODUCT_CONFIG",
+        "message": "Stripe products/prices are not properly configured"
+      }
+    ],
+    "recommendation": "NEEDS_FIXES"
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "title": "Fix Critical Issues Immediately",
+      "description": "These issues will completely prevent Stripe integration from working",
+      "actions": [
+        {
+          "action": "Fix PRODUCT_VALIDATION: starter plan price ID invalid",
+          "category": "PRODUCT_VALIDATION"
+        },
+        {
+          "action": "Fix PRODUCT_VALIDATION: growth plan price ID invalid",
+          "category": "PRODUCT_VALIDATION"
+        },
+        {
+          "action": "Fix PRODUCT_VALIDATION: professional plan price ID invalid",
+          "category": "PRODUCT_VALIDATION"
+        },
+        {
+          "action": "Fix PRODUCT_VALIDATION: enterprise plan price ID invalid",
+          "category": "PRODUCT_VALIDATION"
+        }
+      ]
+    },
+    {
+      "priority": 3,
+      "title": "Complete Environment Configuration",
+      "description": "Ensure all Stripe environment variables are properly set",
+      "actions": [
+        "Verify STRIPE_SECRET_KEY is set and valid",
+        "Verify STRIPE_PUBLISHABLE_KEY is set and matches secret key",
+        "Set all STRIPE_*_PRICE_ID environment variables",
+        "Configure STRIPE_WEBHOOK_SECRET if using webhooks"
+      ]
+    },
+    {
+      "priority": 4,
+      "title": "Implement Continuous Testing",
+      "description": "Set up monitoring to catch issues early",
+      "actions": [
+        "Run these debugging scripts regularly",
+        "Set up health checks for Stripe connectivity",
+        "Monitor API error rates",
+        "Test payment flows in staging environment"
+      ]
+    }
+  ],
+  "test_summary": {
+    "total_score": "26/100",
+    "launch_ready": false,
+    "critical_issues": 4,
+    "high_priority_issues": 0,
+    "total_blockers": 3
+  },
+  "next_steps": [
+    "Fix critical issues",
+    "Re-run test suite",
+    "Verify all tests pass"
+  ]
+}

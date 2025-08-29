@@ -1,6 +1,9 @@
 'use client'
 import { useState, useCallback } from 'react'
 import { ErrorInfo } from '../../components/ui/ErrorDisplay'
+import { StripeErrorInfo } from '../../components/ui/StripeErrorDisplay'
+import { apiDebugger } from '../utils/api-debugger'
+import { parseApiError } from '../utils/enhanced-error-parser'
 
 interface ApiCallState<T> {
   data: T | null
@@ -72,7 +75,21 @@ export function useApiCall<T = any>() {
         return result
 
       } catch (error) {
-        const errorInfo = parseError(error, attempt + 1, retryAttempts)
+        // Use enhanced error parser first, fallback to legacy parser
+        let errorInfo: ErrorInfo | StripeErrorInfo
+        try {
+          errorInfo = parseApiError(error, undefined, undefined, undefined)
+        } catch (parseErr) {
+          console.warn('Enhanced error parser failed, using legacy parser:', parseErr)
+          errorInfo = {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            type: 'unknown',
+            statusCode: 500,
+            isRetriable: false,
+            priority: 'high'
+          } as ErrorInfo
+        }
+        
         lastError = errorInfo
 
         setState(prev => ({
@@ -181,29 +198,93 @@ export function useCheckout() {
 
   const createCheckoutSession = useCallback(async (plan: string, options: any = {}) => {
     return call(async () => {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          plan,
-          ...options
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null)
-        throw new Error(errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+      const requestBody = {
+        plan,
+        ...options
       }
-
-      const data = await response.json()
       
-      if (!data.success) {
-        throw new Error(data.error?.message || 'Checkout session creation failed')
+      const headers = {
+        'Content-Type': 'application/json',
       }
+      
+      // Start debugging
+      const requestId = apiDebugger.startRequest(
+        '/api/create-checkout-session',
+        'POST',
+        requestBody,
+        headers,
+        {
+          logToConsole: true,
+          includeHeaders: true,
+          includeBody: true,
+          persistLogs: true
+        }
+      )
+      
+      let response: Response
+      let responseData: any = null
+      
+      try {
+        response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(requestBody),
+        })
+        
+        // Try to parse response data
+        try {
+          responseData = await response.json()
+        } catch (parseError) {
+          console.error('Failed to parse response JSON:', parseError)
+          responseData = { error: { message: 'Invalid JSON response from server' } }
+        }
+        
+        // Log successful response
+        apiDebugger.endRequest(requestId, response, responseData, {
+          logToConsole: true,
+          includeHeaders: true,
+          includeBody: true,
+          persistLogs: true
+        })
+        
+        if (!response.ok) {
+          // Create enhanced error with Stripe-specific information
+          const enhancedError = new Error(responseData?.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+          ;(enhancedError as any).requestId = requestId
+          ;(enhancedError as any).responseData = responseData
+          ;(enhancedError as any).statusCode = response.status
+          throw enhancedError
+        }
 
-      return data.data
+        if (!responseData.success) {
+          const enhancedError = new Error(responseData.error?.message || 'Checkout session creation failed')
+          ;(enhancedError as any).requestId = requestId
+          ;(enhancedError as any).responseData = responseData
+          throw enhancedError
+        }
+
+        return {
+          ...responseData.data,
+          _debug: {
+            requestId,
+            responseData: apiDebugger.isDebugMode() ? responseData : null
+          }
+        }
+        
+      } catch (error) {
+        // Log error
+        apiDebugger.logError(requestId, error, {
+          logToConsole: true,
+          persistLogs: true
+        })
+        
+        // Enhance error with debug information
+        ;(error as any).requestId = requestId
+        ;(error as any).requestBody = requestBody
+        ;(error as any).responseData = responseData
+        
+        throw error
+      }
     }, {
       timeout: 15000, // 15 seconds for checkout
       retryAttempts: 2,
@@ -217,7 +298,7 @@ export function useCheckout() {
   }
 }
 
-function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo {
+function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo | StripeErrorInfo {
   // Handle timeout errors
   if (error.message?.includes('timeout')) {
     return {
@@ -318,6 +399,78 @@ function parseError(error: any, attempt: number, maxAttempts: number): ErrorInfo
           }
       }
     }
+  }
+
+  // Handle Stripe-specific errors with enhanced debugging info
+  if (error.requestId && (error.message?.includes('payment') || error.message?.includes('stripe') || error.message?.includes('checkout'))) {
+    const stripeError: StripeErrorInfo = {
+      type: 'payment',
+      message: error.message,
+      requestId: error.requestId,
+      retryable: false,
+      recoverable: true,
+      details: { 
+        supportId: `Attempt ${attempt}/${maxAttempts}`,
+        statusCode: error.statusCode
+      },
+      supportContext: {
+        timestamp: new Date().toISOString(),
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
+      }
+    }
+    
+    // Extract Stripe-specific error information from response data
+    if (error.responseData?.error) {
+      const errorData = error.responseData.error
+      stripeError.stripeCode = errorData.code
+      stripeError.stripeType = errorData.type
+      stripeError.message = errorData.message || error.message
+      
+      // Check if running in development mode
+      if (error.responseData.data?.development_mode) {
+        stripeError.developmentMode = true
+        stripeError.configurationErrors = ['Running in development mode with mock responses']
+      }
+      
+      // Extract configuration issues
+      if (errorData.code === 'STRIPE_CONFIG_MISSING' || errorData.code === 'STRIPE_PRODUCTION_CONFIG_ERROR') {
+        stripeError.configurationErrors = stripeError.configurationErrors || []
+        stripeError.configurationErrors.push(errorData.message)
+      }
+      
+      // Extract environment issues
+      if (errorData.code?.includes('ENVIRONMENT') || errorData.code?.includes('CONFIG')) {
+        stripeError.environmentIssues = stripeError.environmentIssues || []
+        stripeError.environmentIssues.push(errorData.message)
+      }
+      
+      // Add retry recommendations
+      switch (errorData.code) {
+        case 'STRIPE_RATE_LIMIT':
+          stripeError.retryRecommendations = ['Wait 30 seconds before retrying', 'Avoid rapid successive requests']
+          stripeError.retryable = true
+          break
+        case 'STRIPE_API_ERROR':
+        case 'STRIPE_CONNECTION_ERROR':
+          stripeError.retryRecommendations = ['Check internet connection', 'Try again in a few minutes', 'Contact support if issue persists']
+          stripeError.retryable = true
+          break
+        case 'STRIPE_VALIDATION_ERROR':
+          stripeError.retryRecommendations = ['Refresh the page and try again', 'Clear browser cache', 'Verify all required fields are filled']
+          break
+        case 'STRIPE_AUTH_ERROR':
+        case 'STRIPE_CONFIG_ERROR':
+          stripeError.retryRecommendations = ['Contact support immediately', 'This is a system configuration issue']
+          break
+      }
+      
+      // Store plan information if available
+      if (error.requestBody?.plan) {
+        stripeError.supportContext!.plan = error.requestBody.plan
+      }
+    }
+    
+    return stripeError
   }
 
   // Handle specific error messages from the backend

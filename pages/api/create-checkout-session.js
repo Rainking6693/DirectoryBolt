@@ -97,8 +97,15 @@ export default async function handler(req, res) {
     console.error('Checkout session error:', {
       request_id: requestId,
       error_message: error.message,
+      error_type: error.constructor.name,
+      error_code: error.code,
       error_stack: error.stack,
-      request_body: req.body
+      request_body: req.body,
+      environment: {
+        has_stripe_key: !!process.env.STRIPE_SECRET_KEY,
+        stripe_key_type: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_') ? 'live' : 'test',
+        node_env: process.env.NODE_ENV
+      }
     });
     
     const errorResponse = handleApiError(error, requestId);
@@ -167,9 +174,26 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     console.error('Configuration error:', {
       request_id: requestId,
       plan: plan,
-      missing_config: 'stripe_price_id'
+      missing_config: 'stripe_price_id',
+      available_env_vars: {
+        starter: !!process.env.STRIPE_STARTER_PRICE_ID,
+        growth: !!process.env.STRIPE_GROWTH_PRICE_ID,
+        professional: !!process.env.STRIPE_PROFESSIONAL_PRICE_ID,
+        enterprise: !!process.env.STRIPE_ENTERPRISE_PRICE_ID
+      }
     });
-    throw new ApiError(`Stripe price ID not configured for plan: ${plan}. Please check environment variables.`, 503, 'STRIPE_CONFIG_MISSING');
+    throw new ApiError(`Stripe price ID not configured for plan: ${plan}. Environment variable ${plan.toUpperCase()}_PRICE_ID is missing.`, 503, 'STRIPE_CONFIG_MISSING');
+  }
+
+  // Additional validation for mock/test price IDs in production
+  if (selectedPlan.stripe_price_id.includes('_test_') && process.env.NODE_ENV === 'production') {
+    console.error('Production configuration error:', {
+      request_id: requestId,
+      plan: plan,
+      price_id: selectedPlan.stripe_price_id,
+      environment: process.env.NODE_ENV
+    });
+    throw new ApiError(`Production environment detected but using test price ID for plan: ${plan}`, 503, 'STRIPE_PRODUCTION_CONFIG_ERROR');
   }
 
   // Enhanced development mode detection
@@ -184,7 +208,11 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     key_type: process.env.STRIPE_SECRET_KEY ? 
       (process.env.STRIPE_SECRET_KEY.startsWith('sk_live_') ? 'live' : 'test') : 'none',
     development_mode: isDevelopmentMode,
-    plan_price_id: selectedPlan.stripe_price_id
+    plan_price_id: selectedPlan.stripe_price_id,
+    environment_validation: {
+      nextauth_url: !!process.env.NEXTAUTH_URL,
+      all_price_ids_set: !![process.env.STRIPE_STARTER_PRICE_ID, process.env.STRIPE_GROWTH_PRICE_ID, process.env.STRIPE_PROFESSIONAL_PRICE_ID, process.env.STRIPE_ENTERPRISE_PRICE_ID].every(Boolean)
+    }
   });
 
   if (isDevelopmentMode) {
@@ -217,9 +245,41 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     });
   }
 
+  // Pre-flight validation: Test Stripe connectivity before proceeding
+  try {
+    // Test Stripe API connectivity with a simple request
+    await stripe.customers.list({ limit: 1 });
+    console.log('Stripe API connectivity confirmed:', {
+      request_id: requestId,
+      api_version: stripe.getApiField('version')
+    });
+  } catch (connectivityError) {
+    console.error('Stripe API connectivity test failed:', {
+      request_id: requestId,
+      error: connectivityError.message,
+      error_code: connectivityError.code,
+      error_type: connectivityError.type
+    });
+    
+    let userMessage = 'Payment system is temporarily unavailable. Please try again later.';
+    let errorCode = 'STRIPE_CONNECTIVITY_ERROR';
+    
+    if (connectivityError.code === 'api_key_invalid') {
+      userMessage = 'Payment system configuration error. Please contact support.';
+      errorCode = 'STRIPE_AUTH_ERROR';
+    }
+    
+    throw new ApiError(userMessage, 503, errorCode);
+  }
+
   try {
     // Create or retrieve Stripe customer
     let customer;
+    console.log('Looking up customer:', {
+      request_id: requestId,
+      email: user_email
+    });
+    
     const existingCustomers = await stripe.customers.list({
       email: user_email,
       limit: 1
@@ -227,6 +287,11 @@ async function handleCreateCheckoutSession(req, res, requestId) {
 
     if (existingCustomers.data.length > 0) {
       customer = existingCustomers.data[0];
+      console.log('Existing customer found:', {
+        request_id: requestId,
+        customer_id: customer.id,
+        created: new Date(customer.created * 1000).toISOString()
+      });
       
       // Update customer metadata with current user_id
       customer = await stripe.customers.update(customer.id, {
@@ -237,6 +302,12 @@ async function handleCreateCheckoutSession(req, res, requestId) {
         }
       });
     } else {
+      console.log('Creating new customer:', {
+        request_id: requestId,
+        email: user_email,
+        user_id: user_id
+      });
+      
       // Create new customer
       customer = await stripe.customers.create({
         email: user_email,
@@ -246,8 +317,50 @@ async function handleCreateCheckoutSession(req, res, requestId) {
           created_at: new Date().toISOString()
         }
       });
+      
+      console.log('New customer created:', {
+        request_id: requestId,
+        customer_id: customer.id
+      });
     }
 
+    // Validate price exists before creating session
+    try {
+      const priceValidation = await stripe.prices.retrieve(selectedPlan.stripe_price_id);
+      if (!priceValidation.active) {
+        console.error('Inactive price detected:', {
+          request_id: requestId,
+          price_id: selectedPlan.stripe_price_id,
+          plan: plan
+        });
+        throw new ApiError(`The ${plan} plan is temporarily unavailable. Please contact support.`, 503, 'STRIPE_PRICE_INACTIVE');
+      }
+      console.log('Price validation successful:', {
+        request_id: requestId,
+        price_id: selectedPlan.stripe_price_id,
+        amount: priceValidation.unit_amount,
+        currency: priceValidation.currency
+      });
+    } catch (priceError) {
+      if (priceError.code === 'resource_missing') {
+        console.error('Price not found in Stripe:', {
+          request_id: requestId,
+          price_id: selectedPlan.stripe_price_id,
+          plan: plan,
+          error: priceError.message
+        });
+        throw new ApiError(`The ${plan} plan is not properly configured. Please contact support.`, 503, 'STRIPE_PRICE_NOT_FOUND');
+      }
+      throw priceError; // Re-throw other errors
+    }
+
+    console.log('Creating checkout session:', {
+      request_id: requestId,
+      customer_id: customer.id,
+      price_id: selectedPlan.stripe_price_id,
+      plan: plan
+    });
+    
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
@@ -283,6 +396,24 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     });
 
     // Checkout session created successfully
+    console.log('Checkout session created successfully:', {
+      request_id: requestId,
+      session_id: session.id,
+      customer_id: customer.id,
+      plan: plan,
+      expires_at: new Date(session.expires_at * 1000).toISOString(),
+      url_length: session.url?.length || 0
+    });
+
+    // Validate session URL exists
+    if (!session.url) {
+      console.error('Checkout session created but no URL returned:', {
+        request_id: requestId,
+        session_id: session.id,
+        session_object: Object.keys(session)
+      });
+      throw new ApiError('Payment session created but checkout URL is missing. Please contact support.', 500, 'STRIPE_SESSION_URL_MISSING');
+    }
 
     // Return success response
     res.status(200).json({
@@ -321,35 +452,88 @@ async function handleCreateCheckoutSession(req, res, requestId) {
     // Enhanced Stripe error handling with specific error types
     let userMessage = 'Payment setup failed. Please try again.';
     let errorCode = 'PAYMENT_ERROR';
+    let httpStatus = 502;
     
+    // Detailed error categorization
     if (stripeError.code) {
       switch (stripeError.code) {
         case 'api_key_invalid':
         case 'authentication_required':
-          userMessage = 'Payment system configuration error. Please contact support.';
+          userMessage = 'Payment system authentication error. Please contact support.';
           errorCode = 'STRIPE_AUTH_ERROR';
+          httpStatus = 503;
           break;
         case 'price_not_found':
         case 'resource_missing':
-          userMessage = `The selected plan (${plan}) is not properly configured. Please contact support.`;
+          userMessage = `The ${plan} plan configuration is missing. Please contact support.`;
           errorCode = 'STRIPE_CONFIG_ERROR';
+          httpStatus = 503;
           break;
         case 'parameter_invalid_empty':
         case 'parameter_missing':
-          userMessage = 'Invalid payment parameters. Please refresh and try again.';
+        case 'parameter_unknown':
+          userMessage = 'Invalid payment parameters. Please refresh the page and try again.';
           errorCode = 'STRIPE_VALIDATION_ERROR';
+          httpStatus = 400;
           break;
         case 'rate_limit':
-          userMessage = 'Too many payment requests. Please wait a moment and try again.';
+          userMessage = 'Too many payment requests. Please wait 30 seconds and try again.';
           errorCode = 'STRIPE_RATE_LIMIT';
+          httpStatus = 429;
+          break;
+        case 'customer_creation_failed':
+          userMessage = 'Unable to create customer account. Please check your email and try again.';
+          errorCode = 'STRIPE_CUSTOMER_ERROR';
+          httpStatus = 400;
+          break;
+        case 'invalid_request_error':
+          userMessage = 'Invalid payment request. Please refresh and try again.';
+          errorCode = 'STRIPE_REQUEST_ERROR';
+          httpStatus = 400;
+          break;
+        case 'api_connection_error':
+        case 'api_error':
+          userMessage = 'Payment system is temporarily unavailable. Please try again in a few minutes.';
+          errorCode = 'STRIPE_API_ERROR';
+          httpStatus = 503;
           break;
         default:
-          userMessage = `Payment system error: ${stripeError.message}`;
+          userMessage = `Payment system error (${stripeError.code}). Please contact support if this persists.`;
           errorCode = 'STRIPE_UNKNOWN_ERROR';
+          httpStatus = 502;
+      }
+    } else if (stripeError.type) {
+      // Handle Stripe error types
+      switch (stripeError.type) {
+        case 'StripeCardError':
+          userMessage = 'Payment method was declined. Please try a different payment method.';
+          errorCode = 'STRIPE_CARD_ERROR';
+          httpStatus = 402;
+          break;
+        case 'StripeInvalidRequestError':
+          userMessage = 'Invalid payment request. Please refresh and try again.';
+          errorCode = 'STRIPE_INVALID_REQUEST';
+          httpStatus = 400;
+          break;
+        case 'StripeAPIError':
+          userMessage = 'Payment service is experiencing issues. Please try again shortly.';
+          errorCode = 'STRIPE_API_ISSUE';
+          httpStatus = 503;
+          break;
+        case 'StripeConnectionError':
+          userMessage = 'Unable to connect to payment service. Please check your connection and try again.';
+          errorCode = 'STRIPE_CONNECTION_ERROR';
+          httpStatus = 503;
+          break;
+        case 'StripeAuthenticationError':
+          userMessage = 'Payment system authentication error. Please contact support.';
+          errorCode = 'STRIPE_AUTH_FAILURE';
+          httpStatus = 503;
+          break;
       }
     }
     
-    throw new ApiError(userMessage, 502, errorCode);
+    throw new ApiError(userMessage, httpStatus, errorCode);
   }
 }
 

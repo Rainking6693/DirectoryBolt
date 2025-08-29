@@ -1,0 +1,222 @@
+{
+  "valid": false,
+  "score": 5,
+  "maxScore": 10,
+  "timestamp": "2025-08-29T12:29:25.205Z",
+  "environment": "development",
+  "summary": {
+    "total_checks": 10,
+    "passed_checks": 5,
+    "success_rate": 50,
+    "readiness_score": "5/10",
+    "launch_ready": false
+  },
+  "issues": {
+    "errors": 0,
+    "warnings": 8,
+    "info": 14
+  },
+  "details": {
+    "errors": [],
+    "warnings": [
+      {
+        "level": "WARNING",
+        "category": "SECRET_KEY",
+        "message": "Using mock secret key - API calls will fail",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.210Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE_IDS",
+        "message": "STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "starter",
+          "price_id": "price_starter_test_123"
+        },
+        "timestamp": "2025-08-29T12:29:25.213Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE_IDS",
+        "message": "STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "growth",
+          "price_id": "price_growth_test_123"
+        },
+        "timestamp": "2025-08-29T12:29:25.213Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE_IDS",
+        "message": "STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "professional",
+          "price_id": "price_professional_test_123"
+        },
+        "timestamp": "2025-08-29T12:29:25.213Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE_IDS",
+        "message": "STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
+        "data": {
+          "plan": "enterprise",
+          "price_id": "price_enterprise_test_123"
+        },
+        "timestamp": "2025-08-29T12:29:25.214Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "WEBHOOKS",
+        "message": "STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.214Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "CONNECTION",
+        "message": "Cannot test connection - invalid or mock secret key",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.215Z"
+      },
+      {
+        "level": "WARNING",
+        "category": "PRICE_VALIDATION",
+        "message": "Cannot validate prices - invalid or mock secret key",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.215Z"
+      }
+    ],
+    "info": [
+      {
+        "level": "INFO",
+        "category": "ENV_FILES",
+        "message": "Checking environment files...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.208Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "ENV_FILES",
+        "message": "Found environment file: .env.local",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.209Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "ENV_FILES",
+        "message": "Found environment file: .env.production",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.209Z"
+      },
+      {
+        "level": "INFO",
+        "category": "SECRET_KEY",
+        "message": "Validating STRIPE_SECRET_KEY...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.210Z"
+      },
+      {
+        "level": "INFO",
+        "category": "PUBLISHABLE_KEY",
+        "message": "Validating STRIPE_PUBLISHABLE_KEY...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.211Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PUBLISHABLE_KEY",
+        "message": "Valid Stripe publishable key found: TEST mode",
+        "data": {
+          "key_type": "test",
+          "key_length": 28
+        },
+        "timestamp": "2025-08-29T12:29:25.211Z"
+      },
+      {
+        "level": "INFO",
+        "category": "KEY_CONSISTENCY",
+        "message": "Validating key consistency...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.212Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "KEY_CONSISTENCY",
+        "message": "Keys are consistent: both are TEST keys",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.212Z"
+      },
+      {
+        "level": "INFO",
+        "category": "PRICE_IDS",
+        "message": "Validating Stripe price IDs...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.213Z"
+      },
+      {
+        "level": "INFO",
+        "category": "WEBHOOKS",
+        "message": "Validating webhook configuration...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.214Z"
+      },
+      {
+        "level": "INFO",
+        "category": "NEXTAUTH",
+        "message": "Validating NextAuth configuration...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.214Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "NEXTAUTH",
+        "message": "Valid NEXTAUTH_URL found: http://localhost:3000",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.214Z"
+      },
+      {
+        "level": "INFO",
+        "category": "CONNECTION",
+        "message": "Testing Stripe API connection...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.215Z"
+      },
+      {
+        "level": "INFO",
+        "category": "PRICE_VALIDATION",
+        "message": "Validating Stripe prices exist...",
+        "data": null,
+        "timestamp": "2025-08-29T12:29:25.215Z"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "category": "WARNINGS",
+      "message": "Address warning-level issues for optimal functionality",
+      "actions": [
+        "Review SECRET_KEY: Using mock secret key - API calls will fail",
+        "Review PRICE_IDS: STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
+        "Review PRICE_IDS: STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
+        "Review PRICE_IDS: STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
+        "Review PRICE_IDS: STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
+        "Review WEBHOOKS: STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+        "Review CONNECTION: Cannot test connection - invalid or mock secret key",
+        "Review PRICE_VALIDATION: Cannot validate prices - invalid or mock secret key"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "category": "READINESS",
+      "message": "System is not ready for production deployment",
+      "actions": [
+        "Complete environment variable configuration",
+        "Test all Stripe integrations",
+        "Verify webhook setup"
+      ]
+    }
+  ]
+}
