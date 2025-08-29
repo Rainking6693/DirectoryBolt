@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>DirectoryBolt - AI-Powered Directory Submissions Starting at $49/mo</title>
+        <title>DirectoryBolt - AI-Powered Directory Submissions Starting at $49</title>
         <meta name="description" content="Boost your business visibility with AI-powered submissions to 500+ directories. Quick setup, money-back guarantee, and proven results for 500+ businesses." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,7 +25,7 @@ export default function Home() {
         {/* Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="DirectoryBolt - AI-Powered Directory Submissions" />
-        <meta name="twitter:description" content="Get listed in 500+ directories with AI optimization. Plans from $49/mo." />
+        <meta name="twitter:description" content="Get listed in 500+ directories with AI optimization. Plans starting at $49." />
         <meta name="twitter:image" content="https://directorybolt.com/images/twitter-card.jpg" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />
@@ -172,7 +172,7 @@ export default function Home() {
                       "@type": "Service",
                       "name": "Growth Plan"
                     },
-                    "price": "79.00",
+                    "price": "89.00",
                     "priceCurrency": "USD"
                   },
                   {
@@ -181,16 +181,16 @@ export default function Home() {
                       "@type": "Service", 
                       "name": "Professional Plan"
                     },
-                    "price": "129.00",
+                    "price": "159.00",
                     "priceCurrency": "USD"
                   },
                   {
                     "@type": "Offer",
                     "itemOffered": {
                       "@type": "Service",
-                      "name": "Enterprise Plan"
+                      "name": "Subscription Plan"
                     },
-                    "price": "299.00", 
+                    "price": "49.00", 
                     "priceCurrency": "USD"
                   }
                 ]
