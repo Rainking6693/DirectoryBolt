@@ -5,9 +5,19 @@ import Stripe from 'stripe';
 import { handleApiError, ValidationError, ApiError } from '../../lib/utils/errors';
 import { log } from '../../lib/utils/logger';
 
-// Initialize Stripe with secret key - NO FALLBACKS FOR SECURITY
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+// Validate required environment variables - NO FALLBACKS FOR SECURITY
+const requiredEnvVars = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_STARTER_PRICE_ID',
+  'STRIPE_GROWTH_PRICE_ID', 
+  'STRIPE_PROFESSIONAL_PRICE_ID',
+  'STRIPE_ENTERPRISE_PRICE_ID'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`${envVar} environment variable is required`);
+  }
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -26,7 +36,7 @@ const SUBSCRIPTION_PLANS = {
       'Email support',
       'Standard processing speed'
     ],
-    stripe_price_id: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter_test_123', // Fallback for testing
+    stripe_price_id: process.env.STRIPE_STARTER_PRICE_ID
   },
   growth: {
     name: 'Growth',
@@ -39,7 +49,7 @@ const SUBSCRIPTION_PLANS = {
       'Faster processing',
       'Bulk submission tools'
     ],
-    stripe_price_id: process.env.STRIPE_GROWTH_PRICE_ID || 'price_growth_test_123', // Fallback for testing
+    stripe_price_id: process.env.STRIPE_GROWTH_PRICE_ID
   },
   professional: {
     name: 'Professional',
@@ -53,7 +63,7 @@ const SUBSCRIPTION_PLANS = {
       'API access',
       'Custom integrations'
     ],
-    stripe_price_id: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional_test_123', // Fallback for testing
+    stripe_price_id: process.env.STRIPE_PROFESSIONAL_PRICE_ID
   },
   enterprise: {
     name: 'Enterprise',
@@ -68,7 +78,7 @@ const SUBSCRIPTION_PLANS = {
       'Custom integrations',
       'SLA guarantees'
     ],
-    stripe_price_id: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise_test_123', // Fallback for testing
+    stripe_price_id: process.env.STRIPE_ENTERPRISE_PRICE_ID
   }
 };
 
