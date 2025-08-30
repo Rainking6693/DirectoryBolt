@@ -2,15 +2,15 @@
   # Directory with Netlify Functions
   functions = "netlify/functions"
   
-  # Build command (if you have a build step)
-  # command = "npm run build"
+  # Build command for Next.js
+  command = "npm run build"
   
-  # Directory to publish (if different from root)
-  # publish = "dist"
+  # Directory to publish for Next.js
+  publish = ".next"
 
 [build.environment]
-  # Node.js version for functions
-  NODE_VERSION = "18"
+  # Node.js version (Next.js 14 requires Node 18+)
+  NODE_VERSION = "20"
 
 [functions]
   # Use esbuild for faster cold starts
