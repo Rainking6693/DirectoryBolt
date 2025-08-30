@@ -1,7 +1,12 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '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', {
+// Initialize Stripe with environment variable only (secure)
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error('STRIPE_SECRET_KEY environment variable is required');
+  throw new Error('Stripe configuration error - contact support');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
 

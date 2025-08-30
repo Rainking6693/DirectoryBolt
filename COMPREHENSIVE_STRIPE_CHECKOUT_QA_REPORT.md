@@ -58,7 +58,7 @@
 
 ```javascript
 // CURRENT (VULNERABLE):
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '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')
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_live_[EXPOSED_KEY_REDACTED]')
 
 // SHOULD BE:
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
