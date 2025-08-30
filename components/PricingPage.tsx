@@ -295,15 +295,15 @@ export default function PricingPage() {
           <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-white">
             Choose Your Plan
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 sm:gap-8 mb-16">
             {pricingTiers.map((tier, index) => {
               const roi = calculateROI(tier)
               return (
                 <div
                   key={tier.id}
-                  className={`relative transform transition-all duration-500 hover:scale-105 ${
+                  className={`relative transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-volt-500/20 ${
                     tier.highlighted ? 'scale-105' : ''
-                  } animate-slide-up`}
+                  } animate-slide-up group`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   {/* Popular Badge */}
@@ -315,10 +315,10 @@ export default function PricingPage() {
                     </div>
                   )}
 
-                  <div className={`h-full bg-gradient-to-br backdrop-blur-sm rounded-2xl p-8 ${
+                  <div className={`h-full bg-gradient-to-br backdrop-blur-sm rounded-2xl p-6 sm:p-8 transition-all duration-300 group-hover:bg-gradient-to-br ${
                     tier.highlighted
-                      ? 'from-volt-500/20 to-volt-600/10 border-2 border-volt-500 shadow-2xl shadow-volt-500/20'
-                      : 'from-secondary-800/80 to-secondary-900/60 border border-secondary-600'
+                      ? 'from-volt-500/20 to-volt-600/10 border-2 border-volt-500 shadow-2xl shadow-volt-500/20 group-hover:from-volt-500/30 group-hover:to-volt-600/20'
+                      : 'from-secondary-800/80 to-secondary-900/60 border border-secondary-600 group-hover:from-secondary-700/90 group-hover:to-secondary-800/70 group-hover:border-volt-500/50'
                   }`}>
                     {/* Header */}
                     <div className="text-center mb-6">
@@ -378,9 +378,10 @@ export default function PricingPage() {
                         plan={tier.id}
                         variant={tier.highlighted ? 'primary' : tier.id === 'enterprise' ? 'outline' : 'secondary'}
                         size="lg"
-                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${tier.buttonStyle}`}
+                        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${tier.buttonStyle}`}
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
+                        customerEmail=""
                         onSuccess={(data: any) => {
                           console.log('Checkout success:', data)
                           // Track conversion event
@@ -401,14 +402,14 @@ export default function PricingPage() {
                         {tier.buttonText}
                       </CheckoutButton>
                       {tier.id !== 'enterprise' && (
-                        <div className="text-center text-sm text-secondary-400 mt-2">14-day free trial</div>
+                        <div className="text-center text-xs sm:text-sm text-secondary-400 mt-2 group-hover:text-secondary-300 transition-colors">14-day free trial • Cancel anytime</div>
                       )}
                     </div>
 
                     {/* Directory Examples */}
-                    <div className="text-center mt-4 p-3 bg-secondary-900/30 rounded-lg border border-secondary-600/30">
+                    <div className="text-center mt-4 p-3 bg-secondary-900/30 rounded-lg border border-secondary-600/30 group-hover:bg-secondary-900/50 group-hover:border-secondary-500/50 transition-all duration-300">
                       <div className="text-xs font-bold text-secondary-300 mb-2">
-                        🎯 {tier.directories} Premium Directories
+                        {tier.id === 'subscription' ? '🔄 Monthly Service' : `🎯 ${tier.directories} Premium Directories`}
                       </div>
                       <div className="text-xs text-secondary-400 space-y-1">
                         {tier.id === 'starter' && (
@@ -416,7 +417,7 @@ export default function PricingPage() {
                             <div>• Product Hunt (DA 91)</div>
                             <div>• Crunchbase (DA 91)</div>
                             <div>• G2.com (DA 80)</div>
-                            <div>• F6S (DA 72) + 21 more</div>
+                            <div>• F6S (DA 72) + 46 more</div>
                           </>
                         )}
                         {tier.id === 'growth' && (
@@ -424,23 +425,23 @@ export default function PricingPage() {
                             <div>• All Starter directories PLUS:</div>
                             <div>• Hacker News (DA 89)</div>
                             <div>• AlternativeTo (DA 87)</div>
-                            <div>• GetApp (DA 91) + 22 more</div>
+                            <div>• GetApp (DA 91) + 47 more</div>
                           </>
                         )}
-                        {tier.id === 'professional' && (
+                        {tier.id === 'pro' && (
                           <>
                             <div>• All Growth directories PLUS:</div>
-                            <div>• 50 medium DA sites (30-65)</div>
+                            <div>• 100 additional premium sites</div>
                             <div>• Industry-specific directories</div>
                             <div>• Regional platforms</div>
                           </>
                         )}
-                        {tier.id === 'enterprise' && (
+                        {tier.id === 'subscription' && (
                           <>
-                            <div>• Complete database (500+)</div>
-                            <div>• Reddit communities</div>
-                            <div>• Discord servers</div>
-                            <div>• Niche industry platforms</div>
+                            <div>• Keep all listings updated</div>
+                            <div>• Automatic resubmissions</div>
+                            <div>• Monthly reports</div>
+                            <div>• Profile optimization</div>
                           </>
                         )}
                       </div>
@@ -453,23 +454,106 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Add-ons Section */}
+      <section className="px-4 pb-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-4">
+              Enhance Your
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600"> Package</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-secondary-300">
+              Add powerful extras to accelerate your results
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div className="mb-2 sm:mb-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                    <span>⚡</span> Fast-Track Submission
+                  </h3>
+                  <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Priority processing within 24 hours</p>
+                </div>
+                <div className="text-volt-400 font-black text-lg sm:text-xl group-hover:text-volt-300 transition-colors">+$25</div>
+              </div>
+              <div className="text-xs text-secondary-400 group-hover:text-secondary-300 transition-colors">
+                Skip the queue and get your submissions processed first
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div className="mb-2 sm:mb-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                    <span>👑</span> Premium Directories Only
+                  </h3>
+                  <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Focus on high-authority directories</p>
+                </div>
+                <div className="text-volt-400 font-black text-lg sm:text-xl group-hover:text-volt-300 transition-colors">+$15</div>
+              </div>
+              <div className="text-xs text-secondary-400 group-hover:text-secondary-300 transition-colors">
+                Target only directories with DA 70+ for maximum impact
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div className="mb-2 sm:mb-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                    <span>🔍</span> Manual QA Review
+                  </h3>
+                  <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Human verification of all submissions</p>
+                </div>
+                <div className="text-volt-400 font-black text-lg sm:text-xl group-hover:text-volt-300 transition-colors">+$10</div>
+              </div>
+              <div className="text-xs text-secondary-400 group-hover:text-secondary-300 transition-colors">
+                Expert review to ensure perfect listing quality
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div className="mb-2 sm:mb-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                    <span>📊</span> CSV Export
+                  </h3>
+                  <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Export submission results to CSV</p>
+                </div>
+                <div className="text-volt-400 font-black text-lg sm:text-xl group-hover:text-volt-300 transition-colors">+$9</div>
+              </div>
+              <div className="text-xs text-secondary-400 group-hover:text-secondary-300 transition-colors">
+                Download your complete listing data for analysis
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-6 sm:mt-8">
+            <p className="text-xs sm:text-sm text-secondary-400">
+              Add-ons can be selected during checkout for any plan
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ROI Calculator Section */}
       <section className="px-4 pb-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-4">
               Calculate Your
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600"> ROI</span>
             </h2>
-            <p className="text-xl text-secondary-300">
+            <p className="text-lg sm:text-xl text-secondary-300">
               See exactly how much DirectoryBolt could be worth to your business
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-8 rounded-2xl border border-secondary-600 backdrop-blur-sm">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-6 sm:p-8 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/30 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8">
               <div>
-                <label className="block text-sm font-bold text-secondary-300 mb-2">
+                <label className="block text-xs sm:text-sm font-bold text-secondary-300 mb-2">
                   Current Monthly Revenue
                 </label>
                 <input
@@ -487,7 +571,7 @@ export default function PricingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-secondary-300 mb-2">
+                <label className="block text-xs sm:text-sm font-bold text-secondary-300 mb-2">
                   Average Customer Value
                 </label>
                 <input
@@ -546,36 +630,36 @@ export default function PricingPage() {
       {/* Social Proof Section */}
       <section className="px-4 pb-16">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-4">
               Join 500+ Businesses
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600"> Crushing It</span>
             </h2>
-            <p className="text-xl text-secondary-300">
+            <p className="text-lg sm:text-xl text-secondary-300">
               See what real customers are saying about their results
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm animate-slide-up"
+                className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm animate-slide-up hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 hover:scale-105 transition-all duration-300 group"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-volt-400 text-xl">⭐</span>
+                    <span key={i} className="text-volt-400 text-lg sm:text-xl group-hover:text-volt-300 transition-colors">⭐</span>
                   ))}
                 </div>
-                <blockquote className="text-secondary-200 mb-4 italic">
+                <blockquote className="text-secondary-200 mb-4 italic text-sm sm:text-base group-hover:text-secondary-100 transition-colors">
                   "{testimonial.content}"
                 </blockquote>
-                <div className="border-t border-secondary-600 pt-4">
-                  <div className="font-bold text-white">{testimonial.name}</div>
-                  <div className="text-sm text-secondary-400">{testimonial.role}</div>
-                  <div className="text-sm text-secondary-400">{testimonial.company}</div>
-                  <div className="text-volt-400 font-bold text-sm mt-2">
+                <div className="border-t border-secondary-600 pt-4 group-hover:border-secondary-500 transition-colors">
+                  <div className="font-bold text-white text-sm sm:text-base group-hover:text-volt-300 transition-colors">{testimonial.name}</div>
+                  <div className="text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors">{testimonial.role}</div>
+                  <div className="text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors">{testimonial.company}</div>
+                  <div className="text-volt-400 font-bold text-xs sm:text-sm mt-2 group-hover:text-volt-300 transition-colors">
                     Result: {testimonial.results}
                   </div>
                 </div>
@@ -585,22 +669,22 @@ export default function PricingPage() {
 
           {/* Trust Indicators */}
           <div className="text-center">
-            <div className="flex flex-wrap justify-center items-center gap-8 mb-8 text-secondary-400">
-              <div className="flex items-center gap-2">
-                <span className="text-success-400 text-xl">🔒</span>
-                <span>256-bit SSL Encryption</span>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 mb-8 text-secondary-400">
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-success-400 text-lg sm:text-xl">🔒</span>
+                <span>256-bit SSL</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-success-400 text-xl">🏆</span>
-                <span>SOC 2 Type II Compliant</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-success-400 text-lg sm:text-xl">🏆</span>
+                <span>SOC 2 Compliant</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-success-400 text-xl">⭐</span>
-                <span>4.9/5 Average Rating</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-success-400 text-lg sm:text-xl">⭐</span>
+                <span>4.9/5 Rating</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-success-400 text-xl">🚀</span>
-                <span>99.9% Uptime SLA</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-success-400 text-lg sm:text-xl">🚀</span>
+                <span>99.9% Uptime</span>
               </div>
             </div>
           </div>
@@ -608,25 +692,33 @@ export default function PricingPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="px-4 pb-20">
+      <section className="px-4 pb-16 sm:pb-20">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/20 p-12 rounded-2xl border border-volt-500/30 backdrop-blur-sm">
-            <h2 className="text-3xl md:text-5xl font-black mb-6">
+          <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/20 p-6 sm:p-8 lg:p-12 rounded-2xl border border-volt-500/30 backdrop-blur-sm hover:from-volt-500/30 hover:to-volt-600/30 hover:border-volt-500/50 transition-all duration-500 group">
+            
+            {/* Urgency indicator */}
+            <div className="inline-flex items-center gap-2 bg-danger-500/20 border border-danger-500/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold text-danger-300 mb-6 animate-pulse">
+              <div className="w-2 h-2 bg-danger-400 rounded-full animate-ping"></div>
+              487 businesses joined this month • Limited spots remaining
+            </div>
+            
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-6">
               Ready to Dominate
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600"> Local Search?</span>
             </h2>
-            <p className="text-xl text-secondary-300 mb-8">
+            <p className="text-lg sm:text-xl text-secondary-300 mb-8">
               Join 500+ businesses already getting more customers with DirectoryBolt
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-8">
               <CheckoutButton
                 plan="growth"
                 variant="primary"
                 size="xl"
-                className="group px-10 py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
+                className="group w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg sm:text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow min-h-[56px] sm:min-h-[64px]"
                 successUrl={getSuccessUrl('growth')}
                 cancelUrl={getCancelUrl('growth')}
+                customerEmail=""
                 onSuccess={(data: any) => {
                   console.log('Final CTA checkout success:', data)
                   if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -647,28 +739,28 @@ export default function PricingPage() {
               
               <button
                 onClick={() => router.push('/analyze')}
-                className="px-8 py-4 border-2 border-volt-500 text-volt-500 font-bold text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300"
+                className="w-full sm:w-auto px-6 sm:px-8 py-4 border-2 border-volt-500 text-volt-500 font-bold text-base sm:text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300 min-h-[56px] sm:min-h-[64px] flex items-center justify-center"
               >
                 ⚡ Free Analysis First
               </button>
             </div>
 
             {/* Guarantee */}
-            <div className="bg-success-900/30 border border-success-600/30 p-6 rounded-xl mb-6">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <span className="text-success-400 text-2xl">🛡️</span>
-                <span className="text-xl font-bold text-success-400">30-Day Money-Back Guarantee</span>
+            <div className="bg-success-900/30 border border-success-600/30 p-4 sm:p-6 rounded-xl mb-6 group-hover:bg-success-900/50 group-hover:border-success-600/50 transition-all duration-300">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-2">
+                <span className="text-success-400 text-xl sm:text-2xl">🛡️</span>
+                <span className="text-lg sm:text-xl font-bold text-success-400 text-center sm:text-left">30-Day Money-Back Guarantee</span>
               </div>
-              <p className="text-secondary-300">
+              <p className="text-sm sm:text-base text-secondary-300 text-center">
                 See results in 30 days or get a full refund. No questions asked.
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-secondary-400">
-              <span>✅ No setup fees</span>
-              <span>✅ Cancel anytime</span>
-              <span>✅ 14-day free trial</span>
-              <span>✅ Instant activation</span>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-4 sm:gap-8 text-xs sm:text-sm text-secondary-400">
+              <span className="flex items-center gap-1"><span>✅</span> No setup fees</span>
+              <span className="flex items-center gap-1"><span>✅</span> Cancel anytime</span>
+              <span className="flex items-center gap-1"><span>✅</span> 14-day free trial</span>
+              <span className="flex items-center gap-1"><span>✅</span> Instant activation</span>
             </div>
           </div>
         </div>

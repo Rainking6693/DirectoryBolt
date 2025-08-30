@@ -1,0 +1,152 @@
+{
+  "summary": {
+    "timestamp": "2025-08-30T13:07:04.966Z",
+    "totalTests": 6,
+    "passed": 2,
+    "failed": 2,
+    "warnings": 0,
+    "successRate": "33%",
+    "criticalIssues": 1,
+    "majorIssues": 3,
+    "minorIssues": 2
+  },
+  "detailedResults": {
+    "timestamp": "2025-08-30T13:07:04.966Z",
+    "summary": {
+      "total": 6,
+      "passed": 2,
+      "failed": 2,
+      "warnings": 0,
+      "warning": null
+    },
+    "issues": {
+      "critical": [
+        {
+          "test": "Security Configuration Analysis",
+          "severity": "critical",
+          "message": "Hardcoded Stripe secret key in source code",
+          "impact": "Major security vulnerability - API key exposed"
+        }
+      ],
+      "major": [
+        {
+          "test": "Checkout Button Analysis",
+          "severity": "major",
+          "message": "Missing getSuccessUrl function",
+          "impact": "Checkout flow may be incomplete"
+        },
+        {
+          "test": "Checkout Button Analysis",
+          "severity": "major",
+          "message": "Missing getCancelUrl function",
+          "impact": "Checkout flow may be incomplete"
+        },
+        {
+          "test": "Security Configuration Analysis",
+          "severity": "major",
+          "message": "Limited input validation in API",
+          "impact": "Potential for invalid requests to cause errors"
+        }
+      ],
+      "minor": [
+        {
+          "test": "Success Page Analysis",
+          "severity": "minor",
+          "message": "No clear next steps for customers",
+          "impact": "Customers unsure what happens after payment"
+        },
+        {
+          "test": "Mobile Responsiveness Analysis",
+          "severity": "minor",
+          "message": "No touch-specific optimizations",
+          "impact": "Buttons may be hard to tap on mobile"
+        }
+      ]
+    },
+    "tests": [
+      {
+        "test": "Pricing Configuration Analysis",
+        "status": "passed",
+        "details": "All pricing configurations valid",
+        "issues": [],
+        "timestamp": "2025-08-30T13:07:04.971Z"
+      },
+      {
+        "test": "Checkout Button Analysis",
+        "status": "failed",
+        "details": "2 issues found",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Missing getSuccessUrl function",
+            "impact": "Checkout flow may be incomplete"
+          },
+          {
+            "severity": "major",
+            "message": "Missing getCancelUrl function",
+            "impact": "Checkout flow may be incomplete"
+          }
+        ],
+        "timestamp": "2025-08-30T13:07:04.972Z"
+      },
+      {
+        "test": "Success Page Analysis",
+        "status": "warning",
+        "details": "1 issues found",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "No clear next steps for customers",
+            "impact": "Customers unsure what happens after payment"
+          }
+        ],
+        "timestamp": "2025-08-30T13:07:04.972Z"
+      },
+      {
+        "test": "Mobile Responsiveness Analysis",
+        "status": "warning",
+        "details": "1 mobile issues found",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "No touch-specific optimizations",
+            "impact": "Buttons may be hard to tap on mobile"
+          }
+        ],
+        "timestamp": "2025-08-30T13:07:04.973Z"
+      },
+      {
+        "test": "Security Configuration Analysis",
+        "status": "failed",
+        "details": "2 security issues found",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "Hardcoded Stripe secret key in source code",
+            "impact": "Major security vulnerability - API key exposed"
+          },
+          {
+            "severity": "major",
+            "message": "Limited input validation in API",
+            "impact": "Potential for invalid requests to cause errors"
+          }
+        ],
+        "timestamp": "2025-08-30T13:07:04.973Z"
+      },
+      {
+        "test": "Error Handling Analysis",
+        "status": "passed",
+        "details": "Error handling implementation complete",
+        "issues": [],
+        "timestamp": "2025-08-30T13:07:04.974Z"
+      }
+    ]
+  },
+  "recommendations": [
+    "🚨 CRITICAL: Fix all critical security and functionality issues immediately",
+    "📊 QUALITY: Overall quality score below 70% - significant improvements needed",
+    "🔧 TESTING: Run end-to-end tests with actual Stripe integration before deployment",
+    "📱 MOBILE: Test checkout flow on various mobile devices and screen sizes",
+    "🔒 SECURITY: Ensure all API keys are properly secured and not in source code"
+  ]
+}

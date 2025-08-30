@@ -3,8 +3,13 @@
 
 import Stripe from 'stripe';
 
-// Initialize Stripe with the live key from environment
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+// Initialize Stripe with environment variable only (secure)
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error('STRIPE_SECRET_KEY environment variable is required');
+  throw new Error('Stripe configuration error - contact support');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
 
@@ -31,9 +36,9 @@ const PRICING = {
     }
   },
   subscription: {
-    name: 'Auto Update & Resubmission',
+    name: 'Subscription Plan',
     amount: 4900, // $49/month
-    description: 'Monthly automatic updates and resubmissions',
+    description: 'Monthly plan for ongoing updates',
     interval: 'month'
   },
   addons: {
@@ -77,13 +82,25 @@ export default async function handler(req, res) {
     const { 
       plan, 
       addons = [], 
-      includeSubscription = false,
+      isSubscription = false,
       customerEmail = '',
-      successUrl = 'https://directorybolt.com/success?session_id={CHECKOUT_SESSION_ID}',
-      cancelUrl = 'https://directorybolt.com/cancel'
+      successUrl,
+      cancelUrl
     } = req.body;
 
-    // Validate plan selection
+    // Set default URLs with plan parameter
+    const defaultSuccessUrl = `https://directorybolt.com/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`;
+    const defaultCancelUrl = `https://directorybolt.com/pricing?cancelled=true&plan=${plan}`;
+    
+    const finalSuccessUrl = successUrl || defaultSuccessUrl;
+    const finalCancelUrl = cancelUrl || defaultCancelUrl;
+
+    // Handle subscription plan separately
+    if (isSubscription || plan === 'subscription') {
+      return await createSubscriptionCheckout(req, res);
+    }
+
+    // Validate plan selection for one-time payments
     if (!plan || !PRICING.plans[plan]) {
       console.error('Invalid plan selected:', plan);
       return res.status(400).json({ 
@@ -144,8 +161,8 @@ export default async function handler(req, res) {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment', // One-time payment mode
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       metadata: {
         plan: plan,
         addons: addons.join(','),
@@ -210,8 +227,8 @@ export default async function handler(req, res) {
   }
 }
 
-// Also create a subscription checkout endpoint
-export async function createSubscriptionCheckout(req, res) {
+// Create a subscription checkout session
+async function createSubscriptionCheckout(req, res) {
   const requestId = `sub_checkout_${Date.now()}`;
   
   console.log('🔧 SHANE: Creating subscription checkout', { requestId });
@@ -219,9 +236,16 @@ export async function createSubscriptionCheckout(req, res) {
   try {
     const { 
       customerEmail = '',
-      successUrl = 'https://directorybolt.com/success?session_id={CHECKOUT_SESSION_ID}',
-      cancelUrl = 'https://directorybolt.com/cancel'
+      successUrl,
+      cancelUrl
     } = req.body;
+
+    // Set default URLs for subscription
+    const defaultSuccessUrl = `https://directorybolt.com/success?session_id={CHECKOUT_SESSION_ID}&plan=subscription`;
+    const defaultCancelUrl = `https://directorybolt.com/pricing?cancelled=true&plan=subscription`;
+    
+    const finalSuccessUrl = successUrl || defaultSuccessUrl;
+    const finalCancelUrl = cancelUrl || defaultCancelUrl;
 
     // Create subscription checkout session
     const sessionConfig = {
@@ -241,10 +265,11 @@ export async function createSubscriptionCheckout(req, res) {
         quantity: 1
       }],
       mode: 'subscription',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       metadata: {
         type: 'subscription',
+        plan: 'subscription',
         requestId: requestId
       }
     };

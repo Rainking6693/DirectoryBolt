@@ -11,16 +11,19 @@ import { getStripeClientConfig, isStripeConfigured, getStripeConfigurationMessag
 
 const CheckoutButton = ({
   plan = 'starter',
+  addons = [],
   children = 'Start Free Trial',
   className = '',
   variant = 'primary',
   size = 'md',
   disabled = false,
-  successUrl,
-  cancelUrl,
-  onSuccess,
-  onError,
+  successUrl = '',
+  cancelUrl = '',
+  onSuccess = (data) => {},
+  onError = (error) => {},
   showDebugInfo = false,
+  customerEmail = '',
+  metadata = {},
   ...props
 }) => {
   const router = useRouter()
@@ -99,10 +102,12 @@ const CheckoutButton = ({
 
     try {
       const checkoutPayload = {
-        user_email: `user@example.com`, // In real app, get from auth
-        user_id: `user_${Date.now()}`, // In real app, get from auth
-        success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true`
+        plan: plan,
+        addons: addons,
+        customerEmail: customerEmail || `user@example.com`, // In real app, get from auth
+        success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
+        cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true&plan=${plan}`,
+        metadata: metadata
       }
       
       // Store payload for debugging
@@ -116,21 +121,35 @@ const CheckoutButton = ({
         })
       }
       
-      const data = await createCheckoutSession(plan, checkoutPayload)
+      // Use the v3 API endpoint directly for better error handling
+      const response = await fetch('/api/create-checkout-session-v3', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutPayload)
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      const data = await response.json()
       
       // Store response for debugging
       setResponseData(data)
       
       if (debugMode) {
         console.log('✅ Checkout session created successfully:', {
-          sessionId: data.checkout_session?.id,
-          hasUrl: !!data.checkout_session?.url,
-          developmentMode: data.development_mode,
-          requestId: data._debug?.requestId
+          sessionId: data.sessionId,
+          hasUrl: !!data.checkoutUrl,
+          success: data.success,
+          requestId: data.requestId
         })
       }
       
-      if (data?.checkout_session?.url) {
+      if (data.success && data.checkoutUrl) {
         // Show success state briefly before redirect
         setShowSuccess(true)
         
@@ -141,34 +160,45 @@ const CheckoutButton = ({
         
         // Small delay to show success state, then redirect
         setTimeout(() => {
-          window.location.href = data.checkout_session.url
+          window.location.href = data.checkoutUrl
         }, 1500)
       } else {
-        throw new Error('Invalid checkout session response')
+        throw new Error(data.error || data.message || 'Invalid checkout session response - missing checkout URL')
       }
     } catch (err) {
       console.error('Checkout error:', err)
       
+      // Enhanced error handling for checkout failures
+      let enhancedError = {
+        message: err.message || 'Unknown error occurred',
+        type: 'checkout_error',
+        originalError: err,
+        requestPayload: requestPayload,
+        timestamp: new Date().toISOString()
+      }
+      
       // Store error response data for debugging
       if (err.responseData) {
         setResponseData(err.responseData)
+        enhancedError.responseData = err.responseData
       }
       
       if (debugMode) {
         console.group('❌ Checkout Error Debug')
         console.error('Error:', err)
-        console.log('Request ID:', err.requestId)
+        console.log('Enhanced Error:', enhancedError)
         console.log('Request Payload:', requestPayload)
         console.log('Response Data:', err.responseData)
-        console.log('Status Code:', err.statusCode)
         console.groupEnd()
       }
       
+      // Set the enhanced error for display
+      reset()
       setShowError(true)
       
       // Call error callback if provided
       if (onError) {
-        onError(error || err)
+        onError(enhancedError)
       }
     }
   }
@@ -314,9 +344,10 @@ const CheckoutButton = ({
 }
 
 // Preset button components for common use cases
-export const StartTrialButton = ({ plan = 'growth', ...props }) => (
+export const StartTrialButton = ({ plan = 'growth', addons = [], ...props }) => (
   <CheckoutButton
     plan={plan}
+    addons={addons}
     variant="primary"
     size="lg"
     {...props}
@@ -325,9 +356,10 @@ export const StartTrialButton = ({ plan = 'growth', ...props }) => (
   </CheckoutButton>
 )
 
-export const UpgradeButton = ({ plan = 'professional', size = 'md', ...props }) => (
+export const UpgradeButton = ({ plan = 'professional', size = 'md', addons = [], ...props }) => (
   <CheckoutButton
     plan={plan}
+    addons={addons}
     variant="primary"
     size={size}
     {...props}
@@ -336,9 +368,10 @@ export const UpgradeButton = ({ plan = 'professional', size = 'md', ...props }) 
   </CheckoutButton>
 )
 
-export const GetStartedButton = ({ plan = 'free', ...props }) => (
+export const GetStartedButton = ({ plan = 'free', addons = [], ...props }) => (
   <CheckoutButton
     plan={plan}
+    addons={addons}
     variant="secondary"
     size="lg"
     {...props}
@@ -347,9 +380,10 @@ export const GetStartedButton = ({ plan = 'free', ...props }) => (
   </CheckoutButton>
 )
 
-export const ContactSalesButton = ({ ...props }) => (
+export const ContactSalesButton = ({ addons = [], ...props }) => (
   <CheckoutButton
     plan="enterprise"
+    addons={addons}
     variant="outline"
     size="md"
     {...props}
@@ -379,6 +413,7 @@ export const UpgradePromptButton = ({
       </p>
       <CheckoutButton
         plan={requiredPlan}
+        addons={props.addons || []}
         variant="primary"
         size="sm"
         {...props}

@@ -6,17 +6,42 @@ import Link from 'next/link';
 const SuccessPage = () => {
   const router = useRouter();
   const [sessionId, setSessionId] = useState('');
+  const [planId, setPlanId] = useState('');
+  const [sessionData, setSessionData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSession, setLoadingSession] = useState(false);
 
   useEffect(() => {
-    // Get session ID from URL params
-    const { session_id } = router.query;
+    // Get session ID and plan from URL params
+    const { session_id, plan } = router.query;
     if (session_id) {
       setSessionId(session_id);
-      console.log('💻 BEN: Success page loaded with session:', session_id);
+      setPlanId(plan || '');
+      console.log('💻 BEN: Success page loaded with session:', session_id, 'plan:', plan);
+      
+      // Fetch session details from Stripe
+      fetchSessionDetails(session_id);
     }
     setLoading(false);
   }, [router.query]);
+  
+  // Fetch session details to get order information
+  const fetchSessionDetails = async (sessionId) => {
+    setLoadingSession(true);
+    try {
+      const response = await fetch(`/api/checkout-session-details?session_id=${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSessionData(data);
+        console.log('Session details fetched:', data);
+      } else {
+        console.error('Failed to fetch session details');
+      }
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+    setLoadingSession(false);
+  };
 
   if (loading) {
     return (
@@ -47,6 +72,63 @@ const SuccessPage = () => {
               </div>
             )}
           </div>
+
+          {/* Order Summary */}
+          {sessionData && (
+            <div className="px-8 py-6 bg-gray-50 border-b">
+              <div className="max-w-2xl mx-auto">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Order Summary</h2>
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  {/* Plan Details */}
+                  <div className="flex justify-between items-center mb-4 pb-4 border-b">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{sessionData.planName || `${planId} Plan`}</h3>
+                      <p className="text-gray-600 text-sm">{sessionData.planDescription || `Directory submission service`}</p>
+                    </div>
+                    <div className="text-lg font-bold text-gray-900">
+                      ${sessionData.planPrice || '0'}
+                    </div>
+                  </div>
+                  
+                  {/* Add-ons */}
+                  {sessionData.addons && sessionData.addons.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Add-on Services:</h4>
+                      <div className="space-y-2">
+                        {sessionData.addons.map((addon, index) => (
+                          <div key={index} className="flex justify-between items-center text-sm">
+                            <span className="text-gray-700">{addon.name}</span>
+                            <span className="font-medium text-gray-900">+${addon.price}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Total */}
+                  <div className="flex justify-between items-center pt-4 border-t">
+                    <span className="text-lg font-bold text-gray-900">Total Paid:</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ${sessionData.totalAmount || sessionData.amount_total ? (sessionData.amount_total / 100).toFixed(2) : '0'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Loading Session Details */}
+          {loadingSession && (
+            <div className="px-8 py-6 bg-gray-50 border-b">
+              <div className="text-center">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-1/4 mx-auto mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                </div>
+                <p className="text-gray-600 mt-2">Loading order details...</p>
+              </div>
+            </div>
+          )}
 
           {/* Order Details */}
           <div className="px-8 py-12">
