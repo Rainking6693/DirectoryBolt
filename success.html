@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - DirectoryBolt</title>
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .success-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .success-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            animation: successPulse 2s infinite;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: #10b981;
+        }
+        
+        .success-message {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        
+        .order-details {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .detail-label {
+            color: #94a3b8;
+        }
+        
+        .detail-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .next-steps {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .next-steps h3 {
+            color: #f59e0b;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .next-steps ul {
+            list-style: none;
+            color: #e2e8f0;
+        }
+        
+        .next-steps li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .next-steps li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(245, 158, 11, 0.3);
+            border-left: 4px solid #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: #fca5a5;
+        }
+        
+        .fallback {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .fallback-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .success-card {
+                padding: 2rem;
+            }
+            
+            .success-title {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-card">
+            <!-- Loading State -->
+            <div id="loading-state" class="loading">
+                <div class="loading-spinner"></div>
+                <h2>Confirming your payment...</h2>
+                <p>Please wait while we retrieve your order details.</p>
+            </div>
+            
+            <!-- Success State -->
+            <div id="success-state" style="display: none;">
+                <div class="success-icon">✓</div>
+                <h1 class="success-title">Payment Successful!</h1>
+                <p class="success-message">
+                    Thank you for choosing DirectoryBolt. Your payment has been processed successfully.
+                </p>
+                
+                <div id="order-details" class="order-details">
+                    <!-- Order details will be populated here -->
+                </div>
+                
+                <div class="next-steps">
+                    <h3>What happens next?</h3>
+                    <ul>
+                        <li>You'll receive a confirmation email within minutes</li>
+                        <li>Our team will start processing your directory submissions within 24 hours</li>
+                        <li>You'll get daily progress updates via email</li>
+                        <li>Complete submissions typically finish in 5-7 business days</li>
+                    </ul>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="/" class="btn btn-primary">Return Home</a>
+                    <a href="mailto:support@directorybolt.com" class="btn btn-secondary">Contact Support</a>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div id="error-state" class="error" style="display: none;">
+                <h2>Unable to confirm payment</h2>
+                <p id="error-message">We encountered an issue retrieving your order details.</p>
+                <div class="action-buttons" style="margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="retryLoad()">Try Again</button>
+                    <a href="/pricing" class="btn btn-secondary">Back to Pricing</a>
+                </div>
+            </div>
+            
+            <!-- Fallback State -->
+            <div id="fallback-state" class="fallback" style="display: none;">
+                <div class="fallback-icon">⚠️</div>
+                <h2>No order found</h2>
+                <p>We couldn't find any recent order to display. This could happen if:</p>
+                <ul style="text-align: left; margin: 1rem 0; color: #94a3b8;">
+                    <li>You accessed this page directly without completing a purchase</li>
+                    <li>The payment session has expired</li>
+                    <li>There was an issue with the payment process</li>
+                </ul>
+                <div class="action-buttons">
+                    <a href="/pricing" class="btn btn-primary">View Pricing</a>
+                    <a href="/" class="btn btn-secondary">Return Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get session ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        // State management
+        let currentState = 'loading';
+        
+        /**
+         * Initialize the success page
+         */
+        async function init() {
+            if (!sessionId) {
+                showFallback();
+                return;
+            }
+            
+            try {
+                await loadOrderDetails(sessionId);
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                showError(error.message);
+            }
+        }
+        
+        /**
+         * Load order details from the server
+         * @param {string} sessionId - Stripe session ID
+         */
+        async function loadOrderDetails(sessionId) {
+            try {
+                const response = await fetch('/.netlify/functions/get-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                displayOrderDetails(data);
+                showSuccess();
+                
+                // Track successful payment
+                trackPurchaseCompleted(data);
+                
+            } catch (error) {
+                throw new Error(`Failed to load order details: ${error.message}`);
+            }
+        }
+        
+        /**
+         * Escape HTML to prevent XSS attacks
+         * @param {string} text - Text to escape
+         * @returns {string} HTML-escaped text
+         */
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return String(text);
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        /**
+         * Display order details in the UI
+         * @param {Object} orderData - Order data from server
+         */
+        function displayOrderDetails(orderData) {
+            const orderDetailsContainer = document.getElementById('order-details');
+            
+            const details = [
+                {
+                    label: 'Order ID',
+                    value: orderData.id ? orderData.id.slice(-8).toUpperCase() : 'N/A'
+                },
+                {
+                    label: 'Plan',
+                    value: orderData.planName || 'Unknown Plan'
+                },
+                {
+                    label: 'Customer Email',
+                    value: orderData.customer_email || 'N/A'
+                },
+                {
+                    label: 'Payment Status',
+                    value: orderData.payment_status === 'paid' ? 'Paid' : orderData.payment_status || 'Unknown'
+                },
+                {
+                    label: 'Total Amount',
+                    value: formatCurrency(orderData.amount_total)
+                }
+            ];
+            
+            // Use innerHTML with escaped content for XSS protection
+            orderDetailsContainer.innerHTML = details.map(detail => `
+                <div class="detail-row">
+                    <span class="detail-label">${escapeHtml(detail.label)}:</span>
+                    <span class="detail-value">${escapeHtml(detail.value)}</span>
+                </div>
+            `).join('');
+        }
+        
+        /**
+         * Format currency amount
+         * @param {number} amount - Amount in cents
+         * @returns {string} Formatted currency string
+         */
+        function formatCurrency(amount) {
+            if (!amount || isNaN(amount)) return '$0.00';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount / 100);
+        }
+        
+        /**
+         * Show success state
+         */
+        function showSuccess() {
+            setState('success');
+        }
+        
+        /**
+         * Show error state
+         * @param {string} message - Error message
+         */
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            setState('error');
+        }
+        
+        /**
+         * Show fallback state (no session ID)
+         */
+        function showFallback() {
+            setState('fallback');
+        }
+        
+        /**
+         * Set the current UI state
+         * @param {string} state - State to show ('loading', 'success', 'error', 'fallback')
+         */
+        function setState(state) {
+            const states = ['loading', 'success', 'error', 'fallback'];
+            
+            states.forEach(s => {
+                const element = document.getElementById(`${s}-state`);
+                if (element) {
+                    element.style.display = s === state ? 'block' : 'none';
+                }
+            });
+            
+            currentState = state;
+        }
+        
+        /**
+         * Retry loading order details
+         */
+        async function retryLoad() {
+            setState('loading');
+            await init();
+        }
+        
+        /**
+         * Track purchase completed event
+         * @param {Object} orderData - Order data
+         */
+        function trackPurchaseCompleted(orderData) {
+            // TODO: Add your analytics tracking here
+            // Example for Google Analytics:
+            // gtag('event', 'purchase', {
+            //     transaction_id: orderData.id,
+            //     value: orderData.amount_total / 100,
+            //     currency: 'USD',
+            //     items: [{
+            //         item_name: orderData.planName,
+            //         category: 'Directory Submission',
+            //         quantity: 1,
+            //         price: orderData.amount_total / 100
+            //     }]
+            // });
+            
+            console.log('Purchase completed:', orderData);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

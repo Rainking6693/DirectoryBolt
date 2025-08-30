@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt - Pricing Plans</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Pricing Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: #f59e0b;
+            box-shadow: 0 25px 50px rgba(245, 158, 11, 0.2);
+        }
+        
+        .popular {
+            border-color: #f59e0b;
+            box-shadow: 0 15px 30px rgba(245, 158, 11, 0.1);
+        }
+        
+        .popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-description {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            padding: 0.5rem 0;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .checkout-btn:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: scale(1.05);
+        }
+        
+        .checkout-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .plan-price {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Plan</h1>
+            <p>Get your business listed in hundreds of directories with our AI-powered submission service</p>
+        </div>
+        
+        <div id="error-container"></div>
+        
+        <div class="pricing-grid">
+            <!-- Starter Plan -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Starter</h3>
+                <div class="plan-price">$49</div>
+                <p class="plan-description">Perfect for small businesses getting started</p>
+                <ul class="plan-features">
+                    <li>50 directory submissions</li>
+                    <li>Basic analytics dashboard</li>
+                    <li>Email support</li>
+                    <li>30-day money-back guarantee</li>
+                </ul>
+                <button class="checkout-btn" onclick="createCheckoutSession('starter', 'price_REPLACE_WITH_STARTER_PRICE_ID', event)">
+                    Choose Starter
+                </button>
+            </div>
+            
+            <!-- Growth Plan -->
+            <div class="pricing-card popular">
+                <h3 class="plan-name">Growth</h3>
+                <div class="plan-price">$89</div>
+                <p class="plan-description">Most popular choice for growing businesses</p>
+                <ul class="plan-features">
+                    <li>100 directory submissions</li>
+                    <li>AI-powered optimization</li>
+                    <li>Advanced analytics</li>
+                    <li>Priority email & chat support</li>
+                    <li>30-day money-back guarantee</li>
+                </ul>
+                <button class="checkout-btn" onclick="createCheckoutSession('growth', 'price_REPLACE_WITH_GROWTH_PRICE_ID', event)">
+                    Choose Growth
+                </button>
+            </div>
+            
+            <!-- Pro Plan -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Pro</h3>
+                <div class="plan-price">$159</div>
+                <p class="plan-description">For businesses that need maximum exposure</p>
+                <ul class="plan-features">
+                    <li>200 directory submissions</li>
+                    <li>White-label reporting</li>
+                    <li>API access</li>
+                    <li>Phone & priority support</li>
+                    <li>Dedicated account manager</li>
+                    <li>30-day money-back guarantee</li>
+                </ul>
+                <button class="checkout-btn" onclick="createCheckoutSession('pro', 'price_REPLACE_WITH_PRO_PRICE_ID', event)">
+                    Choose Pro
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Creates a checkout session and redirects to Stripe
+         * @param {string} planName - Name of the selected plan
+         * @param {string} priceId - Stripe Price ID for the plan
+         * @param {Event} event - Click event object
+         */
+        async function createCheckoutSession(planName, priceId, event) {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Processing...';
+            button.disabled = true;
+            
+            // Clear any previous errors
+            clearError();
+            
+            try {
+                // Call Netlify function to create checkout session
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        planName: planName,
+                        priceId: priceId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                if (!data.url) {
+                    throw new Error('No checkout URL received from server');
+                }
+                
+                // Redirect to Stripe Checkout
+                window.location.href = data.url;
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showError(`Failed to create checkout session: ${error.message}`);
+                
+                // Reset button state
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        /**
+         * Display error message to user
+         * @param {string} message - Error message to display
+         */
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    ${message}
+                </div>
+            `;
+        }
+        
+        /**
+         * Clear any error messages
+         */
+        function clearError() {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = '';
+        }
+        
+        // Analytics tracking (optional)
+        function trackCheckoutInitiated(planName) {
+            // TODO: Add your analytics tracking here
+            // Example for Google Analytics:
+            // gtag('event', 'begin_checkout', {
+            //     currency: 'USD',
+            //     value: getPlanValue(planName),
+            //     items: [{
+            //         item_name: planName + ' Plan',
+            //         category: 'Directory Submission',
+            //         quantity: 1
+            //     }]
+            // });
+            
+            console.log(`Checkout initiated for ${planName} plan`);
+        }
+    </script>
+</body>
+</html>
