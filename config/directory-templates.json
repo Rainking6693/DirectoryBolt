@@ -1,0 +1,568 @@
+{
+  "form_field_templates": {
+    "common_fields": {
+      "business_name": {
+        "type": "text",
+        "label": "Business Name",
+        "placeholder": "Enter your business name",
+        "required": true,
+        "max_length": 100,
+        "validation": {
+          "pattern": "^[a-zA-Z0-9\\s&.-]+$",
+          "message": "Business name can only contain letters, numbers, spaces, &, ., and -"
+        }
+      },
+      "business_description": {
+        "type": "textarea",
+        "label": "Business Description",
+        "placeholder": "Describe your business in detail",
+        "required": true,
+        "max_length": 750,
+        "min_length": 50,
+        "validation": {
+          "message": "Description must be between 50 and 750 characters"
+        }
+      },
+      "business_url": {
+        "type": "url",
+        "label": "Website URL",
+        "placeholder": "https://your-website.com",
+        "required": true,
+        "validation": {
+          "pattern": "^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$",
+          "message": "Please enter a valid website URL starting with http:// or https://"
+        }
+      },
+      "business_email": {
+        "type": "email",
+        "label": "Business Email",
+        "placeholder": "contact@your-business.com",
+        "required": true,
+        "validation": {
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "message": "Please enter a valid email address"
+        }
+      },
+      "business_phone": {
+        "type": "tel",
+        "label": "Business Phone",
+        "placeholder": "(555) 123-4567",
+        "required": false,
+        "validation": {
+          "pattern": "^[\\+]?[1-9]?[0-9]{7,15}$",
+          "message": "Please enter a valid phone number"
+        }
+      },
+      "business_address": {
+        "type": "address",
+        "label": "Business Address",
+        "placeholder": "123 Main St, City, State, ZIP",
+        "required": false,
+        "components": {
+          "street": { "type": "text", "required": true, "placeholder": "Street Address" },
+          "city": { "type": "text", "required": true, "placeholder": "City" },
+          "state": { "type": "text", "required": true, "placeholder": "State/Province" },
+          "zip": { "type": "text", "required": true, "placeholder": "ZIP/Postal Code" },
+          "country": { "type": "select", "required": true, "default": "US" }
+        }
+      },
+      "business_category": {
+        "type": "select",
+        "label": "Business Category",
+        "required": true,
+        "options": [
+          {"value": "restaurant", "label": "Restaurant & Food Service"},
+          {"value": "retail", "label": "Retail & Shopping"},
+          {"value": "professional", "label": "Professional Services"},
+          {"value": "healthcare", "label": "Healthcare & Medical"},
+          {"value": "automotive", "label": "Automotive Services"},
+          {"value": "home_services", "label": "Home & Garden Services"},
+          {"value": "beauty", "label": "Beauty & Wellness"},
+          {"value": "fitness", "label": "Fitness & Sports"},
+          {"value": "education", "label": "Education & Training"},
+          {"value": "technology", "label": "Technology & Software"},
+          {"value": "finance", "label": "Financial Services"},
+          {"value": "real_estate", "label": "Real Estate"},
+          {"value": "legal", "label": "Legal Services"},
+          {"value": "entertainment", "label": "Entertainment & Events"},
+          {"value": "nonprofit", "label": "Non-Profit Organization"},
+          {"value": "other", "label": "Other"}
+        ]
+      },
+      "business_hours": {
+        "type": "hours",
+        "label": "Business Hours",
+        "required": false,
+        "format": "weekly_schedule",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+        "default_format": "9:00 AM - 5:00 PM"
+      }
+    },
+    
+    "directory_specific_templates": {
+      "google_business_profile": {
+        "template_name": "Google Business Profile",
+        "fields": [
+          "business_name",
+          "business_address", 
+          "business_phone",
+          "business_category",
+          "business_hours",
+          "business_url",
+          "business_description",
+          {
+            "name": "service_areas",
+            "type": "multiselect",
+            "label": "Service Areas",
+            "placeholder": "Select areas you serve",
+            "required": false,
+            "options_source": "cities_api"
+          },
+          {
+            "name": "attributes",
+            "type": "checkbox_group",
+            "label": "Business Attributes",
+            "required": false,
+            "options": [
+              {"value": "wheelchair_accessible", "label": "Wheelchair Accessible"},
+              {"value": "parking_available", "label": "Parking Available"},
+              {"value": "wifi_available", "label": "WiFi Available"},
+              {"value": "accepts_credit_cards", "label": "Accepts Credit Cards"},
+              {"value": "outdoor_seating", "label": "Outdoor Seating"},
+              {"value": "delivery_available", "label": "Delivery Available"}
+            ]
+          }
+        ],
+        "submission_notes": "Verification required via postcard or phone call. Process typically takes 1-7 days."
+      },
+      
+      "yelp_business": {
+        "template_name": "Yelp for Business",
+        "fields": [
+          "business_name",
+          "business_address",
+          "business_phone",
+          "business_category",
+          "business_url",
+          {
+            "name": "price_range",
+            "type": "select",
+            "label": "Price Range",
+            "required": false,
+            "options": [
+              {"value": "$", "label": "$ - Inexpensive"},
+              {"value": "$$", "label": "$$ - Moderate"},
+              {"value": "$$$", "label": "$$$ - Expensive"},
+              {"value": "$$$$", "label": "$$$$ - Very Expensive"}
+            ]
+          },
+          {
+            "name": "specialties",
+            "type": "textarea",
+            "label": "Specialties",
+            "placeholder": "What makes your business special?",
+            "max_length": 500,
+            "required": false
+          },
+          {
+            "name": "payment_methods",
+            "type": "checkbox_group",
+            "label": "Payment Methods Accepted",
+            "required": false,
+            "options": [
+              {"value": "cash", "label": "Cash"},
+              {"value": "credit_cards", "label": "Credit Cards"},
+              {"value": "debit_cards", "label": "Debit Cards"},
+              {"value": "mobile_payments", "label": "Mobile Payments"},
+              {"value": "checks", "label": "Personal Checks"}
+            ]
+          }
+        ],
+        "submission_notes": "Business must have a physical location. Photos strongly recommended."
+      },
+
+      "facebook_business": {
+        "template_name": "Facebook Business Page",
+        "fields": [
+          "business_name",
+          "business_category",
+          "business_description",
+          "business_url",
+          "business_phone",
+          "business_address",
+          {
+            "name": "page_category",
+            "type": "select",
+            "label": "Page Category",
+            "required": true,
+            "options": [
+              {"value": "local_business", "label": "Local Business or Place"},
+              {"value": "company", "label": "Company, Organization or Institution"},
+              {"value": "brand", "label": "Brand or Product"},
+              {"value": "artist", "label": "Artist, Band or Public Figure"},
+              {"value": "entertainment", "label": "Entertainment"},
+              {"value": "cause", "label": "Cause or Community"}
+            ]
+          },
+          {
+            "name": "mission_statement",
+            "type": "textarea",
+            "label": "Mission Statement",
+            "placeholder": "What is your business mission?",
+            "max_length": 255,
+            "required": false
+          }
+        ],
+        "submission_notes": "Page will be created instantly. Consider adding cover photo and business information."
+      },
+
+      "linkedin_company": {
+        "template_name": "LinkedIn Company Page",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "text",
+            "label": "Company Name",
+            "required": true,
+            "max_length": 100
+          },
+          {
+            "name": "company_description",
+            "type": "textarea",
+            "label": "Company Description",
+            "required": true,
+            "max_length": 2000,
+            "min_length": 200
+          },
+          {
+            "name": "industry",
+            "type": "select",
+            "label": "Industry",
+            "required": true,
+            "options_source": "linkedin_industries_api"
+          },
+          {
+            "name": "company_size",
+            "type": "select",
+            "label": "Company Size",
+            "required": true,
+            "options": [
+              {"value": "1", "label": "1 employee (Just me)"},
+              {"value": "2-10", "label": "2-10 employees"},
+              {"value": "11-50", "label": "11-50 employees"},
+              {"value": "51-200", "label": "51-200 employees"},
+              {"value": "201-500", "label": "201-500 employees"},
+              {"value": "501-1000", "label": "501-1,000 employees"},
+              {"value": "1001-5000", "label": "1,001-5,000 employees"},
+              {"value": "5001-10000", "label": "5,001-10,000 employees"},
+              {"value": "10001+", "label": "10,001+ employees"}
+            ]
+          },
+          "business_url",
+          {
+            "name": "headquarters_location",
+            "type": "location",
+            "label": "Headquarters Location",
+            "required": true
+          },
+          {
+            "name": "company_type",
+            "type": "select",
+            "label": "Company Type",
+            "required": true,
+            "options": [
+              {"value": "public_company", "label": "Public Company"},
+              {"value": "private_company", "label": "Private Company"},
+              {"value": "nonprofit", "label": "Nonprofit Organization"},
+              {"value": "government", "label": "Government Agency"},
+              {"value": "partnership", "label": "Partnership"},
+              {"value": "sole_proprietorship", "label": "Sole Proprietorship"}
+            ]
+          }
+        ],
+        "submission_notes": "Requires personal LinkedIn account for verification. Company logo and cover image recommended."
+      },
+
+      "trustpilot": {
+        "template_name": "Trustpilot Business",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "text",
+            "label": "Company Name",
+            "required": true
+          },
+          "business_url",
+          {
+            "name": "industry",
+            "type": "select",
+            "label": "Industry Category",
+            "required": true,
+            "options": [
+              {"value": "ecommerce", "label": "E-commerce & Retail"},
+              {"value": "financial", "label": "Financial Services"},
+              {"value": "travel", "label": "Travel & Hospitality"},
+              {"value": "automotive", "label": "Automotive"},
+              {"value": "health", "label": "Health & Beauty"},
+              {"value": "home", "label": "Home & Garden"},
+              {"value": "technology", "label": "Technology & Software"},
+              {"value": "business", "label": "Business Services"},
+              {"value": "education", "label": "Education & Training"},
+              {"value": "entertainment", "label": "Entertainment & Media"}
+            ]
+          },
+          {
+            "name": "company_description",
+            "type": "textarea",
+            "label": "Company Description",
+            "required": true,
+            "max_length": 1000,
+            "min_length": 100
+          },
+          "business_email",
+          {
+            "name": "company_size",
+            "type": "select",
+            "label": "Company Size",
+            "required": true,
+            "options": [
+              {"value": "1-10", "label": "1-10 employees"},
+              {"value": "11-50", "label": "11-50 employees"},
+              {"value": "51-200", "label": "51-200 employees"},
+              {"value": "201-1000", "label": "201-1,000 employees"},
+              {"value": "1000+", "label": "1,000+ employees"}
+            ]
+          }
+        ],
+        "submission_notes": "Domain verification required. May take 3-5 business days for approval."
+      },
+
+      "clutch": {
+        "template_name": "Clutch B2B Directory",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "text",
+            "label": "Company Name",
+            "required": true
+          },
+          {
+            "name": "company_description",
+            "type": "textarea",
+            "label": "Company Overview",
+            "required": true,
+            "max_length": 2000,
+            "min_length": 200
+          },
+          {
+            "name": "services_offered",
+            "type": "multiselect",
+            "label": "Services Offered",
+            "required": true,
+            "options": [
+              {"value": "web_development", "label": "Web Development"},
+              {"value": "mobile_app_development", "label": "Mobile App Development"},
+              {"value": "digital_marketing", "label": "Digital Marketing"},
+              {"value": "seo", "label": "Search Engine Optimization"},
+              {"value": "ppc", "label": "Pay-Per-Click Advertising"},
+              {"value": "social_media", "label": "Social Media Marketing"},
+              {"value": "content_marketing", "label": "Content Marketing"},
+              {"value": "branding", "label": "Branding & Design"},
+              {"value": "consulting", "label": "Business Consulting"},
+              {"value": "software_development", "label": "Custom Software Development"}
+            ]
+          },
+          {
+            "name": "team_size",
+            "type": "select",
+            "label": "Team Size",
+            "required": true,
+            "options": [
+              {"value": "2-9", "label": "2-9 employees"},
+              {"value": "10-49", "label": "10-49 employees"},
+              {"value": "50-249", "label": "50-249 employees"},
+              {"value": "250-999", "label": "250-999 employees"},
+              {"value": "1000+", "label": "1,000+ employees"}
+            ]
+          },
+          {
+            "name": "hourly_rate",
+            "type": "select",
+            "label": "Hourly Rate Range",
+            "required": true,
+            "options": [
+              {"value": "<25", "label": "< $25/hr"},
+              {"value": "25-49", "label": "$25 - $49/hr"},
+              {"value": "50-99", "label": "$50 - $99/hr"},
+              {"value": "100-149", "label": "$100 - $149/hr"},
+              {"value": "150-199", "label": "$150 - $199/hr"},
+              {"value": "200+", "label": "$200+/hr"}
+            ]
+          },
+          {
+            "name": "minimum_project_size",
+            "type": "select",
+            "label": "Minimum Project Size",
+            "required": true,
+            "options": [
+              {"value": "<1000", "label": "< $1,000"},
+              {"value": "1000-9999", "label": "$1,000 - $9,999"},
+              {"value": "10000-24999", "label": "$10,000 - $24,999"},
+              {"value": "25000-49999", "label": "$25,000 - $49,999"},
+              {"value": "50000-99999", "label": "$50,000 - $99,999"},
+              {"value": "100000+", "label": "$100,000+"}
+            ]
+          },
+          "business_url",
+          {
+            "name": "client_references",
+            "type": "textarea",
+            "label": "Client References",
+            "placeholder": "Provide contact information for 3-5 recent clients",
+            "required": true,
+            "max_length": 1500
+          },
+          {
+            "name": "portfolio_examples",
+            "type": "file",
+            "label": "Portfolio Examples",
+            "required": true,
+            "accept": ".pdf,.doc,.docx,.jpg,.png,.gif",
+            "max_files": 5
+          }
+        ],
+        "submission_notes": "Detailed verification process including client interviews. Approval can take 2-4 weeks."
+      }
+    }
+  },
+
+  "validation_rules": {
+    "url": {
+      "pattern": "^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$",
+      "message": "Please enter a valid URL starting with http:// or https://"
+    },
+    "email": {
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "message": "Please enter a valid email address"
+    },
+    "phone": {
+      "pattern": "^[\\+]?[1-9]?[0-9]{7,15}$",
+      "message": "Please enter a valid phone number"
+    },
+    "required": {
+      "message": "This field is required"
+    },
+    "min_length": {
+      "message": "Must be at least {min} characters long"
+    },
+    "max_length": {
+      "message": "Must be no more than {max} characters long"
+    }
+  },
+
+  "field_mapping": {
+    "business_name": ["company_name", "name", "business_title", "organization_name"],
+    "business_description": ["company_description", "description", "about", "overview", "summary"],
+    "business_url": ["website", "url", "homepage", "company_website", "site_url"],
+    "business_email": ["email", "contact_email", "company_email", "business_contact"],
+    "business_phone": ["phone", "contact_phone", "business_number", "company_phone"],
+    "business_address": ["address", "location", "business_location", "company_address"],
+    "business_category": ["category", "industry", "business_type", "sector", "vertical"]
+  },
+
+  "submission_workflows": {
+    "standard_workflow": {
+      "steps": [
+        {
+          "step": "data_validation",
+          "description": "Validate all required fields and data formats"
+        },
+        {
+          "step": "directory_compatibility_check",
+          "description": "Verify business type matches directory requirements"
+        },
+        {
+          "step": "form_data_mapping",
+          "description": "Map business data to directory-specific form fields"
+        },
+        {
+          "step": "automated_submission",
+          "description": "Submit data to directory using automated process"
+        },
+        {
+          "step": "verification_tracking",
+          "description": "Monitor submission status and verification process"
+        },
+        {
+          "step": "success_confirmation",
+          "description": "Confirm successful listing and provide next steps"
+        }
+      ]
+    },
+    "manual_review_workflow": {
+      "steps": [
+        {
+          "step": "data_validation",
+          "description": "Validate all required fields and data formats"
+        },
+        {
+          "step": "quality_review",
+          "description": "Manual review of business information for accuracy"
+        },
+        {
+          "step": "directory_compatibility_check",
+          "description": "Verify business type matches directory requirements"
+        },
+        {
+          "step": "manual_submission_preparation",
+          "description": "Prepare submission data for manual directory submission"
+        },
+        {
+          "step": "manual_submission",
+          "description": "Manually submit to directory with optimized data"
+        },
+        {
+          "step": "follow_up_tracking",
+          "description": "Track submission progress and follow up as needed"
+        }
+      ]
+    }
+  },
+
+  "error_handling": {
+    "validation_errors": {
+      "required_field_missing": {
+        "code": "REQUIRED_FIELD_MISSING",
+        "message": "Required field '{field_name}' is missing",
+        "action": "prompt_user_for_field"
+      },
+      "invalid_format": {
+        "code": "INVALID_FORMAT",
+        "message": "Field '{field_name}' has invalid format",
+        "action": "show_format_example"
+      },
+      "field_too_long": {
+        "code": "FIELD_TOO_LONG",
+        "message": "Field '{field_name}' exceeds maximum length of {max_length}",
+        "action": "prompt_user_to_shorten"
+      }
+    },
+    "submission_errors": {
+      "directory_unavailable": {
+        "code": "DIRECTORY_UNAVAILABLE",
+        "message": "Directory is temporarily unavailable",
+        "action": "retry_later"
+      },
+      "authentication_failed": {
+        "code": "AUTH_FAILED",
+        "message": "Failed to authenticate with directory",
+        "action": "check_credentials"
+      },
+      "rate_limit_exceeded": {
+        "code": "RATE_LIMIT_EXCEEDED",
+        "message": "Too many submissions to this directory",
+        "action": "wait_and_retry"
+      }
+    }
+  }
+}
