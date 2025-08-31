@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
@@ -39,16 +39,7 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
   const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(false)
   const [subscriptionProcessing, setSubscriptionProcessing] = useState(false)
 
-  useEffect(() => {
-    if (sessionId) {
-      fetchSessionDetails()
-    } else {
-      setError('No session ID provided')
-      setLoading(false)
-    }
-  }, [sessionId])
-
-  const fetchSessionDetails = async () => {
+  const fetchSessionDetails = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -71,7 +62,16 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
     } finally {
       setLoading(false)
     }
-  }
+  }, [sessionId, type])
+
+  useEffect(() => {
+    if (sessionId) {
+      fetchSessionDetails()
+    } else {
+      setError('No session ID provided')
+      setLoading(false)
+    }
+  }, [sessionId, fetchSessionDetails])
 
   const handleSubscriptionCheckout = async () => {
     if (!session) return

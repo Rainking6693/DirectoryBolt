@@ -1,5 +1,5 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 
 const TIER_REQUIREMENTS = {
   starter: ['easy'],
@@ -25,7 +25,7 @@ export default function BulkSelectControls({
   onBulkSelect = () => {},
   onTierUpgrade = () => {}
 }) {
-  const allowedDifficulties = TIER_REQUIREMENTS[userTier] || []
+  const allowedDifficulties = useMemo(() => TIER_REQUIREMENTS[userTier] || [], [userTier])
   
   const stats = useMemo(() => {
     const available = directories.filter(dir => allowedDifficulties.includes(dir.difficulty))

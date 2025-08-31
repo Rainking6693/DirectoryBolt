@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { Directory } from '../../lib/types/directory'
 
 interface DirectoryCardProps {
@@ -114,11 +115,14 @@ export function DirectoryCard({
 
         {/* Favicon */}
         <div className="w-8 h-8 mr-4 flex-shrink-0">
-          <img
-            src={getFaviconUrl(directory.url)}
+          <Image
+            src={imageError ? '/icons/default-favicon.png' : getFaviconUrl(directory.url)}
             alt={`${directory.name} favicon`}
+            width={32}
+            height={32}
             className="w-full h-full rounded"
             onError={() => setImageError(true)}
+            unoptimized
           />
         </div>
 
@@ -207,11 +211,14 @@ export function DirectoryCard({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 flex-shrink-0">
-            <img
-              src={getFaviconUrl(directory.url)}
+            <Image
+              src={imageError ? '/icons/default-favicon.png' : getFaviconUrl(directory.url)}
               alt={`${directory.name} favicon`}
+              width={32}
+              height={32}
               className="w-full h-full rounded"
               onError={() => setImageError(true)}
+              unoptimized
             />
           </div>
           <div className="min-w-0 flex-1">

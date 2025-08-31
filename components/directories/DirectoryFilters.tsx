@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import type { DirectoryFilters as FilterTypes } from '../../lib/types/directory'
 
 interface DirectoryFiltersProps {
@@ -57,15 +57,25 @@ export function DirectoryFilters({
   const [isExpanded, setIsExpanded] = useState(false)
   const [searchInput, setSearchInput] = useState(filters.search || '')
   const searchTimeoutRef = useRef<NodeJS.Timeout>()
+  
+  // Memoize the callback to prevent infinite re-renders
+  const handleFiltersChange = useCallback((newFilters: FilterTypes) => {
+    onFiltersChange(newFilters)
+  }, [onFiltersChange])
 
-  // Debounced search
+  // Debounced search with stable reference to filters
+  const stableFilters = useCallback(() => filters, [filters])
+
   useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current)
     }
     
     searchTimeoutRef.current = setTimeout(() => {
-      onFiltersChange({ ...filters, search: searchInput })
+      const currentFilters = stableFilters()
+      if (currentFilters.search !== searchInput) {
+        handleFiltersChange({ ...currentFilters, search: searchInput })
+      }
     }, 300)
 
     return () => {
@@ -73,15 +83,15 @@ export function DirectoryFilters({
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchInput])
+  }, [searchInput, stableFilters, handleFiltersChange])
 
-  const updateFilter = (key: keyof FilterTypes, value: any) => {
-    onFiltersChange({ ...filters, [key]: value })
-  }
+  const updateFilter = useCallback((key: keyof FilterTypes, value: any) => {
+    handleFiltersChange({ ...filters, [key]: value })
+  }, [filters, handleFiltersChange])
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setSearchInput('')
-    onFiltersChange({
+    handleFiltersChange({
       category: undefined,
       minDomainAuthority: undefined,
       maxPrice: undefined,
@@ -91,7 +101,7 @@ export function DirectoryFilters({
       sortBy: 'domain_authority',
       sortOrder: 'desc'
     })
-  }
+  }, [handleFiltersChange])
 
   const hasActiveFilters = !!(
     filters.category ||

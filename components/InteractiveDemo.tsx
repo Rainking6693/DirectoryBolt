@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface InteractiveDemoProps {
   onNext: () => void
@@ -10,22 +10,26 @@ export function InteractiveDemo({ onNext }: InteractiveDemoProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [showStats, setShowStats] = useState(false)
 
-  const toggleView = async () => {
+  const toggleView = useCallback(async () => {
     setIsAnimating(true)
     
     // Smooth transition delay
     setTimeout(() => {
-      setCurrentView(currentView === 'before' ? 'after' : 'before')
-      setIsAnimating(false)
-      
-      // Show stats after transformation
-      if (currentView === 'before') {
-        setTimeout(() => setShowStats(true), 500)
-      } else {
-        setShowStats(false)
-      }
+      setCurrentView(prev => {
+        const newView = prev === 'before' ? 'after' : 'before'
+        setIsAnimating(false)
+        
+        // Show stats after transformation
+        if (newView === 'after') {
+          setTimeout(() => setShowStats(true), 500)
+        } else {
+          setShowStats(false)
+        }
+        
+        return newView
+      })
     }, 300)
-  }
+  }, [])
 
   useEffect(() => {
     // Auto-demo every 4 seconds
@@ -34,7 +38,7 @@ export function InteractiveDemo({ onNext }: InteractiveDemoProps) {
     }, 4000)
 
     return () => clearInterval(interval)
-  }, [currentView])
+  }, [toggleView])
 
   const beforeData = {
     googleResults: 0,
