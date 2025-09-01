@@ -11,6 +11,13 @@ interface AnalysisProgress {
   completed: boolean
 }
 
+// Disable static generation to avoid NextRouter SSG errors
+export async function getServerSideProps() {
+  return {
+    props: {}
+  }
+}
+
 export default function AnalyzePage() {
   const [url, setUrl] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)

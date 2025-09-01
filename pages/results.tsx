@@ -4,6 +4,13 @@ import Head from 'next/head'
 import Header from '../components/Header'
 import CheckoutButton from '../components/CheckoutButton'
 
+// Disable static generation to avoid NextRouter SSG errors
+export async function getServerSideProps() {
+  return {
+    props: {}
+  }
+}
+
 // Import the API response types for consistency
 interface DirectoryRecommendation {
   name: string

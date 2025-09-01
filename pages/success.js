@@ -3,6 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
+// Disable static generation to avoid NextRouter SSG errors
+export async function getServerSideProps() {
+  return {
+    props: {}
+  }
+}
+
 const SuccessPage = () => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);

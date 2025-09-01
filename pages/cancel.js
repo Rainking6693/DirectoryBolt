@@ -4,6 +4,13 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Layout from '../components/layout/Layout'
 
+// Disable static generation to avoid NextRouter SSG errors
+export async function getServerSideProps() {
+  return {
+    props: {}
+  }
+}
+
 export default function Cancel() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
