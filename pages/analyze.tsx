@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Header from '../components/Header'
@@ -21,7 +21,12 @@ export default function AnalyzePage() {
     completed: false
   })
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const analysisSteps = [
     'Fetching website content...',
@@ -57,7 +62,9 @@ export default function AnalyzePage() {
     
     // Redirect to results after brief delay
     setTimeout(() => {
-      router.push(`/results?url=${encodeURIComponent(url)}`)
+      if (mounted) {
+        router.push(`/results?url=${encodeURIComponent(url)}`)
+      }
     }, 1000)
   }
 
@@ -138,6 +145,25 @@ export default function AnalyzePage() {
       setIsAnalyzing(false)
       setProgress({ step: 0, total: 5, message: '', completed: false })
     }
+  }
+
+  // Show loading state during SSR/initial mount
+  if (!mounted) {
+    return (
+      <>
+        <Head>
+          <title>Free Website Analysis - DirectoryBolt | AI-Powered Directory Recommendations</title>
+          <meta name="description" content="Get AI-powered directory recommendations for your website. Analyze your business profile and discover the best directories for maximum visibility. Free analysis in 30 seconds." />
+        </Head>
+        <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-6 animate-bounce">🤖</div>
+            <h1 className="text-2xl text-white font-bold mb-4">Loading Analysis Tool...</h1>
+            <div className="w-8 h-8 border-2 border-volt-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (

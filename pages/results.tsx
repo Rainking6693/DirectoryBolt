@@ -68,15 +68,24 @@ interface StoredAnalysisResult {
 
 export default function ResultsPage() {
   const router = useRouter()
-  const { url } = router.query
+  const [mounted, setMounted] = useState(false)
+  const [url, setUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [results, setResults] = useState<ApiAnalysisResponse | null>(null)
   const [error, setError] = useState<string>('')
 
   useEffect(() => {
-    loadResults()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      const urlFromQuery = router.query.url as string
+      setUrl(urlFromQuery || '')
+      loadResults()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted])
 
   const loadResults = async () => {
     try {
@@ -242,12 +251,12 @@ export default function ResultsPage() {
     return `${typeof window !== 'undefined' ? window.location.origin : ''}/results?cancelled=true&plan=professional`
   }
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-6 animate-bounce">🤖</div>
-          <h1 className="text-2xl text-white font-bold mb-4">Finalizing Results...</h1>
+          <h1 className="text-2xl text-white font-bold mb-4">{!mounted ? 'Loading...' : 'Finalizing Results...'}</h1>
           <div className="w-8 h-8 border-2 border-volt-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
@@ -263,13 +272,13 @@ export default function ResultsPage() {
           <p className="text-secondary-300 mb-6">{error || 'No analysis data available'}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              onClick={() => router.push('/analyze')}
+              onClick={() => mounted && router.push('/analyze')}
               className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 px-6 py-3 rounded-xl font-bold hover:from-volt-400 hover:to-volt-500 transition-all"
             >
               Start New Analysis
             </button>
             <button 
-              onClick={() => router.push('/')}
+              onClick={() => mounted && router.push('/')}
               className="border-2 border-volt-500 text-volt-500 px-6 py-3 rounded-xl font-bold hover:bg-volt-500 hover:text-secondary-900 transition-all"
             >
               Back to Home
@@ -652,13 +661,15 @@ export default function ResultsPage() {
                 onError={(error: any) => {
                   console.error('Professional plan checkout error:', error)
                   // Fallback to pricing page if checkout fails
-                  router.push('/pricing?recommended_plan=professional')
+                  if (mounted) {
+                    router.push('/pricing?recommended_plan=professional')
+                  }
                 }}
               >
                 🚀 Start Free Trial - Professional Plan
               </CheckoutButton>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => mounted && router.push('/')}
                 className="border-2 border-volt-500 text-volt-500 font-bold py-4 px-8 text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300 transform hover:scale-105"
               >
                 Maybe Later

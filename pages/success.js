@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 const SuccessPage = () => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [sessionId, setSessionId] = useState('');
   const [planId, setPlanId] = useState('');
   const [sessionData, setSessionData] = useState(null);
@@ -12,18 +13,24 @@ const SuccessPage = () => {
   const [loadingSession, setLoadingSession] = useState(false);
 
   useEffect(() => {
-    // Get session ID and plan from URL params
-    const { session_id, plan } = router.query;
-    if (session_id) {
-      setSessionId(session_id);
-      setPlanId(plan || '');
-      console.log('💻 BEN: Success page loaded with session:', session_id, 'plan:', plan);
-      
-      // Fetch session details from Stripe
-      fetchSessionDetails(session_id);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      // Get session ID and plan from URL params
+      const { session_id, plan } = router.query;
+      if (session_id) {
+        setSessionId(session_id);
+        setPlanId(plan || '');
+        console.log('💻 BEN: Success page loaded with session:', session_id, 'plan:', plan);
+        
+        // Fetch session details from Stripe
+        fetchSessionDetails(session_id);
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  }, [router.query]);
+  }, [mounted, router.query]);
   
   // Fetch session details to get order information
   const fetchSessionDetails = async (sessionId) => {
@@ -43,7 +50,7 @@ const SuccessPage = () => {
     setLoadingSession(false);
   };
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
         <div className="animate-pulse text-2xl text-gray-600">Loading...</div>

@@ -6,9 +6,11 @@ import Layout from '../components/layout/Layout'
 
 export default function Cancel() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     setIsVisible(true)
   }, [])
 
@@ -17,7 +19,9 @@ export default function Cancel() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('returning_from_cancel', 'true');
     }
-    router.push('/pricing');
+    if (mounted) {
+      router.push('/pricing');
+    }
   }
 
   const handleContactSupport = () => {
@@ -26,6 +30,28 @@ export default function Cancel() {
 
   const handleScheduleDemo = () => {
     window.open('https://calendly.com/directorybolt/demo', '_blank');
+  }
+
+  // Show loading state during SSR/initial mount
+  if (!mounted) {
+    return (
+      <>
+        <Head>
+          <title>Payment Cancelled | DirectoryBolt</title>
+          <meta name="description" content="Your payment was cancelled. No charges were made to your account. Try again or contact support for help." />
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
+        <Layout>
+          <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-6xl mb-6 animate-bounce">⏸️</div>
+              <h1 className="text-2xl text-white font-bold mb-4">Loading...</h1>
+              <div className="w-8 h-8 border-2 border-volt-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+          </div>
+        </Layout>
+      </>
+    )
   }
 
   return (
@@ -108,7 +134,8 @@ export default function Cancel() {
                   </p>
                   <button
                     onClick={handleTryAgain}
-                    className="w-full px-6 py-3 bg-volt-500 text-secondary-900 font-bold rounded-lg hover:bg-volt-400 transform hover:scale-105 transition-all duration-300"
+                    disabled={!mounted}
+                    className="w-full px-6 py-3 bg-volt-500 text-secondary-900 font-bold rounded-lg hover:bg-volt-400 transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
                   >
                     Choose Plan
                   </button>
@@ -167,7 +194,8 @@ export default function Cancel() {
                 
                 <button
                   onClick={handleTryAgain}
-                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg rounded-xl hover:from-green-400 hover:to-green-500 transform hover:scale-105 transition-all duration-300 shadow-xl"
+                  disabled={!mounted}
+                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg rounded-xl hover:from-green-400 hover:to-green-500 transform hover:scale-105 transition-all duration-300 shadow-xl disabled:opacity-50"
                 >
                   Claim Extended Trial
                 </button>
@@ -208,7 +236,8 @@ export default function Cancel() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={handleTryAgain}
-                  className="px-8 py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50"
+                  disabled={!mounted}
+                  className="px-8 py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 disabled:opacity-50"
                 >
                   Choose Your Plan
                 </button>
