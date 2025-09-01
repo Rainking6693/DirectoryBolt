@@ -62,7 +62,20 @@
     "test:agent:fixes": "node comprehensive_agent_fix_validator.js",
     "test:security:vulnerabilities": "node security_vulnerability_validation.js",
     "test:stripe:flow": "node stripe_payment_flow_validation.js",
-    "optimize": "npm run clean && npm run build:production && npm run build:analyze"
+    "optimize": "npm run clean && npm run build:production && npm run build:analyze",
+    "import:excel": "node scripts/import-excel-directories.js",
+    "import:excel:validate": "node scripts/import-excel-directories.js --validate --verbose",
+    "import:excel:dry-run": "node scripts/import-excel-directories.js --dry-run --verbose",
+    "import:excel:help": "node scripts/import-excel-directories.js --help",
+    "migrate": "node scripts/run-database-migration.js",
+    "migrate:simple": "node scripts/run-supabase-migration.js",
+    "migrate:dry-run": "node scripts/run-database-migration.js --dry-run --verbose",
+    "migrate:rollback": "node scripts/run-database-migration.js --rollback",
+    "migrate:help": "node scripts/run-database-migration.js --help",
+    "validate:schema": "node scripts/validate-database-schema.js",
+    "validate:schema:verbose": "node scripts/validate-database-schema.js --verbose",
+    "validate:schema:help": "node scripts/validate-database-schema.js --help",
+    "validate:table": "node scripts/validate-directories-table.js"
   },
   "dependencies": {
     "@next/bundle-analyzer": "^15.5.2",
@@ -84,7 +97,8 @@
     "react-dom": "^18.3.1",
     "stripe": "^16.12.0",
     "typescript": "^5.6.2",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
