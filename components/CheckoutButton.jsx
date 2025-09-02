@@ -213,42 +213,53 @@ const CheckoutButton = ({
     reset()
   }
 
-  // Define button styles based on variant and size
+  // Define button styles based on variant and size - Enhanced for mobile
   const getButtonStyles = () => {
-    const baseStyles = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900'
+    const baseStyles = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 active:scale-95 touch-manipulation'
     
     const variants = {
-      primary: 'bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 hover:from-volt-400 hover:to-volt-500 shadow-2xl hover:shadow-volt-500/50 animate-glow',
-      secondary: 'border-2 border-volt-500 text-volt-500 bg-transparent hover:bg-volt-500 hover:text-secondary-900',
-      outline: 'border border-secondary-600 text-white bg-secondary-800 hover:bg-secondary-700 hover:border-secondary-500',
-      ghost: 'text-volt-400 hover:text-volt-300 hover:bg-volt-500/10',
-      danger: 'bg-gradient-to-r from-danger-500 to-danger-600 text-white hover:from-danger-400 hover:to-danger-500'
+      primary: 'bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 hover:from-volt-400 hover:to-volt-500 shadow-2xl hover:shadow-volt-500/50 animate-glow active:from-volt-600 active:to-volt-700',
+      secondary: 'border-2 border-volt-500 text-volt-500 bg-transparent hover:bg-volt-500 hover:text-secondary-900 active:bg-volt-600 active:border-volt-600',
+      outline: 'border border-secondary-600 text-white bg-secondary-800 hover:bg-secondary-700 hover:border-secondary-500 active:bg-secondary-600',
+      ghost: 'text-volt-400 hover:text-volt-300 hover:bg-volt-500/10 active:bg-volt-500/20',
+      danger: 'bg-gradient-to-r from-danger-500 to-danger-600 text-white hover:from-danger-400 hover:to-danger-500 active:from-danger-600 active:to-danger-700'
     }
     
     const sizes = {
-      sm: 'px-4 py-2 text-sm',
-      md: 'px-6 py-3 text-base',
-      lg: 'px-8 py-4 text-lg',
-      xl: 'px-10 py-5 text-xl'
+      sm: 'px-3 py-2 text-sm min-h-[36px] sm:px-4',
+      md: 'px-4 py-3 text-base min-h-[44px] sm:px-6',
+      lg: 'px-6 py-4 text-base min-h-[52px] sm:px-8 sm:text-lg',
+      xl: 'px-8 py-5 text-lg min-h-[60px] sm:px-10 sm:text-xl'
     }
     
     const disabledStyles = disabled || isLoading 
-      ? 'opacity-75 cursor-not-allowed transform-none hover:scale-100' 
+      ? 'opacity-75 cursor-not-allowed transform-none hover:scale-100 active:scale-100' 
       : ''
     
-    return `${baseStyles} ${variants[variant]} ${sizes[size]} ${disabledStyles} ${className}`
+    // Add mobile-specific styles
+    const mobileStyles = 'sm:min-w-0' // Allow full width on mobile, auto width on desktop
+    
+    return `${baseStyles} ${variants[variant]} ${sizes[size]} ${disabledStyles} ${mobileStyles} ${className}`
   }
 
   // Show success state
   if (showSuccess) {
     return (
-      <SuccessState
-        title="Checkout Session Created!"
-        message="Redirecting you to secure payment..."
-        icon="🚀"
-        compact={true}
-        className="animate-zoom-in"
-      />
+      <div className="bg-gradient-to-r from-success-900/30 to-success-800/20 border border-success-500/40 p-6 rounded-xl shadow-lg animate-zoom-in">
+        <div className="text-center">
+          <div className="text-4xl mb-3">🚀</div>
+          <h3 className="text-success-400 font-bold text-lg mb-2">
+            Checkout Session Created!
+          </h3>
+          <p className="text-success-300 text-sm mb-4">
+            Redirecting you to secure Stripe payment...
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-success-400 border-t-transparent"></div>
+            <span className="text-success-400 text-sm font-medium">Setting up payment...</span>
+          </div>
+        </div>
+      </div>
     )
   }
 
@@ -261,9 +272,16 @@ const CheckoutButton = ({
         {...props}
       >
         {isLoading ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent mr-2"></div>
-            <span>Creating checkout...</span>
+          <div className="flex items-center justify-center gap-3 min-h-[24px]">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-5 w-5 border border-current opacity-30"></div>
+            </div>
+            <span className="font-medium">
+              {plan === 'free' ? 'Redirecting...' : 
+               plan === 'enterprise' ? 'Opening email...' : 
+               'Creating secure checkout...'}
+            </span>
           </div>
         ) : (
           <>
@@ -275,19 +293,29 @@ const CheckoutButton = ({
         )}
       </button>
 
-      {/* Validation Errors */}
+      {/* Validation Errors - Enhanced for mobile and clarity */}
       {validationErrors.length > 0 && (
         <div className="mt-4">
-          <div className="bg-warning-900/20 border border-warning-500/30 p-3 rounded-lg">
-            <h4 className="text-warning-400 font-medium mb-2">⚠️ Validation Issues</h4>
-            <ul className="text-warning-300 text-sm space-y-1">
+          <div className="bg-gradient-to-r from-warning-900/30 to-warning-800/20 border border-warning-500/40 p-4 rounded-xl shadow-lg">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-2xl">⚠️</span>
+              <h4 className="text-warning-400 font-bold text-base">
+                Please fix these issues to continue:
+              </h4>
+            </div>
+            <ul className="text-warning-300 text-sm space-y-2 ml-8">
               {validationErrors.map((error, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>{error}</span>
+                <li key={index} className="flex items-start gap-3 p-2 bg-warning-900/20 rounded-lg">
+                  <span className="text-warning-400 font-bold min-w-[6px]">•</span>
+                  <span className="leading-relaxed">{error}</span>
                 </li>
               ))}
             </ul>
+            <div className="mt-3 pt-3 border-t border-warning-500/30">
+              <p className="text-xs text-warning-400 opacity-80">
+                💡 If you continue to see these errors, try refreshing the page or contact support
+              </p>
+            </div>
           </div>
         </div>
       )}

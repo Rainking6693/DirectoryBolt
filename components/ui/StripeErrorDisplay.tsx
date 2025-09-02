@@ -161,23 +161,27 @@ Thank you!`
 
   if (compact) {
     return (
-      <div className={`bg-danger-900/20 border border-danger-500/30 p-3 rounded-lg ${className}`}>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-2">
-            <span className="text-lg mt-0.5">{getStripeErrorIcon()}</span>
+      <div className={`bg-gradient-to-r from-danger-900/30 to-danger-800/20 border border-danger-500/30 p-4 rounded-xl shadow-lg ${className}`}>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <span className="text-xl flex-shrink-0 mt-0.5">{getStripeErrorIcon()}</span>
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-danger-300">{errorInfo.message}</div>
+              <div className="text-sm font-semibold text-danger-300 leading-snug mb-1">
+                {errorInfo.message}
+              </div>
               {errorInfo.stripeCode && (
-                <div className="text-xs text-danger-400 mt-1">Code: {errorInfo.stripeCode}</div>
+                <div className="text-xs text-danger-400 bg-danger-900/30 px-2 py-1 rounded">
+                  Code: {errorInfo.stripeCode}
+                </div>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 sm:ml-4 justify-end sm:justify-start flex-shrink-0">
             {shouldShowRetry() && (
               <button
                 onClick={handleRetry}
                 disabled={isRetrying}
-                className="text-xs px-2 py-1 bg-volt-500 hover:bg-volt-400 text-secondary-900 rounded font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs px-3 py-2 bg-volt-500 hover:bg-volt-400 active:bg-volt-600 text-secondary-900 rounded-lg font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[32px] touch-manipulation"
               >
                 {isRetrying ? '...' : 'Retry'}
               </button>
@@ -185,7 +189,8 @@ Thank you!`
             {onDismiss && (
               <button
                 onClick={onDismiss}
-                className="text-secondary-400 hover:text-white transition-colors p-1"
+                className="text-secondary-400 hover:text-white active:text-danger-300 transition-colors p-2 rounded hover:bg-secondary-800/50 touch-manipulation"
+                aria-label="Close error"
               >
                 ✕
               </button>

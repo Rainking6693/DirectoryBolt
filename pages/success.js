@@ -26,7 +26,15 @@ const SuccessPage = () => {
   useEffect(() => {
     if (mounted) {
       // Get session ID and plan from URL params
-      const { session_id, plan } = router.query;
+      const { session_id, plan, info_collected } = router.query;
+      
+      // If payment just completed and info not collected yet, redirect to collect-info page
+      if (session_id && !info_collected) {
+        console.log('💻 BEN: Redirecting to collect business info for session:', session_id, 'plan:', plan);
+        router.push(`/collect-info?session_id=${session_id}&plan=${plan || ''}`);
+        return;
+      }
+      
       if (session_id) {
         setSessionId(session_id);
         setPlanId(plan || '');

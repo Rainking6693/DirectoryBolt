@@ -372,13 +372,13 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    {/* CTA Button - Now using CheckoutButton component */}
-                    <div className="w-full">
+                    {/* CTA Button - Enhanced for mobile responsiveness */}
+                    <div className="w-full space-y-3">
                       <CheckoutButton
                         plan={tier.id}
                         variant={tier.highlighted ? 'primary' : tier.id === 'enterprise' ? 'outline' : 'secondary'}
                         size="lg"
-                        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${tier.buttonStyle}`}
+                        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${tier.buttonStyle} min-h-[48px] sm:min-h-[56px] flex items-center justify-center`}
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
                         customerEmail=""
@@ -395,14 +395,26 @@ export default function PricingPage() {
                         }}
                         onError={(error: any) => {
                           console.error('Checkout error for plan:', tier.id, error)
-                          // Fallback: redirect to analysis with plan pre-selected
-                          router.push(`/analyze?recommended_plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+                          // Enhanced mobile error handling
+                          const errorMessage = error?.message || 'Checkout temporarily unavailable';
+                          if (typeof window !== 'undefined') {
+                            if (window.innerWidth < 768) {
+                              // Mobile-specific fallback
+                              alert(`${errorMessage}. Redirecting to manual setup...`);
+                            }
+                            router.push(`/analyze?recommended_plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}&error=checkout_failed`);
+                          }
                         }}
                       >
                         {tier.buttonText}
                       </CheckoutButton>
                       {tier.id !== 'enterprise' && (
-                        <div className="text-center text-xs sm:text-sm text-secondary-400 mt-2 group-hover:text-secondary-300 transition-colors">14-day free trial • Cancel anytime</div>
+                        <div className="text-center text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors px-2">
+                          <span className="inline-flex items-center gap-1">
+                            <span>🔒</span>
+                            <span>14-day free trial • Cancel anytime</span>
+                          </span>
+                        </div>
                       )}
                     </div>
 
@@ -710,12 +722,13 @@ export default function PricingPage() {
               Join 500+ businesses already getting more customers with DirectoryBolt
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-8">
+            {/* Enhanced mobile-first button layout */}
+            <div className="flex flex-col gap-4 justify-center items-center mb-8 sm:flex-row sm:gap-6">
               <CheckoutButton
                 plan="growth"
                 variant="primary"
                 size="xl"
-                className="group w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg sm:text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow min-h-[56px] sm:min-h-[64px]"
+                className="group w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-base sm:text-xl rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow min-h-[56px] sm:min-h-[64px] max-w-sm sm:max-w-none"
                 successUrl={getSuccessUrl('growth')}
                 cancelUrl={getCancelUrl('growth')}
                 customerEmail=""
@@ -732,6 +745,11 @@ export default function PricingPage() {
                 }}
                 onError={(error: any) => {
                   console.error('Final CTA checkout error:', error)
+                  // Mobile-friendly error handling
+                  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                    const shortError = error?.message?.substring(0, 50) || 'Checkout error';
+                    alert(`${shortError}... Redirecting to alternative signup.`);
+                  }
                 }}
               >
                 🚀 Start 14-Day Free Trial
@@ -739,7 +757,7 @@ export default function PricingPage() {
               
               <button
                 onClick={() => router.push('/analyze')}
-                className="w-full sm:w-auto px-6 sm:px-8 py-4 border-2 border-volt-500 text-volt-500 font-bold text-base sm:text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300 min-h-[56px] sm:min-h-[64px] flex items-center justify-center"
+                className="w-full sm:w-auto px-6 sm:px-8 py-4 border-2 border-volt-500 text-volt-500 font-bold text-base sm:text-lg rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300 min-h-[56px] sm:min-h-[64px] flex items-center justify-center max-w-sm sm:max-w-none"
               >
                 ⚡ Free Analysis First
               </button>
