@@ -25,15 +25,14 @@ export default function LandingPage() {
           <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-secondary-300 max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Stop losing customers to competitors. Get discovered instantly with automated directory submissions to 500+ high-authority platforms. <span className="text-volt-400 font-bold">Results guaranteed in 48 hours.</span>
           </p>
-          <StartTrialButton
-            plan="growth"
-            className="animate-zoom-in"
+          <button
+            onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
+            className="animate-zoom-in bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-8 py-4 rounded-xl shadow-2xl hover:shadow-volt-500/50 hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
             style={{ animationDelay: '0.4s' }}
-            successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth`}
-            cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=growth`}
           >
             Start Your Free Trial Today
-          </StartTrialButton>
+            <span className="ml-2">🚀</span>
+          </button>
           <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>Risk-free 14 days | Results in 48 hours | Cancel anytime</p>
         </div>
       </section>
@@ -93,7 +92,7 @@ export default function LandingPage() {
           <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
               <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$49</div>
+              <div className="text-3xl font-black text-volt-400 mb-2">$29.99</div>
               <p className="text-sm text-secondary-300 mb-4">50 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• Product Hunt, Crunchbase</li>
@@ -121,8 +120,8 @@ export default function LandingPage() {
             </div>
             <div className="text-center">
               <h3 className="text-xl font-bold text-volt-300 mb-2">Growth</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$89</div>
-              <p className="text-sm text-secondary-300 mb-4">100 directories</p>
+              <div className="text-3xl font-black text-volt-400 mb-2">$79.99</div>
+              <p className="text-sm text-secondary-300 mb-4">200 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• Hacker News, AlternativeTo</li>
                 <li>• AI optimization</li>
@@ -143,9 +142,9 @@ export default function LandingPage() {
           {/* Pro Plan */}
           <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
-              <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$159</div>
-              <p className="text-sm text-secondary-300 mb-4">200 directories</p>
+              <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
+              <div className="text-3xl font-black text-volt-400 mb-2">$149.99</div>
+              <p className="text-sm text-secondary-300 mb-4">500 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• API access</li>
                 <li>• White-label reports</li>
@@ -153,10 +152,10 @@ export default function LandingPage() {
                 <li>• 600-800% ROI</li>
               </ul>
               <StartTrialButton
-                plan="pro"
+                plan="professional"
                 className="w-full py-2 text-sm bg-secondary-700 hover:bg-secondary-600 text-white rounded-lg transition-colors"
-                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=pro`}
-                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=pro`}
+                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=professional`}
+                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=professional`}
               >
                 Start Trial
               </StartTrialButton>
@@ -166,20 +165,20 @@ export default function LandingPage() {
           {/* Subscription Plan */}
           <div className="bg-gradient-to-br from-success-900/50 to-success-800/30 rounded-2xl p-6 border border-success-600/50 backdrop-blur-sm hover:border-success-500/70 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
-              <h3 className="text-xl font-bold text-success-300 mb-2">Subscription</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$49</div>
-              <p className="text-sm text-secondary-300 mb-4">Monthly updates</p>
+              <h3 className="text-xl font-bold text-success-300 mb-2">Enterprise</h3>
+              <div className="text-3xl font-black text-volt-400 mb-2">$299.99</div>
+              <p className="text-sm text-secondary-300 mb-4">Unlimited directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
-                <li>• Auto resubmissions</li>
-                <li>• Monthly reports</li>
-                <li>• Profile optimization</li>
-                <li>• Ongoing ROI</li>
+                <li>• Dedicated support</li>
+                <li>• White-glove service</li>
+                <li>• Custom integration</li>
+                <li>• SLA guarantee</li>
               </ul>
               <StartTrialButton
-                plan="subscription"
+                plan="enterprise"
                 className="w-full py-2 text-sm bg-gradient-to-r from-success-500 to-success-600 text-white font-bold rounded-lg hover:from-success-400 hover:to-success-500 transition-all"
-                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=subscription`}
-                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=subscription`}
+                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=enterprise`}
+                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=enterprise`}
               >
                 Start Trial
               </StartTrialButton>
@@ -279,14 +278,12 @@ export default function LandingPage() {
           <p className="mb-8 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">Stop being invisible. Start showing up where your ideal customers are searching. <span className="font-bold">Results guaranteed in 48 hours.</span></p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <StartTrialButton
-              plan="growth"
+            <button
+              onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
               className="w-full sm:w-auto bg-secondary-900 text-volt-400 font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl border-2 border-volt-500 hover:border-volt-400 min-h-[56px] flex items-center justify-center"
-              successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth`}
-              cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=growth`}
             >
               🚀 Start My Free Trial Today
-            </StartTrialButton>
+            </button>
             
             <button
               onClick={() => typeof window !== 'undefined' && (window.location.href = '/analyze')}
