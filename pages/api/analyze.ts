@@ -1,3 +1,6 @@
+// Import polyfills first to ensure compatibility
+import '../../lib/utils/node-polyfills'
+
 import { NextApiRequest, NextApiResponse } from 'next'
 import { logger } from '../../lib/utils/logger'
 import { WebsiteAnalyzer } from '../../lib/services/website-analyzer'

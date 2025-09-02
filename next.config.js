@@ -40,6 +40,51 @@ const nextConfig = {
   
   // Bundle analyzer and optimization
   webpack: (config, { isServer, dev }) => {
+    // Add polyfill for Node.js 18 compatibility with undici/supabase
+    if (isServer) {
+      // Add global polyfills for server-side rendering
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+      
+      // Polyfill File and Blob for undici compatibility
+      config.plugins = config.plugins || [];
+      config.plugins.push({
+        apply: (compiler) => {
+          compiler.hooks.beforeRun.tapAsync('PolyfillPlugin', (compilation, callback) => {
+            // Add global polyfills
+            if (typeof global !== 'undefined') {
+              global.File = global.File || class File extends Blob {
+                constructor(fileBits, fileName, options = {}) {
+                  super(fileBits, options);
+                  this.name = fileName;
+                  this.lastModified = options.lastModified || Date.now();
+                }
+              };
+              
+              global.Blob = global.Blob || class Blob {
+                constructor(blobParts = [], options = {}) {
+                  this.size = 0;
+                  this.type = options.type || '';
+                  if (blobParts.length) {
+                    this.size = blobParts.reduce((acc, part) => acc + (part.length || 0), 0);
+                  }
+                }
+                slice() { return new Blob(); }
+                stream() { return new ReadableStream(); }
+                text() { return Promise.resolve(''); }
+                arrayBuffer() { return Promise.resolve(new ArrayBuffer(0)); }
+              };
+            }
+            callback();
+          });
+        }
+      });
+    }
+    
     // Optimize bundle size
     if (!dev && !isServer) {
       config.resolve.alias = {
