@@ -382,6 +382,20 @@ export default function PricingPage() {
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
                         customerEmail=""
+                        showAddOnUpsell={tier.id !== 'free' && tier.id !== 'enterprise' && tier.id !== 'subscription'}
+                        onAddOnsSelected={(addons: any) => {
+                          console.log('Add-ons selected for plan:', tier.id, addons)
+                          if (typeof window !== 'undefined' && (window as any).gtag) {
+                            (window as any).gtag('event', 'addons_selected', {
+                              plan: tier.id,
+                              addons: addons,
+                              total_addon_value: addons.reduce((sum: number, id: string) => {
+                                const prices: any = { fast_track: 25, premium_directories: 15, manual_qa: 10, csv_export: 9 }
+                                return sum + (prices[id] || 0)
+                              }, 0)
+                            })
+                          }
+                        }}
                         onSuccess={(data: any) => {
                           console.log('Checkout success:', data)
                           // Track conversion event
@@ -542,8 +556,11 @@ export default function PricingPage() {
           </div>
 
           <div className="text-center mt-6 sm:mt-8">
+            <p className="text-sm sm:text-base text-volt-400 font-bold mb-2">
+              💡 Select any plan above to see add-on upsells during checkout
+            </p>
             <p className="text-xs sm:text-sm text-secondary-400">
-              Add-ons can be selected during checkout for any plan
+              Maximum revenue potential: Base plan + $59 in add-ons per customer
             </p>
           </div>
         </div>
@@ -732,6 +749,21 @@ export default function PricingPage() {
                 successUrl={getSuccessUrl('growth')}
                 cancelUrl={getCancelUrl('growth')}
                 customerEmail=""
+                showAddOnUpsell={true}
+                onAddOnsSelected={(addons: any) => {
+                  console.log('Final CTA add-ons selected:', addons)
+                  if (typeof window !== 'undefined' && (window as any).gtag) {
+                    (window as any).gtag('event', 'addons_selected', {
+                      plan: 'growth',
+                      addons: addons,
+                      source: 'final_cta',
+                      total_addon_value: addons.reduce((sum: number, id: string) => {
+                        const prices: any = { fast_track: 25, premium_directories: 15, manual_qa: 10, csv_export: 9 }
+                        return sum + (prices[id] || 0)
+                      }, 0)
+                    })
+                  }
+                }}
                 onSuccess={(data: any) => {
                   console.log('Final CTA checkout success:', data)
                   if (typeof window !== 'undefined' && (window as any).gtag) {

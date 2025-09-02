@@ -1,0 +1,133 @@
+{
+  "timestamp": "2025-09-02T18:14:10.204Z",
+  "testSummary": {
+    "totalTests": 11,
+    "passed": 10,
+    "failed": 1,
+    "allPassed": false
+  },
+  "testResults": [
+    {
+      "testNumber": 1,
+      "input": "starter",
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    },
+    {
+      "testNumber": 2,
+      "input": "growth",
+      "expected": "growth",
+      "actual": "growth",
+      "expectedDirectories": 100,
+      "actualDirectories": 100,
+      "passed": true
+    },
+    {
+      "testNumber": 3,
+      "input": "pro",
+      "expected": "pro",
+      "actual": "pro",
+      "expectedDirectories": 200,
+      "actualDirectories": 200,
+      "passed": true
+    },
+    {
+      "testNumber": 4,
+      "input": "subscription",
+      "expected": "subscription",
+      "actual": "subscription",
+      "expectedDirectories": 0,
+      "actualDirectories": 50,
+      "passed": false
+    },
+    {
+      "testNumber": 5,
+      "input": "professional",
+      "expected": "pro",
+      "actual": "pro",
+      "expectedDirectories": 200,
+      "actualDirectories": 200,
+      "passed": true
+    },
+    {
+      "testNumber": 6,
+      "input": "STARTER",
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    },
+    {
+      "testNumber": 7,
+      "input": "Growth",
+      "expected": "growth",
+      "actual": "growth",
+      "expectedDirectories": 100,
+      "actualDirectories": 100,
+      "passed": true
+    },
+    {
+      "testNumber": 8,
+      "input": "",
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    },
+    {
+      "testNumber": 9,
+      "input": null,
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    },
+    {
+      "testNumber": 10,
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    },
+    {
+      "testNumber": 11,
+      "input": "invalid_plan",
+      "expected": "starter",
+      "actual": "starter",
+      "expectedDirectories": 50,
+      "actualDirectories": 50,
+      "passed": true
+    }
+  ],
+  "packageTypeMappings": {
+    "starter": {
+      "airtableType": "starter",
+      "directories": 50
+    },
+    "growth": {
+      "airtableType": "growth",
+      "directories": 100
+    },
+    "pro": {
+      "airtableType": "pro",
+      "directories": 200
+    },
+    "subscription": {
+      "airtableType": "subscription",
+      "directories": 0
+    }
+  },
+  "recommendations": [
+    "CRITICAL: Package type mapping has errors",
+    "Fix failed mapping functions immediately",
+    "Verify TypeScript interfaces match payment plans",
+    "Test end-to-end payment → Airtable flow"
+  ]
+}

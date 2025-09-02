@@ -92,7 +92,7 @@ export default function LandingPage() {
           <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
               <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$29.99</div>
+              <div className="text-3xl font-black text-volt-400 mb-2">$49</div>
               <p className="text-sm text-secondary-300 mb-4">50 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• Product Hunt, Crunchbase</li>
@@ -120,8 +120,8 @@ export default function LandingPage() {
             </div>
             <div className="text-center">
               <h3 className="text-xl font-bold text-volt-300 mb-2">Growth</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$79.99</div>
-              <p className="text-sm text-secondary-300 mb-4">200 directories</p>
+              <div className="text-3xl font-black text-volt-400 mb-2">$89</div>
+              <p className="text-sm text-secondary-300 mb-4">100 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• Hacker News, AlternativeTo</li>
                 <li>• AI optimization</li>
@@ -142,9 +142,9 @@ export default function LandingPage() {
           {/* Pro Plan */}
           <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
-              <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$149.99</div>
-              <p className="text-sm text-secondary-300 mb-4">500 directories</p>
+              <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
+              <div className="text-3xl font-black text-volt-400 mb-2">$159</div>
+              <p className="text-sm text-secondary-300 mb-4">200 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• API access</li>
                 <li>• White-label reports</li>
@@ -152,10 +152,10 @@ export default function LandingPage() {
                 <li>• 600-800% ROI</li>
               </ul>
               <StartTrialButton
-                plan="professional"
+                plan="pro"
                 className="w-full py-2 text-sm bg-secondary-700 hover:bg-secondary-600 text-white rounded-lg transition-colors"
-                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=professional`}
-                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=professional`}
+                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=pro`}
+                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=pro`}
               >
                 Start Trial
               </StartTrialButton>
@@ -165,8 +165,8 @@ export default function LandingPage() {
           {/* Subscription Plan */}
           <div className="bg-gradient-to-br from-success-900/50 to-success-800/30 rounded-2xl p-6 border border-success-600/50 backdrop-blur-sm hover:border-success-500/70 transition-all duration-300 transform hover:scale-105">
             <div className="text-center">
-              <h3 className="text-xl font-bold text-success-300 mb-2">Enterprise</h3>
-              <div className="text-3xl font-black text-volt-400 mb-2">$299.99</div>
+              <h3 className="text-xl font-bold text-success-300 mb-2">Subscription</h3>
+              <div className="text-3xl font-black text-volt-400 mb-2">$49/month</div>
               <p className="text-sm text-secondary-300 mb-4">Unlimited directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
                 <li>• Dedicated support</li>
@@ -175,10 +175,10 @@ export default function LandingPage() {
                 <li>• SLA guarantee</li>
               </ul>
               <StartTrialButton
-                plan="enterprise"
+                plan="subscription"
                 className="w-full py-2 text-sm bg-gradient-to-r from-success-500 to-success-600 text-white font-bold rounded-lg hover:from-success-400 hover:to-success-500 transition-all"
-                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=enterprise`}
-                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=enterprise`}
+                successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=subscription`}
+                cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=subscription`}
               >
                 Start Trial
               </StartTrialButton>

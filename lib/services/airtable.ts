@@ -12,7 +12,7 @@ export interface BusinessSubmissionRecord {
   firstName: string
   lastName: string
   customerId: string
-  packageType: 'starter' | 'growth' | 'professional' | 'enterprise'
+  packageType: 'starter' | 'growth' | 'pro' | 'subscription'
   submissionStatus: 'pending' | 'in-progress' | 'completed' | 'failed'
   purchaseDate: string
   directoriesSubmitted: number
@@ -262,8 +262,8 @@ export class AirtableService {
     const limits = {
       'starter': 50,
       'growth': 100, 
-      'professional': 200,
-      'enterprise': 500
+      'pro': 200,
+      'subscription': 0 // Subscription doesn't get bulk directories, it's ongoing maintenance
     }
     return limits[packageType.toLowerCase()] || 50
   }

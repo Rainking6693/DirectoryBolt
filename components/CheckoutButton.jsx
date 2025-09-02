@@ -9,6 +9,175 @@ import { PaymentStatusDisplay } from './ui/PaymentStatusDisplay'
 import { apiDebugger } from '../lib/utils/api-debugger'
 import { getStripeClientConfig, isStripeConfigured, getStripeConfigurationMessage } from '../lib/utils/stripe-client-config'
 
+// Add-On Definitions - Exact API Data
+const AVAILABLE_ADDONS = {
+  fast_track: {
+    id: 'fast_track',
+    name: 'Fast-Track Submission',
+    price: 25,
+    description: 'Priority processing within 24 hours instead of 5-7 days',
+    icon: '⚡',
+    benefit: 'Save 3-5 business days'
+  },
+  premium_directories: {
+    id: 'premium_directories',
+    name: 'Premium Directories Only',
+    price: 15,
+    description: 'Focus on high-authority directories (DA 70+)',
+    icon: '👑',
+    benefit: 'Higher SEO impact'
+  },
+  manual_qa: {
+    id: 'manual_qa',
+    name: 'Manual QA Review',
+    price: 10,
+    description: 'Human verification of all submissions',
+    icon: '🔍',
+    benefit: '99%+ accuracy guarantee'
+  },
+  csv_export: {
+    id: 'csv_export',
+    name: 'CSV Export',
+    price: 9,
+    description: 'Export submission results to CSV',
+    icon: '📊',
+    benefit: 'Track all results'
+  }
+}
+
+// Add-On Upsell Modal Component
+const AddOnUpsellModal = ({ plan, currentAddOns, onAddOnsSelected, onSkip, onClose }) => {
+  const [selectedAddOns, setSelectedAddOns] = useState(currentAddOns)
+  const addOnArray = Object.values(AVAILABLE_ADDONS)
+  
+  const totalAddOnPrice = selectedAddOns.reduce((total, addOnId) => {
+    return total + (AVAILABLE_ADDONS[addOnId]?.price || 0)
+  }, 0)
+
+  const handleAddOnToggle = (addOnId) => {
+    setSelectedAddOns(prev => {
+      if (prev.includes(addOnId)) {
+        return prev.filter(id => id !== addOnId)
+      } else {
+        return [...prev, addOnId]
+      }
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-secondary-800 to-secondary-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-volt-500/30 shadow-2xl">
+        {/* Header */}
+        <div className="p-6 border-b border-secondary-600">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-black text-white mb-2">
+                Boost Your <span className="text-volt-400">Results</span>
+              </h2>
+              <p className="text-secondary-300">Add powerful services to maximize your {plan} plan impact</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-secondary-400 hover:text-secondary-200 p-2"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Add-Ons Grid */}
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {addOnArray.map((addOn) => {
+              const isSelected = selectedAddOns.includes(addOn.id)
+              
+              return (
+                <div
+                  key={addOn.id}
+                  className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 ${
+                    isSelected
+                      ? 'bg-volt-500/10 border-volt-500 shadow-lg shadow-volt-500/20'
+                      : 'bg-secondary-800/50 border-secondary-600 hover:border-volt-500/50'
+                  }`}
+                  onClick={() => handleAddOnToggle(addOn.id)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{addOn.icon}</span>
+                      <div>
+                        <h3 className={`font-bold ${isSelected ? 'text-volt-300' : 'text-white'}`}>
+                          {addOn.name}
+                        </h3>
+                        <div className="text-volt-400 font-black text-lg">+${addOn.price}</div>
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      isSelected 
+                        ? 'bg-volt-500 border-volt-500' 
+                        : 'border-secondary-500'
+                    }`}>
+                      {isSelected && (
+                        <svg className="w-3 h-3 text-secondary-900" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-secondary-300 text-sm mb-2">{addOn.description}</p>
+                  <div className={`text-xs font-medium p-2 rounded ${
+                    isSelected
+                      ? 'bg-volt-500/20 text-volt-300'
+                      : 'bg-secondary-700/50 text-success-400'
+                  }`}>
+                    {addOn.benefit}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Pricing Summary */}
+          {selectedAddOns.length > 0 && (
+            <div className="bg-gradient-to-r from-volt-500/10 to-volt-600/10 border border-volt-500/30 rounded-xl p-4 mb-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-volt-300 mb-2">Selected Add-ons (+${totalAddOnPrice})</h3>
+                <div className="text-sm text-secondary-300">
+                  {selectedAddOns.map(addOnId => AVAILABLE_ADDONS[addOnId].name).join(', ')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={onSkip}
+              className="px-6 py-3 border border-secondary-600 text-secondary-300 font-medium rounded-xl hover:bg-secondary-700 transition-all"
+            >
+              Skip Add-ons
+            </button>
+            <button
+              onClick={() => onAddOnsSelected(selectedAddOns)}
+              className="px-8 py-3 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all shadow-lg"
+            >
+              Continue with Add-ons → ${totalAddOnPrice > 0 ? `+${totalAddOnPrice}` : ''}
+            </button>
+          </div>
+
+          {/* Benefits Reminder */}
+          <div className="mt-6 text-center">
+            <div className="bg-secondary-800/50 border border-secondary-600/50 rounded-lg p-3">
+              <div className="text-xs text-secondary-300">
+                💡 <strong>Revenue Impact:</strong> Add all services for up to $59 extra value per customer
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const CheckoutButton = ({
   plan = 'starter',
   addons = [],
@@ -24,6 +193,8 @@ const CheckoutButton = ({
   showDebugInfo = false,
   customerEmail = '',
   metadata = {},
+  showAddOnUpsell = false,
+  onAddOnsSelected = (addons) => {},
   ...props
 }) => {
   const router = useRouter()
@@ -36,6 +207,8 @@ const CheckoutButton = ({
   const [validationErrors, setValidationErrors] = useState([])
   const [stripeConfigured, setStripeConfigured] = useState(null)
   const [configurationStatus, setConfigurationStatus] = useState(null)
+  const [showAddOnModal, setShowAddOnModal] = useState(false)
+  const [selectedAddOns, setSelectedAddOns] = useState(addons)
   
   // Check for debug mode and Stripe configuration on mount
   useEffect(() => {
@@ -79,10 +252,23 @@ const CheckoutButton = ({
       setShowError(true)
       return
     }
+
+    // Show add-on upsell modal if enabled and not free/enterprise plans
+    if (showAddOnUpsell && plan !== 'free' && plan !== 'enterprise') {
+      setShowAddOnModal(true)
+      return
+    }
+
+    // Proceed with checkout
+    await proceedWithCheckout(selectedAddOns)
+  }
+
+  const proceedWithCheckout = async (addOnsToUse = selectedAddOns) => {
     
     if (debugMode) {
       console.group('🔍 DirectoryBolt Checkout Debug')
       console.log('Plan:', plan)
+      console.log('Add-ons:', addOnsToUse)
       console.log('Environment Check:', apiDebugger.validateEnvironment())
       console.log('Debug Mode:', debugMode)
       console.groupEnd()
@@ -103,7 +289,7 @@ const CheckoutButton = ({
     try {
       const checkoutPayload = {
         plan: plan,
-        addons: addons,
+        addons: addOnsToUse,
         customerEmail: customerEmail || `user@example.com`, // In real app, get from auth
         success_url: successUrl || `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
         cancel_url: cancelUrl || `${window.location.origin}/pricing?cancelled=true&plan=${plan}`,
@@ -366,6 +552,25 @@ const CheckoutButton = ({
             apiLogs={apiDebugger.getDebugLogs({ url: 'create-checkout-session' }).slice(0, 3)}
           />
         </div>
+      )}
+
+      {/* Add-On Upsell Modal */}
+      {showAddOnModal && (
+        <AddOnUpsellModal
+          plan={plan}
+          currentAddOns={selectedAddOns}
+          onAddOnsSelected={(newAddOns) => {
+            setSelectedAddOns(newAddOns)
+            onAddOnsSelected(newAddOns)
+            setShowAddOnModal(false)
+            proceedWithCheckout(newAddOns)
+          }}
+          onSkip={() => {
+            setShowAddOnModal(false)
+            proceedWithCheckout([])
+          }}
+          onClose={() => setShowAddOnModal(false)}
+        />
       )}
     </>
   )

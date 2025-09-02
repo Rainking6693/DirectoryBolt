@@ -28,8 +28,9 @@ interface BusinessSubmission {
 
 /**
  * Map Stripe package types to Airtable package types
+ * CRITICAL: Must match payment plan IDs exactly
  */
-function mapPackageType(stripePackage?: string): 'starter' | 'growth' | 'professional' | 'enterprise' {
+function mapPackageType(stripePackage?: string): 'starter' | 'growth' | 'pro' | 'subscription' {
   switch (stripePackage?.toLowerCase()) {
     case 'starter':
     case 'price_starter_49_usd':
@@ -37,12 +38,13 @@ function mapPackageType(stripePackage?: string): 'starter' | 'growth' | 'profess
     case 'growth':
     case 'price_growth_89_usd':
       return 'growth'
-    case 'professional':
     case 'pro':
+    case 'professional':
     case 'price_pro_159_usd':
-      return 'professional'
-    case 'enterprise':
-      return 'enterprise'
+      return 'pro'
+    case 'subscription':
+    case 'price_subscription_49_usd':
+      return 'subscription'
     default:
       return 'starter' // Default fallback
   }
