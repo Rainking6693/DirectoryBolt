@@ -78,6 +78,7 @@
     "validate:table": "node scripts/validate-directories-table.js"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
     "@next/bundle-analyzer": "^15.5.2",
     "@stripe/stripe-js": "^7.9.0",
     "@supabase/supabase-js": "^2.45.4",
