@@ -31,7 +31,7 @@ const pricingTiers: PricingTier[] = [
     id: 'starter',
     name: 'Starter',
     price: 49,
-    annualPrice: 49,
+    annualPrice: 39, // 20% discount on annual billing
     description: '50 directory submissions',
     directories: 50,
     support: 'Email support',
@@ -54,7 +54,7 @@ const pricingTiers: PricingTier[] = [
     id: 'growth',
     name: 'Growth',
     price: 89,
-    annualPrice: 89,
+    annualPrice: 69, // 22% discount on annual billing
     description: '100 directory submissions',
     directories: 100,
     support: 'Priority support',
@@ -81,7 +81,7 @@ const pricingTiers: PricingTier[] = [
     id: 'pro',
     name: 'Pro',
     price: 159,
-    annualPrice: 159,
+    annualPrice: 125, // 21% discount on annual billing
     description: '200 directory submissions',
     directories: 200,
     support: 'Phone support priority',
@@ -105,7 +105,7 @@ const pricingTiers: PricingTier[] = [
     id: 'subscription',
     name: 'Subscription',
     price: 49,
-    annualPrice: 49,
+    annualPrice: 39, // 20% discount on annual billing
     description: 'Monthly directory maintenance and resubmissions',
     directories: 0,
     support: 'Priority support and account management',
@@ -162,6 +162,7 @@ export default function PricingPage() {
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [showROICalculator, setShowROICalculator] = useState(false)
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   
   // ROI Calculator State
   const [currentRevenue, setCurrentRevenue] = useState(10000)
@@ -192,6 +193,26 @@ export default function PricingPage() {
       annualReturn: monthlyReturn * 12,
       annualInvestment: monthlyInvestment * 12
     }
+  }
+
+  const handleAddOnToggle = (addOnId: string) => {
+    setSelectedAddOns(prev => {
+      if (prev.includes(addOnId)) {
+        return prev.filter(id => id !== addOnId)
+      } else {
+        return [...prev, addOnId]
+      }
+    })
+  }
+
+  const getAddOnTotal = () => {
+    const addOnPrices: { [key: string]: number } = {
+      fast_track: 25,
+      premium_directories: 15,
+      manual_qa: 10,
+      csv_export: 9
+    }
+    return selectedAddOns.reduce((total, addOnId) => total + (addOnPrices[addOnId] || 0), 0)
   }
 
   return (
@@ -374,6 +395,8 @@ export default function PricingPage() {
                         cancelUrl={getCancelUrl(tier.id)}
                         customerEmail=""
                         showAddOnUpsell={tier.id !== 'free' && tier.id !== 'subscription'}
+                        addons={selectedAddOns}
+                        metadata={{ billingPeriod: isAnnual ? 'annual' : 'monthly', price: isAnnual ? tier.annualPrice : tier.price }}
                         onAddOnsSelected={(addons: any) => {
                           console.log('Add-ons selected for plan:', tier.id, addons)
                           if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -485,11 +508,21 @@ export default function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+            <div 
+              className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 group ${
+                selectedAddOns.includes('fast_track')
+                  ? 'bg-volt-500/10 border-volt-500 shadow-lg shadow-volt-500/20'
+                  : 'bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 border-secondary-600 hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70'
+              }`}
+              onClick={() => handleAddOnToggle('fast_track')}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div className="mb-2 sm:mb-0">
-                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                  <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 transition-colors ${
+                    selectedAddOns.includes('fast_track') ? 'text-volt-300' : 'text-white group-hover:text-volt-300'
+                  }`}>
                     <span>⚡</span> Fast-Track Submission
+                    {selectedAddOns.includes('fast_track') && <span className="text-sm bg-volt-500 text-secondary-900 px-2 py-1 rounded-full ml-2">✓</span>}
                   </h3>
                   <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Priority processing within 24 hours</p>
                 </div>
@@ -500,11 +533,21 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+            <div 
+              className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 group ${
+                selectedAddOns.includes('premium_directories')
+                  ? 'bg-volt-500/10 border-volt-500 shadow-lg shadow-volt-500/20'
+                  : 'bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 border-secondary-600 hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70'
+              }`}
+              onClick={() => handleAddOnToggle('premium_directories')}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div className="mb-2 sm:mb-0">
-                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                  <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 transition-colors ${
+                    selectedAddOns.includes('premium_directories') ? 'text-volt-300' : 'text-white group-hover:text-volt-300'
+                  }`}>
                     <span>👑</span> Premium Directories Only
+                    {selectedAddOns.includes('premium_directories') && <span className="text-sm bg-volt-500 text-secondary-900 px-2 py-1 rounded-full ml-2">✓</span>}
                   </h3>
                   <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Focus on high-authority directories</p>
                 </div>
@@ -515,11 +558,21 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+            <div 
+              className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 group ${
+                selectedAddOns.includes('manual_qa')
+                  ? 'bg-volt-500/10 border-volt-500 shadow-lg shadow-volt-500/20'
+                  : 'bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 border-secondary-600 hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70'
+              }`}
+              onClick={() => handleAddOnToggle('manual_qa')}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div className="mb-2 sm:mb-0">
-                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                  <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 transition-colors ${
+                    selectedAddOns.includes('manual_qa') ? 'text-volt-300' : 'text-white group-hover:text-volt-300'
+                  }`}>
                     <span>🔍</span> Manual QA Review
+                    {selectedAddOns.includes('manual_qa') && <span className="text-sm bg-volt-500 text-secondary-900 px-2 py-1 rounded-full ml-2">✓</span>}
                   </h3>
                   <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Human verification of all submissions</p>
                 </div>
@@ -530,11 +583,21 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 p-4 sm:p-6 rounded-2xl border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70 transition-all duration-300 transform hover:scale-105 group">
+            <div 
+              className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 group ${
+                selectedAddOns.includes('csv_export')
+                  ? 'bg-volt-500/10 border-volt-500 shadow-lg shadow-volt-500/20'
+                  : 'bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 border-secondary-600 hover:border-volt-500/50 hover:from-secondary-700/90 hover:to-secondary-800/70'
+              }`}
+              onClick={() => handleAddOnToggle('csv_export')}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                 <div className="mb-2 sm:mb-0">
-                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 group-hover:text-volt-300 transition-colors">
+                  <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 transition-colors ${
+                    selectedAddOns.includes('csv_export') ? 'text-volt-300' : 'text-white group-hover:text-volt-300'
+                  }`}>
                     <span>📊</span> CSV Export
+                    {selectedAddOns.includes('csv_export') && <span className="text-sm bg-volt-500 text-secondary-900 px-2 py-1 rounded-full ml-2">✓</span>}
                   </h3>
                   <p className="text-xs sm:text-sm text-secondary-300 group-hover:text-secondary-200 transition-colors">Export submission results to CSV</p>
                 </div>
@@ -546,9 +609,36 @@ export default function PricingPage() {
             </div>
           </div>
 
+          {/* Add-On Summary */}
+          {selectedAddOns.length > 0 && (
+            <div className="text-center mt-6 p-4 bg-volt-500/10 border border-volt-500/30 rounded-xl">
+              <h3 className="text-lg font-bold text-volt-300 mb-2">
+                Selected Add-ons (+${getAddOnTotal()})
+              </h3>
+              <div className="flex flex-wrap justify-center gap-2">
+                {selectedAddOns.map(addOnId => {
+                  const addOnNames: { [key: string]: string } = {
+                    fast_track: 'Fast-Track Submission',
+                    premium_directories: 'Premium Directories',
+                    manual_qa: 'Manual QA Review',
+                    csv_export: 'CSV Export'
+                  }
+                  return (
+                    <span key={addOnId} className="bg-volt-500/20 text-volt-300 px-3 py-1 rounded-full text-sm">
+                      {addOnNames[addOnId]}
+                    </span>
+                  )
+                })}
+              </div>
+              <p className="text-xs text-secondary-300 mt-2">
+                These will be pre-selected during checkout for any plan
+              </p>
+            </div>
+          )}
+
           <div className="text-center mt-6 sm:mt-8">
             <p className="text-sm sm:text-base text-volt-400 font-bold mb-2">
-              💡 Select any plan above to see add-on upsells during checkout
+              💡 Click add-ons above to pre-select them for checkout
             </p>
             <p className="text-xs sm:text-sm text-secondary-400">
               Maximum revenue potential: Base plan + $59 in add-ons per customer
@@ -741,6 +831,7 @@ export default function PricingPage() {
                 cancelUrl={getCancelUrl('growth')}
                 customerEmail=""
                 showAddOnUpsell={true}
+                addons={selectedAddOns}
                 onAddOnsSelected={(addons: any) => {
                   console.log('Final CTA add-ons selected:', addons)
                   if (typeof window !== 'undefined' && (window as any).gtag) {

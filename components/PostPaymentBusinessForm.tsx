@@ -136,8 +136,13 @@ export default function PostPaymentBusinessForm({
       }
       if (!formData.phone.trim()) {
         errors.phone = 'Phone number is required'
-      } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\(\)\-\.]/g, ''))) {
-        errors.phone = 'Please enter a valid phone number'
+      } else {
+        // Clean phone number for validation (remove formatting)
+        const cleanPhone = formData.phone.replace(/[\s\(\)\-\.]/g, '')
+        // Allow more flexible phone number formats
+        if (!/^[\+]?[0-9]{7,15}$/.test(cleanPhone)) {
+          errors.phone = 'Please enter a valid phone number'
+        }
       }
       if (!formData.website.trim()) {
         errors.website = 'Business website is required'
@@ -302,7 +307,7 @@ export default function PostPaymentBusinessForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         {/* Step 1: Personal & Business Information */}
         <Transition
           show={currentStep === 1}
@@ -313,7 +318,7 @@ export default function PostPaymentBusinessForm({
           leaveFrom="opacity-100 translate-x-0"
           leaveTo="opacity-0 -translate-x-8"
         >
-          <div className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
+          <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
             <h3 className="text-xl font-semibold text-volt-400 mb-6">Personal & Business Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -437,7 +442,7 @@ export default function PostPaymentBusinessForm({
                 )}
               </div>
             </div>
-          </div>
+          </form>
         </Transition>
 
         {/* Step 2: Location & Description */}
@@ -450,7 +455,7 @@ export default function PostPaymentBusinessForm({
           leaveFrom="opacity-100 translate-x-0"
           leaveTo="opacity-0 -translate-x-8"
         >
-          <div className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
+          <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
             <h3 className="text-xl font-semibold text-volt-400 mb-6">Location & Business Details</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -571,7 +576,7 @@ export default function PostPaymentBusinessForm({
                 </span>
               </div>
             </div>
-          </div>
+          </form>
         </Transition>
 
         {/* Step 3: Social Media & Branding */}
@@ -584,7 +589,7 @@ export default function PostPaymentBusinessForm({
           leaveFrom="opacity-100 translate-x-0"
           leaveTo="opacity-0 -translate-x-8"
         >
-          <div className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} className="bg-secondary-800/50 p-6 rounded-xl border border-secondary-600">
             <h3 className="text-xl font-semibold text-volt-400 mb-2">Social Media & Branding</h3>
             <p className="text-secondary-300 mb-6 text-sm">
               Optional: Provide your social media profiles and logo to enhance your directory listings
@@ -713,7 +718,7 @@ export default function PostPaymentBusinessForm({
                 <p className="mt-1 text-sm text-danger-400">{formErrors.logo}</p>
               )}
             </div>
-          </div>
+          </form>
         </Transition>
 
         {/* Navigation Buttons */}
@@ -755,7 +760,7 @@ export default function PostPaymentBusinessForm({
             </button>
           )}
         </div>
-      </form>
+      </div>
     </div>
   )
 }
