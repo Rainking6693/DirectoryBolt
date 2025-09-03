@@ -1,0 +1,1347 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-08-29",
+    "totalDirectories": 63,
+    "description": "Master directory list for Auto-Bolt Chrome extension - merged from DirectoryBolt.com and comprehensive business directories",
+    "sources": [
+      "DirectoryBolt.com API extraction (20 directories)",
+      "Comprehensive business directory research (50 directories)"
+    ],
+    "mergingStrategy": "Deduplicated by ID and URL - directory-list.json entries take precedence for duplicates"
+  },
+  "directories": [
+    {
+      "id": "google-business",
+      "name": "Google Business Profile",
+      "url": "https://business.google.com",
+      "category": "search-engines",
+      "priority": "high",
+      "submissionUrl": "https://business.google.com/create",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[type='email']",
+        "phone": "input[type='tel']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "verified_phone",
+        "verified_address"
+      ],
+      "estimatedTime": 300,
+      "difficulty": "medium"
+    },
+    {
+      "id": "yelp",
+      "name": "Yelp for Business",
+      "url": "https://business.yelp.com",
+      "category": "review-sites",
+      "priority": "high",
+      "submissionUrl": "https://business.yelp.com/signup",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='business_description']"
+      },
+      "requirements": [
+        "email_verification",
+        "business_photos"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "easy"
+    },
+    {
+      "id": "apple-maps",
+      "name": "Apple Maps Connect",
+      "url": "https://mapsconnect.apple.com",
+      "category": "maps",
+      "priority": "high",
+      "submissionUrl": "https://mapsconnect.apple.com/business",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "apple_id"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "yellowpages",
+      "name": "Yellow Pages",
+      "url": "https://www.yellowpages.com",
+      "category": "traditional-directories",
+      "priority": "medium",
+      "domainAuthority": 86,
+      "monthlyTraffic": "50M+",
+      "submissionUrl": "https://listings.yellowpages.com/claim",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "phone_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "bing-places",
+      "name": "Bing Places for Business",
+      "url": "https://www.bingplaces.com",
+      "category": "search-engines",
+      "priority": "high",
+      "domainAuthority": 84,
+      "monthlyTraffic": "30M+",
+      "submissionUrl": "https://www.bingplaces.com/dashboard/addlisting",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "microsoft_account"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "facebook-business",
+      "name": "Facebook Business",
+      "url": "https://business.facebook.com",
+      "category": "social-media",
+      "priority": "high",
+      "submissionUrl": "https://www.facebook.com/pages/create",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='about']",
+        "facebook": "input[name='username']"
+      },
+      "requirements": [
+        "facebook_account",
+        "business_photos"
+      ],
+      "estimatedTime": 200,
+      "difficulty": "medium"
+    },
+    {
+      "id": "linkedin-company",
+      "name": "LinkedIn Company Pages",
+      "url": "https://www.linkedin.com/company/setup/new/",
+      "category": "professional",
+      "priority": "high",
+      "submissionUrl": "https://www.linkedin.com/company/setup/new/",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "website": "input[name='website']",
+        "description": "textarea[name='description']",
+        "linkedin": "input[name='vanityName']"
+      },
+      "requirements": [
+        "linkedin_account",
+        "company_logo"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "medium"
+    },
+    {
+      "id": "foursquare",
+      "name": "Foursquare for Business",
+      "url": "https://business.foursquare.com",
+      "category": "location-based",
+      "priority": "medium",
+      "domainAuthority": 78,
+      "monthlyTraffic": "15M+",
+      "submissionUrl": "https://business.foursquare.com/venues/new",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "foursquare_account"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "tripadvisor",
+      "name": "TripAdvisor Business",
+      "url": "https://www.tripadvisor.com/Owners",
+      "category": "travel-hospitality",
+      "priority": "high",
+      "domainAuthority": 91,
+      "monthlyTraffic": "80M+",
+      "submissionUrl": "https://www.tripadvisor.com/Owners/Claim",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "tripadvisor_account",
+        "business_photos"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "chamber-commerce",
+      "name": "US Chamber of Commerce",
+      "url": "https://www.uschamber.com",
+      "category": "business-associations",
+      "priority": "high",
+      "domainAuthority": 87,
+      "monthlyTraffic": "25M+",
+      "submissionUrl": "https://www.uschamber.com/co/directory/add",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "membership_fee"
+      ],
+      "estimatedTime": 300,
+      "difficulty": "hard"
+    },
+    {
+      "id": "manta",
+      "name": "Manta",
+      "url": "https://www.manta.com",
+      "category": "business-directories",
+      "priority": "medium",
+      "domainAuthority": 74,
+      "monthlyTraffic": "8M+",
+      "submissionUrl": "https://www.manta.com/claim",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "superpages",
+      "name": "Superpages",
+      "url": "https://www.superpages.com",
+      "category": "traditional-directories",
+      "priority": "low",
+      "domainAuthority": 65,
+      "monthlyTraffic": "5M+",
+      "submissionUrl": "https://www.superpages.com/bp/claim-listing",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "phone_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "whitepages",
+      "name": "White Pages",
+      "url": "https://www.whitepages.com",
+      "category": "traditional-directories",
+      "priority": "low",
+      "domainAuthority": 72,
+      "monthlyTraffic": "12M+",
+      "submissionUrl": "https://www.whitepages.com/business/add-my-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "phone_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "mapquest",
+      "name": "MapQuest",
+      "url": "https://www.mapquest.com",
+      "category": "maps",
+      "priority": "low",
+      "submissionUrl": "https://www.mapquest.com/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "mapquest_account"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "citysearch",
+      "name": "Citysearch",
+      "url": "https://www.citysearch.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.citysearch.com/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "hotfrog",
+      "name": "Hotfrog",
+      "url": "https://www.hotfrog.com",
+      "category": "international-directories",
+      "priority": "medium",
+      "domainAuthority": 68,
+      "monthlyTraffic": "3M+",
+      "submissionUrl": "https://www.hotfrog.com/companies/add-your-company",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "brownbook",
+      "name": "Brownbook",
+      "url": "https://www.brownbook.net",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.brownbook.net/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "ezlocal",
+      "name": "EZLocal",
+      "url": "https://ezlocal.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://ezlocal.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "showmelocal",
+      "name": "ShowMeLocal",
+      "url": "https://www.showmelocal.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.showmelocal.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "localstack",
+      "name": "LocalStack",
+      "url": "https://www.localstack.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.localstack.com/biz/add-listing",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "cylex",
+      "name": "Cylex",
+      "url": "https://www.cylex.com",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.cylex.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "tupalo",
+      "name": "Tupalo",
+      "url": "https://www.tupalo.com",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.tupalo.com/add-place",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "tupalo_account"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "n49",
+      "name": "n49",
+      "url": "https://www.n49.com",
+      "category": "business-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.n49.com/biz/new",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "fyple",
+      "name": "Fyple",
+      "url": "https://www.fyple.com",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.fyple.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "opendi",
+      "name": "Opendi",
+      "url": "https://www.opendi.com",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.opendi.com/add-company",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "lacartes",
+      "name": "Lacartes",
+      "url": "https://www.lacartes.com",
+      "category": "international-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.lacartes.com/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "cityof",
+      "name": "CityOf",
+      "url": "https://www.cityof.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.cityof.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "brownbook-ca",
+      "name": "Brownbook Canada",
+      "url": "https://canada.brownbook.net",
+      "category": "regional-directories",
+      "priority": "low",
+      "submissionUrl": "https://canada.brownbook.net/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "canadian-business",
+      "name": "Canadian Business Directory",
+      "url": "https://www.canadianbusinessdirectory.ca",
+      "category": "regional-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.canadianbusinessdirectory.ca/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "nexport",
+      "name": "Nexport",
+      "url": "https://www.nexport.com",
+      "category": "b2b-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.nexport.com/add-company",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "business_registration"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "medium"
+    },
+    {
+      "id": "europages",
+      "name": "Europages",
+      "url": "https://www.europages.com",
+      "category": "b2b-directories",
+      "priority": "high",
+      "domainAuthority": 79,
+      "monthlyTraffic": "6M+",
+      "submissionUrl": "https://www.europages.com/register",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "business_verification"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "kompass",
+      "name": "Kompass",
+      "url": "https://www.kompass.com",
+      "category": "b2b-directories",
+      "priority": "medium",
+      "domainAuthority": 75,
+      "monthlyTraffic": "4M+",
+      "submissionUrl": "https://www.kompass.com/selectcountry/?language=en&pageid=registration",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "business_verification"
+      ],
+      "estimatedTime": 300,
+      "difficulty": "hard"
+    },
+    {
+      "id": "thomasnet",
+      "name": "Thomasnet",
+      "url": "https://www.thomasnet.com",
+      "category": "b2b-directories",
+      "priority": "medium",
+      "submissionUrl": "https://www.thomasnet.com/nsearch/create-free-listing",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "business_verification"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "yell",
+      "name": "Yell (UK)",
+      "url": "https://www.yell.com",
+      "category": "regional-directories",
+      "priority": "medium",
+      "submissionUrl": "https://www.yell.com/s/add-free-listing.html",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "uk_business"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "medium"
+    },
+    {
+      "id": "local-com",
+      "name": "Local.com",
+      "url": "https://www.local.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.local.com/business/add",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "spoke",
+      "name": "Spoke",
+      "url": "https://www.spoke.com",
+      "category": "business-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.spoke.com/companies/add",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "zaubee",
+      "name": "Zaubee",
+      "url": "https://www.zaubee.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.zaubee.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "infignos",
+      "name": "Infignos",
+      "url": "https://www.infignos.com",
+      "category": "business-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.infignos.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "zipleaf",
+      "name": "Zipleaf",
+      "url": "https://www.zipleaf.com",
+      "category": "business-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.zipleaf.com/Companies/Add",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "mysheriff",
+      "name": "MySheriff",
+      "url": "https://www.mysheriff.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.mysheriff.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "yellowbot",
+      "name": "Yellowbot",
+      "url": "https://www.yellowbot.com",
+      "category": "local-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.yellowbot.com/add-business",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 120,
+      "difficulty": "easy"
+    },
+    {
+      "id": "bizapedia",
+      "name": "Bizapedia",
+      "url": "https://www.bizapedia.com",
+      "category": "business-registries",
+      "priority": "low",
+      "submissionUrl": "https://www.bizapedia.com/claim",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "business_registration"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "medium"
+    },
+    {
+      "id": "biznik",
+      "name": "Biznik",
+      "url": "https://www.biznik.com",
+      "category": "business-networking",
+      "priority": "low",
+      "submissionUrl": "https://www.biznik.com/members/join",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "membership_fee"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "merchant-circle",
+      "name": "Merchant Circle",
+      "url": "https://www.merchantcircle.com",
+      "category": "business-directories",
+      "priority": "low",
+      "submissionUrl": "https://www.merchantcircle.com/signup",
+      "fieldMapping": {
+        "businessName": "input[name='businessName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "email_verification"
+      ],
+      "estimatedTime": 150,
+      "difficulty": "easy"
+    },
+    {
+      "id": "indeed-company",
+      "name": "Indeed Company Pages",
+      "url": "https://employers.indeed.com",
+      "category": "employment",
+      "priority": "medium",
+      "submissionUrl": "https://employers.indeed.com/p",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "indeed_account"
+      ],
+      "estimatedTime": 180,
+      "difficulty": "medium"
+    },
+    {
+      "id": "glassdoor-employer",
+      "name": "Glassdoor for Employers",
+      "url": "https://www.glassdoor.com/employers",
+      "category": "employment",
+      "priority": "medium",
+      "submissionUrl": "https://www.glassdoor.com/employers/account/products",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "glassdoor_account",
+        "company_verification"
+      ],
+      "estimatedTime": 240,
+      "difficulty": "medium"
+    },
+    {
+      "id": "chrome-web-store",
+      "name": "Chrome Web Store",
+      "url": "https://chrome.google.com",
+      "category": "Tech Startups",
+      "priority": "high",
+      "submissionUrl": "https://chrome.google.com/webstore/devconsole/register",
+      "fieldMapping": {
+        "businessName": "input[name='developer_name']",
+        "email": "input[type='email']",
+        "website": "input[name='website']",
+        "extensionName": "input[name='item_name']",
+        "description": "textarea[name='description']",
+        "category": "select[name='category']",
+        "version": "input[name='version']",
+        "permissions": "textarea[name='permissions']"
+      },
+      "requirements": [
+        "google_account",
+        "developer_registration",
+        "payment_method"
+      ],
+      "estimatedTime": 1800,
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "monthlyTraffic": "50M",
+      "submissionFee": "$500",
+      "domainAuthority": "100"
+    },
+    {
+      "id": "youtube-creator",
+      "name": "YouTube Creator",
+      "url": "https://youtube.com",
+      "category": "Content Media",
+      "priority": "high",
+      "submissionUrl": "https://www.youtube.com/channel_switcher",
+      "fieldMapping": {
+        "channelName": "input[name='channel-name']",
+        "email": "input[type='email']",
+        "description": "textarea[name='channel-description']",
+        "website": "input[name='website']",
+        "category": "select[name='channel-category']",
+        "keywords": "input[name='channel-keywords']",
+        "country": "select[name='country']",
+        "language": "select[name='language']"
+      },
+      "requirements": [
+        "google_account",
+        "phone_verification"
+      ],
+      "estimatedTime": 900,
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "monthlyTraffic": "250M",
+      "submissionFee": "$0",
+      "domainAuthority": "100"
+    },
+    {
+      "id": "apple-podcasts",
+      "name": "Apple Podcasts",
+      "url": "https://podcasts.apple.com",
+      "category": "Content Media",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 1800,
+      "monthlyTraffic": "45M",
+      "submissionFee": "$0",
+      "domainAuthority": "95",
+      "priority": "high",
+      "submissionUrl": "https://podcasters.apple.com/support/823-podcast-requirements",
+      "fieldMapping": {
+        "podcastName": "input[name='podcast_title']",
+        "email": "input[type='email']",
+        "website": "input[name='website']",
+        "description": "textarea[name='description']",
+        "category": "select[name='category']",
+        "language": "select[name='language']",
+        "rssUrl": "input[name='rss_url']"
+      },
+      "requirements": [
+        "apple_id",
+        "rss_feed",
+        "podcast_episodes"
+      ]
+    },
+    {
+      "id": "twitter-business",
+      "name": "Twitter Business",
+      "url": "https://business.twitter.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 600,
+      "monthlyTraffic": "60M",
+      "submissionFee": "$0",
+      "domainAuthority": "93",
+      "priority": "medium",
+      "submissionUrl": "https://business.twitter.com/en/basics/create-a-business-profile.html",
+      "fieldMapping": {
+        "businessName": "input[name='name']",
+        "email": "input[type='email']",
+        "website": "input[name='url']",
+        "description": "textarea[name='description']",
+        "location": "input[name='location']",
+        "category": "select[name='category']",
+        "phone": "input[name='phone']"
+      },
+      "requirements": [
+        "twitter_account",
+        "business_verification"
+      ]
+    },
+    {
+      "id": "instagram-business",
+      "name": "Instagram Business",
+      "url": "https://business.instagram.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 900,
+      "monthlyTraffic": "120M",
+      "submissionFee": "$0",
+      "domainAuthority": "94",
+      "priority": "medium",
+      "submissionUrl": "https://business.instagram.com/getting-started",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[type='email']",
+        "website": "input[name='website']",
+        "description": "textarea[name='bio']",
+        "category": "select[name='category']",
+        "phone": "input[name='phone']",
+        "address": "input[name='address']"
+      },
+      "requirements": [
+        "facebook_account",
+        "page_connection"
+      ]
+    },
+    {
+      "id": "better-business-bureau",
+      "name": "Better Business Bureau",
+      "url": "https://bbb.org",
+      "category": "Local Business",
+      "difficulty": "hard",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": 3600,
+      "monthlyTraffic": "20M",
+      "submissionFee": "$200-500",
+      "domainAuthority": "90",
+      "priority": "medium",
+      "submissionUrl": "https://www.bbb.org/get-accredited",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[type='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "city": "input[name='city']",
+        "state": "select[name='state']",
+        "zipCode": "input[name='zip']",
+        "businessType": "select[name='business_type']",
+        "yearsInBusiness": "input[name='years_in_business']"
+      },
+      "requirements": [
+        "business_license",
+        "financial_documents",
+        "references"
+      ]
+    },
+    {
+      "id": "here-places",
+      "name": "HERE Places",
+      "url": "https://places.here.com",
+      "category": "Local Business",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 1200,
+      "monthlyTraffic": "8M",
+      "submissionFee": "$0",
+      "domainAuthority": "78",
+      "priority": "low",
+      "submissionUrl": "https://developer.here.com/sign-up",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[type='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "category": "select[name='category']",
+        "description": "textarea[name='description']"
+      },
+      "requirements": [
+        "here_account",
+        "business_verification"
+      ]
+    },
+    {
+      "id": "waze-business",
+      "name": "Waze Business",
+      "url": "https://business.waze.com",
+      "category": "Local Business",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 900,
+      "monthlyTraffic": "10M",
+      "submissionFee": "$0",
+      "domainAuthority": "82",
+      "priority": "low",
+      "submissionUrl": "https://www.waze.com/business/",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[type='email']",
+        "phone": "input[name='phone']",
+        "website": "input[name='website']",
+        "address": "input[name='address']",
+        "category": "select[name='category']",
+        "hours": "input[name='business_hours']"
+      },
+      "requirements": [
+        "google_account",
+        "location_verification"
+      ]
+    },
+    {
+      "id": "pinterest-business",
+      "name": "Pinterest Business",
+      "url": "https://business.pinterest.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 1200,
+      "monthlyTraffic": "50M",
+      "submissionFee": "$0",
+      "domainAuthority": "94",
+      "priority": "medium",
+      "submissionUrl": "https://business.pinterest.com/business/create/",
+      "fieldMapping": {
+        "businessName": "input[name='business_name']",
+        "email": "input[type='email']",
+        "website": "input[name='website_url']",
+        "description": "textarea[name='business_description']",
+        "businessType": "select[name='business_type']",
+        "country": "select[name='country']"
+      },
+      "requirements": [
+        "pinterest_account",
+        "website_verification"
+      ]
+    },
+    {
+      "id": "spotify-artists",
+      "name": "Spotify for Artists",
+      "url": "https://artists.spotify.com",
+      "category": "Content Media",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": 1500,
+      "monthlyTraffic": "30M",
+      "submissionFee": "$0",
+      "domainAuthority": "96",
+      "priority": "medium",
+      "submissionUrl": "https://artists.spotify.com/",
+      "fieldMapping": {
+        "artistName": "input[name='artist_name']",
+        "email": "input[type='email']",
+        "website": "input[name='website']",
+        "biography": "textarea[name='bio']",
+        "genre": "select[name='genre']",
+        "country": "select[name='country']"
+      },
+      "requirements": [
+        "spotify_account",
+        "music_distribution",
+        "artist_verification"
+      ]
+    },
+    {
+      "id": "amazon-seller",
+      "name": "Amazon Seller Central",
+      "url": "https://sellercentral.amazon.com",
+      "category": "E-commerce",
+      "priority": "high",
+      "submissionUrl": "https://sellercentral.amazon.com/ap/register",
+      "fieldMapping": {
+        "businessName": "input[name='companyName']",
+        "email": "input[name='email']",
+        "phone": "input[name='phoneNumber']",
+        "website": "input[name='website']",
+        "address": "input[name='address1']",
+        "city": "input[name='city']",
+        "state": "select[name='state']",
+        "postalCode": "input[name='postalCode']",
+        "country": "select[name='countryCode']",
+        "taxId": "input[name='taxId']",
+        "businessType": "select[name='businessType']"
+      },
+      "requirements": [
+        "bank_account",
+        "tax_information",
+        "identity_verification",
+        "credit_card"
+      ],
+      "estimatedTime": 7200,
+      "difficulty": "hard",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "monthlyTraffic": "100M",
+      "submissionFee": "$39.99/month",
+      "domainAuthority": "96"
+    }
+  ],
+  "categories": {
+    "search-engines": "Major search engine business listings",
+    "maps": "Map service business listings",
+    "social-media": "Social media business profiles",
+    "review-sites": "Review and rating platforms",
+    "traditional-directories": "Established directory services",
+    "local-directories": "Location-based business directories",
+    "international-directories": "Global business directory services",
+    "b2b-directories": "Business-to-business focused directories",
+    "regional-directories": "Country or region-specific directories",
+    "business-associations": "Chamber of commerce and trade organizations",
+    "professional": "Professional networking platforms",
+    "location-based": "Location and check-in services",
+    "travel-hospitality": "Travel and hospitality focused directories",
+    "business-registries": "Official business registration databases",
+    "business-networking": "Business networking and community platforms",
+    "employment": "Employment and career platforms",
+    "Tech Startups": "Technology startup focused directories",
+    "Content Media": "Content creation and media platforms",
+    "E-commerce": "E-commerce and marketplace platforms",
+    "Local Business": "Local business focused directories",
+    "Social Media": "Social media business platforms"
+  },
+  "deduplication_report": {
+    "original_counts": {
+      "directory-list.json": 50,
+      "directorybolt-complete.json": 20
+    },
+    "duplicates_found": 7,
+    "duplicates_removed": [
+      "google-business-profile → google-business (kept directory-list.json version)",
+      "apple-maps-connect → apple-maps (kept directory-list.json version)",
+      "facebook-business (kept directory-list.json version)",
+      "linkedin-company (kept directory-list.json version)",
+      "yelp-business → yelp (kept directory-list.json version)",
+      "yellow-pages → yellowpages (kept directory-list.json version)",
+      "foursquare-business → foursquare (kept directory-list.json version)"
+    ],
+    "final_count": 63
+  }
+}

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoBolt Queue Manager</title>
+    <link rel="stylesheet" href="enhanced-popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Status -->
+        <div class="header">
+            <div class="logo">
+                <img src="icons/icon48.png" alt="AutoBolt" class="logo-icon">
+                <div class="logo-text">
+                    <h1>AutoBolt</h1>
+                    <span class="version">Queue Manager v2.0</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator" id="queueStatus">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Initializing...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="queue">
+                <span class="tab-icon">📋</span>
+                Queue Dashboard
+            </button>
+            <button class="nav-tab" data-tab="processing">
+                <span class="tab-icon">⚡</span>
+                Live Processing
+            </button>
+            <button class="nav-tab" data-tab="metrics">
+                <span class="tab-icon">📊</span>
+                Performance
+            </button>
+            <button class="nav-tab" data-tab="settings">
+                <span class="tab-icon">⚙️</span>
+                Settings
+            </button>
+        </div>
+
+        <!-- Queue Dashboard Tab -->
+        <div class="tab-content active" id="queueTab">
+            <div class="queue-overview">
+                <h2>Customer Queue Overview</h2>
+                
+                <!-- Queue Statistics -->
+                <div class="queue-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingCount">0</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-trend">📈</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="processingCount">0</div>
+                        <div class="stat-label">Processing</div>
+                        <div class="stat-trend">⚡</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedToday">0</div>
+                        <div class="stat-label">Completed Today</div>
+                        <div class="stat-trend">✅</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successRate">0%</div>
+                        <div class="stat-label">Success Rate</div>
+                        <div class="stat-trend">🎯</div>
+                    </div>
+                </div>
+
+                <!-- Package Priority Queue -->
+                <div class="package-queues">
+                    <h3>Package Priority Queues</h3>
+                    <div class="package-queue" id="enterpriseQueue">
+                        <div class="package-header enterprise">
+                            <span class="package-name">Enterprise</span>
+                            <span class="package-count" id="enterpriseCount">0</span>
+                            <span class="package-sla">Immediate</span>
+                        </div>
+                        <div class="queue-items" id="enterpriseItems"></div>
+                    </div>
+                    <div class="package-queue" id="professionalQueue">
+                        <div class="package-header professional">
+                            <span class="package-name">Professional</span>
+                            <span class="package-count" id="professionalCount">0</span>
+                            <span class="package-sla">15 min</span>
+                        </div>
+                        <div class="queue-items" id="professionalItems"></div>
+                    </div>
+                    <div class="package-queue" id="growthQueue">
+                        <div class="package-header growth">
+                            <span class="package-name">Growth</span>
+                            <span class="package-count" id="growthCount">0</span>
+                            <span class="package-sla">1 hour</span>
+                        </div>
+                        <div class="queue-items" id="growthItems"></div>
+                    </div>
+                    <div class="package-queue" id="starterQueue">
+                        <div class="package-header starter">
+                            <span class="package-name">Starter</span>
+                            <span class="package-count" id="starterCount">0</span>
+                            <span class="package-sla">4 hours</span>
+                        </div>
+                        <div class="queue-items" id="starterItems"></div>
+                    </div>
+                </div>
+
+                <!-- Queue Controls -->
+                <div class="queue-controls">
+                    <button id="startProcessingBtn" class="primary-button">
+                        <span class="button-icon">▶️</span>
+                        Start Queue Processing
+                    </button>
+                    <button id="pauseProcessingBtn" class="secondary-button" disabled>
+                        <span class="button-icon">⏸️</span>
+                        Pause Processing
+                    </button>
+                    <button id="refreshQueueBtn" class="tertiary-button">
+                        <span class="button-icon">🔄</span>
+                        Refresh Queue
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Processing Tab -->
+        <div class="tab-content" id="processingTab">
+            <div class="processing-overview">
+                <h2>Live Processing Monitor</h2>
+
+                <!-- Current Customer Being Processed -->
+                <div class="current-customer" id="currentCustomer" style="display: none;">
+                    <div class="customer-header">
+                        <h3>Currently Processing</h3>
+                        <div class="package-badge" id="currentPackageBadge"></div>
+                    </div>
+                    <div class="customer-info">
+                        <div class="customer-detail">
+                            <span class="label">Business:</span>
+                            <span class="value" id="currentBusinessName">-</span>
+                        </div>
+                        <div class="customer-detail">
+                            <span class="label">Queue ID:</span>
+                            <span class="value" id="currentQueueId">-</span>
+                        </div>
+                        <div class="customer-detail">
+                            <span class="label">Directories:</span>
+                            <span class="value" id="currentDirectoryCount">-</span>
+                        </div>
+                        <div class="customer-detail">
+                            <span class="label">Progress:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="currentProgress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="currentProgressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Statistics -->
+                <div class="processing-stats">
+                    <div class="processing-stat">
+                        <div class="stat-value" id="activeProcessors">0</div>
+                        <div class="stat-label">Active Processors</div>
+                    </div>
+                    <div class="processing-stat">
+                        <div class="stat-value" id="avgProcessingTime">0s</div>
+                        <div class="stat-label">Avg Time/Customer</div>
+                    </div>
+                    <div class="processing-stat">
+                        <div class="stat-value" id="directoriesPerHour">0</div>
+                        <div class="stat-label">Directories/Hour</div>
+                    </div>
+                </div>
+
+                <!-- Real-time Processing Log -->
+                <div class="processing-log">
+                    <div class="log-header">
+                        <h3>Processing Activity Log</h3>
+                        <div class="log-controls">
+                            <button id="clearLogBtn" class="small-button">Clear</button>
+                            <button id="pauseLogBtn" class="small-button">Pause</button>
+                        </div>
+                    </div>
+                    <div class="log-content" id="processingLogContent">
+                        <div class="log-item info">
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-message">AutoBolt Queue Manager initialized</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Controls -->
+                <div class="emergency-controls">
+                    <button id="emergencyStopBtn" class="emergency-button">
+                        <span class="button-icon">🚨</span>
+                        Emergency Stop
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics Tab -->
+        <div class="tab-content" id="metricsTab">
+            <div class="metrics-overview">
+                <h2>Performance Analytics</h2>
+
+                <!-- Package Performance Comparison -->
+                <div class="package-performance">
+                    <h3>Package Tier Performance</h3>
+                    <div class="performance-grid">
+                        <div class="performance-card enterprise">
+                            <div class="package-name">Enterprise</div>
+                            <div class="performance-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Success Rate:</span>
+                                    <span class="metric-value" id="enterpriseSuccess">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Avg Time:</span>
+                                    <span class="metric-value" id="enterpriseTime">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Quality Score:</span>
+                                    <span class="metric-value" id="enterpriseQuality">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="performance-card professional">
+                            <div class="package-name">Professional</div>
+                            <div class="performance-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Success Rate:</span>
+                                    <span class="metric-value" id="professionalSuccess">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Avg Time:</span>
+                                    <span class="metric-value" id="professionalTime">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Quality Score:</span>
+                                    <span class="metric-value" id="professionalQuality">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="performance-card growth">
+                            <div class="package-name">Growth</div>
+                            <div class="performance-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Success Rate:</span>
+                                    <span class="metric-value" id="growthSuccess">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Avg Time:</span>
+                                    <span class="metric-value" id="growthTime">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Quality Score:</span>
+                                    <span class="metric-value" id="growthQuality">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="performance-card starter">
+                            <div class="package-name">Starter</div>
+                            <div class="performance-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Success Rate:</span>
+                                    <span class="metric-value" id="starterSuccess">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Avg Time:</span>
+                                    <span class="metric-value" id="starterTime">--</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Quality Score:</span>
+                                    <span class="metric-value" id="starterQuality">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Health Metrics -->
+                <div class="system-health">
+                    <h3>System Health</h3>
+                    <div class="health-indicators">
+                        <div class="health-indicator">
+                            <div class="indicator-icon">🖥️</div>
+                            <div class="indicator-info">
+                                <div class="indicator-label">CPU Usage</div>
+                                <div class="indicator-value" id="cpuUsage">--</div>
+                                <div class="indicator-bar">
+                                    <div class="bar-fill" id="cpuBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="health-indicator">
+                            <div class="indicator-icon">💾</div>
+                            <div class="indicator-info">
+                                <div class="indicator-label">Memory Usage</div>
+                                <div class="indicator-value" id="memoryUsage">--</div>
+                                <div class="indicator-bar">
+                                    <div class="bar-fill" id="memoryBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="health-indicator">
+                            <div class="indicator-icon">🌐</div>
+                            <div class="indicator-info">
+                                <div class="indicator-label">API Response</div>
+                                <div class="indicator-value" id="apiResponse">--</div>
+                                <div class="indicator-bar">
+                                    <div class="bar-fill" id="apiBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Satisfaction Metrics -->
+                <div class="satisfaction-metrics">
+                    <h3>Customer Satisfaction</h3>
+                    <div class="satisfaction-grid">
+                        <div class="satisfaction-item">
+                            <div class="satisfaction-score" id="overallSatisfaction">--</div>
+                            <div class="satisfaction-label">Overall Score</div>
+                        </div>
+                        <div class="satisfaction-item">
+                            <div class="satisfaction-score" id="processingSpeed">--</div>
+                            <div class="satisfaction-label">Processing Speed</div>
+                        </div>
+                        <div class="satisfaction-item">
+                            <div class="satisfaction-score" id="accuracyScore">--</div>
+                            <div class="satisfaction-label">Accuracy</div>
+                        </div>
+                        <div class="satisfaction-item">
+                            <div class="satisfaction-score" id="supportQuality">--</div>
+                            <div class="satisfaction-label">Support Quality</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settingsTab">
+            <div class="settings-overview">
+                <h2>Queue Manager Settings</h2>
+
+                <!-- API Configuration -->
+                <div class="settings-section">
+                    <h3>Airtable Configuration</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="airtableApiKey">API Key:</label>
+                            <input type="password" id="airtableApiKey" placeholder="Enter Airtable API Key">
+                            <button class="test-button" id="testApiKey">Test</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="airtableBaseId">Base ID:</label>
+                            <input type="text" id="airtableBaseId" placeholder="Enter Base ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="apiTimeout">API Timeout (ms):</label>
+                            <input type="number" id="apiTimeout" value="10000" min="5000" max="60000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Configuration -->
+                <div class="settings-section">
+                    <h3>Processing Configuration</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="maxConcurrentProcessors">Max Concurrent Processors:</label>
+                            <input type="number" id="maxConcurrentProcessors" value="10" min="1" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="queuePollInterval">Queue Poll Interval (seconds):</label>
+                            <input type="number" id="queuePollInterval" value="30" min="10" max="300">
+                        </div>
+                        <div class="form-group">
+                            <label for="autoStartProcessing">Auto-start Processing:</label>
+                            <input type="checkbox" id="autoStartProcessing" checked>
+                        </div>
+                        <div class="form-group">
+                            <label for="enableDebugLogging">Debug Logging:</label>
+                            <input type="checkbox" id="enableDebugLogging">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package-Specific Settings -->
+                <div class="settings-section">
+                    <h3>Package Tier Settings</h3>
+                    <div class="package-settings">
+                        <div class="package-setting">
+                            <h4>Enterprise Settings</h4>
+                            <div class="form-group">
+                                <label>Human Verification:</label>
+                                <input type="checkbox" id="enterpriseHumanVerification" checked>
+                            </div>
+                            <div class="form-group">
+                                <label>Custom Scripting:</label>
+                                <input type="checkbox" id="enterpriseCustomScripting" checked>
+                            </div>
+                        </div>
+                        <div class="package-setting">
+                            <h4>Professional Settings</h4>
+                            <div class="form-group">
+                                <label>Enhanced QA:</label>
+                                <input type="checkbox" id="professionalEnhancedQA" checked>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Support:</label>
+                                <input type="checkbox" id="professionalPhoneSupport" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label>Queue Completion Notifications:</label>
+                            <input type="checkbox" id="completionNotifications" checked>
+                        </div>
+                        <div class="form-group">
+                            <label>Error Notifications:</label>
+                            <input type="checkbox" id="errorNotifications" checked>
+                        </div>
+                        <div class="form-group">
+                            <label>Performance Alerts:</label>
+                            <input type="checkbox" id="performanceAlerts">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Actions -->
+                <div class="settings-actions">
+                    <button id="saveSettingsBtn" class="primary-button">
+                        <span class="button-icon">💾</span>
+                        Save Settings
+                    </button>
+                    <button id="resetSettingsBtn" class="secondary-button">
+                        <span class="button-icon">🔄</span>
+                        Reset to Defaults
+                    </button>
+                    <button id="exportSettingsBtn" class="tertiary-button">
+                        <span class="button-icon">📁</span>
+                        Export Config
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Connection:</span>
+                <span class="status-value" id="connectionStatus">Connected</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last Update:</span>
+                <span class="status-value" id="lastUpdate">--:--:--</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Version:</span>
+                <span class="status-value">2.0.0</span>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <div class="loading-message" id="loadingMessage">Initializing Queue Manager...</div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="queue-processing-engine.js"></script>
+    <script src="package-processing-controller.js"></script>
+    <script src="enhanced-popup.js"></script>
+</body>
+</html>

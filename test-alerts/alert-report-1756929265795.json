@@ -1,0 +1,169 @@
+{
+  "timestamp": "2025-09-03T19:54:25.794Z",
+  "summary": {
+    "activeAlerts": 4,
+    "totalAlertsToday": 3,
+    "criticalAlerts": 1,
+    "averageResolutionTime": 0
+  },
+  "activeAlerts": [
+    {
+      "id": "alert_9e5b1d9a",
+      "type": "TEST_SUITE_FAILURE",
+      "severity": "HIGH",
+      "data": {
+        "suite": "Daily Smoke Tests",
+        "successRate": 85,
+        "failedTests": [
+          "directory_access_test",
+          "form_mapping_test"
+        ]
+      },
+      "timestamp": "2025-09-03T19:54:14.774Z",
+      "status": "ACTIVE",
+      "escalationLevel": 0,
+      "notificationsSent": [
+        {
+          "channel": "console",
+          "timestamp": "2025-09-03T19:54:14.776Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "github",
+          "timestamp": "2025-09-03T19:54:14.776Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "file",
+          "timestamp": "2025-09-03T19:54:14.779Z",
+          "status": "SUCCESS"
+        }
+      ],
+      "acknowledgments": [],
+      "resolutionActions": [
+        "Review test logs for specific failure details",
+        "Check if issue is environment-specific",
+        "Validate test data and configuration",
+        "Consider rolling back recent changes"
+      ]
+    },
+    {
+      "id": "alert_e1e77ee8",
+      "type": "TEST_SUITE_FAILURE",
+      "severity": "HIGH",
+      "data": {
+        "suite": "Daily Smoke Tests",
+        "successRate": 85,
+        "failedTests": [
+          "directory_access_test",
+          "form_mapping_test"
+        ]
+      },
+      "timestamp": "2025-09-03T19:54:25.766Z",
+      "status": "ACTIVE",
+      "escalationLevel": 0,
+      "notificationsSent": [
+        {
+          "channel": "console",
+          "timestamp": "2025-09-03T19:54:25.768Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "github",
+          "timestamp": "2025-09-03T19:54:25.768Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "file",
+          "timestamp": "2025-09-03T19:54:25.770Z",
+          "status": "SUCCESS"
+        }
+      ],
+      "acknowledgments": [],
+      "resolutionActions": [
+        "Review test logs for specific failure details",
+        "Check if issue is environment-specific",
+        "Validate test data and configuration",
+        "Consider rolling back recent changes"
+      ]
+    },
+    {
+      "id": "alert_cd791a83",
+      "type": "PERFORMANCE_DEGRADATION",
+      "severity": "MEDIUM",
+      "data": {
+        "metric": "load_time",
+        "currentValue": 5000,
+        "threshold": 3000,
+        "degradationPercent": 67
+      },
+      "timestamp": "2025-09-03T19:54:25.771Z",
+      "status": "ACTIVE",
+      "escalationLevel": 0,
+      "notificationsSent": [],
+      "acknowledgments": [],
+      "resolutionActions": [
+        "Review performance metrics and identify bottlenecks",
+        "Check system resources and scaling",
+        "Analyze recent code changes for performance impact",
+        "Consider performance optimization measures"
+      ]
+    },
+    {
+      "id": "alert_f9a6a25e",
+      "type": "DIRECTORY_OUTAGE",
+      "severity": "CRITICAL",
+      "data": {
+        "directory": "Google Business Profile",
+        "url": "https://business.google.com",
+        "error": "Connection timeout"
+      },
+      "timestamp": "2025-09-03T19:54:25.780Z",
+      "status": "ACTIVE",
+      "escalationLevel": 0,
+      "notificationsSent": [
+        {
+          "channel": "console",
+          "timestamp": "2025-09-03T19:54:25.781Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "github",
+          "timestamp": "2025-09-03T19:54:25.781Z",
+          "status": "SUCCESS"
+        },
+        {
+          "channel": "file",
+          "timestamp": "2025-09-03T19:54:25.781Z",
+          "status": "SUCCESS"
+        }
+      ],
+      "acknowledgments": [],
+      "resolutionActions": [
+        "Verify directory URL accessibility",
+        "Check for site structure changes",
+        "Update form mappings if needed",
+        "Contact directory support if persistent"
+      ]
+    }
+  ],
+  "alertsByType": {
+    "TEST_SUITE_FAILURE": 1,
+    "PERFORMANCE_DEGRADATION": 1,
+    "DIRECTORY_OUTAGE": 1
+  },
+  "alertsBySeverity": {
+    "HIGH": 1,
+    "MEDIUM": 1,
+    "CRITICAL": 1
+  },
+  "trends": {
+    "Wed Sep 03 2025": 3,
+    "Tue Sep 02 2025": 0,
+    "Mon Sep 01 2025": 0,
+    "Sun Aug 31 2025": 0,
+    "Sat Aug 30 2025": 0,
+    "Fri Aug 29 2025": 0,
+    "Thu Aug 28 2025": 0
+  }
+}
