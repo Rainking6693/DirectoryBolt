@@ -432,7 +432,7 @@ export class EnhancedRateLimit {
       isSuspicious: score > 30,
       score,
       reasons,
-      actions: [...new Set(actions)], // Remove duplicates
+      actions: Array.from(new Set(actions)), // Remove duplicates
       confidence: Math.min(100, score * 1.2)
     }
   }
@@ -679,7 +679,7 @@ export class EnhancedRateLimit {
     let cleaned = 0
 
     // Clean up request store
-    for (const [key, data] of this.requestStore.entries()) {
+    for (const [key, data] of Array.from(this.requestStore.entries())) {
       const allExpired = data.day?.resetTime < now && 
                         data.hour?.resetTime < now && 
                         data.minute?.resetTime < now &&
@@ -692,7 +692,7 @@ export class EnhancedRateLimit {
     }
 
     // Clean up suspicious activity (keep for 24 hours)
-    for (const [ip, activity] of this.suspiciousActivity.entries()) {
+    for (const [ip, activity] of Array.from(this.suspiciousActivity.entries())) {
       if (now - activity.firstSeen > 24 * 60 * 60 * 1000) {
         this.suspiciousActivity.delete(ip)
         cleaned++
@@ -700,7 +700,7 @@ export class EnhancedRateLimit {
     }
 
     // Clean up expired blocks
-    for (const [ip, block] of this.blocklist.entries()) {
+    for (const [ip, block] of Array.from(this.blocklist.entries())) {
       if (now > block.until) {
         this.blocklist.delete(ip)
         cleaned++

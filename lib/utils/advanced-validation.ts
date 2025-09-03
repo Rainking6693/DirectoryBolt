@@ -516,7 +516,7 @@ export class AdvancedValidator {
     }
 
     // Check for profanity
-    for (const word of this.profanityFilter) {
+    for (const word of Array.from(this.profanityFilter)) {
       if (dataStr.includes(word)) {
         result.warnings.push('Potentially inappropriate content detected')
         break

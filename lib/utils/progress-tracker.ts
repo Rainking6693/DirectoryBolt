@@ -344,7 +344,7 @@ export class ProgressTracker {
     const cutoff = Date.now() - maxAgeMs
     let cleaned = 0
 
-    for (const [requestId, progress] of progressStore.entries()) {
+    for (const [requestId, progress] of Array.from(progressStore.entries())) {
       if (progress.startTime < cutoff) {
         progressStore.delete(requestId)
         cleaned++

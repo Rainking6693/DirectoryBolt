@@ -102,7 +102,7 @@ if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
       }
 
       forEach(callback: (value: FormDataEntryValue, key: string, parent: FormData) => void): void {
-        for (const [key, values] of this.data) {
+        for (const [key, values] of Array.from(this.data)) {
           for (const value of values) {
             callback(value, key, this)
           }
@@ -110,7 +110,7 @@ if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
       }
 
       *entries(): IterableIterator<[string, FormDataEntryValue]> {
-        for (const [key, values] of this.data) {
+        for (const [key, values] of Array.from(this.data)) {
           for (const value of values) {
             yield [key, value]
           }
@@ -118,13 +118,13 @@ if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
       }
 
       *keys(): IterableIterator<string> {
-        for (const key of this.data.keys()) {
+        for (const key of Array.from(this.data.keys())) {
           yield key
         }
       }
 
       *values(): IterableIterator<FormDataEntryValue> {
-        for (const values of this.data.values()) {
+        for (const values of Array.from(this.data.values())) {
           for (const value of values) {
             yield value
           }
