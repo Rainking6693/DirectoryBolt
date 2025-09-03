@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-29T13:39:25.517Z",
+  "timestamp": "2025-09-03T13:56:05.959Z",
   "environment": "development",
   "backendTests": {
     "environmentValidation": {
@@ -13,15 +13,15 @@
     "apiErrorHandling": [
       {
         "test": "Invalid Price ID",
-        "networkError": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        "networkError": "Unexpected token '<', ...\"          <pre>missi\"... is not valid JSON"
       },
       {
         "test": "Missing Price ID",
-        "networkError": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        "networkError": "Unexpected token '<', ...\"          <pre>missi\"... is not valid JSON"
       },
       {
         "test": "Malformed Request",
-        "networkError": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        "networkError": "Unexpected token '<', ...\"          <pre>missi\"... is not valid JSON"
       }
     ],
     "webhookValidation": {
@@ -29,7 +29,7 @@
       "hasNoBypass": true,
       "hasErrorHandling": true,
       "webhookResponse": {
-        "status": 404,
+        "status": 500,
         "rejectsInvalidSignature": false
       }
     },
@@ -74,9 +74,8 @@
         }
       ],
       "browserTest": {
-        "pageLoaded": true,
-        "paymentButtonsFound": 0,
-        "hasPaymentUI": false
+        "error": "Navigation timeout of 10000 ms exceeded",
+        "pageLoaded": false
       }
     },
     "errorHandling": {
@@ -111,9 +110,8 @@
         }
       ],
       "errorHandlingTest": {
-        "pageLoaded": true,
-        "consoleErrors": 1,
-        "hasUnhandledErrors": false
+        "error": "Navigation timeout of 10000 ms exceeded",
+        "pageLoaded": false
       }
     },
     "statusDisplay": {
@@ -150,38 +148,34 @@
       "pageTests": [
         {
           "page": "/success",
-          "exists": true,
-          "status": 200
+          "exists": false,
+          "status": 500
         },
         {
           "page": "/cancel",
-          "exists": true,
-          "status": 200
+          "exists": false,
+          "status": 500
         }
       ]
     },
     "userExperience": {
-      "pageLoaded": true,
-      "isMobileOptimized": true,
-      "hasLoadingIndicators": true,
-      "hasCallToAction": false,
-      "hasPricingTiers": false,
-      "buttonCount": 0
+      "error": "Navigation timeout of 10000 ms exceeded",
+      "pageLoaded": false
     }
   },
   "integrationTests": {
     "endToEndFlow": {
-      "error": "page.waitForTimeout is not a function",
+      "error": "Navigation timeout of 10000 ms exceeded",
       "pageLoaded": false
     },
     "errorRecovery": [
       {
         "test": "Invalid Price ID Error",
-        "networkError": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        "networkError": "Unexpected token '<', ...\"          <pre>missi\"... is not valid JSON"
       }
     ],
     "securityValidation": {
-      "error": "page.waitForTimeout is not a function",
+      "error": "Navigation timeout of 10000 ms exceeded",
       "pageLoaded": false
     }
   },

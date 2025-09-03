@@ -141,6 +141,10 @@
     animation: shimmer 1.5s infinite;
   }
 
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+
   @keyframes shimmer {
     0% {
       background-position: -200% 0;

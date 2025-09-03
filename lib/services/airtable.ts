@@ -134,7 +134,7 @@ export class AirtableService {
 
     } catch (error) {
       console.error('❌ Failed to create Airtable record:', error)
-      throw new Error(`Airtable creation failed: ${error.message}`)
+      throw new Error(`Airtable creation failed: ${error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error)}`)
     }
   }
 
@@ -166,7 +166,7 @@ export class AirtableService {
 
     } catch (error) {
       console.error('❌ Failed to update Airtable record:', error)
-      throw new Error(`Airtable update failed: ${error.message}`)
+      throw new Error(`Airtable update failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -193,7 +193,7 @@ export class AirtableService {
 
     } catch (error) {
       console.error('❌ Failed to find Airtable record by customer ID:', error)
-      throw new Error(`Airtable lookup failed: ${error.message}`)
+      throw new Error(`Airtable lookup failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -207,7 +207,7 @@ export class AirtableService {
         sort: [{ field: 'purchaseDate', direction: 'asc' }]
       }).all()
 
-      return records.map(record => ({
+      return records.map((record: any) => ({
         recordId: record.getId(),
         customerId: record.get('customerId'),
         ...record.fields
@@ -215,7 +215,7 @@ export class AirtableService {
 
     } catch (error) {
       console.error('❌ Failed to find Airtable records by status:', error)
-      throw new Error(`Airtable status lookup failed: ${error.message}`)
+      throw new Error(`Airtable status lookup failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -251,7 +251,7 @@ export class AirtableService {
 
     } catch (error) {
       console.error('❌ Failed to update submission status:', error)
-      throw new Error(`Status update failed: ${error.message}`)
+      throw new Error(`Status update failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -265,7 +265,7 @@ export class AirtableService {
       'pro': 200,
       'subscription': 0 // Subscription doesn't get bulk directories, it's ongoing maintenance
     }
-    return limits[packageType.toLowerCase()] || 50
+    return limits[packageType.toLowerCase() as keyof typeof limits] || 50
   }
 
   /**

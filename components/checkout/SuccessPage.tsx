@@ -3,6 +3,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
+// Import types
+import type { SuccessPagePlans, SuccessPageAddOns, PackageId, AddOnId } from '../../types/checkout'
+
 interface SuccessPageProps {
   sessionId?: string
   type?: string
@@ -19,7 +22,7 @@ interface CheckoutSession {
   }
   payment_intent: {
     id: string
-    amount: number
+    amount?: number | null
     currency: string
   }
   metadata: {
@@ -121,27 +124,27 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
   const getPackageInfo = () => {
     if (!session?.metadata?.package_id) return null
     
-    const packages = {
+    const packages: SuccessPagePlans = {
       starter: { name: 'Starter', directories: 50, price: 49 },
       growth: { name: 'Growth', directories: 100, price: 89 },
       pro: { name: 'Pro', directories: 200, price: 159 }
     }
     
-    return packages[session.metadata.package_id]
+    return packages[session.metadata.package_id as PackageId]
   }
 
   const getAddOnsList = () => {
     if (!session?.metadata?.add_ons) return []
     
     const addOnIds = session.metadata.add_ons.split(',').filter(Boolean)
-    const addOns = {
+    const addOns: SuccessPageAddOns = {
       fast_track: { name: 'Fast-track Submission', icon: '⚡' },
       premium_directories: { name: 'Premium Directories Only', icon: '👑' },
       manual_qa: { name: 'Manual QA Review', icon: '🔍' },
       csv_export: { name: 'CSV Export', icon: '📊' }
     }
     
-    return addOnIds.map(id => addOns[id]).filter(Boolean)
+    return addOnIds.map(id => addOns[id as AddOnId]).filter(Boolean)
   }
 
   if (loading) {
@@ -221,7 +224,7 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
                   <div className="flex justify-between items-center">
                     <span className="text-secondary-300">Amount Paid:</span>
                     <span className="text-success-400 font-bold text-xl">
-                      ${(session?.payment_intent?.amount / 100).toFixed(2)}
+                      ${((session?.payment_intent?.amount ?? 0) / 100).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">

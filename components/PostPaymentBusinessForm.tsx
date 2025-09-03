@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Transition } from '@headlessui/react'
+import Image from 'next/image'
 
 interface BusinessFormData {
   firstName: string
@@ -660,9 +661,11 @@ export default function PostPaymentBusinessForm({
                 <div className="flex-shrink-0">
                   {logoPreview ? (
                     <div className="relative">
-                      <img 
+                      <Image 
                         src={logoPreview} 
                         alt="Logo preview" 
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded-lg border border-secondary-600"
                       />
                       <button

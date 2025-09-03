@@ -9,8 +9,16 @@ import { SubscriptionOption } from './SubscriptionOption'
 import { OrderSummary } from './OrderSummary'
 import { CheckoutProcessing } from './CheckoutProcessing'
 
+// Type imports
+import type { 
+  DirectoryBoltPackages, 
+  DirectoryBoltAddOns, 
+  PackageId, 
+  AddOnId 
+} from '../../types/checkout'
+
 // DirectoryBolt Package Definitions (Your Exact Pricing)
-export const DIRECTORYBOLT_PACKAGES = {
+export const DIRECTORYBOLT_PACKAGES: DirectoryBoltPackages = {
   starter: {
     id: 'starter',
     name: 'Starter',
@@ -62,7 +70,7 @@ export const DIRECTORYBOLT_PACKAGES = {
   }
 }
 
-export const DIRECTORYBOLT_ADD_ONS = {
+export const DIRECTORYBOLT_ADD_ONS: DirectoryBoltAddOns = {
   fast_track: {
     id: 'fast_track',
     name: 'Fast-track Submission',
@@ -111,8 +119,8 @@ export const SUBSCRIPTION_SERVICE = {
 
 interface CheckoutState {
   step: 'package' | 'addons' | 'subscription' | 'summary' | 'processing'
-  selectedPackage: string | null
-  selectedAddOns: string[]
+  selectedPackage: PackageId | null
+  selectedAddOns: AddOnId[]
   wantsSubscription: boolean
   customerInfo: {
     email: string
@@ -163,7 +171,7 @@ export default function DirectoryBoltCheckout() {
       : 0
 
     const addOnsPrice = checkoutState.selectedAddOns.reduce((total, addOnId) => {
-      return total + (DIRECTORYBOLT_ADD_ONS[addOnId]?.price || 0)
+      return total + (DIRECTORYBOLT_ADD_ONS[addOnId as AddOnId]?.price || 0)
     }, 0)
 
     const subscriptionPrice = checkoutState.wantsSubscription ? SUBSCRIPTION_SERVICE.price : 0
@@ -183,7 +191,7 @@ export default function DirectoryBoltCheckout() {
   const handlePackageSelect = (packageId: string) => {
     setCheckoutState(prev => ({
       ...prev,
-      selectedPackage: packageId,
+      selectedPackage: packageId as PackageId,
       step: 'addons'
     }))
   }
@@ -191,7 +199,7 @@ export default function DirectoryBoltCheckout() {
   const handleAddOnsComplete = (selectedAddOns: string[]) => {
     setCheckoutState(prev => ({
       ...prev,
-      selectedAddOns,
+      selectedAddOns: selectedAddOns as AddOnId[],
       step: 'subscription'
     }))
   }
@@ -335,7 +343,7 @@ export default function DirectoryBoltCheckout() {
               selectedAddOns={checkoutState.selectedAddOns}
               onComplete={handleAddOnsComplete}
               onGoBack={handleGoBack}
-              selectedPackage={DIRECTORYBOLT_PACKAGES[checkoutState.selectedPackage!]}
+              selectedPackage={checkoutState.selectedPackage ? DIRECTORYBOLT_PACKAGES[checkoutState.selectedPackage] : DIRECTORYBOLT_PACKAGES.starter}
             />
           )}
 

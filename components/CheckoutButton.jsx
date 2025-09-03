@@ -253,8 +253,8 @@ const CheckoutButton = ({
       return
     }
 
-    // Show add-on upsell modal if enabled and not free/enterprise plans
-    if (showAddOnUpsell && plan !== 'free' && plan !== 'enterprise') {
+    // Show add-on upsell modal if enabled and not free plan
+    if (showAddOnUpsell && plan !== 'free') {
       setShowAddOnModal(true)
       return
     }
@@ -280,11 +280,7 @@ const CheckoutButton = ({
       return
     }
 
-    // Handle enterprise plan - open email
-    if (plan === 'enterprise') {
-      window.open('mailto:sales@directorybolt.com?subject=Enterprise Plan Inquiry', '_blank')
-      return
-    }
+    // No special handling needed for subscription plan - proceed with normal checkout
 
     try {
       const checkoutPayload = {
@@ -431,18 +427,27 @@ const CheckoutButton = ({
   // Show success state
   if (showSuccess) {
     return (
-      <div className="bg-gradient-to-r from-success-900/30 to-success-800/20 border border-success-500/40 p-6 rounded-xl shadow-lg animate-zoom-in">
+      <div className="bg-gradient-to-r from-success-900/30 to-success-800/20 border border-success-500/40 p-4 sm:p-6 rounded-xl shadow-lg animate-zoom-in">
         <div className="text-center">
-          <div className="text-4xl mb-3">🚀</div>
-          <h3 className="text-success-400 font-bold text-lg mb-2">
-            Checkout Session Created!
+          <div className="text-3xl sm:text-4xl mb-2 sm:mb-3 animate-bounce">🚀</div>
+          <h3 className="text-success-400 font-bold text-base sm:text-lg mb-1 sm:mb-2">
+            Payment Setup Complete!
           </h3>
-          <p className="text-success-300 text-sm mb-4">
-            Redirecting you to secure Stripe payment...
+          <p className="text-success-300 text-xs sm:text-sm mb-3 sm:mb-4">
+            Redirecting to secure Stripe checkout...
           </p>
           <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-success-400 border-t-transparent"></div>
-            <span className="text-success-400 text-sm font-medium">Setting up payment...</span>
+            <div className="relative">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-success-400 border-t-transparent"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-4 w-4 border border-success-400 opacity-20"></div>
+            </div>
+            <span className="text-success-400 text-xs sm:text-sm font-medium">Preparing secure payment...</span>
+          </div>
+          <div className="mt-3 pt-3 border-t border-success-500/30">
+            <p className="text-xs text-success-400/80 flex items-center justify-center gap-2">
+              <span>🔒</span>
+              <span>256-bit SSL encryption • Your data is secure</span>
+            </p>
           </div>
         </div>
       </div>
@@ -458,21 +463,21 @@ const CheckoutButton = ({
         {...props}
       >
         {isLoading ? (
-          <div className="flex items-center justify-center gap-3 min-h-[24px]">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 min-h-[24px]">
             <div className="relative">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent"></div>
-              <div className="absolute inset-0 animate-ping rounded-full h-5 w-5 border border-current opacity-30"></div>
+              <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-current border-t-transparent"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-4 w-4 sm:h-5 sm:w-5 border border-current opacity-30"></div>
             </div>
-            <span className="font-medium">
+            <span className="font-medium text-sm sm:text-base">
               {plan === 'free' ? 'Redirecting...' : 
-               plan === 'enterprise' ? 'Opening email...' : 
-               'Creating secure checkout...'}
+               plan === 'subscription' ? 'Setting up subscription...' :
+               `Setting up ${plan} plan...`}
             </span>
           </div>
         ) : (
           <>
             {children}
-            {plan !== 'free' && plan !== 'enterprise' && (
+            {plan !== 'free' && (
               <span className="ml-2">🚀</span>
             )}
           </>
@@ -589,7 +594,7 @@ export const StartTrialButton = ({ plan = 'growth', addons = [], ...props }) => 
   </CheckoutButton>
 )
 
-export const UpgradeButton = ({ plan = 'professional', size = 'md', addons = [], ...props }) => (
+export const UpgradeButton = ({ plan = 'pro', size = 'md', addons = [], ...props }) => (
   <CheckoutButton
     plan={plan}
     addons={addons}
@@ -613,15 +618,15 @@ export const GetStartedButton = ({ plan = 'free', addons = [], ...props }) => (
   </CheckoutButton>
 )
 
-export const ContactSalesButton = ({ addons = [], ...props }) => (
+export const SubscriptionButton = ({ addons = [], ...props }) => (
   <CheckoutButton
-    plan="enterprise"
+    plan="subscription"
     addons={addons}
-    variant="outline"
+    variant="secondary"
     size="md"
     {...props}
   >
-    Contact Sales
+    Subscribe Monthly
   </CheckoutButton>
 )
 
@@ -661,32 +666,40 @@ export const UpgradePromptButton = ({
 function validateCheckoutRequest(plan, stripeConfigured, configurationStatus) {
   const errors = []
   
-  const validPlans = ['free', 'starter', 'growth', 'professional', 'enterprise']
-  if (!validPlans.includes(plan)) {
-    errors.push(`Invalid plan "${plan}". Valid plans are: ${validPlans.join(', ')}`)
+  // Plan validation with user-friendly messages
+  const validPlans = ['free', 'starter', 'growth', 'pro', 'subscription']
+  if (!plan) {
+    errors.push('Please select a pricing plan to continue')
+  } else if (!validPlans.includes(plan)) {
+    errors.push(`The selected plan "${plan}" is not available. Please choose from: Starter ($49), Growth ($89), Pro ($159), or Subscription ($49/month)`)
   }
   
-  // Skip Stripe validation for free and enterprise plans
-  if (plan === 'free' || plan === 'enterprise') {
+  // Skip Stripe validation for free plan
+  if (plan === 'free') {
     return { errors }
   }
   
-  // Stripe configuration validation
+  // Enhanced Stripe configuration validation with user-friendly messages
   if (stripeConfigured === false && configurationStatus) {
     if (configurationStatus.type === 'error') {
-      errors.push(configurationStatus.message)
+      errors.push('Payment system temporarily unavailable. Please try again in a few minutes or contact support.')
     } else if (configurationStatus.type === 'warning' && process.env.NODE_ENV === 'production') {
-      errors.push('Payment system is not properly configured for production')
+      errors.push('Payment processing is currently under maintenance. Please try again shortly.')
     }
   }
   
-  // Environment validations
+  // Environment validations with clearer messages
   if (typeof window !== 'undefined') {
     // Check if running on localhost without HTTPS (for production builds)
     if (window.location.protocol !== 'https:' && 
         !window.location.hostname.includes('localhost') && 
         !window.location.hostname.includes('127.0.0.1')) {
-      errors.push('Checkout requires HTTPS in production')
+      errors.push('Secure checkout requires HTTPS. Please ensure you\'re accessing the site securely.')
+    }
+    
+    // Check for required browser features
+    if (!window.fetch) {
+      errors.push('Your browser doesn\'t support secure payments. Please update your browser and try again.')
     }
   }
   

@@ -32,17 +32,15 @@ const pricingTiers: PricingTier[] = [
     name: 'Starter',
     price: 49,
     annualPrice: 49,
-    description: '50 directory submissions - Perfect for testing ROI',
+    description: '50 directory submissions',
     directories: 50,
     support: 'Email support',
     features: [
-      '🚀 50 high-authority directories',
-      '⭐ Product Hunt, Crunchbase, G2.com access',
-      '✅ 85%+ approval rates guaranteed',
-      '⚡ Easy-to-medium difficulty only',
+      '🚀 50 directory submissions',
       '📊 Basic analytics dashboard',
       '📧 Email support',
-      '🎯 Focus on easiest high-value wins'
+      '⭐ Product Hunt, Crunchbase submissions included',
+      '✅ 85%+ approval rates'
     ],
     roi: {
       timesSaved: '8-12 hours total submission time',
@@ -57,21 +55,18 @@ const pricingTiers: PricingTier[] = [
     name: 'Growth',
     price: 89,
     annualPrice: 89,
-    description: '100 directory submissions - Most popular choice',
+    description: '100 directory submissions',
     directories: 100,
-    support: 'Priority email & chat',
+    support: 'Priority support',
     highlighted: true,
     popular: true,
     badge: 'MOST POPULAR',
     features: [
-      '🎯 100 premium directories',
-      '🔥 Hacker News, AlternativeTo, GetApp access',
-      '🤖 AI-powered listing optimization',
-      '📈 Advanced competitor analysis',
-      '💬 Priority email & chat support',
-      '📊 Advanced analytics dashboard',
-      '🎨 All AI-specific directories included',
-      '⚡ 40-93 DA range coverage'
+      '🚀 100 directory submissions',
+      '🔥 Hacker News, AlternativeTo submissions included',
+      '🤖 AI optimization for descriptions',
+      '💬 Priority support',
+      '📊 400-600% ROI potential'
     ],
     roi: {
       timesSaved: '15-25 hours total submission time',
@@ -87,18 +82,15 @@ const pricingTiers: PricingTier[] = [
     name: 'Pro',
     price: 159,
     annualPrice: 159,
-    description: '200 directory submissions + pro features',
+    description: '200 directory submissions',
     directories: 200,
-    support: 'Phone & priority support',
+    support: 'Phone support priority',
     features: [
-      '🚀 200 premium directories',
-      '📊 Custom branded analytics',
-      '🔧 API access for integrations',
-      '📞 Phone & priority support',
-      '📈 White-label reporting',
-      '👤 Dedicated account manager',
-      '🎯 30-93 DA range coverage',
-      '⚡ Professional features unlocked'
+      '🚀 200 directory submissions',
+      '🔧 API access for agencies',
+      '📈 White-label reports',
+      '📞 Phone support priority',
+      '📊 600-800% ROI potential'
     ],
     roi: {
       timesSaved: '35-50 hours total submission time',
@@ -114,24 +106,23 @@ const pricingTiers: PricingTier[] = [
     name: 'Subscription',
     price: 49,
     annualPrice: 49,
-    description: 'Monthly automatic updates and resubmissions',
+    description: 'Monthly directory maintenance and resubmissions',
     directories: 0,
-    support: 'Priority support',
+    support: 'Priority support and account management',
     features: [
-      '🔄 Monthly automatic updates',
-      '🚀 Automatic resubmissions',
-      '📊 Monthly performance reports',
-      '💬 Priority support',
-      '🔧 Profile optimization',
-      '📈 Performance tracking',
-      '🛡️ Listing protection',
-      '⚡ Quick response time'
+      '🔄 Monthly directory maintenance and resubmissions',
+      '🚀 Auto-resubmissions when listings expire',
+      '📊 Monthly performance reports and analytics',
+      '🆕 New directory additions as available',
+      '🔧 Profile optimization recommendations',
+      '💬 Priority support and account management',
+      '📈 Ongoing ROI tracking and improvements'
     ],
     roi: {
-      timesSaved: 'Ongoing time savings',
-      visibilityIncrease: 'Maintained visibility',
-      newCustomers: 'Consistent lead flow',
-      roiPercentage: 'Ongoing ROI'
+      timesSaved: 'Ongoing time savings every month',
+      visibilityIncrease: 'Maintained and improved visibility',
+      newCustomers: 'Consistent lead flow optimization',
+      roiPercentage: 'Continuous ROI improvements'
     },
     buttonText: 'Subscribe Monthly',
     buttonStyle: 'bg-gradient-to-r from-success-500 to-success-600 hover:from-success-400 hover:to-success-500 text-white font-black'
@@ -376,13 +367,13 @@ export default function PricingPage() {
                     <div className="w-full space-y-3">
                       <CheckoutButton
                         plan={tier.id}
-                        variant={tier.highlighted ? 'primary' : tier.id === 'enterprise' ? 'outline' : 'secondary'}
+                        variant={tier.highlighted ? 'primary' : 'secondary'}
                         size="lg"
                         className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${tier.buttonStyle} min-h-[48px] sm:min-h-[56px] flex items-center justify-center`}
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
                         customerEmail=""
-                        showAddOnUpsell={tier.id !== 'free' && tier.id !== 'enterprise' && tier.id !== 'subscription'}
+                        showAddOnUpsell={tier.id !== 'free' && tier.id !== 'subscription'}
                         onAddOnsSelected={(addons: any) => {
                           console.log('Add-ons selected for plan:', tier.id, addons)
                           if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -422,7 +413,7 @@ export default function PricingPage() {
                       >
                         {tier.buttonText}
                       </CheckoutButton>
-                      {tier.id !== 'enterprise' && (
+                      {tier.id !== 'free' && (
                         <div className="text-center text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors px-2">
                           <span className="inline-flex items-center gap-1">
                             <span>🔒</span>

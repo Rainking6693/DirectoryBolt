@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-02T18:22:10.368Z",
+  "timestamp": "2025-09-02T22:52:38.153Z",
   "verificationComplete": true,
   "criticalTestsPassed": true,
   "summary": {
@@ -25,7 +25,7 @@
       "description": "50 directory submissions - entry level",
       "success": true,
       "actualAmount": 49,
-      "sessionId": "cs_live_a1esrhOS9xkutniJuGIr0cPleO55rnavaRvYiEThVDHlve0LCxEjMeAD6F"
+      "sessionId": "cs_live_a1kSiQFUKQ715I3EIvLytb3QILPPxrFQpJ1GPlsHijkV93LIMMyRwOZYdY"
     },
     {
       "name": "Growth Plan",
@@ -35,7 +35,7 @@
       "description": "100 directory submissions - most popular",
       "success": true,
       "actualAmount": 89,
-      "sessionId": "cs_live_a14DA7pvNurgN80izVOE16EylxQZw15xnQbtAROn0xwBEU53dzSCuMrHrZ"
+      "sessionId": "cs_live_a1yPI1wgNBVAovZGDg60q4ueL6OxtUzA6LURAiMatXY44DUdtVWX2lXgdN"
     },
     {
       "name": "Pro Plan",
@@ -45,7 +45,7 @@
       "description": "200 directory submissions - advanced features",
       "success": true,
       "actualAmount": 159,
-      "sessionId": "cs_live_a1ObIqABMqqkELKwli806RekkqAqIFIEkoaubggkQq2mosdeVPX1zwizqe"
+      "sessionId": "cs_live_a13k9F7sUQSKHFijZHLVGpBPukzjXkeYWuJWm9ZlCAJIl5H8jI9shJci6G"
     },
     {
       "name": "Subscription Plan",
@@ -56,7 +56,7 @@
       "description": "Monthly maintenance and resubmissions",
       "success": true,
       "actualAmount": 49,
-      "sessionId": "cs_live_a1SUHC3Q3GIhLtUjbfIKIn8JBYHFvQe1MO8ih9AWPGC9dVzDsQwvSBtup4"
+      "sessionId": "cs_live_a1Z9GR9I43GFSlrrWaMzumTvkteVJaxy1JM600gr4uYm6O26Az1fWAn77U"
     },
     {
       "name": "Growth + Fast-track",
@@ -69,7 +69,7 @@
       "description": "Growth plan with priority processing",
       "success": true,
       "actualAmount": 114,
-      "sessionId": "cs_live_b1FcdP3zAyZEqZQ5r4S19bLSg2ygoePVWHv3Hq2IR5VYFlpRMS2IOcGDkV"
+      "sessionId": "cs_live_b185vOKnEJ4Aw1LHAHX23qMPtCA7yFn1hjz9drQve5mCXpsnTdkhuTKNv7"
     },
     {
       "name": "Pro + All Add-ons",
@@ -85,7 +85,7 @@
       "description": "Pro plan with all enhancement add-ons",
       "success": true,
       "actualAmount": 218,
-      "sessionId": "cs_live_b17yrrvB29nfiLPiIn8WcO33mFEpejUzLQUd0YQixUpj2WKxMPDjpIvqHi"
+      "sessionId": "cs_live_b1AHWObq5IN3zzcf7iMbIgXhU8XFdsj4jMNPI7X6yV4ZmNBrgRWmL47FFC"
     },
     {
       "name": "Starter + Premium Directories",
@@ -98,7 +98,7 @@
       "description": "Entry plan with premium directory filter",
       "success": true,
       "actualAmount": 64,
-      "sessionId": "cs_live_b1IEFsdVDsd1zyCuXn6BogQ2qv12Cuzxq7XnifMp5QcFoRHEkaGYaTM6SD"
+      "sessionId": "cs_live_b1reweI6SRATh0NIWFDqkB97hBU8l4IvipSfQMHUnIzVMTJbBiC62q8gEs"
     }
   ],
   "recommendations": [

@@ -1,0 +1,769 @@
+{
+  "summary": {
+    "overview": {
+      "timestamp": "2025-09-03T13:57:07.867Z",
+      "totalTests": 24,
+      "passed": 3,
+      "failed": 15,
+      "warnings": 0,
+      "successRate": "13%"
+    },
+    "criticalIssues": 4,
+    "majorIssues": 10,
+    "minorIssues": 7
+  },
+  "recommendations": [
+    "🚨 CRITICAL: Address all critical issues immediately before deployment",
+    "⚠️ MAJOR: Fix major issues to ensure proper checkout functionality",
+    "📊 SUCCESS RATE: Overall test success rate is below 90% - review all failing tests",
+    "🔧 STABILITY: High number of failed tests indicates system instability"
+  ],
+  "detailedResults": {
+    "timestamp": "2025-09-03T13:57:07.867Z",
+    "summary": {
+      "total": 24,
+      "passed": 3,
+      "failed": 15,
+      "warnings": 0,
+      "warning": null
+    },
+    "tests": [
+      {
+        "test": "Checkout Session Creation - Starter Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.036Z"
+      },
+      {
+        "test": "Checkout Session Creation - Growth Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.046Z"
+      },
+      {
+        "test": "Checkout Session Creation - Pro Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.055Z"
+      },
+      {
+        "test": "Checkout Session Creation - Subscription Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.062Z"
+      },
+      {
+        "test": "Add-on Combination - starter + [fasttrack]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.069Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [premium]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.076Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [qa]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.083Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [fasttrack, premium]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.091Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [fasttrack, premium, qa]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.099Z"
+      },
+      {
+        "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.108Z"
+      },
+      {
+        "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.117Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.125Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.133Z"
+      },
+      {
+        "test": "Success Page Content",
+        "status": "failed",
+        "details": "HTTP 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Success page not accessible",
+            "impact": "Users see error after successful payment"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.141Z"
+      },
+      {
+        "test": "Cancel Page Redirect",
+        "status": "failed",
+        "details": "HTTP 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Cancel redirect not working properly",
+            "impact": "Poor user experience when canceling checkout"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.148Z"
+      },
+      {
+        "test": "Edge Case - Invalid Plan ID",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.156Z"
+      },
+      {
+        "test": "Edge Case - Empty Plan ID",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.163Z"
+      },
+      {
+        "test": "Edge Case - Missing Plan Parameter",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.170Z"
+      },
+      {
+        "test": "Edge Case - Invalid Add-on",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.177Z"
+      },
+      {
+        "test": "Edge Case - Malformed Request Body",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.183Z"
+      },
+      {
+        "test": "Performance Test 1",
+        "status": "passed",
+        "details": "Response time: 7ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.190Z"
+      },
+      {
+        "test": "Performance Test 2",
+        "status": "passed",
+        "details": "Response time: 8ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.198Z"
+      },
+      {
+        "test": "Performance Test 3",
+        "status": "passed",
+        "details": "Response time: 7ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.205Z"
+      },
+      {
+        "test": "Session Details API - Error Handling",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Session details API error handling unclear",
+            "impact": "Success page may not show order details properly"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.346Z"
+      }
+    ],
+    "issues": {
+      "critical": [
+        {
+          "test": "Checkout Session Creation - Starter Plan",
+          "severity": "critical",
+          "message": "HTTP 500",
+          "impact": "Checkout completely broken for this plan"
+        },
+        {
+          "test": "Checkout Session Creation - Growth Plan",
+          "severity": "critical",
+          "message": "HTTP 500",
+          "impact": "Checkout completely broken for this plan"
+        },
+        {
+          "test": "Checkout Session Creation - Pro Plan",
+          "severity": "critical",
+          "message": "HTTP 500",
+          "impact": "Checkout completely broken for this plan"
+        },
+        {
+          "test": "Checkout Session Creation - Subscription Plan",
+          "severity": "critical",
+          "message": "HTTP 500",
+          "impact": "Checkout completely broken for this plan"
+        }
+      ],
+      "major": [
+        {
+          "test": "Add-on Combination - starter + [fasttrack]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - growth + [premium]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - pro + [qa]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - growth + [fasttrack, premium]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - pro + [fasttrack, premium, qa]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - growth + [fasttrack, premium, qa, csv]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Add-on Combination - pro + [fasttrack, premium, qa, csv]",
+          "severity": "major",
+          "message": "Add-on combination failed to create session",
+          "impact": "Customers cannot purchase add-on combinations"
+        },
+        {
+          "test": "Success Page Content",
+          "severity": "major",
+          "message": "Success page not accessible",
+          "impact": "Users see error after successful payment"
+        }
+      ],
+      "minor": [
+        {
+          "test": "Cancel Page Redirect",
+          "severity": "minor",
+          "message": "Cancel redirect not working properly",
+          "impact": "Poor user experience when canceling checkout"
+        },
+        {
+          "test": "Edge Case - Invalid Plan ID",
+          "severity": "minor",
+          "message": "Non-standard error response",
+          "impact": "Error handling could be more consistent"
+        },
+        {
+          "test": "Edge Case - Empty Plan ID",
+          "severity": "minor",
+          "message": "Non-standard error response",
+          "impact": "Error handling could be more consistent"
+        },
+        {
+          "test": "Edge Case - Missing Plan Parameter",
+          "severity": "minor",
+          "message": "Non-standard error response",
+          "impact": "Error handling could be more consistent"
+        },
+        {
+          "test": "Edge Case - Invalid Add-on",
+          "severity": "minor",
+          "message": "Non-standard error response",
+          "impact": "Error handling could be more consistent"
+        },
+        {
+          "test": "Edge Case - Malformed Request Body",
+          "severity": "minor",
+          "message": "Non-standard error response",
+          "impact": "Error handling could be more consistent"
+        },
+        {
+          "test": "Session Details API - Error Handling",
+          "severity": "minor",
+          "message": "Session details API error handling unclear",
+          "impact": "Success page may not show order details properly"
+        }
+      ]
+    }
+  },
+  "testCategories": {
+    "pricingPlans": [
+      {
+        "test": "Checkout Session Creation - Starter Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.036Z"
+      },
+      {
+        "test": "Checkout Session Creation - Growth Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.046Z"
+      },
+      {
+        "test": "Checkout Session Creation - Pro Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.055Z"
+      },
+      {
+        "test": "Checkout Session Creation - Subscription Plan",
+        "status": "failed",
+        "details": "API returned error: 500",
+        "issues": [
+          {
+            "severity": "critical",
+            "message": "HTTP 500",
+            "impact": "Checkout completely broken for this plan"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.062Z"
+      }
+    ],
+    "addonCombinations": [
+      {
+        "test": "Add-on Combination - starter + [fasttrack]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.069Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [premium]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.076Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [qa]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.083Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [fasttrack, premium]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.091Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [fasttrack, premium, qa]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.099Z"
+      },
+      {
+        "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.108Z"
+      },
+      {
+        "test": "Add-on Combination - starter + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.117Z"
+      },
+      {
+        "test": "Add-on Combination - growth + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.125Z"
+      },
+      {
+        "test": "Add-on Combination - pro + [fasttrack, premium, qa, csv]",
+        "status": "failed",
+        "details": "API error: 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Add-on combination failed to create session",
+            "impact": "Customers cannot purchase add-on combinations"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.133Z"
+      }
+    ],
+    "successPages": [
+      {
+        "test": "Success Page Content",
+        "status": "failed",
+        "details": "HTTP 500",
+        "issues": [
+          {
+            "severity": "major",
+            "message": "Success page not accessible",
+            "impact": "Users see error after successful payment"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.141Z"
+      },
+      {
+        "test": "Cancel Page Redirect",
+        "status": "failed",
+        "details": "HTTP 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Cancel redirect not working properly",
+            "impact": "Poor user experience when canceling checkout"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.148Z"
+      }
+    ],
+    "edgeCases": [
+      {
+        "test": "Edge Case - Invalid Plan ID",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.156Z"
+      },
+      {
+        "test": "Edge Case - Empty Plan ID",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.163Z"
+      },
+      {
+        "test": "Edge Case - Missing Plan Parameter",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.170Z"
+      },
+      {
+        "test": "Edge Case - Invalid Add-on",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.177Z"
+      },
+      {
+        "test": "Edge Case - Malformed Request Body",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Non-standard error response",
+            "impact": "Error handling could be more consistent"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.183Z"
+      }
+    ],
+    "performance": [
+      {
+        "test": "Performance Test 1",
+        "status": "passed",
+        "details": "Response time: 7ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.190Z"
+      },
+      {
+        "test": "Performance Test 2",
+        "status": "passed",
+        "details": "Response time: 8ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.198Z"
+      },
+      {
+        "test": "Performance Test 3",
+        "status": "passed",
+        "details": "Response time: 7ms",
+        "issues": [],
+        "timestamp": "2025-09-03T13:57:08.205Z"
+      }
+    ],
+    "sessionAPI": [
+      {
+        "test": "Session Details API - Error Handling",
+        "status": "warning",
+        "details": "Unexpected response: 500",
+        "issues": [
+          {
+            "severity": "minor",
+            "message": "Session details API error handling unclear",
+            "impact": "Success page may not show order details properly"
+          }
+        ],
+        "timestamp": "2025-09-03T13:57:08.346Z"
+      }
+    ]
+  }
+}

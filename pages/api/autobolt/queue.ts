@@ -1,5 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { rateLimit } from '../../../lib/utils/rate-limit'
+import { queueManager } from '../../../lib/services/queue-manager'
+import type { AutoBoltResponse } from '../../../types/api'
+import { createAirtableService } from '../../../lib/services/airtable'
 
 // Rate limiting for AutoBolt API
 const limiter = rateLimit({
@@ -29,22 +32,8 @@ interface QueueSubmissionRequest {
   billingCycle: 'monthly' | 'annual'
 }
 
-interface AutoBoltResponse {
-  success: boolean
-  queueId?: string
-  estimatedCompletion?: string
-  error?: string
-  message?: string
-}
-
-// Mock AutoBolt API configuration
-// TODO: Replace with actual AutoBolt API endpoints from Shane's backend
-const AUTOBOLT_CONFIG = {
-  baseUrl: process.env.AUTOBOLT_API_URL || 'https://api.autobolt.com',
-  apiKey: process.env.AUTOBOLT_API_KEY || 'mock-api-key',
-  customersEndpoint: '/api/customers/register',
-  queueEndpoint: '/api/queue/submit'
-}
+// AutoBolt Queue Integration with Airtable
+// Phase 3, Section 3.1 Implementation
 
 export default async function handler(
   req: NextApiRequest,
@@ -92,39 +81,65 @@ export default async function handler(
       })
     }
 
-    // Create customer record in AutoBolt system
-    const customerRegistration = await registerCustomerWithAutoBolt(customer, paymentData)
+    // Get the customer's Airtable record to ensure they exist and get their customerId
+    const airtableService = createAirtableService()
     
-    if (!customerRegistration.success) {
+    // Find customer by session ID or email
+    let customerRecord
+    if (paymentData.sessionId) {
+      // Try to find by session ID first (more reliable)
+      const allRecords = await airtableService.findByStatus('pending')
+      customerRecord = allRecords.find(record => record.sessionId === paymentData.sessionId)
+    }
+    
+    if (!customerRecord) {
+      // Fallback to email lookup
+      const allRecords = await airtableService.findByStatus('pending')
+      customerRecord = allRecords.find(record => record.email === customer.email)
+    }
+
+    if (!customerRecord) {
       return res.status(400).json({
         success: false,
-        error: `Customer registration failed: ${customerRegistration.error}`
+        error: 'Customer not found in system. Please complete the business information form first.',
+        message: 'Customer must go through payment → business info → queue workflow'
       })
     }
 
-    // Submit to processing queue
-    const queueSubmission = await submitToAutoBoItQueue({
-      customerId: customerRegistration.customerId,
-      customer,
-      package: packageType,
-      categories,
-      paymentData,
-      billingCycle
-    })
-
-    if (!queueSubmission.success) {
-      return res.status(400).json({
+    // Check if customer is already in queue
+    if (customerRecord.submissionStatus !== 'pending') {
+      return res.status(409).json({
         success: false,
-        error: `Queue submission failed: ${queueSubmission.error}`
+        error: `Customer is already ${customerRecord.submissionStatus}`,
+        message: 'Customer has already been processed or is currently in progress'
       })
     }
+
+    // Add to queue for processing (this marks them for AutoBolt processing)
+    console.log(`🔄 Adding customer ${customerRecord.customerId} to AutoBolt processing queue`)
+    
+    // The customer is already in Airtable with 'pending' status
+    // Queue manager will pick them up when processQueue() is called
+    const queueId = `queue-${Date.now()}-${customerRecord.customerId}`
+    
+    // Estimate completion time based on package type
+    const estimatedDays = packageType === 'pro' ? 1 : packageType === 'growth' ? 2 : 3
+    const estimatedCompletion = new Date(Date.now() + estimatedDays * 24 * 60 * 60 * 1000).toISOString()
 
     // Return success response
     return res.status(200).json({
       success: true,
-      queueId: queueSubmission.queueId,
-      estimatedCompletion: queueSubmission.estimatedCompletion,
-      message: 'Successfully added to processing queue'
+      queueId,
+      customerId: customerRecord.customerId,
+      estimatedCompletion,
+      message: 'Customer ready for AutoBolt processing. Processing will begin automatically.',
+      data: {
+        customerId: customerRecord.customerId,
+        businessName: customerRecord.businessName,
+        packageType: customerRecord.packageType,
+        directoryLimit: getDirectoryLimit(customerRecord.packageType),
+        submissionStatus: customerRecord.submissionStatus
+      }
     })
 
   } catch (error) {
@@ -184,166 +199,12 @@ function validateQueueSubmission(data: QueueSubmissionRequest): string | null {
   return null
 }
 
-async function registerCustomerWithAutoBolt(
-  customer: CustomerData,
-  paymentData: { sessionId: string; customerId?: string; subscriptionId?: string }
-): Promise<{ success: boolean; customerId?: string; error?: string }> {
-  
-  // For development/demo purposes, we'll simulate the API call
-  // TODO: Replace with actual AutoBolt API integration
-  if (process.env.NODE_ENV === 'development' || !process.env.AUTOBOLT_API_KEY) {
-    console.log('🔧 [DEV MODE] Simulating AutoBolt customer registration:', {
-      customer: customer.businessName,
-      email: customer.email,
-      sessionId: paymentData.sessionId
-    })
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    return {
-      success: true,
-      customerId: `mock-customer-${Date.now()}`
-    }
+function getDirectoryLimit(packageType: string): number {
+  const limits = {
+    'starter': 50,
+    'growth': 100,
+    'pro': 200,
+    'subscription': 0 // Subscription is ongoing, not bulk
   }
-
-  try {
-    const response = await fetch(`${AUTOBOLT_CONFIG.baseUrl}${AUTOBOLT_CONFIG.customersEndpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AUTOBOLT_CONFIG.apiKey}`,
-        'X-API-Source': 'DirectoryBolt'
-      },
-      body: JSON.stringify({
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        email: customer.email,
-        phone: customer.phone,
-        businessName: customer.businessName,
-        businessWebsite: customer.businessWebsite,
-        businessDescription: customer.businessDescription,
-        paymentData: {
-          sessionId: paymentData.sessionId,
-          customerId: paymentData.customerId,
-          subscriptionId: paymentData.subscriptionId
-        },
-        source: 'DirectoryBolt'
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      return {
-        success: false,
-        error: errorData.message || `HTTP ${response.status}: ${response.statusText}`
-      }
-    }
-
-    const result = await response.json()
-    return {
-      success: true,
-      customerId: result.customerId || result.id
-    }
-
-  } catch (error) {
-    console.error('AutoBolt Customer Registration Error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    }
-  }
-}
-
-async function submitToAutoBoItQueue(data: {
-  customerId: string
-  customer: CustomerData
-  package: string
-  categories: string[]
-  paymentData: { sessionId: string; customerId?: string; subscriptionId?: string }
-  billingCycle: 'monthly' | 'annual'
-}): Promise<{ success: boolean; queueId?: string; estimatedCompletion?: string; error?: string }> {
-
-  // For development/demo purposes, we'll simulate the API call
-  // TODO: Replace with actual AutoBolt API integration
-  if (process.env.NODE_ENV === 'development' || !process.env.AUTOBOLT_API_KEY) {
-    console.log('🔧 [DEV MODE] Simulating AutoBolt queue submission:', {
-      customerId: data.customerId,
-      package: data.package,
-      categories: data.categories,
-      billingCycle: data.billingCycle
-    })
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    const queueId = `queue-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    const estimatedDays = data.package === 'enterprise' ? 1 : data.package === 'professional' ? 2 : 3
-    const estimatedCompletion = new Date(Date.now() + estimatedDays * 24 * 60 * 60 * 1000).toISOString()
-    
-    return {
-      success: true,
-      queueId,
-      estimatedCompletion
-    }
-  }
-
-  try {
-    // Calculate directory count based on package
-    const directoryLimits = {
-      starter: 50,
-      growth: 200,
-      professional: 500,
-      enterprise: 1000 // "Unlimited" but capped for processing
-    }
-
-    const response = await fetch(`${AUTOBOLT_CONFIG.baseUrl}${AUTOBOLT_CONFIG.queueEndpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AUTOBOLT_CONFIG.apiKey}`,
-        'X-API-Source': 'DirectoryBolt'
-      },
-      body: JSON.stringify({
-        customerId: data.customerId,
-        packageType: data.package,
-        directoryCount: directoryLimits[data.package as keyof typeof directoryLimits] || 50,
-        categories: data.categories,
-        priority: data.package === 'enterprise' ? 'high' : data.package === 'professional' ? 'medium' : 'normal',
-        billingCycle: data.billingCycle,
-        businessInfo: {
-          name: data.customer.businessName,
-          website: data.customer.businessWebsite,
-          description: data.customer.businessDescription
-        },
-        paymentReference: {
-          sessionId: data.paymentData.sessionId,
-          subscriptionId: data.paymentData.subscriptionId
-        },
-        source: 'DirectoryBolt'
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      return {
-        success: false,
-        error: errorData.message || `HTTP ${response.status}: ${response.statusText}`
-      }
-    }
-
-    const result = await response.json()
-    return {
-      success: true,
-      queueId: result.queueId || result.id,
-      estimatedCompletion: result.estimatedCompletion
-    }
-
-  } catch (error) {
-    console.error('AutoBolt Queue Submission Error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    }
-  }
+  return limits[packageType?.toLowerCase() as keyof typeof limits] || 50
 }

@@ -16,6 +16,8 @@ interface CustomerData {
   phoneNumber?: string
   selectedPackage: string
   directoryCategories: string[]
+  sessionId?: string
+  queueId?: string
 }
 
 interface OnboardingFlowProps {
@@ -83,7 +85,7 @@ export default function OnboardingFlow({
   })
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | undefined>(undefined)
   const [flowProgress, setFlowProgress] = useState(0)
 
   // Update progress based on current step and completed steps
@@ -99,7 +101,7 @@ export default function OnboardingFlow({
   const handleFormSubmit = async (formData: CustomerData) => {
     try {
       setLoading(true)
-      setError(null)
+      setError(undefined)
 
       // Simulate API call to save customer data
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -274,7 +276,7 @@ export default function OnboardingFlow({
             <p className="text-danger-400">{error}</p>
           </div>
           <button
-            onClick={() => setError(null)}
+            onClick={() => setError(undefined)}
             className="mt-2 text-danger-300 hover:text-danger-200 text-sm underline"
           >
             Dismiss

@@ -95,8 +95,9 @@ export default function LandingPage() {
               <div className="text-3xl font-black text-volt-400 mb-2">$49</div>
               <p className="text-sm text-secondary-300 mb-4">50 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
-                <li>• Product Hunt, Crunchbase</li>
-                <li>• Basic analytics</li>
+                <li>• 50 directory submissions</li>
+                <li>• Product Hunt, Crunchbase included</li>
+                <li>• Basic analytics dashboard</li>
                 <li>• Email support</li>
                 <li>• 85%+ approval rates</li>
               </ul>
@@ -123,10 +124,11 @@ export default function LandingPage() {
               <div className="text-3xl font-black text-volt-400 mb-2">$89</div>
               <p className="text-sm text-secondary-300 mb-4">100 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
-                <li>• Hacker News, AlternativeTo</li>
-                <li>• AI optimization</li>
+                <li>• 100 directory submissions</li>
+                <li>• Hacker News, AlternativeTo included</li>
+                <li>• AI optimization for descriptions</li>
                 <li>• Priority support</li>
-                <li>• 400-600% ROI</li>
+                <li>• 400-600% ROI potential</li>
               </ul>
               <StartTrialButton
                 plan="growth"
@@ -146,10 +148,11 @@ export default function LandingPage() {
               <div className="text-3xl font-black text-volt-400 mb-2">$159</div>
               <p className="text-sm text-secondary-300 mb-4">200 directories</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
-                <li>• API access</li>
+                <li>• 200 directory submissions</li>
+                <li>• API access for agencies</li>
                 <li>• White-label reports</li>
-                <li>• Phone support</li>
-                <li>• 600-800% ROI</li>
+                <li>• Phone support priority</li>
+                <li>• 600-800% ROI potential</li>
               </ul>
               <StartTrialButton
                 plan="pro"
@@ -167,12 +170,13 @@ export default function LandingPage() {
             <div className="text-center">
               <h3 className="text-xl font-bold text-success-300 mb-2">Subscription</h3>
               <div className="text-3xl font-black text-volt-400 mb-2">$49/month</div>
-              <p className="text-sm text-secondary-300 mb-4">Unlimited directories</p>
+              <p className="text-sm text-secondary-300 mb-4">Monthly maintenance</p>
               <ul className="text-xs text-secondary-400 space-y-1 mb-6">
-                <li>• Dedicated support</li>
-                <li>• White-glove service</li>
-                <li>• Custom integration</li>
-                <li>• SLA guarantee</li>
+                <li>• Monthly directory maintenance</li>
+                <li>• Auto-resubmissions when expired</li>
+                <li>• Monthly performance reports</li>
+                <li>• Priority support & management</li>
+                <li>• Ongoing ROI tracking</li>
               </ul>
               <StartTrialButton
                 plan="subscription"
