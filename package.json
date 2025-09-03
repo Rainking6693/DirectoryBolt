@@ -1,32 +1,41 @@
 {
-  "name": "auto-bolt-extension",
-  "version": "1.0.0",
-  "description": "Chrome extension for automated business directory submissions",
-  "main": "background-batch.js",
+  "name": "directorybolt",
+  "version": "2.0.0",
+  "private": true,
   "scripts": {
-    "build": "node scripts/simple-build.js",
-    "validate": "node scripts/simple-validate.js",
-    "version": "node scripts/version-manager.js",
-    "test": "node automated-testing-pipeline.js SMOKE",
-    "test:smoke": "node automated-testing-pipeline.js SMOKE",
-    "test:full": "node automated-testing-pipeline.js FULL_QA",
-    "test:performance": "node automated-testing-pipeline.js PERFORMANCE",
-    "test:health": "node automated-testing-pipeline.js HEALTH_CHECK",
-    "test:comprehensive": "node comprehensive-test-suites.js all",
-    "test:alerts": "node automated-alert-system.js",
-    "qa:run": "npm run test:comprehensive && npm run test:alerts"
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "@next/bundle-analyzer": "^14.0.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "@types/node": "20.8.6",
+    "@types/react": "18.2.28",
+    "@types/react-dom": "18.2.13",
+    "axios": "^1.5.0",
+    "cheerio": "^1.0.0-rc.12",
+    "clsx": "^2.0.0",
+    "next": "14.0.0",
+    "openai": "^4.12.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "stripe": "^13.8.0",
+    "tailwindcss": "^3.3.5",
+    "typescript": "5.2.2",
+    "winston": "^3.10.0"
   },
   "devDependencies": {
-    "archiver": "^5.3.1",
-    "adm-zip": "^0.5.10"
-  },
-  "keywords": [
-    "chrome-extension",
-    "business-directories",
-    "automation",
-    "seo",
-    "local-business"
-  ],
-  "author": "Auto-Bolt Team",
-  "license": "MIT"
+    "@tailwindcss/forms": "^0.5.6",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/cheerio": "^0.22.31",
+    "autoprefixer": "^10.4.16",
+    "eslint": "8.51.0",
+    "eslint-config-next": "14.0.0",
+    "postcss": "^8.4.31"
+  }
 }
