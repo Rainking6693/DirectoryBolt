@@ -45,7 +45,7 @@ const SuccessPage = () => {
       }
       setLoading(false);
     }
-  }, [mounted, router.query]);
+  }, [mounted, router.query, router]);
   
   // Fetch session details to get order information
   const fetchSessionDetails = async (sessionId) => {

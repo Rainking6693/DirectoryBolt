@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Transition } from '@headlessui/react'
 
 export interface ToastProps {
@@ -25,6 +25,15 @@ export function Toast({
 }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true)
 
+  const handleClose = useCallback(() => {
+    setIsVisible(false)
+    setTimeout(() => {
+      if (onClose) {
+        onClose()
+      }
+    }, 300) // Match transition duration
+  }, [onClose])
+
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
@@ -33,16 +42,7 @@ export function Toast({
 
       return () => clearTimeout(timer)
     }
-  }, [duration])
-
-  const handleClose = () => {
-    setIsVisible(false)
-    setTimeout(() => {
-      if (onClose) {
-        onClose()
-      }
-    }, 300) // Match transition duration
-  }
+  }, [duration, handleClose])
 
   const getToastStyles = () => {
     const baseStyles = 'rounded-lg shadow-lg p-4 max-w-md w-full pointer-events-auto'

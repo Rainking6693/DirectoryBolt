@@ -113,7 +113,7 @@ const nextConfig = {
   
   // Environment variables
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    CUSTOM_KEY: process.env.CUSTOM_KEY || 'default-key',
     // Stripe publishable key for client-side access
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },

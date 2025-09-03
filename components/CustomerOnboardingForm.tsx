@@ -129,7 +129,7 @@ export default function CustomerOnboardingForm({
     if (onPackageChange) {
       onPackageChange(formData.selectedPackage)
     }
-  }, [])
+  }, [onPackageChange, formData.selectedPackage])
 
   const validateStep = (step: number): boolean => {
     const errors: {[key: string]: string} = {}
