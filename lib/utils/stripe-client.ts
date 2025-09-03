@@ -24,7 +24,7 @@ export function getStripeClient(): Stripe {
     
     // Create Stripe instance with validated configuration
     stripeInstance = new Stripe(config.secretKey, {
-      apiVersion: '2024-06-20',
+      apiVersion: '2023-08-16',
       typescript: true,
       // Add request timeout and retries for reliability
       timeout: 10000, // 10 second timeout
@@ -35,7 +35,7 @@ export function getStripeClient(): Stripe {
     
     log.info('Stripe client initialized successfully', {
       keyType: config.secretKey.startsWith('sk_live_') ? 'live' : 'test',
-      apiVersion: '2024-06-20',
+      apiVersion: '2023-08-16',
       hasWebhookSecret: !!config.webhookSecret,
       environment: process.env.NODE_ENV
     } as any);

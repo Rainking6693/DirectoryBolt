@@ -287,7 +287,7 @@ class StripeEnvironmentValidator {
 
     try {
       const Stripe = require('stripe');
-      const stripe = new Stripe(secretKey, { apiVersion: '2024-06-20' });
+      const stripe = new Stripe(secretKey, { apiVersion: '2023-08-16' });
 
       // Test API connection by listing customers (limit 1)
       const result = await stripe.customers.list({ limit: 1 });
@@ -328,7 +328,7 @@ class StripeEnvironmentValidator {
 
     try {
       const Stripe = require('stripe');
-      const stripe = new Stripe(secretKey, { apiVersion: '2024-06-20' });
+      const stripe = new Stripe(secretKey, { apiVersion: '2023-08-16' });
 
       let validPrices = 0;
 

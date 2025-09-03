@@ -95,7 +95,7 @@ class StripeProductValidator {
     try {
       const Stripe = require('stripe');
       this.stripe = new Stripe(secretKey, { 
-        apiVersion: '2024-06-20',
+        apiVersion: '2023-08-16',
         timeout: 10000 
       });
 
