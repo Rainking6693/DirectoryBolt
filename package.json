@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "cross-env BUILDING=true NODE_ENV=production next build",
+    "build:netlify": "cross-env BUILDING=true NETLIFY=true NODE_ENV=production next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -58,6 +59,7 @@
     "adm-zip": "^0.5.10",
     "archiver": "^6.0.1",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^7.0.3",
     "eslint": "8.51.0",
     "eslint-config-next": "14.0.0",
     "postcss": "^8.4.31",

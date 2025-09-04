@@ -75,7 +75,7 @@ function getSubscriptionPlans(config) {
         price: 29900,
         directory_limit: 500,
         features: [
-          '500+ directory submissions per month',
+          '480+ directory submissions per month',
           'Enterprise analytics & custom reports',
           'Dedicated account manager',
           'White-label options',
@@ -134,7 +134,7 @@ function getSubscriptionPlans(config) {
       price: 29900,
       directory_limit: 500,
       features: [
-        '500+ directory submissions per month',
+        '480+ directory submissions per month',
         'Enterprise analytics & custom reports',
         'Dedicated account manager',
         'White-label options',
@@ -148,10 +148,21 @@ function getSubscriptionPlans(config) {
 }
 
 export default async function handler(req, res) {
+  // Prevent execution during build time - Next.js static generation fix
+  if (!req || !res || typeof res.status !== 'function') {
+    console.warn('API route called during build time - skipping execution');
+    return { notFound: true };
+  }
+  
   const requestId = `checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  // Set JSON content type header
-  res.setHeader('Content-Type', 'application/json');
+  // Set JSON content type header safely
+  try {
+    res.setHeader('Content-Type', 'application/json');
+  } catch (error) {
+    console.warn('Unable to set headers during build time:', error.message);
+    return { notFound: true };
+  }
   
   // Log incoming request for debugging
   console.log('Checkout session request:', {

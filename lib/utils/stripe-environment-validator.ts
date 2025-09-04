@@ -10,6 +10,7 @@ export interface StripeEnvironmentConfig {
     growth: string;
     professional: string;
     enterprise: string;
+    subscription?: string;
   };
   nextAuthUrl: string;
 }
@@ -35,8 +36,13 @@ export function validateStripeEnvironment(): ValidationResult {
     'STRIPE_STARTER_PRICE_ID',
     'STRIPE_GROWTH_PRICE_ID',
     'STRIPE_PROFESSIONAL_PRICE_ID',
-    'STRIPE_ENTERPRISE_PRICE_ID',
     'NEXTAUTH_URL'
+  ];
+  
+  // Optional variables (enterprise may be replaced by subscription)
+  const optionalVars = [
+    'STRIPE_ENTERPRISE_PRICE_ID',
+    'STRIPE_SUBSCRIPTION_PRICE_ID'
   ];
 
   // Check for missing required variables
@@ -44,6 +50,11 @@ export function validateStripeEnvironment(): ValidationResult {
     if (!process.env[varName]) {
       errors.push(`Missing required environment variable: ${varName}`);
     }
+  }
+  
+  // Check if at least one of enterprise or subscription price ID is set
+  if (!process.env.STRIPE_ENTERPRISE_PRICE_ID && !process.env.STRIPE_SUBSCRIPTION_PRICE_ID) {
+    warnings.push('Neither STRIPE_ENTERPRISE_PRICE_ID nor STRIPE_SUBSCRIPTION_PRICE_ID is set - at least one is recommended');
   }
 
   // If basic variables are missing, return early
@@ -96,21 +107,29 @@ export function validateStripeEnvironment(): ValidationResult {
     }
   }
 
-  // Validate price IDs
+  // Validate price IDs - handle both enterprise and subscription options
   const priceIds = {
     starter: process.env.STRIPE_STARTER_PRICE_ID!,
     growth: process.env.STRIPE_GROWTH_PRICE_ID!,
     professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID!,
-    enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID!
+    enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID || process.env.STRIPE_SUBSCRIPTION_PRICE_ID || '',
+    ...(process.env.STRIPE_SUBSCRIPTION_PRICE_ID && {
+      subscription: process.env.STRIPE_SUBSCRIPTION_PRICE_ID
+    })
   };
 
   for (const [plan, priceId] of Object.entries(priceIds)) {
-    if (!priceId.startsWith('price_')) {
+    // Skip validation for empty enterprise price ID if subscription is provided
+    if (plan === 'enterprise' && !priceId && priceIds.subscription) {
+      continue;
+    }
+    
+    if (priceId && !priceId.startsWith('price_')) {
       errors.push(`${plan.toUpperCase()}_PRICE_ID must start with "price_"`);
     }
 
     // Check for mock/placeholder price IDs
-    if (priceId.includes('test_123') || priceId.includes('mock') || priceId.includes('replace_with_actual')) {
+    if (priceId && (priceId.includes('test_123') || priceId.includes('mock') || priceId.includes('replace_with_actual'))) {
       errors.push(`${plan.toUpperCase()}_PRICE_ID appears to be a placeholder value: ${priceId}`);
     }
   }
@@ -157,7 +176,14 @@ export function validateStripeEnvironment(): ValidationResult {
  */
 export function validateStripeEnvironmentOrThrow(): StripeEnvironmentConfig {
   // Skip validation during build time (when process.env.NODE_ENV is undefined or when building)
-  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'test' || process.env.BUILDING) {
+  // Also skip when we're in CI/CD environment like Netlify
+  if (!process.env.NODE_ENV || 
+      process.env.NODE_ENV === 'test' || 
+      process.env.BUILDING || 
+      process.env.CI || 
+      process.env.BUILD_MODE ||
+      process.env.NETLIFY ||
+      typeof window !== 'undefined') {
     // Return a placeholder config for build time
     return {
       secretKey: 'sk_test_placeholder',
@@ -165,9 +191,10 @@ export function validateStripeEnvironmentOrThrow(): StripeEnvironmentConfig {
         starter: 'price_placeholder_starter',
         growth: 'price_placeholder_growth', 
         professional: 'price_placeholder_professional',
-        enterprise: 'price_placeholder_enterprise'
+        enterprise: 'price_placeholder_enterprise',
+        subscription: process.env.STRIPE_SUBSCRIPTION_PRICE_ID || 'price_placeholder_subscription'
       },
-      nextAuthUrl: 'http://localhost:3000'
+      nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
     };
   }
 

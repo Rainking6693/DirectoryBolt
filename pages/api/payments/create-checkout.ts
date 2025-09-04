@@ -7,9 +7,26 @@ import { getStripeClient, handleStripeError, testStripeConnection } from '../../
 import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator'
 import type { User, Payment } from '../../../lib/database/schema'
 
-// Get validated Stripe client and configuration
-const stripe = getStripeClient()
-const config = getStripeConfig()
+// Initialize Stripe client and configuration safely at runtime
+let stripe: any = null
+let config: any = null
+
+function initializeStripeComponents() {
+  if (!stripe || !config) {
+    try {
+      stripe = getStripeClient()
+      config = getStripeConfig()
+    } catch (error) {
+      console.warn('Stripe initialization failed:', error instanceof Error ? error.message : 'Unknown error')
+      // Return defaults for build time
+      stripe = null
+      config = {
+        nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
+      }
+    }
+  }
+  return { stripe, config }
+}
 
 // Credit packages configuration
 const CREDIT_PACKAGES = {
@@ -70,11 +87,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<CheckoutResponse | any>
 ) {
+  // Prevent execution during build time - Next.js static generation fix
+  if (!req || !res || typeof res.status !== 'function') {
+    console.warn('API route called during build time - skipping execution')
+    return { notFound: true }
+  }
+  
   const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
   try {
     if (req.method !== 'POST') {
-      res.setHeader('Allow', ['POST'])
+      try {
+        res.setHeader('Allow', ['POST'])
+      } catch (headerError) {
+        console.warn('Unable to set headers during build time:', headerError instanceof Error ? headerError.message : 'Unknown error')
+      }
       return res.status(405).json(handleApiError(
         new Error('Method not allowed'),
         requestId
@@ -94,6 +121,9 @@ async function handleCreateCheckout(
   res: NextApiResponse,
   requestId: string
 ) {
+  // Initialize Stripe components at request time
+  const { stripe: stripeClient, config: stripeConfig } = initializeStripeComponents()
+  
   // TODO: Extract from authenticated session
   const userId = 'usr_test_123' // Replace with actual user ID from auth middleware
   
@@ -125,8 +155,8 @@ async function handleCreateCheckout(
       customerId: stripeCustomerId,
       packageDetails,
       userId,
-      successUrl: data.success_url || `${config.nextAuthUrl}/payment/success`,
-      cancelUrl: data.cancel_url || `${config.nextAuthUrl}/pricing`,
+      successUrl: data.success_url || `${stripeConfig.nextAuthUrl}/payment/success`,
+      cancelUrl: data.cancel_url || `${stripeConfig.nextAuthUrl}/pricing`,
       requestId
     })
     

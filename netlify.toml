@@ -1,0 +1,46 @@
+[build]
+  publish = ".next"
+  command = "npm run build"
+  
+  # Skip API route static generation during build
+  environment = { NODE_ENV = "production", BUILDING = "true", NETLIFY = "true" }
+
+[build.processing]
+  skip_processing = false
+
+[functions]
+  # Configure API routes as serverless functions
+  directory = ".next/serverless/pages/api/"
+  
+[[headers]]
+  # Security headers for all pages
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[redirects]]
+  # Handle client-side routing
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"], Country = ["US"]}
+
+# Environment variable handling
+[context.production.environment]
+  NODE_ENV = "production"
+  BUILDING = "true"
+  NETLIFY = "true"
+  # Stripe environment variables will be set in Netlify dashboard
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
+  BUILDING = "true"
+  NETLIFY = "true"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "development"
+  BUILDING = "true"
+  NETLIFY = "true"

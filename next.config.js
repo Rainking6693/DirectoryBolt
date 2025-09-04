@@ -58,6 +58,19 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // Output configuration for better build handling
+  output: 'standalone',
+  
+  // Exclude API routes from static generation to prevent build errors
+  async redirects() {
+    return []
+  },
+  
+  // Configure static generation to exclude API routes
+  async generateBuildId() {
+    return 'build-' + Date.now()
+  },
+  
   // Security headers
   async headers() {
     return [
@@ -84,6 +97,22 @@ const nextConfig = {
   // Experimental features for Node.js compatibility
   experimental: {
     serverComponentsExternalPackages: ['@supabase/supabase-js'],
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@swc/core-linux-x64-gnu',
+        'node_modules/@swc/core-linux-x64-musl',
+        'node_modules/puppeteer/.local-chromium/**/*',
+      ],
+    },
+  },
+  
+  // Prevent static generation of API routes during build
+  trailingSlash: false,
+  
+  // Build-time environment validation and fallbacks
+  env: {
+    NEXT_PUBLIC_ENVIRONMENT: process.env.NODE_ENV || 'development',
+    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
   
   // Keep API routes enabled

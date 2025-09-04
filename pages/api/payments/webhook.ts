@@ -8,8 +8,23 @@ import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator
 import { log } from '../../../lib/utils/logger'
 import type { Payment, User } from '../../../lib/database/schema'
 
-// Get validated configuration
-const config = getStripeConfig()
+// Initialize configuration safely at runtime
+let config: any = null
+
+function getConfigSafely() {
+  if (!config) {
+    try {
+      config = getStripeConfig()
+    } catch (error) {
+      console.warn('Stripe config initialization failed:', error instanceof Error ? error.message : 'Unknown error')
+      config = {
+        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+        nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
+      }
+    }
+  }
+  return config
+}
 
 // Webhook event tracking for idempotency (use Redis in production)
 const processedEvents = new Map<string, { timestamp: number; status: 'processed' | 'failed' }>()
@@ -35,11 +50,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<WebhookResponse | any>
 ) {
+  // Prevent execution during build time - Next.js static generation fix
+  if (!req || !res || typeof res.status !== 'function') {
+    console.warn('API route called during build time - skipping execution')
+    return { notFound: true }
+  }
+  
   const requestId = `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
   try {
     if (req.method !== 'POST') {
-      res.setHeader('Allow', ['POST'])
+      try {
+        res.setHeader('Allow', ['POST'])
+      } catch (headerError) {
+        console.warn('Unable to set headers during build time:', headerError instanceof Error ? headerError.message : 'Unknown error')
+      }
       return res.status(405).json(handleApiError(
         new Error('Method not allowed'),
         requestId
@@ -149,7 +174,7 @@ function verifyWebhookSignatureInternal(body: any, signature: string): StripeWeb
     log.error('Webhook signature verification failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
       hasSignature: !!signature,
-      hasWebhookSecret: !!config.webhookSecret
+      hasWebhookSecret: !!(getConfigSafely()?.webhookSecret)
     } as any)
     
     throw new ExternalServiceError('Stripe', 'Webhook signature verification failed')

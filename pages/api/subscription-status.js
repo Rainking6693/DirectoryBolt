@@ -5,10 +5,19 @@ import Stripe from 'stripe';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { handleApiError, Errors } from '../../lib/utils/errors';
 
-// Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-08-16',
-});
+// Initialize Stripe with secret key - safely handle missing env vars during build
+let stripe = null;
+try {
+  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'undefined') {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-08-16',
+    });
+  } else {
+    console.warn('STRIPE_SECRET_KEY not configured - Stripe client not initialized');
+  }
+} catch (error) {
+  console.warn('Failed to initialize Stripe client:', error.message);
+}
 
 // Subscription plan limits and features
 const SUBSCRIPTION_FEATURES = {
@@ -55,11 +64,21 @@ const SUBSCRIPTION_FEATURES = {
 };
 
 export default async function handler(req, res) {
+  // Prevent execution during build time - Next.js static generation fix
+  if (!req || !res || typeof res.status !== 'function') {
+    console.warn('API route called during build time - skipping execution');
+    return { notFound: true };
+  }
+  
   const requestId = `status_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
     if (req.method !== 'GET') {
-      res.setHeader('Allow', ['GET']);
+      try {
+        res.setHeader('Allow', ['GET']);
+      } catch (headerError) {
+        console.warn('Unable to set headers during build time:', headerError.message);
+      }
       return res.status(405).json(handleApiError(
         new Error('Method not allowed'),
         requestId
@@ -109,7 +128,7 @@ async function handleGetSubscriptionStatus(req, res, requestId) {
     };
 
     // If user has a Stripe subscription, get detailed info
-    if (user.subscription_id && user.stripe_customer_id) {
+    if (user.subscription_id && user.stripe_customer_id && stripe) {
       try {
         const [subscription, customer] = await Promise.all([
           stripe.subscriptions.retrieve(user.subscription_id, {
