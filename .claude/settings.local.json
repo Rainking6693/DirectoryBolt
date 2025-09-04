@@ -8,7 +8,14 @@
       "Bash(./pre-commit)",
       "Bash(./pre-commit.bat)",
       "Bash(where bash)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 30 npm run build)",
+      "Bash(node test-imports.js)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
