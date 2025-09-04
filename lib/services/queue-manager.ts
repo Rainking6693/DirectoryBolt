@@ -47,7 +47,7 @@ export interface QueueStats {
 }
 
 export class QueueManager {
-  private airtableService: ReturnType<typeof createAirtableService>
+  private airtableService: ReturnType<typeof createAirtableService> | null = null
   private isProcessing: boolean = false
   private processingQueue: QueueItem[] = []
   private maxConcurrentProcessing: number = 3
@@ -56,7 +56,17 @@ export class QueueManager {
   private batchDelay: number = 2000 // 2 seconds between batches
 
   constructor() {
-    this.airtableService = createAirtableService()
+    // Lazy load Airtable service to avoid build-time initialization
+  }
+
+  /**
+   * Get or create Airtable service instance (lazy-loaded)
+   */
+  private getAirtableService(): ReturnType<typeof createAirtableService> {
+    if (!this.airtableService) {
+      this.airtableService = createAirtableService()
+    }
+    return this.airtableService
   }
 
   /**
@@ -66,7 +76,7 @@ export class QueueManager {
     try {
       console.log('🔄 Fetching pending submissions from Airtable...')
       
-      const pendingRecords = await this.airtableService.findByStatus('pending')
+      const pendingRecords = await this.getAirtableService().findByStatus('pending')
       
       const queueItems: QueueItem[] = pendingRecords.map(record => {
         const packageType = record.packageType || 'starter'
@@ -148,7 +158,7 @@ export class QueueManager {
     try {
       console.log(`🔄 Updating status for ${customerId} to ${status}`)
       
-      await this.airtableService.updateSubmissionStatus(
+      await this.getAirtableService().updateSubmissionStatus(
         customerId,
         status,
         directoriesSubmitted,
@@ -408,10 +418,10 @@ export class QueueManager {
   async getQueueStats(): Promise<QueueStats> {
     try {
       const [pending, inProgress, completed, failed] = await Promise.all([
-        this.airtableService.findByStatus('pending'),
-        this.airtableService.findByStatus('in-progress'),
-        this.airtableService.findByStatus('completed'),
-        this.airtableService.findByStatus('failed')
+        this.getAirtableService().findByStatus('pending'),
+        this.getAirtableService().findByStatus('in-progress'),
+        this.getAirtableService().findByStatus('completed'),
+        this.getAirtableService().findByStatus('failed')
       ])
 
       return {
@@ -441,7 +451,7 @@ export class QueueManager {
    */
   async processSpecificCustomer(customerId: string): Promise<QueueProcessingResult> {
     try {
-      const record = await this.airtableService.findByCustomerId(customerId)
+      const record = await this.getAirtableService().findByCustomerId(customerId)
       
       if (!record) {
         throw new Error(`Customer ${customerId} not found`)
@@ -494,6 +504,14 @@ export class QueueManager {
   }
 }
 
-// Export singleton instance
-export const queueManager = new QueueManager()
+// Export lazy-loaded singleton instance
+let queueManagerInstance: QueueManager | null = null
+
+export const queueManager = (): QueueManager => {
+  if (!queueManagerInstance) {
+    queueManagerInstance = new QueueManager()
+  }
+  return queueManagerInstance
+}
+
 export default queueManager
