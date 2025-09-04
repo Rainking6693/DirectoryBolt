@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import formidable from 'formidable'
 import { createAirtableService, BusinessSubmissionRecord } from '../../../lib/services/airtable'
 
 interface BusinessSubmission {
@@ -49,10 +48,12 @@ function mapPackageType(stripePackage?: string): 'starter' | 'growth' | 'pro' | 
   }
 }
 
-// Disable bodyParser to handle file uploads
+// Enable standard bodyParser (no file uploads for now)
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
   },
 }
 
@@ -65,47 +66,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Parse form data including file uploads
-    const form = formidable({
-      uploadDir: './uploads',
-      keepExtensions: true,
-      maxFileSize: 5 * 1024 * 1024, // 5MB max file size
-    })
-
-    // Ensure uploads directory exists
-    const fs = await import('fs')
-    if (!fs.existsSync('./uploads')) {
-      fs.mkdirSync('./uploads', { recursive: true })
-    }
-
-    const [fields, files] = await form.parse(req)
-    
-    // Extract form data
+    // Extract form data from request body (no file uploads for now)
     const businessData: BusinessSubmission = {
-      firstName: Array.isArray(fields.firstName) ? fields.firstName[0] : fields.firstName || '',
-      lastName: Array.isArray(fields.lastName) ? fields.lastName[0] : fields.lastName || '',
-      businessName: Array.isArray(fields.businessName) ? fields.businessName[0] : fields.businessName || '',
-      email: Array.isArray(fields.email) ? fields.email[0] : fields.email || '',
-      phone: Array.isArray(fields.phone) ? fields.phone[0] : fields.phone || '',
-      address: Array.isArray(fields.address) ? fields.address[0] : fields.address || '',
-      city: Array.isArray(fields.city) ? fields.city[0] : fields.city || '',
-      state: Array.isArray(fields.state) ? fields.state[0] : fields.state || '',
-      zip: Array.isArray(fields.zip) ? fields.zip[0] : fields.zip || '',
-      website: Array.isArray(fields.website) ? fields.website[0] : fields.website || '',
-      description: Array.isArray(fields.description) ? fields.description[0] : fields.description || '',
-      facebook: Array.isArray(fields.facebook) ? fields.facebook[0] : fields.facebook || '',
-      instagram: Array.isArray(fields.instagram) ? fields.instagram[0] : fields.instagram || '',
-      linkedin: Array.isArray(fields.linkedin) ? fields.linkedin[0] : fields.linkedin || '',
-      sessionId: Array.isArray(fields.sessionId) ? fields.sessionId[0] : fields.sessionId || '',
-      packageType: Array.isArray(fields.packageType) ? fields.packageType[0] : fields.packageType || '',
-      submissionStatus: Array.isArray(fields.submissionStatus) ? fields.submissionStatus[0] : fields.submissionStatus || 'pending',
-      purchaseDate: Array.isArray(fields.purchaseDate) ? fields.purchaseDate[0] : fields.purchaseDate || new Date().toISOString(),
+      firstName: req.body.firstName || '',
+      lastName: req.body.lastName || '',
+      businessName: req.body.businessName || '',
+      email: req.body.email || '',
+      phone: req.body.phone || '',
+      address: req.body.address || '',
+      city: req.body.city || '',
+      state: req.body.state || '',
+      zip: req.body.zip || '',
+      website: req.body.website || '',
+      description: req.body.description || '',
+      facebook: req.body.facebook || '',
+      instagram: req.body.instagram || '',
+      linkedin: req.body.linkedin || '',
+      sessionId: req.body.sessionId || '',
+      packageType: req.body.packageType || '',
+      submissionStatus: req.body.submissionStatus || 'pending',
+      purchaseDate: req.body.purchaseDate || new Date().toISOString(),
     }
 
-    // Handle logo file if uploaded
-    if (files.logo && Array.isArray(files.logo) && files.logo[0]) {
-      businessData.logo = files.logo[0].filepath
-    }
+    // Note: Logo file upload temporarily disabled - can be implemented with base64 or external service
 
     // Initialize Airtable service
     let airtableService

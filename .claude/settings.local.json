@@ -15,7 +15,8 @@
       "Bash(timeout 30 npm run build)",
       "Bash(node test-imports.js)",
       "Bash(npx tsc:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
