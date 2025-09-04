@@ -6,7 +6,9 @@
       "Bash(git --version)",
       "Bash(git add:*)",
       "Bash(./pre-commit)",
-      "Bash(./pre-commit.bat)"
+      "Bash(./pre-commit.bat)",
+      "Bash(where bash)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
