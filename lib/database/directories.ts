@@ -1,3 +1,6 @@
+// Import polyfills first for Node.js 18+ compatibility with undici/supabase
+import '../utils/node-polyfills'
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '../utils/logger'
 import { DirectoryTierManager, DirectoryTierData } from './directory-tiers'

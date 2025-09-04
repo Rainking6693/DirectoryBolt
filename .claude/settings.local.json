@@ -18,7 +18,12 @@
       "Bash(node:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm install:*)",
-      "Bash(timeout 20 npm run build)"
+      "Bash(timeout 20 npm run build)",
+      "Bash(npm audit:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

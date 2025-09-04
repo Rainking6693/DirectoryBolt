@@ -4,6 +4,11 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // Experimental features for Node.js compatibility
+  experimental: {
+    serverComponentsExternalPackages: ['@supabase/supabase-js'],
+  },
+  
   // Keep API routes enabled
   eslint: {
     ignoreDuringBuilds: true,
@@ -33,6 +38,14 @@ const nextConfig = {
         'node:buffer': false,
         'fs/promises': false,
       }
+    }
+
+    // Ensure proper handling of undici in server environment
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push({
+        'undici': 'commonjs undici'
+      })
     }
 
     return config

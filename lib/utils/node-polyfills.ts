@@ -1,7 +1,7 @@
 // Node.js polyfills for browser APIs required by undici/supabase-js
-// This addresses compatibility issues with Node.js 18 and the undici library
+// This addresses compatibility issues with Node.js 18+ and the undici library
 
-// Check if we're in a Node.js environment
+// Ensure polyfills are only applied in Node.js server environment
 if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
   // Polyfill File constructor if it doesn't exist
   if (typeof globalThis.File === 'undefined') {

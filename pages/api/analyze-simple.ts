@@ -1,3 +1,6 @@
+// Import polyfills first to ensure Node.js 18 compatibility with undici/supabase
+import '../../lib/utils/node-polyfills'
+
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 import * as cheerio from 'cheerio'
