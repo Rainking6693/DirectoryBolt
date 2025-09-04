@@ -36,7 +36,7 @@ export interface BusinessSubmissionRecord {
 }
 
 export interface AirtableConfig {
-  apiKey: string
+  accessToken: string  // Personal Access Token (PAT)
   baseId: string
   tableName: string
 }
@@ -46,14 +46,14 @@ export class AirtableService {
   private tableName: string
 
   constructor(config: AirtableConfig) {
-    if (!config.apiKey || !config.baseId || !config.tableName) {
-      throw new Error('Missing required Airtable configuration: apiKey, baseId, or tableName')
+    if (!config.accessToken || !config.baseId || !config.tableName) {
+      throw new Error('Missing required Airtable configuration: accessToken, baseId, or tableName')
     }
 
-    // Configure Airtable
+    // Configure Airtable with Personal Access Token
     Airtable.configure({
       endpointUrl: 'https://api.airtable.com',
-      apiKey: config.apiKey
+      apiKey: config.accessToken  // PAT is passed as apiKey in the SDK
     })
 
     this.base = Airtable.base(config.baseId)
@@ -300,9 +300,9 @@ export class AirtableService {
  */
 export function createAirtableService(): AirtableService {
   const config: AirtableConfig = {
-    apiKey: process.env.AIRTABLE_API_KEY!,
-    baseId: process.env.AIRTABLE_BASE_ID!,
-    tableName: process.env.AIRTABLE_TABLE_NAME || 'Business_Submissions'
+    accessToken: process.env.AIRTABLE_ACCESS_TOKEN || process.env.AIRTABLE_API_KEY!,  // Support both for backwards compat
+    baseId: process.env.AIRTABLE_BASE_ID || 'appZDNMzebkaOkLXo',  // Your base ID
+    tableName: process.env.AIRTABLE_TABLE_NAME || 'Directory Bolt Import.xlsx'  // Your table name
   }
 
   return new AirtableService(config)
