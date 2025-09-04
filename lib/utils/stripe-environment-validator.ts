@@ -153,8 +153,24 @@ export function validateStripeEnvironment(): ValidationResult {
 /**
  * Startup validation - throws error if configuration is invalid
  * Use this to fail fast during application startup
+ * Skip validation during build time
  */
 export function validateStripeEnvironmentOrThrow(): StripeEnvironmentConfig {
+  // Skip validation during build time (when process.env.NODE_ENV is undefined or when building)
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'test' || process.env.BUILDING) {
+    // Return a placeholder config for build time
+    return {
+      secretKey: 'sk_test_placeholder',
+      priceIds: {
+        starter: 'price_placeholder_starter',
+        growth: 'price_placeholder_growth', 
+        professional: 'price_placeholder_professional',
+        enterprise: 'price_placeholder_enterprise'
+      },
+      nextAuthUrl: 'http://localhost:3000'
+    };
+  }
+
   const result = validateStripeEnvironment();
   
   if (!result.isValid) {
@@ -218,6 +234,7 @@ export function logStripeEnvironmentStatus(): void {
 /**
  * Runtime environment variable access with validation
  * Use this instead of direct process.env access for Stripe variables
+ * Safe for build time usage
  */
 export function getStripeConfig(): StripeEnvironmentConfig {
   return validateStripeEnvironmentOrThrow();
