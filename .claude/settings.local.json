@@ -26,7 +26,12 @@
       "Bash(grep:*)",
       "Bash(npx @next/bundle-analyzer:*)",
       "Bash(npx next-sitemap:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(find:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(timeout 120 npm run build)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

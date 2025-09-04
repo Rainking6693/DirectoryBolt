@@ -24,7 +24,7 @@ export default function Pricing() {
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta property="og:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+        <meta property="og:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
         <meta property="og:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -35,7 +35,7 @@ export default function Pricing() {
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta name="twitter:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+        <meta name="twitter:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
         <meta name="twitter:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />

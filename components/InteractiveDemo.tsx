@@ -192,7 +192,7 @@ export function InteractiveDemo({ onNext }: InteractiveDemoProps) {
                 📈 +1,300% More Visibility
               </div>
               <p className="text-lg text-secondary-200">
-                This is what happens when you&apos;re listed in 500+ directories instead of just 3
+                This is what happens when you&apos;re listed in 480+ directories instead of just 3
               </p>
             </div>
           )}

@@ -73,7 +73,7 @@ const PRICING_TIERS = [
     period: 'month', 
     description: 'Complete solution for agencies & enterprises',
     features: [
-      '500+ directory submissions per month',
+      '480+ directory submissions per month',
       'Enterprise analytics & custom dashboards',
       'Dedicated account manager',
       'White-label branding options',

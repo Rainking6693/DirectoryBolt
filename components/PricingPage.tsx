@@ -236,7 +236,7 @@ export default function PricingPage() {
             </h1>
             
             <p className="text-xl md:text-2xl text-secondary-300 mb-8 max-w-4xl mx-auto">
-              Stop losing customers to competitors. Get listed in 500+ directories and 
+              Stop losing customers to competitors. Get listed in 480+ directories and 
               <span className="text-volt-400 font-bold"> dominate local search results</span>
             </p>
           </div>

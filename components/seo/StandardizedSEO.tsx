@@ -102,7 +102,7 @@ export default function StandardizedSEO({
       {/* Open Graph */}
       <meta property="og:type" content={ogType} />
       <meta property="og:title" content="AI Directory Submissions to 500+ Sites" />
-      <meta property="og:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+      <meta property="og:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={finalOgImage} />
       <meta property="og:image:width" content="1200" />
@@ -113,7 +113,7 @@ export default function StandardizedSEO({
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="AI Directory Submissions to 500+ Sites" />
-      <meta name="twitter:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+      <meta name="twitter:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
       <meta name="twitter:image" content={finalOgImage} />
       <meta name="twitter:creator" content={SITE_CONFIG.twitterHandle} />
       <meta name="twitter:site" content={SITE_CONFIG.twitterHandle} />

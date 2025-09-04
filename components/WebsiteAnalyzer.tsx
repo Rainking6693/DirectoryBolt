@@ -210,7 +210,7 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
                   ⚡ Ready to Fix These Issues?
                 </h3>
                 <p className="text-base md:text-lg text-secondary-200 mb-6">
-                  We&apos;ll list your business in 500+ directories and fix all these problems automatically
+                  We&apos;ll list your business in 480+ directories and fix all these problems automatically
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

@@ -85,7 +85,7 @@ const packages: Package[] = [
       { name: 'Dedicated Support', included: false }
     ],
     benefits: [
-      'Submit to 500+ premium directories',
+      'Submit to 480+ premium directories',
       'AI-powered listing optimization',
       'Priority processing queue',
       'Advanced analytics dashboard',
@@ -115,7 +115,7 @@ const packages: Package[] = [
       { name: 'Dedicated Support', included: false }
     ],
     benefits: [
-      'Access to 500+ directory network',
+      'Access to 480+ directory network',
       'Phone support included',
       'API access for integrations',
       'White-label client reports',

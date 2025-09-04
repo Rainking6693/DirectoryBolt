@@ -206,7 +206,7 @@ export default function OnboardingFlow({
         </div>
         
         <p className="text-secondary-300 mb-6">
-          Get your business listed in 500+ directories with our streamlined onboarding process.
+          Get your business listed in 480+ directories with our streamlined onboarding process.
         </p>
 
         {/* Progress Bar */}

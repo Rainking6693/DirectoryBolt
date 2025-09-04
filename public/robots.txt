@@ -1,12 +1,9 @@
+# *
 User-agent: *
 Allow: /
 
-# Block noise
-Disallow: /api/
-Disallow: /_next/
-Disallow: /static/admin/
-Disallow: /*?*utm_*
-Disallow: /*?*session_id=*
+# Host
+Host: https://directorybolt.com
 
-# Make the sitemap discoverable  
+# Sitemaps
 Sitemap: https://directorybolt.com/sitemap.xml

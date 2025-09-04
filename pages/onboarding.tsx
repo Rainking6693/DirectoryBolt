@@ -66,13 +66,13 @@ export default function OnboardingPage() {
     <>
       <Head>
         <title>Get Started - DirectoryBolt Onboarding</title>
-        <meta name="description" content="Complete your DirectoryBolt setup in minutes. Enter your business information, choose a plan, and start getting listed in 500+ directories today." />
+        <meta name="description" content="Complete your DirectoryBolt setup in minutes. Enter your business information, choose a plan, and start getting listed in 480+ directories today." />
         <meta name="robots" content="noindex, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         
         {/* Open Graph */}
         <meta property="og:title" content="DirectoryBolt Onboarding - Get Started Today" />
-        <meta property="og:description" content="Quick setup process to get your business listed in 500+ directories" />
+        <meta property="og:description" content="Quick setup process to get your business listed in 480+ directories" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://directorybolt.com/onboarding" />
         
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
               "mainEntity": {
                 "@type": "Service",
                 "name": "DirectoryBolt Setup Process",
-                "description": "Three-step onboarding process to get your business listed in 500+ directories",
+                "description": "Three-step onboarding process to get your business listed in 480+ directories",
                 "provider": {
                   "@type": "Organization",
                   "name": "DirectoryBolt"
