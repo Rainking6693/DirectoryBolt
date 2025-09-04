@@ -10,11 +10,13 @@
 [[headers]]
   for = "/*"
   [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.airtable.com;"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://www.googletagmanager.com https://airtable.com https://api.airtable.com wss:; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests"
 
 [[headers]]
   for = "/api/*"
@@ -24,6 +26,26 @@
     Access-Control-Allow-Headers = "Content-Type, Authorization, X-Extension-ID"
     Access-Control-Max-Age = "86400"
 
+# SEO redirects - WWW to non-WWW and HTTP to HTTPS (301 for SEO value)
+[[redirects]]
+  from = "https://www.directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+# API redirects
 [[redirects]]
   from = "/api/health"
   to = "/.netlify/functions/health-check"

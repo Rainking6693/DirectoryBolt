@@ -1,0 +1,9 @@
+# Modern browsers that support ES6+, reducing polyfill size
+> 0.5%
+last 2 versions
+not dead
+not ie 11
+not chrome < 70
+not firefox < 70
+not safari < 12
+not edge < 79

@@ -6,6 +6,10 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Improve paint performance */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
   
   body {
@@ -14,6 +18,22 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Improve rendering performance */
+    will-change: scroll-position;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  /* Critical performance improvements */
+  * {
+    /* Enable hardware acceleration for transforms and opacity */
+    transform-style: preserve-3d;
+  }
+
+  /* Optimize images for better loading */
+  img {
+    content-visibility: auto;
+    contain: layout style paint;
   }
 
   /* Focus styles for accessibility */
@@ -46,11 +66,11 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-secondary-900 bg-gradient-to-r from-volt-500 to-volt-600 hover:from-volt-400 hover:to-volt-500 focus:ring-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-secondary-900 bg-gradient-to-r from-volt-500 to-volt-600 hover:from-volt-400 hover:to-volt-500 focus:ring-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 min-h-[48px] min-w-[48px] touch-manipulation;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-volt-500 text-base font-bold rounded-xl text-volt-500 bg-transparent hover:bg-volt-500 hover:text-secondary-900 focus:ring-volt-500 transform hover:scale-105 transition-all duration-300;
+    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-volt-500 text-base font-bold rounded-xl text-volt-500 bg-transparent hover:bg-volt-500 hover:text-secondary-900 focus:ring-volt-500 transform hover:scale-105 transition-all duration-300 min-h-[48px] min-w-[48px] touch-manipulation;
   }
 
   .card {
@@ -58,7 +78,7 @@
   }
 
   .input-field {
-    @apply block w-full px-4 py-3 bg-secondary-900 border-2 border-secondary-600 rounded-xl text-white placeholder-secondary-400 focus:ring-volt-500 focus:border-volt-500 transition-all duration-300;
+    @apply block w-full px-4 py-3 bg-secondary-900 border-2 border-secondary-600 rounded-xl text-white placeholder-secondary-300 focus:ring-volt-500 focus:border-volt-500 transition-all duration-300;
   }
 }
 
@@ -92,6 +112,15 @@
 
   .loading-spin {
     animation: spin 1s linear infinite;
+  }
+
+  /* Accessibility tap targets - 48px minimum */
+  .tap-target {
+    @apply min-h-[48px] min-w-[48px] touch-manipulation;
+  }
+  
+  .tap-target-sm {
+    @apply min-h-[44px] min-w-[44px] touch-manipulation;
   }
 
   /* Enhanced animations for analysis flow */

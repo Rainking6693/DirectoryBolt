@@ -28,13 +28,13 @@ export default function Header({ showBackButton = false }: HeaderProps) {
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               href="/analyze"
-              className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
+              className="text-secondary-300 hover:text-volt-400 transition-colors font-medium tap-target p-2"
             >
               Free Analysis
             </Link>
             <Link 
               href="/pricing"
-              className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
+              className="text-secondary-300 hover:text-volt-400 transition-colors font-medium tap-target p-2"
             >
               Pricing
             </Link>
@@ -52,7 +52,7 @@ export default function Header({ showBackButton = false }: HeaderProps) {
             {showBackButton ? (
               <button
                 onClick={() => router.back()}
-                className="text-secondary-300 hover:text-volt-400 transition-colors font-medium"
+                className="text-secondary-300 hover:text-volt-400 transition-colors font-medium tap-target p-2"
               >
                 ← Back
               </button>

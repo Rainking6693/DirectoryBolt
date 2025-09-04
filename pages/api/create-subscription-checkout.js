@@ -104,7 +104,7 @@ async function handleCreateSubscriptionCheckout(req, res, requestId) {
     customer_id, // Existing customer ID if available
     success_url,
     cancel_url,
-    trial_period_days = 7, // 7-day free trial
+    trial_period_days = 14, // 14-day free trial
     metadata = {}
   } = parsedBody || {};
 

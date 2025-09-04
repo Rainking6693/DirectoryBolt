@@ -94,7 +94,7 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
           customer_id: session.customer.id,
           success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}&type=subscription`,
           cancel_url: `${window.location.origin}/success?session_id=${sessionId}&subscription_cancelled=true`,
-          trial_period_days: 7,
+          trial_period_days: 14,
           metadata: {
             original_package: session.metadata?.package_id || '',
             business_name: session.metadata?.business_name || '',
@@ -338,7 +338,7 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
 
                 <div className="text-center">
                   <p className="text-sm text-secondary-400 mb-6">
-                    Starts after your directory submissions are complete. Cancel anytime. 7-day free trial.
+                    Starts after your directory submissions are complete. Cancel anytime. 14-day free trial.
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">

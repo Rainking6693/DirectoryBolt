@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useCheckout } from '../lib/hooks/useApiCall'
+import { useSecurity, useCSPNonce } from '../lib/hooks/useSecurity'
+import { secureFetch } from '../lib/utils/security'
 import { ErrorDisplay } from './ui/ErrorDisplay'
 import { StripeErrorDisplay } from './ui/StripeErrorDisplay'
 import { SuccessState } from './ui/SuccessState'
@@ -210,6 +212,10 @@ const CheckoutButton = ({
   const [showAddOnModal, setShowAddOnModal] = useState(false)
   const [selectedAddOns, setSelectedAddOns] = useState(addons)
   
+  // Initialize security features
+  useSecurity()
+  const cspNonce = useCSPNonce()
+  
   // Check for debug mode and Stripe configuration on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -303,11 +309,12 @@ const CheckoutButton = ({
         })
       }
       
-      // Use the v3 API endpoint directly for better error handling
-      const response = await fetch('/api/create-checkout-session-v3', {
+      // Use the v3 API endpoint directly for better error handling with secure fetch
+      const response = await secureFetch('/api/create-checkout-session-v3', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(cspNonce && { 'X-CSP-Nonce': cspNonce })
         },
         body: JSON.stringify(checkoutPayload)
       })

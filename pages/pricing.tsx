@@ -6,8 +6,8 @@ export default function Pricing() {
   return (
     <>
       <Head>
-        <title>Pricing Plans - DirectoryBolt | Starting at $49/month</title>
-        <meta name="description" content="Choose your DirectoryBolt plan. Get listed in 500+ directories with guaranteed ROI. Plans starting at $49/month. 14-day free trial, 30-day money-back guarantee." />
+        <title>AI Directory Submissions to 500+ Sites | DirectoryBolt</title>
+        <meta name="description" content="Get listed on 500+ high-authority directories in days, not months. 14-day free trial. Consistent NAP, AI-optimized profiles, real-time tracking." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/pricing" />
@@ -22,21 +22,21 @@ export default function Pricing() {
         <meta name="rating" content="general" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="DirectoryBolt Pricing - Plans Starting at $49/month" />
-        <meta property="og:description" content="Get listed in 500+ directories. Proven 400-800% ROI. 14-day free trial. Choose your growth plan today." />
-        <meta property="og:image" content="https://directorybolt.com/images/pricing-og-image.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="AI Directory Submissions to 500+ Sites" />
+        <meta property="og:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+        <meta property="og:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:url" content="https://directorybolt.com/pricing" />
-        <meta property="og:type" content="website" />
         <meta property="og:locale" content="en_US" />
         <meta property="og:site_name" content="DirectoryBolt" />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="DirectoryBolt Pricing - 500+ Directory Submissions" />
-        <meta name="twitter:description" content="Plans starting at $49/month. Proven ROI. 14-day free trial." />
-        <meta name="twitter:image" content="https://directorybolt.com/images/pricing-twitter-card.jpg" />
+        <meta name="twitter:title" content="AI Directory Submissions to 500+ Sites" />
+        <meta name="twitter:description" content="Automate listings on 500+ directories. 14-day free trial. Money-back guarantee." />
+        <meta name="twitter:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />
         
@@ -160,28 +160,6 @@ export default function Pricing() {
                   }
                 }
               ],
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.9",
-                "reviewCount": "500",
-                "bestRating": "5",
-                "worstRating": "1"
-              },
-              "review": [
-                {
-                  "@type": "Review",
-                  "author": {
-                    "@type": "Person",
-                    "name": "Business Owner"
-                  },
-                  "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "5",
-                    "bestRating": "5"
-                  },
-                  "reviewBody": "DirectoryBolt helped us get listed in hundreds of directories quickly. Our local search visibility increased dramatically."
-                }
-              ]
             })
           }}
         />

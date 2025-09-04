@@ -23,7 +23,10 @@
       "Bash(npm audit:*)",
       "Bash(npm run lint:*)",
       "Bash(npm run type-check:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx @next/bundle-analyzer:*)",
+      "Bash(npx next-sitemap:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
