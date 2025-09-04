@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(.git/hooks/pre-commit)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git --version)",
+      "Bash(git add:*)",
+      "Bash(./pre-commit)",
+      "Bash(./pre-commit.bat)"
     ],
     "deny": [],
     "ask": []
