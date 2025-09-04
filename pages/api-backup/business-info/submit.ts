@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import formidable from 'formidable'
-import fs from 'fs'
 import { createAirtableService, BusinessSubmissionRecord } from '../../../lib/services/airtable'
 
 interface BusinessSubmission {
@@ -74,6 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // Ensure uploads directory exists
+    const fs = await import('fs')
     if (!fs.existsSync('./uploads')) {
       fs.mkdirSync('./uploads', { recursive: true })
     }

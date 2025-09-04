@@ -11,8 +11,6 @@
  * - 3.2.7: Remove "Auto-Bolt On" visual indicator
  */
 
-import fs from 'fs/promises'
-import path from 'path'
 import { BusinessSubmissionRecord } from './airtable'
 
 export interface DirectoryEntry {
@@ -88,11 +86,21 @@ export class AutoBoltExtensionService {
    */
   private async loadDirectoryList(): Promise<void> {
     try {
-      const directoryListPath = path.join(process.cwd(), 'lib', 'data', 'master-directory-list.json')
-      const fileContent = await fs.readFile(directoryListPath, 'utf-8')
-      this.directoryList = JSON.parse(fileContent)
-      
-      console.log(`📂 Loaded ${this.directoryList.length} directories from master list`)
+      // Only perform file operations on the server
+      if (typeof window === 'undefined') {
+        const fs = await import('fs/promises')
+        const path = await import('path')
+        
+        const directoryListPath = path.join(process.cwd(), 'lib', 'data', 'master-directory-list.json')
+        const fileContent = await fs.readFile(directoryListPath, 'utf-8')
+        this.directoryList = JSON.parse(fileContent)
+        
+        console.log(`📂 Loaded ${this.directoryList.length} directories from master list`)
+      } else {
+        // Client-side fallback - empty list or fetch from API
+        console.warn('⚠️ Directory list loading attempted on client-side - using empty list')
+        this.directoryList = []
+      }
     } catch (error) {
       console.error('❌ Failed to load directory list:', error)
       throw new Error(`Directory list loading failed: ${error instanceof Error ? error.message : String(error)}`)

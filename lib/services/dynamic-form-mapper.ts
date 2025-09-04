@@ -9,8 +9,6 @@
  * - 3.3.5: Unmappable site logic
  */
 
-import fs from 'fs/promises'
-import path from 'path'
 import { BusinessSubmissionRecord } from './airtable'
 
 export interface SiteMapping {
@@ -100,31 +98,39 @@ export class DynamicFormMapper {
    */
   private async loadSiteMappings(): Promise<void> {
     try {
-      const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
-      
-      // Try to read directory, create if it doesn't exist
-      let files: string[] = []
-      try {
-        files = await fs.readdir(mappingsDir)
-      } catch (error) {
-        console.log('📁 Site mappings directory not found, creating...')
-        await fs.mkdir(mappingsDir, { recursive: true })
+      // Only perform file operations on the server
+      if (typeof window === 'undefined') {
+        const fs = await import('fs/promises')
+        const path = await import('path')
         
-        // Create initial site mappings from existing directory list
-        await this.createInitialSiteMappings(mappingsDir)
-        files = await fs.readdir(mappingsDir)
-      }
+        const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
+        
+        // Try to read directory, create if it doesn't exist
+        let files: string[] = []
+        try {
+          files = await fs.readdir(mappingsDir)
+        } catch (error) {
+          console.log('📁 Site mappings directory not found, creating...')
+          await fs.mkdir(mappingsDir, { recursive: true })
+          
+          // Create initial site mappings from existing directory list
+          await this.createInitialSiteMappings(mappingsDir, fs, path)
+          files = await fs.readdir(mappingsDir)
+        }
 
-      // Load all mapping files
-      const jsonFiles = files.filter(file => file.endsWith('.json'))
-      
-      for (const file of jsonFiles) {
-        const filePath = path.join(mappingsDir, file)
-        const content = await fs.readFile(filePath, 'utf-8')
-        const mapping: SiteMapping = JSON.parse(content)
+        // Load all mapping files
+        const jsonFiles = files.filter(file => file.endsWith('.json'))
         
-        this.siteMappings.set(mapping.siteId, mapping)
-        console.log(`📂 Loaded mapping for ${mapping.siteName}`)
+        for (const file of jsonFiles) {
+          const filePath = path.join(mappingsDir, file)
+          const content = await fs.readFile(filePath, 'utf-8')
+          const mapping: SiteMapping = JSON.parse(content)
+          
+          this.siteMappings.set(mapping.siteId, mapping)
+          console.log(`📂 Loaded mapping for ${mapping.siteName}`)
+        }
+      } else {
+        console.warn('⚠️ Site mappings loading attempted on client-side - using empty mappings')
       }
 
     } catch (error) {
@@ -136,7 +142,7 @@ export class DynamicFormMapper {
   /**
    * Create initial site mappings from existing master directory list
    */
-  private async createInitialSiteMappings(mappingsDir: string): Promise<void> {
+  private async createInitialSiteMappings(mappingsDir: string, fs: any, path: any): Promise<void> {
     try {
       // Read existing master directory list
       const masterListPath = path.join(process.cwd(), 'lib', 'data', 'master-directory-list.json')
@@ -680,52 +686,60 @@ export class DynamicFormMapper {
    */
   async saveMappingForSite(siteUrl: string, mappings: { [field: string]: string | string[] }): Promise<void> {
     try {
-      const domain = this.extractDomain(siteUrl)
-      const siteId = domain.replace(/[^a-zA-Z0-9]/g, '-')
-      
-      // Check if mapping already exists
-      let existingMapping = this.siteMappings.get(siteId)
-      
-      if (!existingMapping) {
-        // Create new mapping
-        existingMapping = {
-          siteId,
-          siteName: domain,
-          url: siteUrl,
-          submissionUrl: siteUrl,
-          formMappings: {},
-          submitButton: 'button[type="submit"], input[type="submit"]',
-          successIndicators: ['.success', '.thank-you', '.confirmation'],
-          skipConditions: ['.captcha', '.login-required'],
-          difficulty: 'medium',
-          requiresLogin: false,
-          hasCaptcha: false,
-          lastUpdated: new Date().toISOString(),
-          verificationStatus: 'needs-testing'
+      // Only perform file operations on the server
+      if (typeof window === 'undefined') {
+        const fs = await import('fs/promises')
+        const path = await import('path')
+        
+        const domain = this.extractDomain(siteUrl)
+        const siteId = domain.replace(/[^a-zA-Z0-9]/g, '-')
+        
+        // Check if mapping already exists
+        let existingMapping = this.siteMappings.get(siteId)
+        
+        if (!existingMapping) {
+          // Create new mapping
+          existingMapping = {
+            siteId,
+            siteName: domain,
+            url: siteUrl,
+            submissionUrl: siteUrl,
+            formMappings: {},
+            submitButton: 'button[type="submit"], input[type="submit"]',
+            successIndicators: ['.success', '.thank-you', '.confirmation'],
+            skipConditions: ['.captcha', '.login-required'],
+            difficulty: 'medium',
+            requiresLogin: false,
+            hasCaptcha: false,
+            lastUpdated: new Date().toISOString(),
+            verificationStatus: 'needs-testing'
+          }
         }
+
+        // Update mappings - ensure all values are arrays
+        const arrayMappings = Object.entries(mappings).reduce((acc, [key, value]) => {
+          acc[key] = Array.isArray(value) ? value : [value]
+          return acc
+        }, {} as { [businessField: string]: string[] })
+        
+        existingMapping.formMappings = { ...existingMapping.formMappings, ...arrayMappings }
+        existingMapping.lastUpdated = new Date().toISOString()
+        existingMapping.verificationStatus = 'verified'
+
+        // Save to file
+        const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
+        const fileName = `${siteId}.json`
+        const filePath = path.join(mappingsDir, fileName)
+        
+        await fs.writeFile(filePath, JSON.stringify(existingMapping, null, 2))
+        
+        // Update in-memory mapping
+        this.siteMappings.set(siteId, existingMapping)
+
+        console.log(`💾 Saved mapping for ${domain} with ${Object.keys(mappings).length} fields`)
+      } else {
+        console.warn('⚠️ Mapping save attempted on client-side - operation skipped')
       }
-
-      // Update mappings - ensure all values are arrays
-      const arrayMappings = Object.entries(mappings).reduce((acc, [key, value]) => {
-        acc[key] = Array.isArray(value) ? value : [value]
-        return acc
-      }, {} as { [businessField: string]: string[] })
-      
-      existingMapping.formMappings = { ...existingMapping.formMappings, ...arrayMappings }
-      existingMapping.lastUpdated = new Date().toISOString()
-      existingMapping.verificationStatus = 'verified'
-
-      // Save to file
-      const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
-      const fileName = `${siteId}.json`
-      const filePath = path.join(mappingsDir, fileName)
-      
-      await fs.writeFile(filePath, JSON.stringify(existingMapping, null, 2))
-      
-      // Update in-memory mapping
-      this.siteMappings.set(siteId, existingMapping)
-
-      console.log(`💾 Saved mapping for ${domain} with ${Object.keys(mappings).length} fields`)
 
     } catch (error) {
       console.error(`❌ Failed to save mapping for ${siteUrl}:`, error)
@@ -786,12 +800,25 @@ export class DynamicFormMapper {
       mapping.skipConditions.push(`Broken: ${reason}`)
       mapping.lastUpdated = new Date().toISOString()
 
-      // Save updated mapping
-      const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
-      const filePath = path.join(mappingsDir, `${siteId}.json`)
-      await fs.writeFile(filePath, JSON.stringify(mapping, null, 2))
+      // Only perform file operations on the server
+      if (typeof window === 'undefined') {
+        try {
+          const fs = await import('fs/promises')
+          const path = await import('path')
+          
+          // Save updated mapping
+          const mappingsDir = path.join(process.cwd(), 'lib', 'data', 'site-mappings')
+          const filePath = path.join(mappingsDir, `${siteId}.json`)
+          await fs.writeFile(filePath, JSON.stringify(mapping, null, 2))
 
-      console.log(`🚫 Marked ${mapping.siteName} as broken: ${reason}`)
+          console.log(`🚫 Marked ${mapping.siteName} as broken: ${reason}`)
+        } catch (error) {
+          console.error(`❌ Failed to save broken mapping for ${siteId}:`, error)
+        }
+      } else {
+        console.warn('⚠️ Site broken marking attempted on client-side - file not saved')
+        console.log(`🚫 Marked ${mapping.siteName} as broken: ${reason} (in-memory only)`)
+      }
     }
   }
 }
