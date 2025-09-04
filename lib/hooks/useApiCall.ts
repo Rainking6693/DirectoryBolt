@@ -164,18 +164,18 @@ export function useWebsiteAnalysis() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url, options: JSON.stringify(options) }),
+        body: JSON.stringify({ url, options }),
       })
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null)
-        throw new Error(errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+        throw new Error(errorData?.error || `HTTP ${response.status}: ${response.statusText}`)
       }
 
       const data = await response.json()
       
       if (!data.success) {
-        throw new Error(data.error?.message || 'Analysis failed')
+        throw new Error(data.error || 'Analysis failed')
       }
 
       return data.data

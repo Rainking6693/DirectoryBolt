@@ -138,8 +138,10 @@ class ProductionDeployer {
         const testEndpoints = [
             { path: '/', name: 'Homepage' },
             { path: '/pricing', name: 'Pricing Page' },
+            { path: '/analyze', name: 'Website Analysis Page' },
             { path: '/api/health', name: 'Health Check API' },
-            { path: '/api/analyze', name: 'Analyze API (should require POST)' }
+            { path: '/api/analyze', name: 'Analyze API (should require POST)', method: 'GET', expectStatus: [405, 400] },
+            { path: '/api/monitor', name: 'Monitor API', method: 'GET', expectStatus: [200, 401] }
         ];
         
         for (const endpoint of testEndpoints) {
@@ -147,12 +149,14 @@ class ProductionDeployer {
                 this.log(`Testing ${endpoint.name}: ${url}${endpoint.path}`);
                 
                 const response = await fetch(`${url}${endpoint.path}`, {
-                    method: endpoint.path.includes('/api/') ? 'GET' : 'GET',
+                    method: endpoint.method || 'GET',
                     timeout: 10000
                 });
                 
-                if (response.ok || (endpoint.path === '/api/analyze' && response.status === 405)) {
-                    this.log(`✅ ${endpoint.name} is accessible`, 'success');
+                const expectedStatuses = endpoint.expectStatus || [200, 201, 202, 204];
+                
+                if (expectedStatuses.includes(response.status) || response.ok) {
+                    this.log(`✅ ${endpoint.name} is accessible (Status: ${response.status})`, 'success');
                 } else {
                     this.log(`⚠️  ${endpoint.name} returned status: ${response.status}`, 'warning');
                 }
@@ -221,6 +225,17 @@ class ProductionDeployer {
                         console.log(\`❌ Health API test failed: \${error.message}\`);
                     }
                     
+                    // Test website analysis API
+                    try {
+                        const analyzeResponse = await testEndpoint('${url}/api/analyze', 'POST');
+                        console.log(\`✅ Website Analysis API test: Status \${analyzeResponse.status}\`);
+                        if (analyzeResponse.status === 400) {
+                            console.log('✅ API correctly validates requests (returns 400 for missing URL)');
+                        }
+                    } catch (error) {
+                        console.log(\`❌ Website Analysis API test failed: \${error.message}\`);
+                    }
+                    
                     console.log('🎉 Post-deployment tests completed');
                 }
                 
@@ -271,7 +286,10 @@ class ProductionDeployer {
 
 ## Monitoring Endpoints
 - **Health Check**: ${this.deploymentUrl}/api/health
+- **Website Analysis API**: ${this.deploymentUrl}/api/analyze
+- **Monitoring Dashboard**: ${this.deploymentUrl}/api/monitor
 - **Homepage**: ${this.deploymentUrl}/
+- **Analysis Page**: ${this.deploymentUrl}/analyze
 - **Pricing**: ${this.deploymentUrl}/pricing
 
 ## Support

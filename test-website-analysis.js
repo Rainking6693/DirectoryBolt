@@ -1,11 +1,22 @@
 // Quick test script to verify website analysis functionality
-const fetch = require('node-fetch'); // If node-fetch is not available, this will use global fetch in newer Node versions
-
 async function testWebsiteAnalysis() {
+    // Use dynamic import for node-fetch or global fetch if available
+    let fetch;
+    try {
+        if (typeof globalThis.fetch === 'undefined') {
+            const nodeFetch = await import('node-fetch');
+            fetch = nodeFetch.default;
+        } else {
+            fetch = globalThis.fetch;
+        }
+    } catch (error) {
+        console.log('⚠️ Note: Using basic HTTP capabilities (may need node-fetch)');
+        fetch = require('https').get; // Fallback but won't work the same
+    }
     console.log('🔍 Testing Website Analysis API...');
     
     const testUrl = 'https://example.com';
-    const apiUrl = 'http://localhost:3000/api/analyze';
+    const apiUrl = 'http://localhost:3006/api/analyze';
     
     try {
         console.log(`📡 Making request to: ${apiUrl}`);

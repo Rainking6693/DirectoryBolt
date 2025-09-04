@@ -475,7 +475,7 @@ export default function ResultsPage() {
             </div>
             
             <div className="space-y-6">
-              {results.directoryOpportunities?.slice(0, 5).map((dir, index) => (
+              {results.directoryOpportunities?.slice(0, 8).map((dir, index) => (
                 <div 
                   key={index}
                   className="bg-secondary-800/50 backdrop-blur-sm rounded-2xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300 animate-slide-up"
@@ -483,32 +483,37 @@ export default function ResultsPage() {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="flex flex-wrap items-center gap-3 mb-4">
                         <h3 className="text-xl font-bold text-white">{index + 1}. {dir.name}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          dir.submissionDifficulty.toLowerCase() === 'easy' ? 'bg-success-500/20 text-success-300' :
-                          dir.submissionDifficulty.toLowerCase() === 'medium' ? 'bg-volt-500/20 text-volt-300' :
+                          dir.submissionDifficulty?.toLowerCase() === 'easy' ? 'bg-success-500/20 text-success-300' :
+                          dir.submissionDifficulty?.toLowerCase() === 'medium' ? 'bg-volt-500/20 text-volt-300' :
                           'bg-danger-500/20 text-danger-300'
                         }`}>
-                          {dir.submissionDifficulty}
+                          {dir.submissionDifficulty || 'Medium'}
                         </span>
                         <span className="px-3 py-1 bg-volt-500/20 text-volt-300 rounded-full text-xs font-bold">
-                          Authority: {dir.authority}/100
+                          Authority: {dir.authority || 0}/100
                         </span>
+                        {dir.cost !== undefined && (
+                          <span className="px-3 py-1 bg-secondary-700/50 text-secondary-300 rounded-full text-xs font-bold">
+                            {dir.cost === 0 ? 'FREE' : `$${dir.cost}`}
+                          </span>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="bg-secondary-900/30 rounded-lg p-3">
                           <span className="text-sm text-secondary-400">Est. Monthly Traffic:</span>
-                          <div className="text-white font-semibold">{dir.estimatedTraffic.toLocaleString()}</div>
+                          <div className="text-white font-semibold">{(dir.estimatedTraffic || 0).toLocaleString()}</div>
                         </div>
                         <div className="bg-secondary-900/30 rounded-lg p-3">
                           <span className="text-sm text-secondary-400">Authority Score:</span>
-                          <div className="text-white font-semibold">{dir.authority}/100</div>
+                          <div className="text-white font-semibold">{dir.authority || 0}/100</div>
                         </div>
                         <div className="bg-secondary-900/30 rounded-lg p-3">
                           <span className="text-sm text-secondary-400">Submission Cost:</span>
-                          <div className="text-white font-semibold">{dir.cost === 0 ? 'FREE' : `$${dir.cost}`}</div>
+                          <div className="text-white font-semibold">{(dir.cost === 0 || dir.cost === undefined) ? 'FREE' : `$${dir.cost}`}</div>
                         </div>
                       </div>
 
@@ -533,17 +538,28 @@ export default function ResultsPage() {
                     
                     <div className="flex flex-col items-center gap-3 lg:w-48">
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                        dir.cost === 0 
+                        (dir.cost === 0 || dir.cost === undefined)
                           ? 'bg-success-500/20 text-success-400 border-success-500/30' 
                           : 'bg-volt-500/20 text-volt-400 border-volt-500/30'
                       }`}>
-                        {dir.cost === 0 ? '🎯' : '💎'}
+                        {(dir.cost === 0 || dir.cost === undefined) ? '🎯' : '💎'}
                       </div>
                       <span className={`font-bold text-sm ${
-                        dir.cost === 0 ? 'text-success-400' : 'text-volt-400'
+                        (dir.cost === 0 || dir.cost === undefined) ? 'text-success-400' : 'text-volt-400'
                       }`}>
-                        {dir.cost === 0 ? 'FREE' : 'PREMIUM'}
+                        {(dir.cost === 0 || dir.cost === undefined) ? 'FREE' : 'PREMIUM'}
                       </span>
+                      
+                      {/* Priority Indicator */}
+                      <div className="text-xs text-center">
+                        <div className={`px-2 py-1 rounded-full ${
+                          index < 3 ? 'bg-success-500/20 text-success-400' :
+                          index < 6 ? 'bg-volt-500/20 text-volt-400' :
+                          'bg-secondary-700/50 text-secondary-400'
+                        }`}>
+                          {index < 3 ? 'High Priority' : index < 6 ? 'Medium Priority' : 'Consider Later'}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -4,12 +4,17 @@ import { useWebsiteAnalysis } from '../lib/hooks/useApiCall'
 import { ErrorDisplay } from './ui/ErrorDisplay'
 import { LoadingState } from './ui/LoadingState'
 import { SuccessState } from './ui/SuccessState'
+import { AnalysisResultsDisplay } from './analysis/AnalysisResultsDisplay'
+import { ErrorBoundary } from './ui/ErrorBoundary'
 
 interface WebsiteAnalyzerProps {
   onNext: () => void
 }
 
 interface AnalysisResult {
+  title: string
+  description: string
+  seoScore: number
   currentListings: number
   missedOpportunities: number
   competitorAdvantage: number
@@ -20,6 +25,19 @@ interface AnalysisResult {
     title: string
     description: string
     impact: string
+    priority?: number
+  }>
+  recommendations: Array<{
+    action: string
+    impact: string
+    effort: 'low' | 'medium' | 'high'
+  }>
+  directoryOpportunities: Array<{
+    name: string
+    authority: number
+    estimatedTraffic: number
+    submissionDifficulty: string
+    cost?: number
   }>
 }
 
@@ -179,93 +197,44 @@ export function WebsiteAnalyzer({ onNext }: WebsiteAnalyzerProps) {
 
         {/* Analysis Results */}
         {results && showResults && (
-          <div className="animate-slide-up space-y-8">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-danger-900/30 to-danger-800/20 p-4 rounded-xl border border-danger-500/30">
-                <div className="text-2xl font-bold text-danger-400">{results.currentListings}</div>
-                <div className="text-sm text-secondary-400">Current Listings</div>
-              </div>
+          <ErrorBoundary>
+            <div className="animate-slide-up">
+              <AnalysisResultsDisplay 
+                data={results}
+                onUpgrade={onNext}
+              />
               
-              <div className="bg-gradient-to-br from-volt-900/30 to-volt-800/20 p-4 rounded-xl border border-volt-500/30">
-                <div className="text-2xl font-bold text-volt-400">{results.missedOpportunities}</div>
-                <div className="text-sm text-secondary-400">Missed Opportunities</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-danger-900/30 to-danger-800/20 p-4 rounded-xl border border-danger-500/30">
-                <div className="text-2xl font-bold text-danger-400">{results.competitorAdvantage}%</div>
-                <div className="text-sm text-secondary-400">Competitor Advantage</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-success-900/30 to-success-800/20 p-4 rounded-xl border border-success-500/30">
-                <div className="text-2xl font-bold text-success-400">+{results.potentialLeads}</div>
-                <div className="text-sm text-secondary-400">Potential Monthly Leads</div>
-              </div>
-            </div>
-
-            {/* Critical Issues */}
-            <div className="bg-secondary-800 p-6 rounded-xl border border-secondary-700">
-              <h3 className="text-2xl font-bold text-danger-400 mb-6 flex items-center gap-3">
-                🚨 Critical Issues Found
-              </h3>
-              
-              <div className="space-y-4">
-                {results.issues.map((issue: any, index: number) => (
-                  <div
-                    key={index}
-                    className={`p-4 rounded-lg border ${
-                      issue.type === 'critical' 
-                        ? 'bg-danger-900/20 border-danger-500/30' 
-                        : issue.type === 'warning'
-                        ? 'bg-yellow-900/20 border-yellow-500/30'
-                        : 'bg-secondary-700/30 border-secondary-600'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">
-                        {issue.type === 'critical' ? '🔥' : issue.type === 'warning' ? '⚠️' : 'ℹ️'}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-white mb-2">{issue.title}</h4>
-                        <p className="text-secondary-300 mb-2">{issue.description}</p>
-                        <div className="text-sm text-danger-400 font-semibold">💸 Impact: {issue.impact}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Solution CTA */}
-            <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/20 p-8 rounded-xl border border-volt-500/50 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-volt-400 mb-4">
-                ⚡ Ready to Fix These Issues?
-              </h3>
-              <p className="text-lg text-secondary-200 mb-6">
-                We&apos;ll list your business in 500+ directories and fix all these problems automatically
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button 
-                  onClick={onNext}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
-                >
-                  <span className="relative z-10">🚀 Show Me The Directories</span>
-                </button>
+              {/* Solution CTA */}
+              <div className="mt-8 bg-gradient-to-r from-volt-500/20 to-volt-600/20 p-6 md:p-8 rounded-xl border border-volt-500/50 backdrop-blur-sm">
+                <h3 className="text-xl md:text-2xl font-bold text-volt-400 mb-4">
+                  ⚡ Ready to Fix These Issues?
+                </h3>
+                <p className="text-base md:text-lg text-secondary-200 mb-6">
+                  We&apos;ll list your business in 500+ directories and fix all these problems automatically
+                </p>
                 
-                <button 
-                  onClick={() => {
-                    reset()
-                    setShowResults(false)
-                    setWebsite('')
-                  }}
-                  className="px-6 py-3 border-2 border-volt-500 text-volt-500 font-bold rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300"
-                >
-                  🔄 Analyze Another Site
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <button 
+                    onClick={onNext}
+                    className="w-full sm:w-auto group relative px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black text-base md:text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-volt-500/50 animate-glow"
+                  >
+                    <span className="relative z-10">🚀 Show Me The Directories</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      reset()
+                      setShowResults(false)
+                      setWebsite('')
+                    }}
+                    className="w-full sm:w-auto px-6 py-3 border-2 border-volt-500 text-volt-500 font-bold rounded-xl hover:bg-volt-500 hover:text-secondary-900 transform hover:scale-105 transition-all duration-300"
+                  >
+                    🔄 Analyze Another Site
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </ErrorBoundary>
         )}
       </div>
     </div>
