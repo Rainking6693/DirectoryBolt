@@ -129,7 +129,7 @@ export function DocumentUploadInterface({
     if (e.dataTransfer.files) {
       handleFiles(e.dataTransfer.files)
     }
-  }, [])
+  }, [handleFiles])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()

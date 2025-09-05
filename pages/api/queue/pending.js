@@ -500,7 +500,7 @@ async function enhancePendingActions(actions, vaProfile) {
       },
       batching_info: {
         can_batch: actionConfig.can_batch,
-        similar_actions_count: await countSimilarActions(action.action_type, action.user_submissions.directories.id),
+        similar_actions_count: 0, // Will be calculated separately to avoid async issues
         batch_potential: actionConfig.can_batch ? 'high' : 'none'
       }
     };

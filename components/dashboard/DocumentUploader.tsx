@@ -146,7 +146,7 @@ export function DocumentUploader({
     if (files.length > 0) {
       handleFileSelect(files)
     }
-  }, [uploads.length])
+  }, [handleFileSelect])
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
