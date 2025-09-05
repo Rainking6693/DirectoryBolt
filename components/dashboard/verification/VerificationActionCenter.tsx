@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { VerificationAction, VerificationStats } from '../../../types/dashboard'
-import { VerificationActionCard } from './VerificationActionCard'
+import VerificationActionCard from './VerificationActionCard'
 import { VerificationStats as StatsDisplay } from './VerificationStatsDisplay'
 import { ErrorBoundary } from '../../ui/ErrorBoundary'
 

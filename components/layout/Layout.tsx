@@ -8,13 +8,17 @@ interface LayoutProps {
   title?: string
   description?: string
   showBackButton?: boolean
+  backButtonUrl?: string
+  backButtonText?: string
 }
 
 export default function Layout({ 
   children, 
   title = 'DirectoryBolt',
   description = 'AI-powered directory submission service',
-  showBackButton = false
+  showBackButton = false,
+  backButtonUrl,
+  backButtonText
 }: LayoutProps) {
   return (
     <>
@@ -26,6 +30,20 @@ export default function Layout({
       
       <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900">
         <Header showBackButton={showBackButton} />
+        
+        {/* Custom Back Button for dashboard pages */}
+        {showBackButton && backButtonUrl && (
+          <div className="bg-secondary-800/50 border-b border-secondary-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+              <Link 
+                href={backButtonUrl}
+                className="inline-flex items-center gap-2 text-secondary-300 hover:text-volt-400 transition-colors text-sm font-medium"
+              >
+                ← {backButtonText || 'Back'}
+              </Link>
+            </div>
+          </div>
+        )}
 
         <main>{children}</main>
 

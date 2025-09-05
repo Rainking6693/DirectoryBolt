@@ -157,18 +157,52 @@ const generateMockData = (userId: string): DashboardData => {
     actions: [
       {
         id: '1',
-        title: 'Complete Business Verification',
-        description: 'Upload additional documentation to verify your business for Industry Directory XYZ.',
+        title: 'Complete SMS Verification',
+        description: 'Verify your business phone number via SMS code for Industry Directory XYZ.',
         type: 'verification',
         priority: 'high',
         dueDate: '2024-01-25T23:59:59Z',
-        actionUrl: '/dashboard/actions/verify-business',
-        actionText: 'Upload Documents',
+        actionUrl: '/dashboard/actions',
+        actionText: 'Verify Now',
         status: 'pending',
         directoryName: 'Industry Directory XYZ'
       },
       {
         id: '2',
+        title: 'Upload Business Documents',
+        description: 'Submit required business license and tax documentation for Better Business Bureau verification.',
+        type: 'verification',
+        priority: 'high',
+        dueDate: '2024-01-28T23:59:59Z',
+        actionUrl: '/dashboard/actions',
+        actionText: 'Upload Files',
+        status: 'pending',
+        directoryName: 'Better Business Bureau'
+      },
+      {
+        id: '3',
+        title: 'Verify Business Email',
+        description: 'Check your inbox and click the verification link for Local Chamber of Commerce.',
+        type: 'verification',
+        priority: 'medium',
+        actionUrl: '/dashboard/actions',
+        actionText: 'Verify Email',
+        status: 'pending',
+        directoryName: 'Local Chamber of Commerce'
+      },
+      {
+        id: '4',
+        title: 'Schedule Verification Call',
+        description: 'Book a phone call with Regional Business Network to verify your business details.',
+        type: 'verification',
+        priority: 'medium',
+        actionUrl: '/dashboard/actions',
+        actionText: 'Schedule Call',
+        status: 'pending',
+        directoryName: 'Regional Business Network'
+      },
+      {
+        id: '5',
         title: 'Review Yelp Submission',
         description: 'Your Yelp Business listing is pending review. Monitor for approval updates.',
         type: 'approval',
