@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Favicon</title>
+</head>
+<body>
+    <canvas id="canvas" width="180" height="180"></canvas>
+    <a id="download" style="display:none;">Download</a>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const download = document.getElementById('download');
+
+        // Create a simple DirectoryBolt icon - blue background with white "DB"
+        ctx.fillStyle = '#2563eb'; // Blue
+        ctx.fillRect(0, 0, 180, 180);
+        
+        ctx.fillStyle = '#ffffff'; // White text
+        ctx.font = 'bold 60px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('DB', 90, 90);
+
+        // Convert to blob and create download
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            download.href = url;
+            download.download = 'apple-touch-icon.png';
+            download.style.display = 'block';
+            download.textContent = 'Download Apple Touch Icon';
+            
+            // Auto-click to download
+            setTimeout(() => {
+                download.click();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

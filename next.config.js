@@ -14,6 +14,7 @@ try {
 } catch { /* ignore malformed env */ }
 
 const isProd = process.env.NODE_ENV === 'production';
+console.log('🔍 Next.js Config - isProd:', isProd, 'NODE_ENV:', process.env.NODE_ENV);
 
 // === Content Security Policy (CSP) ===
 const csp = [
@@ -28,7 +29,14 @@ const csp = [
   "frame-src https://js.stripe.com https://hooks.stripe.com",
   "object-src 'none'",
   "base-uri 'self'",
+  // Fix Trusted Types CSP error - allow Next.js to work properly in development
+  ...(isProd 
+    ? ["trusted-types nextjs default", "require-trusted-types-for 'script'"]
+    : ["trusted-types *"]  // Allow all trusted types in development
+  )
 ].join('; ');
+
+console.log('🔍 Generated CSP:', csp);
 
 // === Security headers ===
 const securityHeaders = [

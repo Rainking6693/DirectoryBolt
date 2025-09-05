@@ -1,22 +1,27 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Security headers configuration
+// Security headers configuration  
+const isDev = process.env.NODE_ENV !== 'production';
+
 const securityHeaders = {
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+    `script-src 'self' ${isDev ? "'unsafe-eval'" : ""} 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://browser.sentry-cdn.com https://js.sentry-cdn.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://www.googletagmanager.com https://airtable.com https://api.airtable.com wss:",
+    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.airtable.com https://*.sentry.io wss: ws://localhost:3000 ws://localhost:*",
     "frame-src https://js.stripe.com https://hooks.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",
     "upgrade-insecure-requests",
-    "require-trusted-types-for 'script'",
-    "trusted-types 'default' 'nextjs'"
-  ].join('; '),
+    // Fix CSP for development - allow all trusted types in dev, strict in production
+    ...(isDev 
+      ? ["trusted-types *"]
+      : ["require-trusted-types-for 'script'", "trusted-types nextjs default"]
+    )
+  ].filter(Boolean).join('; '),
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Embedder-Policy': 'require-corp',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
