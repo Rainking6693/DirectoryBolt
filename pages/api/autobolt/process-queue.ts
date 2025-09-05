@@ -43,7 +43,7 @@ export default async function handler(
 
   try {
     // Check if queue is already processing
-    if (queueManager.isQueueProcessing()) {
+    if (queueManager().isQueueProcessing()) {
       return res.status(409).json({
         success: false,
         error: 'Queue processing already in progress',
@@ -55,7 +55,7 @@ export default async function handler(
       // Process specific customer
       console.log(`🎯 Processing specific customer: ${customerId}`)
       
-      const result = await queueManager.processSpecificCustomer(customerId)
+      const result = await queueManager().processSpecificCustomer(customerId)
       
       return res.status(200).json({
         success: true,
@@ -74,7 +74,7 @@ export default async function handler(
       console.log('🚀 Starting full queue processing')
       
       // Start processing asynchronously (don't wait for completion)
-      queueManager.processQueue().catch(error => {
+      queueManager().processQueue().catch((error: any) => {
         console.error('❌ Queue processing failed:', error)
       })
 

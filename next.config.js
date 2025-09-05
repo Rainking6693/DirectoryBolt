@@ -59,7 +59,7 @@ const nextConfig = {
   swcMinify: true,
   
   // Output configuration for better build handling
-  output: 'standalone',
+  // Note: Using default output mode to support API routes
   
   // Exclude API routes from static generation to prevent build errors
   async redirects() {
@@ -106,8 +106,6 @@ const nextConfig = {
     },
   },
   
-  // Prevent static generation of API routes during build
-  trailingSlash: false,
   
   // Build-time environment validation and fallbacks
   env: {
@@ -115,13 +113,13 @@ const nextConfig = {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
   
-  // Keep API routes enabled
+  // Build optimization settings
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // Enable linting for better code quality
   },
   
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Enable TypeScript checking
   },
 
   // Webpack configuration to handle Node.js modules and server-only code

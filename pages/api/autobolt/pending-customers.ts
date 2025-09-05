@@ -39,7 +39,7 @@ export default async function handler(
   const { limit, offset } = req.query
 
   try {
-    const pendingQueue = await queueManager.getPendingQueue()
+    const pendingQueue = await queueManager().getPendingQueue()
     
     // Apply pagination if requested
     const limitNum = limit ? parseInt(limit as string, 10) : undefined
@@ -77,7 +77,7 @@ export default async function handler(
         metadata: {
           totalPending: pendingQueue.length,
           lastUpdated: new Date().toISOString(),
-          queueDepth: pendingQueue.reduce((sum, item) => sum + item.directoryLimit, 0)
+          queueDepth: pendingQueue.reduce((sum: number, item: any) => sum + item.directoryLimit, 0)
         }
       }
     })

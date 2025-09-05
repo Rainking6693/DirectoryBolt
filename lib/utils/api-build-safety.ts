@@ -52,14 +52,15 @@ export function withBuildTimeSafety<T = any>(
       // Safe error response
       try {
         if (!res.headersSent) {
-          res.status(500).json({
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: {
               message: 'Internal server error',
               statusCode: 500,
               timestamp: new Date().toISOString()
             }
-          })
+          }
+          res.status(500).json(errorResponse as T)
         }
       } catch (responseError) {
         console.error('Failed to send error response:', responseError)

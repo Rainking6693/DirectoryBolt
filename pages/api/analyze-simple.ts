@@ -318,7 +318,7 @@ export default async function handler(
       seoScore = metadata.seoScore
 
     } catch (error) {
-      console.warn(`Failed to fetch ${url}:`, error.message)
+      console.warn(`Failed to fetch ${url}:`, error instanceof Error ? error.message : 'Unknown error')
       // Continue with fallback data
       title = `Analysis for ${validUrl.hostname}`
       description = 'Website analysis completed with limited data due to access restrictions.'

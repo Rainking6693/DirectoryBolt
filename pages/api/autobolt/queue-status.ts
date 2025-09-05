@@ -37,9 +37,9 @@ export default async function handler(
   }
 
   try {
-    const stats = await queueManager.getQueueStats()
-    const isProcessing = queueManager.isQueueProcessing()
-    const nextCustomer = await queueManager.getNextCustomer()
+    const stats = await queueManager().getQueueStats()
+    const isProcessing = queueManager().isQueueProcessing()
+    const nextCustomer = await queueManager().getNextCustomer()
 
     return res.status(200).json({
       success: true,

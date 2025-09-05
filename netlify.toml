@@ -1,9 +1,13 @@
 [build]
   publish = ".next"
-  command = "npm run build"
+  command = "npm ci && npm run build"
   
   # Skip API route static generation during build
   environment = { NODE_ENV = "production", BUILDING = "true", NETLIFY = "true" }
+
+# Use Netlify's Next.js plugin for proper support
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [build.processing]
   skip_processing = false
@@ -22,11 +26,14 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[redirects]]
-  # Handle client-side routing
+  # Handle client-side routing fallback
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"], Country = ["US"]}
+
+# Node.js version specification
+[build.environment]
+  NODE_VERSION = "20"
 
 # Environment variable handling
 [context.production.environment]
