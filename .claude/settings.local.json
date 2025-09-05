@@ -37,7 +37,8 @@
       "Bash(NODE_ENV=production BUILDING=true NETLIFY=true npm run build)",
       "Bash(git log:*)",
       "WebFetch(domain:directorybolt.com)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
