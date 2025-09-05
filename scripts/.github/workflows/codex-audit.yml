@@ -1,0 +1,47 @@
+name: Codex Audit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read Node version
+        id: nodever
+        run: |
+          if [ -f .nvmrc ]; then
+            echo "version=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+          else
+            echo "version=20" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.nodever.outputs.version }}
+          cache: 'npm'
+      - name: Corepack
+        run: corepack enable || true
+      - name: Install Netlify CLI (optional)
+        run: npm i -g netlify-cli || true
+      - name: Install deps (best effort)
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack prepare pnpm@latest --activate || true
+            pnpm install --frozen-lockfile || pnpm install
+          elif [ -f yarn.lock ]; then
+            corepack prepare yarn@stable --activate || true
+            yarn install --ignore-scripts
+          elif [ -f package-lock.json ]; then
+            npm ci --ignore-scripts || npm install --no-audit --no-fund
+          else
+            echo "No lockfile found; skipping install."
+          fi
+      - name: Run Codex Audit
+        run: node scripts/codex-audit.mjs

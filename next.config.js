@@ -14,9 +14,7 @@ const securityHeaders = [
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "object-src 'none'",
       "base-uri 'self'",
-      "upgrade-insecure-requests",
-      "require-trusted-types-for 'script'",
-      "trusted-types 'default' 'nextjs'"
+      "upgrade-insecure-requests"
     ].join('; ')
   },
   {
