@@ -31,7 +31,11 @@
       "Bash(python:*)",
       "Bash(pip install:*)",
       "Bash(timeout 120 npm run build)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(npm:*)",
+      "Bash(cross-env NODE_ENV=production BUILDING=true NETLIFY=true npm run build)",
+      "Bash(NODE_ENV=production BUILDING=true NETLIFY=true npm run build)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
