@@ -17,20 +17,30 @@ const isProd = process.env.NODE_ENV === 'production';
 console.log('🔍 Next.js Config - isProd:', isProd, 'NODE_ENV:', process.env.NODE_ENV);
 
 // === Content Security Policy (CSP) ===
-const csp = [
+// More permissive in development, strict in production
+const csp = isProd ? [
   "default-src 'self'",
-  // Allow GA/GTM/Stripe/Sentry. Keep 'unsafe-eval' only in dev.
-  `script-src 'self' ${isProd ? '' : "'unsafe-eval'"} 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://browser.sentry-cdn.com https://js.sentry-cdn.com`,
+  "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: https: blob:",
-  // Connect targets: Stripe, GA4 (incl. regional), GTM, Airtable, Supabase, Sentry, dev websockets
-  `connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.airtable.com ${SUPABASE_ORIGIN} ${SUPABASE_WS} https://*.sentry.io wss: ws://localhost:3000 ws://localhost:*`,
+  `connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.airtable.com ${SUPABASE_ORIGIN} ${SUPABASE_WS} https://*.sentry.io`,
   "frame-src https://js.stripe.com https://hooks.stripe.com",
   "object-src 'none'",
   "base-uri 'self'",
-  // ✅ Allow Trusted Types policies used by Next.js and Google
-  "trusted-types 'allow-duplicates' nextjs nextjs#bundler goog#html"
+  "trusted-types 'allow-duplicates'"
+].join('; ') : [
+  // Development mode - more permissive for Next.js dev server
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: https: blob:",
+  `connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://www.googletagmanager.com https://api.airtable.com ${SUPABASE_ORIGIN} ${SUPABASE_WS} wss: ws://localhost:* ws://127.0.0.1:*`,
+  "frame-src https://js.stripe.com https://hooks.stripe.com",
+  "object-src 'none'",
+  "base-uri 'self'"
+  // No trusted-types in development to avoid conflicts
 ].join('; ');
 
 const nextConfig = {
@@ -154,39 +164,45 @@ const nextConfig = {
   
   // Security headers - Enhanced for production with CSP
   async headers() {
+    const securityHeaders = [
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+      },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'origin-when-cross-origin',
+      },
+      {
+        key: 'X-XSS-Protection',
+        value: '1; mode=block',
+      },
+    ]
+
+    // Add CSP only in production
+    if (isProd) {
+      securityHeaders.push({
+        key: 'Content-Security-Policy',
+        value: csp,
+      })
+      securityHeaders.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      })
+      securityHeaders.push({
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()',
+      })
+    }
+
     return [
       {
         source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: csp,
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-        ],
+        headers: securityHeaders,
       },
       // Static assets caching
       {
