@@ -1,0 +1,188 @@
+{
+  "timestamp": "2025-09-05T14:44:30.203Z",
+  "overall": {
+    "healthy": false,
+    "healthyEndpoints": 0,
+    "totalEndpoints": 7,
+    "healthPercentage": 0,
+    "avgResponseTime": 598
+  },
+  "endpoints": [
+    {
+      "path": "/",
+      "url": "https://directorybolt.com/",
+      "status": 200,
+      "responseTime": 819,
+      "timestamp": "2025-09-05T14:44:26.658Z",
+      "success": true,
+      "contentLength": 35458,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/pricing",
+      "url": "https://directorybolt.com/pricing",
+      "status": 200,
+      "responseTime": 426,
+      "timestamp": "2025-09-05T14:44:27.150Z",
+      "success": true,
+      "contentLength": 73383,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/onboarding",
+      "url": "https://directorybolt.com/onboarding",
+      "status": 200,
+      "responseTime": 237,
+      "timestamp": "2025-09-05T14:44:27.433Z",
+      "success": true,
+      "contentLength": 30762,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/health",
+      "url": "https://directorybolt.com/api/health",
+      "status": 502,
+      "responseTime": 658,
+      "timestamp": "2025-09-05T14:44:28.094Z",
+      "success": false,
+      "contentLength": 68,
+      "hasRawJavaScript": false,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/test",
+      "url": "https://directorybolt.com/api/test",
+      "status": 200,
+      "responseTime": 1359,
+      "timestamp": "2025-09-05T14:44:29.454Z",
+      "success": true,
+      "contentLength": 34,
+      "hasRawJavaScript": false,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/monitor/deployment",
+      "url": "https://directorybolt.com/api/monitor/deployment",
+      "status": 404,
+      "responseTime": 459,
+      "timestamp": "2025-09-05T14:44:29.947Z",
+      "success": false,
+      "contentLength": 19840,
+      "hasRawJavaScript": true,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/monitor/rendering",
+      "url": "https://directorybolt.com/api/monitor/rendering",
+      "status": 404,
+      "responseTime": 229,
+      "timestamp": "2025-09-05T14:44:30.202Z",
+      "success": false,
+      "contentLength": 19840,
+      "hasRawJavaScript": true,
+      "hasReactElements": false,
+      "isHealthy": false
+    }
+  ],
+  "errors": [
+    {
+      "path": "/",
+      "url": "https://directorybolt.com/",
+      "status": 200,
+      "responseTime": 819,
+      "timestamp": "2025-09-05T14:44:26.658Z",
+      "success": true,
+      "contentLength": 35458,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/pricing",
+      "url": "https://directorybolt.com/pricing",
+      "status": 200,
+      "responseTime": 426,
+      "timestamp": "2025-09-05T14:44:27.150Z",
+      "success": true,
+      "contentLength": 73383,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/onboarding",
+      "url": "https://directorybolt.com/onboarding",
+      "status": 200,
+      "responseTime": 237,
+      "timestamp": "2025-09-05T14:44:27.433Z",
+      "success": true,
+      "contentLength": 30762,
+      "hasRawJavaScript": true,
+      "hasReactElements": true,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/health",
+      "url": "https://directorybolt.com/api/health",
+      "status": 502,
+      "responseTime": 658,
+      "timestamp": "2025-09-05T14:44:28.094Z",
+      "success": false,
+      "contentLength": 68,
+      "hasRawJavaScript": false,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/test",
+      "url": "https://directorybolt.com/api/test",
+      "status": 200,
+      "responseTime": 1359,
+      "timestamp": "2025-09-05T14:44:29.454Z",
+      "success": true,
+      "contentLength": 34,
+      "hasRawJavaScript": false,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/monitor/deployment",
+      "url": "https://directorybolt.com/api/monitor/deployment",
+      "status": 404,
+      "responseTime": 459,
+      "timestamp": "2025-09-05T14:44:29.947Z",
+      "success": false,
+      "contentLength": 19840,
+      "hasRawJavaScript": true,
+      "hasReactElements": false,
+      "isHealthy": false
+    },
+    {
+      "path": "/api/monitor/rendering",
+      "url": "https://directorybolt.com/api/monitor/rendering",
+      "status": 404,
+      "responseTime": 229,
+      "timestamp": "2025-09-05T14:44:30.202Z",
+      "success": false,
+      "contentLength": 19840,
+      "hasRawJavaScript": true,
+      "hasReactElements": false,
+      "isHealthy": false
+    }
+  ],
+  "recommendations": [
+    "Check Netlify deployment logs for build errors",
+    "Raw JavaScript detected - check Next.js configuration",
+    "Verify @netlify/plugin-nextjs is properly configured",
+    "502 errors detected - check API routes and serverless functions"
+  ]
+}
