@@ -30,7 +30,7 @@ const csp = [
   "object-src 'none'",
   "base-uri 'self'",
   // ✅ Allow Trusted Types policies used by Next.js and Google
-  "trusted-types nextjs nextjs#bundler goog#html"
+  "trusted-types 'allow-duplicates' nextjs nextjs#bundler goog#html"
 ].join('; ');
 
 const nextConfig = {
