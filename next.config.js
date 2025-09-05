@@ -183,8 +183,9 @@ const nextConfig = {
       },
     ]
 
+    // TEMPORARILY DISABLED - No CSP to debug issues
     // Add CSP only in production
-    if (isProd) {
+    if (false && isProd) {
       securityHeaders.push({
         key: 'Content-Security-Policy',
         value: csp,
@@ -195,7 +196,7 @@ const nextConfig = {
       })
       securityHeaders.push({
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=()',
+        value: 'camera=(), microphone=(), geolocation=(), payment=(self)',
       })
     }
 

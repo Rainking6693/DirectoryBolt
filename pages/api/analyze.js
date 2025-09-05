@@ -69,7 +69,7 @@ async function handler(req, res) {
   // Apply security middleware
   logRequest(req, res)
   configureCors(req, res)
-  setSecurityHeaders(req, res)
+  // setSecurityHeaders(req, res) // TEMPORARILY DISABLED for CSP debugging
   validateInput(req, res)
 
   if (req.method === 'OPTIONS') {

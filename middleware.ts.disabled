@@ -4,23 +4,26 @@ import type { NextRequest } from 'next/server'
 // Security headers configuration  
 const isDev = process.env.NODE_ENV !== 'production';
 
-const securityHeaders = {
+// Basic security headers (no CSP in development to avoid conflicts)
+const securityHeaders = isDev ? {
+  // Development mode - minimal headers to avoid CSP conflicts
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'X-XSS-Protection': '1; mode=block',
+} : {
+  // Production mode - full security headers
   'Content-Security-Policy': [
     "default-src 'self'",
-    `script-src 'self' ${isDev ? "'unsafe-eval'" : ""} 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://browser.sentry-cdn.com https://js.sentry-cdn.com`,
+    "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://browser.sentry-cdn.com https://js.sentry-cdn.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.airtable.com https://*.sentry.io wss: ws://localhost:3000 ws://localhost:*",
+    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.airtable.com https://*.sentry.io",
     "frame-src https://js.stripe.com https://hooks.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",
     "upgrade-insecure-requests",
-    // Fix CSP for development - allow all trusted types in dev, strict in production
-    ...(isDev 
-      ? ["trusted-types *"]
-      : ["require-trusted-types-for 'script'", "trusted-types nextjs default"]
-    )
+    "trusted-types 'allow-duplicates'"
   ].filter(Boolean).join('; '),
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Embedder-Policy': 'require-corp',
@@ -33,6 +36,11 @@ const securityHeaders = {
 }
 
 export function middleware(request: NextRequest) {
+  // TEMPORARILY DISABLED - No headers in development to debug CSP issues
+  if (process.env.NODE_ENV !== 'production') {
+    return NextResponse.next()
+  }
+
   // Create response
   const response = NextResponse.next()
 
