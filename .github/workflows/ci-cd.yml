@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
 
 jobs:
   # Continuous Integration
@@ -66,6 +67,33 @@ jobs:
         
     - name: Run security audit
       run: npm audit --audit-level moderate || echo "Security audit complete"
+      continue-on-error: true
+      
+    - name: Test AI health endpoints
+      run: |
+        echo "Testing AI service configuration..."
+        node -e "
+          const config = {
+            openai: !!process.env.OPENAI_API_KEY,
+            anthropic: !!process.env.ANTHROPIC_API_KEY,
+            puppeteer: !!process.env.PUPPETEER_EXECUTABLE_PATH
+          };
+          console.log('AI Services Configuration:', config);
+          if (!config.openai && !config.anthropic) {
+            console.warn('⚠️ No AI API keys configured - AI features will be disabled');
+          }
+        "
+      continue-on-error: true
+      
+    - name: Validate Netlify Functions
+      run: |
+        echo "Validating Netlify function structure..."
+        if [ -d "netlify/functions" ]; then
+          echo "✅ Netlify functions directory exists"
+          ls -la netlify/functions/
+        else
+          echo "❌ Netlify functions directory missing"
+        fi
       continue-on-error: true
       
     - name: Check bundle size

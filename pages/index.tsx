@@ -6,16 +6,16 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>AI Directory Submissions to 500+ Sites | DirectoryBolt</title>
-        <meta name="description" content="Get listed on 500+ high-authority directories in days, not months. 14-day free trial. Consistent NAP, AI-optimized profiles, real-time tracking." />
+        <title>AI Business Intelligence Platform - Replace Your Marketing Stack | DirectoryBolt</title>
+        <meta name="description" content="Get $4,300 worth of business intelligence for $299 ONE-TIME. AI market analysis, competitor insights, and 500+ premium directories. Save 93% vs. consultants." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/" />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta property="og:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
+        <meta property="og:title" content="AI Business Intelligence Platform - Save 93% vs. Consultant Projects" />
+        <meta property="og:description" content="Get $4,300 worth of business intelligence for $299 ONE-TIME. Own your intelligence forever vs. expensive consultant project fees." />
         <meta property="og:url" content="https://directorybolt.com/" />
         <meta property="og:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta property="og:image:width" content="1200" />
@@ -25,14 +25,14 @@ export default function Home() {
         
         {/* Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta name="twitter:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
+        <meta name="twitter:title" content="AI Business Intelligence Platform - Save 93% vs. Consultant Projects" />
+        <meta name="twitter:description" content="Get $4,300 worth of business intelligence for $299 ONE-TIME. Own your intelligence forever vs. expensive consultant project fees." />
         <meta name="twitter:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />
         
         {/* Additional SEO Meta Tags */}
-        <meta name="keywords" content="directory submission, local SEO, business listings, online visibility, local search, directory marketing, AI optimization, automated submissions, business directory, local business, SEO service" />
+        <meta name="keywords" content="business intelligence platform, AI market analysis, competitor intelligence, business consulting alternative, marketing stack replacement, automated business insights, enterprise intelligence, consultant alternative, business strategy AI, competitive analysis platform" />
         <meta name="author" content="DirectoryBolt" />
         <meta name="publisher" content="DirectoryBolt" />
         <meta name="copyright" content="DirectoryBolt" />

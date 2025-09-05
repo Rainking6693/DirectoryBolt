@@ -1,5 +1,5 @@
-// 🔒 SUBSCRIPTION STATUS API - Check user's current subscription and usage
-// GET /api/subscription-status - Retrieve subscription details and usage limits
+// 🚫 DEPRECATED: SUBSCRIPTION STATUS API - DirectoryBolt now uses ONE-TIME PAYMENTS only
+// GET /api/subscription-status - DEPRECATED - Use /api/user/tier-status instead
 
 import Stripe from 'stripe';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -64,6 +64,21 @@ const SUBSCRIPTION_FEATURES = {
 };
 
 export default async function handler(req, res) {
+  // DEPRECATION NOTICE: Subscription status is no longer relevant
+  console.warn('DEPRECATED API called: /api/subscription-status - DirectoryBolt now uses one-time payments only');
+  
+  return res.status(410).json({
+    error: 'Endpoint deprecated',
+    code: 'SUBSCRIPTION_MODEL_DEPRECATED', 
+    message: 'DirectoryBolt no longer uses subscriptions. All tiers provide permanent access after one-time purchase.',
+    migration: {
+      use_instead: '/api/user/tier-status',
+      documentation: 'https://docs.directorybolt.com/one-time-payments',
+      note: 'Check permanent tier access instead of subscription status'
+    },
+    timestamp: new Date().toISOString()
+  });
+  
   // Prevent execution during build time - Next.js static generation fix
   if (!req || !res || typeof res.status !== 'function') {
     console.warn('API route called during build time - skipping execution');

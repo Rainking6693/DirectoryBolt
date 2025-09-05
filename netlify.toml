@@ -1,5 +1,6 @@
 [build]
   command = "npm ci --include=dev && npm run build"
+  functions = "netlify/functions"
   
   # Skip API route static generation during build
 
@@ -12,21 +13,75 @@
 
 # Node.js version specification
 [build.environment]
-  NODE_VERSION = "20.18.1"
+  NODE_VERSION = "20.17.0"
 
 # Environment variable handling
 [context.production.environment]
   NODE_ENV = "production"
   BUILDING = "true"
   NETLIFY = "true"
+  # AI API Keys - Set these in Netlify dashboard for security
+  # OPENAI_API_KEY = "sk-your-openai-key-here"
+  # ANTHROPIC_API_KEY = "sk-ant-your-anthropic-key-here"
+  # PUPPETEER_EXECUTABLE_PATH = "/opt/buildhome/cache/puppeteer/chrome/linux-120.0.6099.109/chrome-linux64/chrome"
   # Stripe environment variables will be set in Netlify dashboard
 
 [context.deploy-preview.environment]
   NODE_ENV = "development"
   BUILDING = "true"
   NETLIFY = "true"
+  # Use same production AI keys for deploy previews
+  # OPENAI_API_KEY = "sk-your-openai-key-here"
+  # ANTHROPIC_API_KEY = "sk-ant-your-anthropic-key-here"
 
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   BUILDING = "true"
   NETLIFY = "true"
+  # Use same production AI keys for branch deploys
+  # OPENAI_API_KEY = "sk-your-openai-key-here"
+  # ANTHROPIC_API_KEY = "sk-ant-your-anthropic-key-here"
+
+# Function configuration for AI workloads
+[functions]
+  # Increase memory and timeout for AI processing
+  node_bundler = "esbuild"
+  
+[functions."ai-generate"]
+  # Memory allocation for AI functions (in MB)
+  memory = 1024
+  # Timeout for AI processing (in seconds)
+  timeout = 60
+  
+[functions."ai-competitor-analysis"]
+  memory = 1024
+  timeout = 60
+  
+[functions."puppeteer-scraping"]
+  memory = 1536
+  timeout = 120
+  
+# Performance optimization for AI features
+[[headers]]
+  for = "/api/ai/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # AI processing may take time
+    X-Robots-Tag = "noindex, nofollow"
+
+# Redirect rules for API endpoints
+[[redirects]]
+  from = "/api/ai/health"
+  to = "/.netlify/functions/ai-health-check"
+  status = 200
+  force = true
+  
+[[redirects]]
+  from = "/api/puppeteer/*"
+  to = "/.netlify/functions/puppeteer-handler"
+  status = 200
+  force = true

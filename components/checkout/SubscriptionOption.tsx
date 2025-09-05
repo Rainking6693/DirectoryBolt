@@ -38,12 +38,12 @@ export function SubscriptionOption({
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-black text-white mb-4">
-          Keep Your Listings
+          Optional: Keep Your Listings
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-volt-400 to-volt-600"> Active</span>
         </h2>
         <p className="text-lg text-secondary-300 max-w-3xl mx-auto">
-          Directory listings can be removed or become outdated over time. Our Auto Update service 
-          ensures your business stays visible and current across all directories.
+          Your main analysis is a one-time purchase. Optionally add our monitoring service to ensure your 
+          directory listings stay visible and current over time.
         </p>
       </div>
 
@@ -69,7 +69,7 @@ export function SubscriptionOption({
               <div className="text-3xl font-black text-white mb-2">
                 $0<span className="text-lg text-secondary-400">/month</span>
               </div>
-              <p className="text-secondary-300">Just pay once and you're done</p>
+              <p className="text-secondary-300">Your main purchase is complete - no monitoring needed</p>
             </div>
 
             <ul className="space-y-3 mb-8">
@@ -205,7 +205,7 @@ export function SubscriptionOption({
           onClick={handleSkip}
           className="px-8 py-3 border border-secondary-600 text-secondary-300 font-medium rounded-xl hover:bg-secondary-700 hover:border-secondary-500 transition-all duration-300"
         >
-          Skip Subscription
+          Skip Monitoring Service
         </button>
         
         <button
@@ -221,8 +221,8 @@ export function SubscriptionOption({
         <div className="bg-success-900/20 border border-success-600/30 rounded-lg p-4 max-w-2xl mx-auto">
           <div className="text-sm text-success-300 font-medium mb-1">🛡️ Risk-Free Promise</div>
           <div className="text-sm text-secondary-400">
-            Cancel your subscription anytime. No contracts, no fees. 
-            We only succeed when your business stays visible online.
+            Cancel the monitoring service anytime. No contracts, no fees. 
+            Your main analysis purchase is complete regardless.
           </div>
         </div>
       </div>

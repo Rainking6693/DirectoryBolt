@@ -5,6 +5,9 @@
 <url><loc>https://directorybolt.com/cancel</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://directorybolt.com/checkout</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://directorybolt.com/collect-info</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://directorybolt.com/dashboard</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://directorybolt.com/dashboard/actions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://directorybolt.com/demo</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://directorybolt.com/directory-selection-demo</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://directorybolt.com/onboarding</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 <url><loc>https://directorybolt.com/pricing</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>

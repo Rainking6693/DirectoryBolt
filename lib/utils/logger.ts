@@ -367,6 +367,26 @@ export interface LogContext {
   httpStatus?: number
   httpUrl?: string
   metadata?: Record<string, any>
+  // Extended properties for webhook and subscription logging
+  invoiceId?: string
+  subscriptionId?: string
+  tier?: string
+  fromTier?: string
+  toTier?: string
+  previousTier?: string
+  newTier?: string
+  targetTier?: string
+  amount?: number
+  currency?: string
+  trialEndDate?: string
+  nextRetryAt?: string
+  billingCycle?: string
+  eventType?: string
+  eventId?: string
+  status?: string
+  checkoutSessionId?: string
+  source?: string
+  error?: string
 }
 
 export interface ApiRequestContext {

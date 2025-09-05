@@ -848,3 +848,21 @@ export function createApiResponse(
 
   return response
 }
+
+// Helper function for NextJS API responses (backward compatibility)
+export function apiResponse(
+  res: any,
+  statusCode: number,
+  status: 'success' | 'error',
+  message: string,
+  data: any = null
+): void {
+  const response = {
+    success: status === 'success',
+    message,
+    data,
+    timestamp: new Date().toISOString()
+  }
+  
+  res.status(statusCode).json(response)
+}

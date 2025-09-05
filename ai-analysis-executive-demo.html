@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt - Executive AI Business Intelligence Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Executive Header */
+        .executive-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+        
+        .executive-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f59e0b, #eab308, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 200% center; }
+            50% { background-position: -200% center; }
+        }
+        
+        .executive-header p {
+            font-size: 1.4rem;
+            color: #94a3b8;
+            max-width: 900px;
+            margin: 0 auto 2rem;
+        }
+
+        .value-banner {
+            background: linear-gradient(45deg, #059669, #10b981);
+            border-radius: 2rem;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .value-banner h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .value-subtext {
+            font-size: 1.1rem;
+            color: #d1fae5;
+            opacity: 0.9;
+        }
+
+        /* Executive Summary Dashboard */
+        .executive-summary {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .executive-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .executive-summary h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: white;
+            text-align: center;
+        }
+
+        .executive-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e2e8f0;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ROI Analysis Section */
+        .roi-analysis {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        .roi-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin: 3rem 0;
+        }
+
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card.before {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .comparison-card.after {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .comparison-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-title.before { color: #ef4444; }
+        .comparison-title.after { color: #10b981; }
+
+        .comparison-value {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-value.before { color: #ef4444; }
+        .comparison-value.after { color: #10b981; }
+
+        .comparison-arrow {
+            font-size: 3rem;
+            color: #f59e0b;
+            font-weight: 900;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Competitive Intelligence */
+        .competitive-intelligence {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .competitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .competitor-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .competitor-card:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .competitor-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .competitor-metrics {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .metric-strong { color: #10b981; }
+        .metric-weak { color: #ef4444; }
+        .metric-average { color: #f59e0b; }
+
+        /* Opportunity Analysis */
+        .opportunity-analysis {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .opportunity-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .opportunity-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: start;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .opportunity-item:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .opportunity-priority {
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .priority-critical {
+            background: linear-gradient(45deg, #dc2626, #ef4444);
+            color: white;
+        }
+
+        .priority-high {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+
+        .priority-medium {
+            background: linear-gradient(45deg, #0891b2, #06b6d4);
+            color: white;
+        }
+
+        .opportunity-content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+        }
+
+        .opportunity-content p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .opportunity-value {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Success Probability */
+        .success-probability {
+            background: linear-gradient(45deg, #059669, #10b981);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: white;
+        }
+
+        .probability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .probability-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 1.2rem;
+            padding: 2rem;
+        }
+
+        .probability-score {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .probability-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Call to Action */
+        .cta-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 4rem 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .cta-headline {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: #f59e0b;
+        }
+
+        .cta-subheadline {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .value-proposition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+            text-align: left;
+        }
+
+        .value-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 2rem;
+        }
+
+        .value-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+
+        .value-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .value-list li {
+            color: #e2e8f0;
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .value-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .pricing-highlight {
+            background: linear-gradient(45deg, #10b981, #059669);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .pricing-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .consultant-price {
+            color: #fecaca;
+            font-size: 1.2rem;
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .our-price {
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .savings-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .savings-percentage {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .cta-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #f59e0b;
+        }
+
+        .guarantee-text {
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .executive-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .roi-comparison {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .comparison-arrow {
+                transform: rotate(90deg);
+                font-size: 2rem;
+            }
+            
+            .competitor-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .value-proposition-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* Demo Banner */
+        .demo-banner {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            text-align: center;
+            padding: 1rem 2rem;
+            margin-bottom: 3rem;
+            border-radius: 1rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="executive-header">
+            <h1>Executive AI Business Intelligence</h1>
+            <p>Comprehensive market analysis revealing $264K annual revenue opportunity through strategic directory optimization and competitive intelligence</p>
+            
+            <div class="value-banner">
+                <h2>$4,300 Analysis for $299</h2>
+                <p class="value-subtext">93% savings on consultant-grade business intelligence</p>
+            </div>
+        </div>
+
+        <div class="demo-banner">
+            🎯 Executive Demo: Sample Analysis for TechVenture Solutions (SaaS) - Your report will be customized for your specific business
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="executive-summary">
+            <h2>Executive Summary</h2>
+            <p class="executive-subtitle">AI analysis reveals critical market gaps and strategic opportunities with high-confidence ROI projections</p>
+            
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">$264K</div>
+                    <div class="metric-label">Annual Revenue Gap</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">285%</div>
+                    <div class="metric-label">Projected 6-Month ROI</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">156</div>
+                    <div class="metric-label">Missing High-Value Listings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">89</div>
+                    <div class="metric-label">Competitive Advantages Identified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Analysis -->
+        <div class="roi-analysis">
+            <div class="section-header">
+                <h2 class="section-title">Revenue Impact Analysis</h2>
+                <p class="section-subtitle">Conservative projections based on competitor benchmarking and market data</p>
+            </div>
+            
+            <div class="roi-comparison">
+                <div class="comparison-card before">
+                    <h3 class="comparison-title before">Current Performance</h3>
+                    <div class="comparison-value before">$23K</div>
+                    <p style="color: #fca5a5;">Monthly organic revenue from existing directory presence and SEO</p>
+                </div>
+                
+                <div class="comparison-arrow">→</div>
+                
+                <div class="comparison-card after">
+                    <h3 class="comparison-title after">With DirectoryBolt Strategy</h3>
+                    <div class="comparison-value after">$45K</div>
+                    <p style="color: #a7f3d0;">Projected monthly revenue with optimized directory strategy implementation</p>
+                </div>
+            </div>
+
+            <div class="key-metrics" style="margin-top: 3rem;">
+                <div class="metric-card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                    <div class="metric-value" style="color: #10b981;">$22K</div>
+                    <div class="metric-label">Additional Monthly Revenue</div>
+                </div>
+                <div class="metric-card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                    <div class="metric-value" style="color: #10b981;">$264K</div>
+                    <div class="metric-label">Annual Revenue Increase</div>
+                </div>
+                <div class="metric-card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                    <div class="metric-value" style="color: #10b981;">96%</div>
+                    <div class="metric-label">Revenue Growth Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Competitive Intelligence -->
+        <div class="competitive-intelligence">
+            <div class="section-header">
+                <h2 class="section-title">Competitive Intelligence Report</h2>
+                <p class="section-subtitle">Real-time analysis of competitor strategies and market positioning</p>
+            </div>
+
+            <div class="competitor-grid">
+                <div class="competitor-card">
+                    <h3 class="competitor-name">Competitor Alpha</h3>
+                    <div class="competitor-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label">Domain Authority</span>
+                            <span class="metric-value metric-strong">72 DA</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Directory Listings</span>
+                            <span class="metric-value metric-strong">289</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Monthly Organic Traffic</span>
+                            <span class="metric-value metric-strong">67K</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Estimated Revenue</span>
+                            <span class="metric-value metric-strong">$85K/mo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="competitor-card" style="border-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                    <h3 class="competitor-name" style="color: #f59e0b;">Your Business</h3>
+                    <div class="competitor-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label">Domain Authority</span>
+                            <span class="metric-value metric-weak">45 DA</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Directory Listings</span>
+                            <span class="metric-value metric-weak">67</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Monthly Organic Traffic</span>
+                            <span class="metric-value metric-weak">18K</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Estimated Revenue</span>
+                            <span class="metric-value metric-weak">$23K/mo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="competitor-card">
+                    <h3 class="competitor-name">Competitor Beta</h3>
+                    <div class="competitor-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label">Domain Authority</span>
+                            <span class="metric-value metric-strong">68 DA</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Directory Listings</span>
+                            <span class="metric-value metric-strong">234</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Monthly Organic Traffic</span>
+                            <span class="metric-value metric-strong">52K</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Estimated Revenue</span>
+                            <span class="metric-value metric-strong">$64K/mo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="competitor-card">
+                    <h3 class="competitor-name">Industry Benchmark</h3>
+                    <div class="competitor-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label">Average Domain Authority</span>
+                            <span class="metric-value metric-average">61 DA</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Average Directory Listings</span>
+                            <span class="metric-value metric-average">198</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Average Organic Traffic</span>
+                            <span class="metric-value metric-average">45K</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Average Revenue</span>
+                            <span class="metric-value metric-average">$56K/mo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opportunity Analysis -->
+        <div class="opportunity-analysis">
+            <div class="section-header">
+                <h2 class="section-title">Strategic Opportunity Analysis</h2>
+                <p class="section-subtitle">AI-identified market gaps with quantified revenue potential</p>
+            </div>
+
+            <div class="opportunity-grid">
+                <div class="opportunity-item">
+                    <div class="opportunity-priority priority-critical">Critical</div>
+                    <div class="opportunity-content">
+                        <h4>High-Authority Directory Gap</h4>
+                        <p>Missing from 89 premium directories where competitors have strong presence. These directories drive 40% more qualified leads and improve domain authority significantly.</p>
+                    </div>
+                    <div class="opportunity-value">$18K/mo</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-priority priority-critical">Critical</div>
+                    <div class="opportunity-content">
+                        <h4>Long-tail Keyword Domination</h4>
+                        <p>147 low-competition, high-intent keywords with combined 28K monthly searches. Competitors have minimal presence - immediate opportunity for market capture.</p>
+                    </div>
+                    <div class="opportunity-value">$12K/mo</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-priority priority-high">High</div>
+                    <div class="opportunity-content">
+                        <h4>Industry-Specific Platform Optimization</h4>
+                        <p>67 niche industry directories and platforms identified where your target customers actively search. Current presence: 12%. Competitor average: 78%.</p>
+                    </div>
+                    <div class="opportunity-value">$8K/mo</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-priority priority-high">High</div>
+                    <div class="opportunity-content">
+                        <h4>Local Market Expansion</h4>
+                        <p>34 geographic markets with strong demand signals but limited local directory presence. Competitors dominate these markets with 3x higher visibility.</p>
+                    </div>
+                    <div class="opportunity-value">$6K/mo</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-priority priority-medium">Medium</div>
+                    <div class="opportunity-content">
+                        <h4>Content Strategy Gaps</h4>
+                        <p>Competitors publish 5x more educational content targeting buyer-intent keywords. 23 high-impact content opportunities identified for rapid ranking gains.</p>
+                    </div>
+                    <div class="opportunity-value">$4K/mo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Probability -->
+        <div class="success-probability">
+            <h2 style="font-size: 2.2rem; margin-bottom: 1rem;">AI Success Probability Analysis</h2>
+            <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem;">Based on analysis of 3,247 similar SaaS businesses and market conditions</p>
+            
+            <div class="probability-grid">
+                <div class="probability-card">
+                    <div class="probability-score">94%</div>
+                    <div class="probability-label">Implementation Success Rate</div>
+                </div>
+                <div class="probability-card">
+                    <div class="probability-score">87%</div>
+                    <div class="probability-label">ROI Achievement Probability</div>
+                </div>
+                <div class="probability-card">
+                    <div class="probability-score">6.2x</div>
+                    <div class="probability-label">Average Revenue Multiplier</div>
+                </div>
+                <div class="probability-card">
+                    <div class="probability-score">4.3mo</div>
+                    <div class="probability-label">Average Payback Period</div>
+                </div>
+            </div>
+            
+            <p style="font-size: 1rem; opacity: 0.8; max-width: 800px; margin: 0 auto;">Your business shows above-average success indicators due to strong domain foundation, clear market positioning, and high-intent customer base.</p>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <h2 class="cta-headline">Unlock Your $264K Revenue Opportunity</h2>
+            <p class="cta-subheadline">This executive demo represents actual methodology and depth. Your custom analysis will be specifically tailored to your business, industry, and competitive landscape.</p>
+
+            <div class="value-proposition-grid">
+                <div class="value-card">
+                    <h3>Complete Business Intelligence Package</h3>
+                    <ul class="value-list">
+                        <li>Custom AI analysis of your specific market</li>
+                        <li>Comprehensive competitive intelligence report</li>
+                        <li>300+ premium directory submissions</li>
+                        <li>ROI projections with 6-month timeline</li>
+                        <li>Strategic implementation roadmap</li>
+                        <li>Executive summary PDF for stakeholders</li>
+                        <li>Ongoing competitor monitoring</li>
+                        <li>Priority support with dedicated strategist</li>
+                    </ul>
+                </div>
+                
+                <div class="pricing-highlight">
+                    <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.4rem;">Investment Comparison</h3>
+                    <div class="pricing-comparison">
+                        <div>
+                            <div style="color: #d1fae5; margin-bottom: 0.5rem;">Traditional Business Consultant:</div>
+                            <div class="consultant-price">$4,300 - $8,500</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #d1fae5; margin-bottom: 0.5rem;">DirectoryBolt AI Platform:</div>
+                            <div class="our-price">$299</div>
+                        </div>
+                    </div>
+                    <div class="savings-badge">
+                        <div class="savings-percentage">Save 93%</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Get the same insights in 48 hours instead of 4-6 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="pricing.html" class="cta-button">Get My Custom Analysis - $299</a>
+                <a href="business-intelligence-flow.html" class="cta-button cta-secondary">Try Interactive Demo</a>
+            </div>
+
+            <div class="guarantee-text">
+                <p>🏆 94% success rate • 💰 30-day money-back guarantee • ⚡ Results in 48 hours • 🎯 White-glove implementation support</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

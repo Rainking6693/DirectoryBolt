@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Business Intelligence Report - DirectoryBolt AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Times New Roman', serif;
+            background: white;
+            color: #1f2937;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .report-container {
+            max-width: 210mm; /* A4 width */
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Report Header */
+        .report-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .company-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .report-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .client-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-left: 5px solid #f59e0b;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .summary-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .highlight-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Sections */
+        .report-section {
+            padding: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* Market Analysis */
+        .market-position-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .position-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+        }
+
+        .position-card h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .metric-strong { color: #059669; }
+        .metric-weak { color: #dc2626; }
+        .metric-average { color: #d97706; }
+
+        /* Competitive Analysis Table */
+        .competitive-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+
+        .competitive-table th,
+        .competitive-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .competitive-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .competitive-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Opportunity Analysis */
+        .opportunities-list {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .opportunity-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .opportunity-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .opportunity-priority {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-critical {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .priority-high {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .priority-medium {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .opportunity-value {
+            background: #ecfdf5;
+            color: #059669;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        /* ROI Projections */
+        .roi-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.8rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .comparison-card.before {
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+
+        .comparison-card.after {
+            border-color: #a7f3d0;
+            background: #ecfdf5;
+        }
+
+        .comparison-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-title.before { color: #dc2626; }
+        .comparison-title.after { color: #059669; }
+
+        .comparison-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-value.before { color: #dc2626; }
+        .comparison-value.after { color: #059669; }
+
+        .comparison-arrow {
+            font-size: 2rem;
+            color: #d97706;
+            font-weight: 900;
+        }
+
+        /* Action Plan */
+        .action-timeline {
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 40px;
+            bottom: -2rem;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timeline-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-duration {
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+        }
+
+        /* Footer */
+        .report-footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            margin-bottom: 1rem;
+        }
+
+        .footer-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #f59e0b;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .contact-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                font-size: 12px;
+            }
+            
+            .report-container {
+                box-shadow: none;
+                max-width: none;
+            }
+            
+            .report-section {
+                page-break-inside: avoid;
+            }
+            
+            .executive-summary {
+                page-break-after: avoid;
+            }
+            
+            .section-title {
+                page-break-after: avoid;
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .report-header {
+                padding: 2rem 1rem;
+            }
+            
+            .report-title {
+                font-size: 2rem;
+            }
+            
+            .client-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .roi-comparison {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .comparison-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .market-position-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Download Button */
+        .download-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #1f2937;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        @media print {
+            .download-controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="download-controls">
+        <button class="download-btn" onclick="window.print()">📄 Download PDF</button>
+        <a href="pricing.html" class="download-btn">💰 Get My Report</a>
+    </div>
+
+    <div class="report-container">
+        <!-- Report Header -->
+        <div class="report-header">
+            <div class="header-content">
+                <div class="company-logo">DirectoryBolt AI</div>
+                <h1 class="report-title">Executive Business Intelligence Report</h1>
+                <p class="report-subtitle">AI-Powered Market Analysis & Growth Strategy</p>
+                
+                <div class="client-info">
+                    <div class="info-item">
+                        <span class="info-label">Client:</span>
+                        <span class="info-value">TechVenture Solutions</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Industry:</span>
+                        <span class="info-value">SaaS / Technology</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Report Date:</span>
+                        <span class="info-value">January 15, 2025</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Analyst:</span>
+                        <span class="info-value">DirectoryBolt AI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="executive-summary">
+            <h2 class="section-title">
+                <span class="section-icon">📊</span>
+                Executive Summary
+            </h2>
+            <p class="section-description">
+                Our comprehensive AI analysis reveals significant untapped growth potential for TechVenture Solutions. 
+                Through strategic directory optimization and competitive positioning improvements, we project a 285% ROI 
+                with $264K additional annual revenue opportunity.
+            </p>
+
+            <div class="summary-highlights">
+                <div class="highlight-card">
+                    <div class="highlight-value">$264K</div>
+                    <div class="highlight-label">Annual Revenue Opportunity</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">285%</div>
+                    <div class="highlight-label">Projected ROI</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">156</div>
+                    <div class="highlight-label">Missing Directory Listings</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">94%</div>
+                    <div class="highlight-label">Success Probability</div>
+                </div>
+            </div>
+
+            <p><strong>Key Finding:</strong> Your business currently operates at 23% of its digital market potential. 
+            Competitors with similar offerings achieve 3.2x higher online visibility through strategic directory presence 
+            and SEO optimization. Implementation of our recommendations could position you in the top 5% of your industry 
+            within 6 months.</p>
+        </div>
+
+        <!-- Market Position Analysis -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">📈</span>
+                Current Market Position Analysis
+            </h2>
+            <p class="section-description">
+                Comprehensive analysis of your current digital presence compared to industry benchmarks and key competitors.
+            </p>
+
+            <div class="market-position-grid">
+                <div class="position-card">
+                    <h4>Your Business Performance</h4>
+                    <div class="metric-row">
+                        <span class="metric-label">Domain Authority</span>
+                        <span class="metric-value metric-weak">45 DA</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Directory Listings</span>
+                        <span class="metric-value metric-weak">67</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Monthly Organic Traffic</span>
+                        <span class="metric-value metric-weak">18,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Estimated Revenue</span>
+                        <span class="metric-value metric-weak">$23K/month</span>
+                    </div>
+                </div>
+
+                <div class="position-card">
+                    <h4>Industry Average</h4>
+                    <div class="metric-row">
+                        <span class="metric-label">Domain Authority</span>
+                        <span class="metric-value metric-average">61 DA</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Directory Listings</span>
+                        <span class="metric-value metric-average">198</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Monthly Organic Traffic</span>
+                        <span class="metric-value metric-average">45,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Estimated Revenue</span>
+                        <span class="metric-value metric-average">$56K/month</span>
+                    </div>
+                </div>
+
+                <div class="position-card">
+                    <h4>Top Competitor Performance</h4>
+                    <div class="metric-row">
+                        <span class="metric-label">Domain Authority</span>
+                        <span class="metric-value metric-strong">72 DA</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Directory Listings</span>
+                        <span class="metric-value metric-strong">289</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Monthly Organic Traffic</span>
+                        <span class="metric-value metric-strong">67,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Estimated Revenue</span>
+                        <span class="metric-value metric-strong">$85K/month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Competitive Analysis -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">⚔️</span>
+                Competitive Intelligence Analysis
+            </h2>
+            <p class="section-description">
+                Detailed comparison with key competitors in your market segment, revealing strategic advantages and gaps.
+            </p>
+
+            <table class="competitive-table">
+                <thead>
+                    <tr>
+                        <th>Competitor</th>
+                        <th>Domain Authority</th>
+                        <th>Directory Coverage</th>
+                        <th>Organic Keywords</th>
+                        <th>Est. Monthly Revenue</th>
+                        <th>Key Advantage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #fef3c7;">
+                        <td><strong>Your Business</strong></td>
+                        <td>45</td>
+                        <td>67</td>
+                        <td>2,347</td>
+                        <td>$23,000</td>
+                        <td>Strong product-market fit</td>
+                    </tr>
+                    <tr>
+                        <td>Competitor Alpha</td>
+                        <td>72</td>
+                        <td>289</td>
+                        <td>8,942</td>
+                        <td>$85,000</td>
+                        <td>Extensive directory presence</td>
+                    </tr>
+                    <tr>
+                        <td>Competitor Beta</td>
+                        <td>68</td>
+                        <td>234</td>
+                        <td>6,758</td>
+                        <td>$64,000</td>
+                        <td>Content marketing strategy</td>
+                    </tr>
+                    <tr>
+                        <td>Competitor Gamma</td>
+                        <td>59</td>
+                        <td>156</td>
+                        <td>4,231</td>
+                        <td>$41,000</td>
+                        <td>Local market dominance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Strategic Opportunities -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">💎</span>
+                Strategic Growth Opportunities
+            </h2>
+            <p class="section-description">
+                AI-identified opportunities ranked by impact potential and implementation difficulty.
+            </p>
+
+            <div class="opportunities-list">
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div>
+                            <h4 class="opportunity-title">High-Authority Directory Optimization</h4>
+                            <span class="opportunity-priority priority-critical">Critical Priority</span>
+                        </div>
+                    </div>
+                    <p>Missing from 89 premium business directories where competitors maintain strong presence. These platforms drive 40% more qualified leads and significantly improve domain authority through high-quality backlinks.</p>
+                    <div class="opportunity-value">Revenue Impact: $18,000/month</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div>
+                            <h4 class="opportunity-title">Long-tail Keyword Domination</h4>
+                            <span class="opportunity-priority priority-critical">Critical Priority</span>
+                        </div>
+                    </div>
+                    <p>147 high-intent, low-competition keywords identified with 28,000 combined monthly searches. Competitors have minimal presence, creating immediate market capture opportunity.</p>
+                    <div class="opportunity-value">Revenue Impact: $12,000/month</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div>
+                            <h4 class="opportunity-title">Industry-Specific Platform Expansion</h4>
+                            <span class="opportunity-priority priority-high">High Priority</span>
+                        </div>
+                    </div>
+                    <p>67 niche SaaS directories and review platforms where your target customers actively research solutions. Current presence: 12%. Competitor average: 78%.</p>
+                    <div class="opportunity-value">Revenue Impact: $8,000/month</div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div>
+                            <h4 class="opportunity-title">Geographic Market Expansion</h4>
+                            <span class="opportunity-priority priority-medium">Medium Priority</span>
+                        </div>
+                    </div>
+                    <p>34 geographic markets showing strong demand signals with limited local competition. Regional directory optimization could capture underserved market segments.</p>
+                    <div class="opportunity-value">Revenue Impact: $6,000/month</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Projections -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">💰</span>
+                6-Month ROI Projections
+            </h2>
+            <p class="section-description">
+                Conservative revenue impact projections based on competitor benchmarking and industry data.
+            </p>
+
+            <div class="roi-comparison">
+                <div class="comparison-card before">
+                    <h3 class="comparison-title before">Current Performance</h3>
+                    <div class="comparison-value before">$23K</div>
+                    <p>Monthly organic revenue from existing directory presence and SEO efforts</p>
+                </div>
+                
+                <div class="comparison-arrow">→</div>
+                
+                <div class="comparison-card after">
+                    <h3 class="comparison-title after">Projected Performance</h3>
+                    <div class="comparison-value after">$45K</div>
+                    <p>Monthly organic revenue with optimized directory strategy and SEO improvements</p>
+                </div>
+            </div>
+
+            <div class="summary-highlights">
+                <div class="highlight-card">
+                    <div class="highlight-value">$22K</div>
+                    <div class="highlight-label">Additional Monthly Revenue</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">$264K</div>
+                    <div class="highlight-label">Additional Annual Revenue</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">96%</div>
+                    <div class="highlight-label">Revenue Growth Rate</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">4.3 mo</div>
+                    <div class="highlight-label">Payback Period</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Timeline -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">🗓️</span>
+                Strategic Implementation Timeline
+            </h2>
+            <p class="section-description">
+                Phased approach to maximize results while minimizing resource requirements.
+            </p>
+
+            <div class="action-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Directory Audit & Priority Submission</h4>
+                        <p class="timeline-description">Submit to 89 high-authority directories identified in gap analysis. Focus on platforms with highest competitor presence and domain authority.</p>
+                        <span class="timeline-duration">Week 1-2</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Long-tail Keyword Optimization</h4>
+                        <p class="timeline-description">Optimize existing content and create targeted landing pages for 147 identified low-competition keywords with high commercial intent.</p>
+                        <span class="timeline-duration">Week 3-6</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Industry Platform Expansion</h4>
+                        <p class="timeline-description">Establish presence on 67 industry-specific platforms and review sites. Create optimized profiles with consistent branding and messaging.</p>
+                        <span class="timeline-duration">Week 4-8</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Geographic Market Development</h4>
+                        <p class="timeline-description">Target 34 geographic markets with localized directory submissions and geo-targeted content strategy.</p>
+                        <span class="timeline-duration">Week 6-12</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">5</div>
+                    <div class="timeline-content">
+                        <h4 class="timeline-title">Performance Monitoring & Optimization</h4>
+                        <p class="timeline-description">Continuous monitoring of competitor activities, ranking improvements, and revenue impact. Monthly strategy refinements.</p>
+                        <span class="timeline-duration">Ongoing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Metrics -->
+        <div class="report-section">
+            <h2 class="section-title">
+                <span class="section-icon">🎯</span>
+                Success Probability Analysis
+            </h2>
+            <p class="section-description">
+                AI confidence scoring based on analysis of 3,247 similar businesses and current market conditions.
+            </p>
+
+            <div class="summary-highlights">
+                <div class="highlight-card">
+                    <div class="highlight-value">94%</div>
+                    <div class="highlight-label">Implementation Success Rate</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">87%</div>
+                    <div class="highlight-label">ROI Achievement Probability</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">6.2x</div>
+                    <div class="highlight-label">Average Revenue Multiplier</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-value">92%</div>
+                    <div class="highlight-label">Client Satisfaction Rate</div>
+                </div>
+            </div>
+
+            <p><strong>Success Factors:</strong> Your business demonstrates above-average success indicators including strong domain foundation (DA 45), clear value proposition, and established customer base. Market analysis shows minimal competitive response time, creating 6-month window for market capture.</p>
+        </div>
+
+        <!-- Report Footer -->
+        <div class="report-footer">
+            <div class="footer-content">
+                <div class="footer-title">DirectoryBolt AI Business Intelligence</div>
+                <p>This report was generated using proprietary AI algorithms trained on 50,000+ business datasets and real-time market intelligence.</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <strong>Next Steps</strong><br>
+                        Schedule strategy consultation<br>
+                        support@directorybolt.com
+                    </div>
+                    <div class="contact-item">
+                        <strong>Implementation Support</strong><br>
+                        White-glove service available<br>
+                        94% success rate guarantee
+                    </div>
+                    <div class="contact-item">
+                        <strong>Report Validity</strong><br>
+                        Valid for 30 days<br>
+                        Market conditions subject to change
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #374151; font-size: 0.8rem; opacity: 0.7;">
+                <p>© 2025 DirectoryBolt AI. All rights reserved. This report contains confidential and proprietary information.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate dynamic date
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const dateString = today.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Update any date placeholders
+            const dateElements = document.querySelectorAll('.info-value');
+            dateElements.forEach(element => {
+                if (element.textContent.includes('January 15, 2025')) {
+                    element.textContent = dateString;
+                }
+            });
+        });
+
+        // Analytics tracking for downloads
+        function trackDownload(type) {
+            // Add your analytics tracking here
+            console.log(`Report download tracked: ${type}`);
+        }
+
+        // Add download tracking to print button
+        const printBtn = document.querySelector('.download-btn');
+        if (printBtn) {
+            printBtn.addEventListener('click', () => trackDownload('PDF'));
+        }
+    </script>
+</body>
+</html>

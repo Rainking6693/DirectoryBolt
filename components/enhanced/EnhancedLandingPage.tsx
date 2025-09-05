@@ -3,11 +3,18 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Header from '../Header'
 import { StartTrialButton } from '../CheckoutButton'
+import InteractiveAnalysisPreview from '../demo/InteractiveAnalysisPreview'
+import SampleAnalysisModal from '../demo/SampleAnalysisModal'
+import SuccessStoriesSection from '../demo/SuccessStoriesSection'
+import { downloadSampleReport } from '../../lib/utils/pdf-generator'
+import { sampleAnalyses } from '../../lib/data/sample-analysis-data'
 
 export default function EnhancedLandingPage() {
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
   const [urgencyCount, setUrgencyCount] = useState(487) // Dynamic counter for social proof
+  const [showSampleModal, setShowSampleModal] = useState(false)
+  const [selectedBusinessType, setSelectedBusinessType] = useState<'localRestaurant' | 'saasCompany' | 'ecommerce' | 'professionalServices'>('localRestaurant')
 
   useEffect(() => {
     setIsVisible(true)
@@ -39,6 +46,38 @@ export default function EnhancedLandingPage() {
       })
     }
     router.push('/pricing')
+  }
+
+  const handleShowSampleAnalysis = (businessType: 'localRestaurant' | 'saasCompany' | 'ecommerce' | 'professionalServices' = 'localRestaurant') => {
+    setSelectedBusinessType(businessType)
+    setShowSampleModal(true)
+    
+    // Track sample analysis views
+    if (typeof window !== 'undefined') {
+      ((window as any).gtag)?.('event', 'sample_analysis_view', {
+        event_category: 'engagement',
+        event_label: businessType
+      })
+    }
+  }
+
+  const handleDownloadSample = async (businessType?: 'localRestaurant' | 'saasCompany' | 'ecommerce' | 'professionalServices') => {
+    const type = businessType || selectedBusinessType
+    const analysis = sampleAnalyses[type]
+    
+    try {
+      await downloadSampleReport(analysis)
+      
+      // Track PDF downloads
+      if (typeof window !== 'undefined') {
+        ((window as any).gtag)?.('event', 'sample_pdf_download', {
+          event_category: 'engagement',
+          event_label: type
+        })
+      }
+    } catch (error) {
+      console.error('Download failed:', error)
+    }
   }
 
   return (
@@ -237,6 +276,112 @@ export default function EnhancedLandingPage() {
         </div>
       </section>
 
+      {/* AI Analysis Demo Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 bg-secondary-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-volt-400 to-info-400 bg-clip-text text-transparent">
+              See Our $2,600 AI Analysis in Action
+            </h2>
+            <p className="text-lg sm:text-xl text-secondary-300 max-w-3xl mx-auto mb-8">
+              Watch our AI analyze a business in real-time and discover exactly why 
+              our clients see an average of <span className="text-volt-400 font-bold">285% traffic increase</span> within 90 days.
+            </p>
+            
+            {/* Business Type Selector for Demo */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <button
+                onClick={() => handleShowSampleAnalysis('localRestaurant')}
+                className="px-4 py-2 bg-secondary-800 hover:bg-volt-500/20 border border-secondary-600 hover:border-volt-500/50 rounded-lg text-secondary-300 hover:text-volt-300 transition-all duration-300 text-sm"
+              >
+                🍕 Restaurant
+              </button>
+              <button
+                onClick={() => handleShowSampleAnalysis('saasCompany')}
+                className="px-4 py-2 bg-secondary-800 hover:bg-volt-500/20 border border-secondary-600 hover:border-volt-500/50 rounded-lg text-secondary-300 hover:text-volt-300 transition-all duration-300 text-sm"
+              >
+                💻 SaaS Company
+              </button>
+              <button
+                onClick={() => handleShowSampleAnalysis('ecommerce')}
+                className="px-4 py-2 bg-secondary-800 hover:bg-volt-500/20 border border-secondary-600 hover:border-volt-500/50 rounded-lg text-secondary-300 hover:text-volt-300 transition-all duration-300 text-sm"
+              >
+                🛍️ E-commerce
+              </button>
+              <button
+                onClick={() => handleShowSampleAnalysis('professionalServices')}
+                className="px-4 py-2 bg-secondary-800 hover:bg-volt-500/20 border border-secondary-600 hover:border-volt-500/50 rounded-lg text-secondary-300 hover:text-volt-300 transition-all duration-300 text-sm"
+              >
+                💼 Professional Services
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Analysis Preview */}
+          <InteractiveAnalysisPreview
+            businessType={selectedBusinessType}
+            autoStart={false}
+            onComplete={(analysis) => {
+              console.log('Analysis completed:', analysis.businessProfile.name)
+            }}
+          />
+
+          {/* Value Proposition */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-gradient-to-br from-volt-500/10 to-volt-600/5 rounded-xl border border-volt-500/20">
+              <div className="text-3xl mb-3">🎯</div>
+              <h3 className="text-lg font-semibold text-white mb-2">AI-Powered Matching</h3>
+              <p className="text-sm text-secondary-300">
+                Our AI analyzes 500+ directories and matches you with the perfect ones for maximum ROI
+              </p>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-success-500/10 to-success-600/5 rounded-xl border border-success-500/20">
+              <div className="text-3xl mb-3">⚡</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Instant Results</h3>
+              <p className="text-sm text-secondary-300">
+                Get your complete analysis in minutes, not weeks like traditional consultants charge $2,600+ for
+              </p>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-info-500/10 to-info-600/5 rounded-xl border border-info-500/20">
+              <div className="text-3xl mb-3">💎</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Proven Strategy</h3>
+              <p className="text-sm text-secondary-300">
+                Based on 10,000+ successful submissions with an average 285% traffic increase
+              </p>
+            </div>
+          </div>
+
+          {/* CTA for Sample Analysis */}
+          <div className="text-center mt-12">
+            <div className="bg-gradient-to-r from-volt-500/20 to-info-500/20 rounded-2xl p-8 border border-volt-500/30">
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Want to See a Complete Sample Report?
+              </h3>
+              <p className="text-secondary-300 mb-6">
+                Download a full sample analysis report showing exactly what our $2,600+ analysis includes
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => handleShowSampleAnalysis()}
+                  className="btn-primary px-6 py-3"
+                >
+                  📊 View Sample Analysis
+                </button>
+                <button
+                  onClick={() => handleDownloadSample()}
+                  className="btn-secondary px-6 py-3"
+                >
+                  📄 Download Sample PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories Section */}
+      <SuccessStoriesSection />
+
       {/* Final CTA with Enhanced Urgency */}
       <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center bg-gradient-to-r from-volt-400 to-volt-600 text-secondary-900">
         <div className="max-w-4xl mx-auto">
@@ -282,6 +427,13 @@ export default function EnhancedLandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Sample Analysis Modal */}
+      <SampleAnalysisModal
+        isOpen={showSampleModal}
+        onClose={() => setShowSampleModal(false)}
+        initialBusinessType={selectedBusinessType}
+      />
     </div>
   )
 }

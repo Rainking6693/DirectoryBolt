@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt - Interactive AI Analysis Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Progress System */
+        .progress-container {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            height: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #f59e0b, #eab308, #10b981);
+            height: 100%;
+            border-radius: 1rem;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active .step-number {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+
+        .step-item.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Demo Stages */
+        .demo-stage {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .demo-stage.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stage-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .stage-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stage-subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Business Input Stage */
+        .business-input-form {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* AI Analysis Stage */
+        .analysis-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .ai-brain {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            filter: hue-rotate(0deg);
+            animation: brainPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            50% { 
+                transform: scale(1.1); 
+                filter: hue-rotate(60deg) brightness(1.2);
+            }
+        }
+
+        .analysis-status {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #f59e0b;
+        }
+
+        .analysis-substatus {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .processing-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .metric-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #10b981;
+            margin-bottom: 0.3rem;
+            counter-reset: number;
+            animation: countUp 2s ease-out;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .loading-animation {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            height: 12px;
+            margin: 2rem auto;
+            width: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress {
+            background: linear-gradient(90deg, #f59e0b, #eab308, #10b981);
+            height: 100%;
+            border-radius: 1rem;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .loading-progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading-shimmer 1.5s infinite;
+        }
+
+        @keyframes loading-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Results Preview Stage */
+        .results-preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .results-summary {
+            background: linear-gradient(45deg, #7c3aed, #8b5cf6);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: white;
+        }
+
+        .summary-headline {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .summary-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .summary-metric {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            color: #f59e0b;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .insight-card:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            transform: translateY(-5px);
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(40px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .insight-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+        }
+
+        .insight-metric {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+
+        .insight-description {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .demo-button-primary {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+
+        .demo-button-primary:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .demo-button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .demo-button-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #f59e0b;
+        }
+
+        /* Modal System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #ef4444;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: #f59e0b;
+            text-align: center;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .stage-title {
+                font-size: 2rem;
+            }
+            
+            .business-input-form {
+                padding: 2rem;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step-indicator {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .loading-animation {
+                width: 280px;
+            }
+        }
+
+        /* Auto-fill Animation */
+        .form-input.auto-fill {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            animation: autoFillPulse 2s ease-out;
+        }
+
+        @keyframes autoFillPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Typing Animation */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .typing-effect {
+            overflow: hidden;
+            border-right: 2px solid #f59e0b;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end), blink-caret 1s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #f59e0b; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress Container -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 20%"></div>
+            </div>
+            <div class="step-indicator">
+                <div class="step-item active" id="step-1">
+                    <div class="step-number">1</div>
+                    <span>Business Input</span>
+                </div>
+                <div class="step-item" id="step-2">
+                    <div class="step-number">2</div>
+                    <span>AI Analysis</span>
+                </div>
+                <div class="step-item" id="step-3">
+                    <div class="step-number">3</div>
+                    <span>Market Research</span>
+                </div>
+                <div class="step-item" id="step-4">
+                    <div class="step-number">4</div>
+                    <span>Insight Generation</span>
+                </div>
+                <div class="step-item" id="step-5">
+                    <div class="step-number">5</div>
+                    <span>Results</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage 1: Business Input -->
+        <div class="demo-stage active" id="stage-1">
+            <div class="stage-header">
+                <h1 class="stage-title">AI Business Analysis</h1>
+                <p class="stage-subtitle">Our AI will analyze your business to identify $4,300+ worth of untapped growth opportunities in your market</p>
+            </div>
+
+            <div class="business-input-form">
+                <div class="form-group">
+                    <label class="form-label">Business Website URL *</label>
+                    <input type="url" class="form-input" id="websiteUrl" placeholder="https://your-business.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Industry Category *</label>
+                    <select class="form-select" id="industrySelect" required>
+                        <option value="">Select your industry</option>
+                        <option value="saas">SaaS / Technology</option>
+                        <option value="ecommerce">E-commerce / Retail</option>
+                        <option value="professional">Professional Services</option>
+                        <option value="healthcare">Healthcare / Medical</option>
+                        <option value="finance">Finance / Fintech</option>
+                        <option value="real-estate">Real Estate</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="consulting">Consulting</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Primary Business Goals</label>
+                    <textarea class="form-textarea" id="businessGoals" placeholder="Example: Increase online visibility, generate more qualified leads, improve search rankings, expand into new markets, outperform competitors..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Known Competitors (Optional)</label>
+                    <input type="text" class="form-input" id="competitors" placeholder="competitor1.com, competitor2.com, competitor3.com">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="demo-button demo-button-primary" onclick="startAnalysis()">
+                        Start AI Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage 2: AI Analysis Process -->
+        <div class="demo-stage" id="stage-2">
+            <div class="analysis-container">
+                <div class="ai-brain">🧠</div>
+                <div class="analysis-status" id="analysisStatus">Initializing AI Analysis...</div>
+                <div class="analysis-substatus" id="analysisSubstatus">
+                    Connecting to business intelligence systems and preparing competitive analysis framework...
+                </div>
+                
+                <div class="processing-metrics">
+                    <div class="metric-item">
+                        <div class="metric-number" id="websitesScanned">0</div>
+                        <div class="metric-label">Websites Analyzed</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-number" id="keywordsProcessed">0</div>
+                        <div class="metric-label">Keywords Processed</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-number" id="competitorsFound">0</div>
+                        <div class="metric-label">Competitors Identified</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-number" id="directoriesChecked">0</div>
+                        <div class="metric-label">Directories Scanned</div>
+                    </div>
+                </div>
+
+                <div class="loading-animation">
+                    <div class="loading-progress" id="loadingBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage 3: Results Preview -->
+        <div class="demo-stage" id="stage-3">
+            <div class="stage-header">
+                <h1 class="stage-title">Analysis Complete</h1>
+                <p class="stage-subtitle">AI has identified significant growth opportunities with clear revenue impact projections</p>
+            </div>
+
+            <div class="results-preview-container">
+                <div class="results-summary">
+                    <h2 class="summary-headline">Executive Summary</h2>
+                    <p style="margin-bottom: 2rem; opacity: 0.9;">Your business has substantial untapped potential with clear competitive advantages waiting to be leveraged</p>
+                    
+                    <div class="summary-metrics">
+                        <div class="summary-metric">
+                            <div class="summary-value">$264K</div>
+                            <div class="summary-label">Annual Revenue Opportunity</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="summary-value">285%</div>
+                            <div class="summary-label">Projected ROI</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="summary-value">89</div>
+                            <div class="summary-label">Growth Opportunities</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="summary-value">94%</div>
+                            <div class="summary-label">Success Probability</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="insight-card" style="animation-delay: 0.1s;">
+                        <div class="insight-icon">📊</div>
+                        <h3 class="insight-title">Market Position Analysis</h3>
+                        <div class="insight-metric">Top 18%</div>
+                        <p class="insight-description">Your business ranks in the top 18% for online presence in your industry, with significant room for improvement to reach top 5%.</p>
+                    </div>
+
+                    <div class="insight-card" style="animation-delay: 0.2s;">
+                        <div class="insight-icon">🎯</div>
+                        <h3 class="insight-title">Competitive Gap Analysis</h3>
+                        <div class="insight-metric">156 Directories</div>
+                        <p class="insight-description">Missing from 156 high-authority directories where top competitors have established presence, representing massive opportunity.</p>
+                    </div>
+
+                    <div class="insight-card" style="animation-delay: 0.3s;">
+                        <div class="insight-icon">💎</div>
+                        <h3 class="insight-title">Keyword Opportunities</h3>
+                        <div class="insight-metric">187 Keywords</div>
+                        <p class="insight-description">Identified 187 high-value keywords with low competition where you can quickly gain market share and traffic.</p>
+                    </div>
+
+                    <div class="insight-card" style="animation-delay: 0.4s;">
+                        <div class="insight-icon">🚀</div>
+                        <h3 class="insight-title">Revenue Growth Potential</h3>
+                        <div class="insight-metric">$22K/month</div>
+                        <p class="insight-description">Conservative projection shows $22K additional monthly revenue from implementing AI-recommended strategy.</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="demo-button demo-button-primary" onclick="showFullReport()">
+                        Get My Complete Report - $299
+                    </button>
+                    <button class="demo-button demo-button-secondary" onclick="viewExecutiveDemo()">
+                        View Executive Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Value Proposition Modal -->
+    <div class="modal-overlay" id="valueModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title">Complete Business Intelligence Package</h2>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="background: linear-gradient(45deg, #10b981, #059669); border-radius: 1rem; padding: 2rem; margin: 1rem 0;">
+                    <div style="font-size: 2.5rem; font-weight: 900; color: white; margin-bottom: 0.5rem;">93% Savings</div>
+                    <div style="color: #d1fae5; font-size: 1.1rem;">Get $4,300 worth of insights for just $299</div>
+                </div>
+            </div>
+
+            <div style="text-align: left; margin: 2rem 0;">
+                <h3 style="color: #e2e8f0; margin-bottom: 1rem; font-size: 1.3rem;">What You'll Receive:</h3>
+                <ul style="color: #94a3b8; line-height: 2; list-style: none; padding: 0;">
+                    <li style="margin-bottom: 0.8rem;">✓ Complete AI business analysis customized for your industry</li>
+                    <li style="margin-bottom: 0.8rem;">✓ Comprehensive competitive intelligence report</li>
+                    <li style="margin-bottom: 0.8rem;">✓ 300+ premium directory submissions with tracking</li>
+                    <li style="margin-bottom: 0.8rem;">✓ ROI projections with 6-month implementation timeline</li>
+                    <li style="margin-bottom: 0.8rem;">✓ Executive summary PDF for stakeholder presentations</li>
+                    <li style="margin-bottom: 0.8rem;">✓ Ongoing competitor monitoring and alerts</li>
+                    <li style="margin-bottom: 0.8rem;">✓ Priority support with dedicated strategy consultant</li>
+                    <li style="margin-bottom: 0.8rem;">✓ White-glove implementation assistance</li>
+                </ul>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 1rem; padding: 2rem; margin: 2rem 0; text-align: center;">
+                <h4 style="color: #f59e0b; margin-bottom: 1rem;">Launch Special Pricing</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="color: #94a3b8;">Traditional Consultant:</span>
+                    <span style="color: #ef4444; text-decoration: line-through; font-size: 1.2rem;">$4,300</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #94a3b8;">DirectoryBolt AI:</span>
+                    <span style="color: #10b981; font-weight: 900; font-size: 1.5rem;">$299</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="pricing.html" class="demo-button demo-button-primary" style="margin-bottom: 1rem;">
+                    Start My Analysis - $299
+                </a>
+                <p style="color: #94a3b8; font-size: 0.9rem;">
+                    ⚡ Results in 48 hours • 💰 30-day money-back guarantee • 🎯 94% success rate
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStage = 1;
+        let analysisInterval;
+        let progressInterval;
+        
+        const analysisSteps = [
+            {
+                status: "Scanning website architecture...",
+                substatus: "Analyzing 50+ technical SEO factors, site structure, and content quality indicators.",
+                duration: 3000
+            },
+            {
+                status: "Identifying competitor landscape...",
+                substatus: "Discovering key competitors and analyzing their digital marketing strategies across 300+ platforms.",
+                duration: 4000
+            },
+            {
+                status: "Processing market intelligence...",
+                substatus: "Cross-referencing industry data, keyword trends, and market positioning opportunities.",
+                duration: 3500
+            },
+            {
+                status: "Analyzing directory presence...",
+                substatus: "Scanning 500+ business directories and industry-specific platforms for optimization opportunities.",
+                duration: 2500
+            },
+            {
+                status: "Calculating ROI projections...",
+                substatus: "Using AI models trained on 10,000+ businesses to predict revenue impact and timeline.",
+                duration: 3000
+            },
+            {
+                status: "Generating strategic insights...",
+                substatus: "Creating your custom action plan with prioritized recommendations and success probability scoring.",
+                duration: 2000
+            }
+        ];
+
+        // Auto-fill demo after 15 seconds if no input
+        setTimeout(() => {
+            if (currentStage === 1) {
+                autoFillDemoData();
+            }
+        }, 15000);
+
+        function autoFillDemoData() {
+            const websiteInput = document.getElementById('websiteUrl');
+            const industrySelect = document.getElementById('industrySelect');
+            const goalsTextarea = document.getElementById('businessGoals');
+            const competitorsInput = document.getElementById('competitors');
+
+            // Auto-fill with realistic demo data
+            typeInField(websiteInput, 'https://techventure-solutions.com');
+            
+            setTimeout(() => {
+                industrySelect.value = 'saas';
+                industrySelect.classList.add('auto-fill');
+            }, 1000);
+
+            setTimeout(() => {
+                typeInField(goalsTextarea, 'Increase online visibility and generate 40% more qualified leads through improved SEO, directory presence, and competitive positioning in the SaaS market.');
+            }, 2000);
+
+            setTimeout(() => {
+                typeInField(competitorsInput, 'salesforce.com, hubspot.com, monday.com');
+            }, 4000);
+        }
+
+        function typeInField(element, text) {
+            element.classList.add('auto-fill');
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    element.value += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    setTimeout(() => {
+                        element.classList.remove('auto-fill');
+                    }, 1000);
+                }
+            }, 50);
+        }
+
+        function startAnalysis() {
+            // Validate inputs
+            const website = document.getElementById('websiteUrl').value;
+            const industry = document.getElementById('industrySelect').value;
+            
+            if (!website || !industry) {
+                alert('Please enter your website URL and select your industry to continue.');
+                return;
+            }
+
+            // Update progress and move to stage 2
+            updateStep(2);
+            updateProgress(40);
+            showStage(2);
+
+            // Start analysis simulation
+            runAnalysisSimulation();
+        }
+
+        function runAnalysisSimulation() {
+            let stepIndex = 0;
+            let totalDuration = 0;
+            
+            // Calculate total duration
+            analysisSteps.forEach(step => totalDuration += step.duration);
+            
+            // Animate metrics
+            animateProcessingMetrics();
+            
+            function executeStep() {
+                if (stepIndex < analysisSteps.length) {
+                    const step = analysisSteps[stepIndex];
+                    
+                    // Update status text
+                    document.getElementById('analysisStatus').textContent = step.status;
+                    document.getElementById('analysisSubstatus').textContent = step.substatus;
+                    
+                    // Update progress bar
+                    const progressPercent = 40 + (stepIndex / analysisSteps.length) * 40;
+                    updateProgress(progressPercent);
+                    
+                    // Update step indicators
+                    if (stepIndex < 3) {
+                        updateStep(stepIndex + 3);
+                    }
+                    
+                    stepIndex++;
+                    setTimeout(executeStep, step.duration);
+                } else {
+                    // Analysis complete
+                    setTimeout(() => {
+                        showResults();
+                    }, 1000);
+                }
+            }
+            
+            executeStep();
+        }
+
+        function animateProcessingMetrics() {
+            const metrics = [
+                { element: 'websitesScanned', target: 847 },
+                { element: 'keywordsProcessed', target: 12394 },
+                { element: 'competitorsFound', target: 23 },
+                { element: 'directoriesChecked', target: 456 }
+            ];
+
+            metrics.forEach((metric, index) => {
+                setTimeout(() => {
+                    animateCounter(metric.element, metric.target, 3000);
+                }, index * 500);
+            });
+        }
+
+        function animateCounter(elementId, target, duration) {
+            const element = document.getElementById(elementId);
+            const start = 0;
+            const increment = target / (duration / 50);
+            let current = start;
+            
+            const counter = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(counter);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 50);
+        }
+
+        function showResults() {
+            updateStep(5);
+            updateProgress(100);
+            showStage(3);
+            
+            // Animate insight cards with staggered timing
+            const cards = document.querySelectorAll('.insight-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        }
+
+        function updateStep(stepNumber) {
+            // Remove active class from all steps
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.classList.remove('active');
+                if (i < stepNumber) {
+                    step.classList.add('completed');
+                }
+            }
+            
+            // Add active class to current step
+            if (stepNumber <= 5) {
+                document.getElementById(`step-${stepNumber}`).classList.add('active');
+            }
+        }
+
+        function updateProgress(percentage) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function showStage(stageNumber) {
+            // Hide all stages
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`stage-${i}`).classList.remove('active');
+            }
+            
+            // Show target stage
+            document.getElementById(`stage-${stageNumber}`).classList.add('active');
+            currentStage = stageNumber;
+        }
+
+        function showFullReport() {
+            document.getElementById('valueModal').classList.add('active');
+        }
+
+        function viewExecutiveDemo() {
+            window.open('ai-analysis-executive-demo.html', '_blank');
+        }
+
+        function closeModal() {
+            document.getElementById('valueModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('valueModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize loading bar animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingBar = document.getElementById('loadingBar');
+            
+            // Animate loading bar gradually
+            let width = 0;
+            const loadingInterval = setInterval(() => {
+                if (width < 100) {
+                    width += Math.random() * 2;
+                    loadingBar.style.width = Math.min(width, 100) + '%';
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(loadingInterval);
+                loadingBar.style.width = '100%';
+            }, 18000);
+        });
+    </script>
+</body>
+</html>

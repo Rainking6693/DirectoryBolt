@@ -1,6 +1,7 @@
-// 🔄 DIRECTORYBOLT SUBSCRIPTION CHECKOUT
-// POST /api/create-subscription-checkout - Create subscription checkout for Auto Update & Resubmission service
-// This is separate from one-time package purchases
+// 🚫 DEPRECATED: DIRECTORYBOLT SUBSCRIPTION CHECKOUT
+// POST /api/create-subscription-checkout - DEPRECATED - DirectoryBolt now uses ONE-TIME PAYMENTS only
+// This endpoint is deprecated as of the one-time payment migration
+// Use /api/create-one-time-checkout instead
 
 import { handleApiError, ValidationError, ApiError } from '../../lib/utils/errors';
 import { log } from '../../lib/utils/logger';
@@ -22,6 +23,28 @@ function getStripeClientSafe() {
 }
 
 export default async function handler(req, res) {
+  // DEPRECATION NOTICE: This endpoint is no longer supported
+  console.warn('DEPRECATED API called: /api/create-subscription-checkout - DirectoryBolt now uses one-time payments only');
+  
+  return res.status(410).json({
+    error: 'Endpoint deprecated',
+    code: 'SUBSCRIPTION_MODEL_DEPRECATED',
+    message: 'DirectoryBolt now uses one-time payments only. Subscriptions are no longer supported.',
+    migration: {
+      use_instead: '/api/create-one-time-checkout',
+      documentation: 'https://docs.directorybolt.com/one-time-payments',
+      pricing_model: 'ONE_TIME_PURCHASE',
+      tiers: {
+        starter: '$149 one-time',
+        growth: '$299 one-time', 
+        professional: '$499 one-time',
+        enterprise: '$799 one-time'
+      }
+    },
+    timestamp: new Date().toISOString()
+  });
+  
+  // Legacy code below - no longer executed
   const requestId = `sub_checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   // Set security headers
@@ -367,5 +390,5 @@ async function handleCreateSubscriptionCheckout(req, res, requestId) {
   }
 }
 
-// Export for testing
-export { handleCreateSubscriptionCheckout };
+// DEPRECATED - Export for testing legacy code only
+// export { handleCreateSubscriptionCheckout };

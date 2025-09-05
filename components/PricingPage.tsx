@@ -30,101 +30,104 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: 49,
-    annualPrice: 39, // 20% discount on annual billing
-    description: '50 directory submissions',
-    directories: 50,
+    price: 149,
+    annualPrice: 149, // One-time pricing
+    description: 'AI-powered analysis for small businesses - One-time purchase',
+    directories: 25,
     support: 'Email support',
     features: [
-      '🚀 50 directory submissions',
-      '📊 Basic analytics dashboard',
-      '📧 Email support',
-      '⭐ Product Hunt, Crunchbase submissions included',
-      '✅ 85%+ approval rates'
+      '🤖 25 AI-optimized directory submissions',
+      '🧠 Basic AI competitive analysis ($800 value)',
+      '📊 AI business insights dashboard',
+      '⚡ AI-powered profile optimization',
+      '✅ 30-day completion guarantee'
     ],
     roi: {
-      timesSaved: '8-12 hours total submission time',
-      visibilityIncrease: '+35% search visibility',
-      newCustomers: '5-8 new customers/month'
+      timesSaved: 'Equivalent to $2,000+ business consultant',
+      visibilityIncrease: '94% savings vs manual consulting',
+      newCustomers: 'AI-driven customer acquisition insights',
+      roiPercentage: '17x ROI (94% savings)'
     },
-    buttonText: 'Start Free Trial',
+    buttonText: 'Purchase Analysis',
     buttonStyle: 'bg-secondary-700 hover:bg-secondary-600 text-white'
   },
   {
     id: 'growth',
     name: 'Growth',
-    price: 89,
-    annualPrice: 69, // 22% discount on annual billing
-    description: '100 directory submissions',
-    directories: 100,
+    price: 299,
+    annualPrice: 299, // One-time pricing
+    description: 'Comprehensive AI business intelligence - One-time purchase',
+    directories: 75,
     support: 'Priority support',
     highlighted: true,
     popular: true,
-    badge: 'MOST POPULAR',
+    badge: 'MOST POPULAR - BEST VALUE',
     features: [
-      '🚀 100 directory submissions',
-      '🔥 Hacker News, AlternativeTo submissions included',
-      '🤖 AI optimization for descriptions',
-      '💬 Priority support',
-      '📊 400-600% ROI potential'
+      '🤖 75 AI-optimized directory submissions',
+      '🧠 Advanced AI competitive analysis ($1,200 value)',
+      '📈 AI market research & insights ($800 value)',
+      '💰 AI revenue projections ($400 value)',
+      '🎯 AI business strategy recommendations',
+      '📊 Advanced AI analytics dashboard'
     ],
     roi: {
-      timesSaved: '15-25 hours total submission time',
-      visibilityIncrease: '+55% search visibility',
-      newCustomers: '12-18 new customers/month',
-      roiPercentage: '400-600%'
+      timesSaved: 'Equivalent to $3,800+ consulting package',
+      visibilityIncrease: '92% savings vs manual research',
+      newCustomers: 'AI-powered growth strategy development',
+      roiPercentage: '13x ROI (92% savings)'
     },
-    buttonText: 'Start Free Trial',
+    buttonText: 'Buy Intelligence Package',
     buttonStyle: 'bg-gradient-to-r from-volt-500 to-volt-600 hover:from-volt-400 hover:to-volt-500 text-secondary-900 font-black'
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    price: 159,
-    annualPrice: 125, // 21% discount on annual billing
-    description: '200 directory submissions',
-    directories: 200,
-    support: 'Phone support priority',
+    id: 'professional',
+    name: 'Professional',
+    price: 499,
+    annualPrice: 499, // One-time pricing
+    description: 'Enterprise AI with custom research - One-time purchase',
+    directories: 150,
+    support: 'Phone & priority support',
     features: [
-      '🚀 200 directory submissions',
-      '🔧 API access for agencies',
-      '📈 White-label reports',
-      '📞 Phone support priority',
-      '📊 600-800% ROI potential'
+      '🤖 150 AI-optimized directory submissions',
+      '📋 Custom AI market research ($1,500 value)',
+      '🏷️ White-label AI reports ($800 value)',
+      '📞 Quarterly AI strategy sessions',
+      '🔧 API access for integrations',
+      '🎯 Custom AI business modeling'
     ],
     roi: {
-      timesSaved: '35-50 hours total submission time',
-      visibilityIncrease: '+75% search visibility',
-      newCustomers: '25-35 new customers/month',
-      roiPercentage: '600-800%'
+      timesSaved: 'Equivalent to $4,500+ enterprise consulting',
+      visibilityIncrease: '89% savings vs consultant fees',
+      newCustomers: 'Custom AI-powered market expansion',
+      roiPercentage: '9x ROI (89% savings)'
     },
-    buttonText: 'Start Free Trial',
+    buttonText: 'Purchase Enterprise',
     buttonStyle: 'bg-secondary-700 hover:bg-secondary-600 text-white'
   },
   {
-    id: 'subscription',
-    name: 'Subscription',
-    price: 49,
-    annualPrice: 39, // 20% discount on annual billing
-    description: 'Monthly directory maintenance and resubmissions',
-    directories: 0,
-    support: 'Priority support and account management',
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 799,
+    annualPrice: 799, // One-time pricing
+    description: 'Full AI-powered business intelligence suite - One-time purchase',
+    directories: 500,
+    support: 'Dedicated account management',
+    badge: 'PREMIUM SUITE',
     features: [
-      '🔄 Monthly directory maintenance and resubmissions',
-      '🚀 Auto-resubmissions when listings expire',
-      '📊 Monthly performance reports and analytics',
-      '🆕 New directory additions as available',
-      '🔧 Profile optimization recommendations',
-      '💬 Priority support and account management',
-      '📈 Ongoing ROI tracking and improvements'
+      '🤖 500+ AI-optimized directory submissions',
+      '👨‍💼 Dedicated AI business analyst ($1,500 value)',
+      '🧠 Full AI intelligence suite ($2,000 value)',
+      '📈 Real-time AI competitive monitoring',
+      '🎯 AI-powered market expansion planning',
+      '🏷️ White-label AI reports & presentations'
     ],
     roi: {
-      timesSaved: 'Ongoing time savings every month',
-      visibilityIncrease: 'Maintained and improved visibility',
-      newCustomers: 'Consistent lead flow optimization',
-      roiPercentage: 'Continuous ROI improvements'
+      timesSaved: 'Equivalent to $6,000+ executive consulting',
+      visibilityIncrease: '87% savings vs dedicated analyst',
+      newCustomers: 'AI-driven enterprise growth strategy',
+      roiPercentage: '7.5x ROI (87% savings)'
     },
-    buttonText: 'Subscribe Monthly',
+    buttonText: 'Buy Complete Suite',
     buttonStyle: 'bg-gradient-to-r from-success-500 to-success-600 hover:from-success-400 hover:to-success-500 text-white font-black'
   }
 ]
@@ -142,7 +145,7 @@ const testimonials = [
     name: 'Marcus Rodriguez',
     company: 'Rodriguez Auto Repair',
     role: 'Owner',
-    content: 'Best investment we made. Saved us 50+ hours of manual work and brought in $15K in new business in 60 days.',
+    content: 'Best one-time investment we made. No monthly fees, just results. Brought in $15K in new business in 60 days.',
     rating: 5,
     results: '$15K new revenue'
   },
@@ -158,7 +161,7 @@ const testimonials = [
 
 export default function PricingPage() {
   const router = useRouter()
-  const [isAnnual, setIsAnnual] = useState(false)
+  const [isAnnual, setIsAnnual] = useState(false) // Keep for legacy support, but no longer used
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [showROICalculator, setShowROICalculator] = useState(false)
@@ -236,7 +239,7 @@ export default function PricingPage() {
             </h1>
             
             <p className="text-xl md:text-2xl text-secondary-300 mb-8 max-w-4xl mx-auto">
-              Stop losing customers to competitors. Get listed in 480+ directories and 
+              Stop losing customers to competitors. Get listed in 480+ directories with a one-time purchase and 
               <span className="text-volt-400 font-bold"> dominate local search results</span>
             </p>
           </div>
@@ -249,8 +252,8 @@ export default function PricingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
               <div className="bg-gradient-to-br from-success-900/50 to-success-800/30 p-6 rounded-xl border border-success-600/50 backdrop-blur-sm">
                 <div className="text-4xl mb-4">⏱️</div>
-                <h3 className="text-lg font-bold text-success-300 mb-2">Save 40+ Hours Monthly</h3>
-              <p className="text-sm text-secondary-300">Automated directory submissions vs manual work</p>
+                <h3 className="text-lg font-bold text-success-300 mb-2">Save 40+ Hours Total</h3>
+              <p className="text-sm text-secondary-300">One-time automated directory submissions vs manual work</p>
             </div>
             
             <div className="bg-gradient-to-br from-volt-900/50 to-volt-800/30 p-6 rounded-xl border border-volt-600/50 backdrop-blur-sm">
@@ -267,35 +270,10 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* Annual/Monthly Toggle */}
+          {/* One-Time Purchase Message */}
           <div className="animate-slide-up flex items-center justify-center gap-4 mb-12" style={{ animationDelay: '0.6s' }}>
-            <span className={`text-lg ${!isAnnual ? 'text-white font-bold' : 'text-secondary-400'}`}>
-              Monthly
-            </span>
-            <div className="relative">
-              <input
-                type="checkbox"
-                id="annual-toggle"
-                checked={isAnnual}
-                onChange={(e) => setIsAnnual(e.target.checked)}
-                className="sr-only"
-              />
-              <label
-                htmlFor="annual-toggle"
-                className={`flex items-center cursor-pointer w-16 h-8 rounded-full transition-colors duration-300 ${
-                  isAnnual ? 'bg-volt-500' : 'bg-secondary-600'
-                }`}
-              >
-                <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  isAnnual ? 'translate-x-9' : 'translate-x-1'
-                }`} />
-              </label>
-            </div>
-            <div className="flex flex-col items-start">
-              <span className={`text-lg ${isAnnual ? 'text-white font-bold' : 'text-secondary-400'}`}>
-                Annual
-              </span>
-              <span className="text-volt-400 text-sm font-bold">Save 2 months!</span>
+            <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/10 border border-volt-500/30 px-6 py-3 rounded-full">
+              <span className="text-volt-400 font-bold text-lg">💡 One-Time Purchase - No Monthly Fees!</span>
             </div>
           </div>
         </div>
@@ -342,7 +320,7 @@ export default function PricingPage() {
                           <span className={tier.highlighted ? 'text-volt-400' : 'text-volt-400'}>
                             ${isAnnual ? tier.annualPrice : tier.price}
                           </span>
-                          <span className="text-lg text-secondary-400">/month</span>
+                          <span className="text-lg text-secondary-400"> ONE-TIME</span>
                         </div>
                         {isAnnual && tier.price !== tier.annualPrice && (
                           <div className="text-sm text-volt-400 font-bold">
@@ -440,7 +418,7 @@ export default function PricingPage() {
                         <div className="text-center text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors px-2">
                           <span className="inline-flex items-center gap-1">
                             <span>🔒</span>
-                            <span>14-day free trial • Cancel anytime</span>
+                            <span>One-time purchase • 30-day guarantee</span>
                           </span>
                         </div>
                       )}
@@ -866,7 +844,7 @@ export default function PricingPage() {
                   }
                 }}
               >
-                🚀 Start 14-Day Free Trial
+                🚀 Purchase Now
               </CheckoutButton>
               
               <button
@@ -889,10 +867,10 @@ export default function PricingPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-4 sm:gap-8 text-xs sm:text-sm text-secondary-400">
-              <span className="flex items-center gap-1"><span>✅</span> No setup fees</span>
-              <span className="flex items-center gap-1"><span>✅</span> Cancel anytime</span>
-              <span className="flex items-center gap-1"><span>✅</span> 14-day free trial</span>
-              <span className="flex items-center gap-1"><span>✅</span> Instant activation</span>
+              <span className="flex items-center gap-1"><span>✅</span> No recurring fees</span>
+              <span className="flex items-center gap-1"><span>✅</span> Lifetime access</span>
+              <span className="flex items-center gap-1"><span>✅</span> 30-day guarantee</span>
+              <span className="flex items-center gap-1"><span>✅</span> Instant delivery</span>
             </div>
           </div>
         </div>

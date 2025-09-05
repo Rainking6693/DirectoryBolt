@@ -54,8 +54,8 @@ export default function Pricing() {
             __html: JSON.stringify({
               "@context": "https://schema.org/",
               "@type": "Product", 
-              "name": "DirectoryBolt Directory Submission Service",
-              "description": "AI-powered automated directory submission service for businesses. Get listed in 500+ high-authority directories to increase local search visibility, drive more traffic, and generate leads.",
+              "name": "DirectoryBolt AI-Enhanced Business Intelligence Platform",
+              "description": "Revolutionary AI-powered business intelligence platform that delivers $2,600+ worth of competitive analysis, market research, and strategic insights at 87-94% savings compared to traditional consultants.",
               "brand": {
                 "@type": "Brand",
                 "name": "DirectoryBolt",

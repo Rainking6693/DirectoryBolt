@@ -26,26 +26,52 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-left lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-volt-500/20 to-volt-600/10 border border-volt-500/30 px-4 py-2 rounded-full text-sm font-bold text-volt-300 mb-6 backdrop-blur-sm">
+                <span className="text-volt-400">💡</span>
+                Get $4,300 Worth of Business Intelligence for $299 ONE-TIME
+              </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent leading-tight animate-slide-up">
-                Submit Your Business to 500+ Directories — This Week
+                AI-Powered Business Intelligence That Replaces Your Entire Marketing Stack
               </h1>
               <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-secondary-300 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                Stop losing customers to competitors. Get discovered instantly with automated directory submissions to 500+ high-authority platforms. <span className="text-volt-400 font-bold">Results guaranteed in 48 hours.</span>
+                Stop paying consultants $3,000+ for basic market analysis projects. Own your business intelligence forever with one strategic investment. Get enterprise-level AI insights and lifetime access to growth strategies. <span className="text-volt-400 font-bold">Save 93% vs. consultant project fees.</span>
               </p>
+              
+              {/* Value Breakdown */}
+              <div className="bg-secondary-800/50 border border-volt-500/20 rounded-xl p-6 mb-8 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                <h3 className="text-volt-400 font-bold mb-4 text-center">What You Get (Worth $4,300+):</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                  <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
+                    <div className="text-volt-400 font-bold text-lg mb-2">$2,000</div>
+                    <div className="text-secondary-300">AI Market Analysis & Competitive Intelligence</div>
+                  </div>
+                  <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
+                    <div className="text-volt-400 font-bold text-lg mb-2">$1,500</div>
+                    <div className="text-secondary-300">500+ Premium Directory Submissions</div>
+                  </div>
+                  <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
+                    <div className="text-volt-400 font-bold text-lg mb-2">$800</div>
+                    <div className="text-secondary-300">Ongoing Optimization & Monitoring</div>
+                  </div>
+                </div>
+                <div className="text-center mt-4 text-success-400 font-bold">
+                  <span className="text-xl">→ Your Price: $299 ONE-TIME (Save 93%)</span>
+                </div>
+              </div>
               <button
                 onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
                 className="animate-zoom-in bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-8 py-4 rounded-xl shadow-2xl hover:shadow-volt-500/50 hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
                 style={{ animationDelay: '0.4s' }}
               >
-                Start Your Free Trial Today
+                Get Your Analysis Today
                 <span className="ml-2">🚀</span>
               </button>
-              <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>Risk-free 14 days | Results in 48 hours | Cancel anytime</p>
+              <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>One-time purchase | Results in 48 hours | 30-day money-back guarantee</p>
             </div>
             <div className="relative">
               <Image
                 src="/hero.svg"
-                alt="DirectoryBolt dashboard showing automated directory submissions"
+                alt="DirectoryBolt AI Business Intelligence Dashboard showing market analysis, competitor insights, and automated growth strategies"
                 width={1600}
                 height={900}
                 priority
@@ -61,9 +87,9 @@ export default function LandingPage() {
 
       {/* Problem Section */}
       <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 max-w-4xl mx-auto text-center">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-volt-400">Still Invisible Online—Even After Running Ads?</h2>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-volt-400">Tired of Paying $3,000+ for Every Business Analysis Project?</h2>
         <p className="text-base sm:text-lg lg:text-xl text-secondary-300 leading-relaxed">
-          Most businesses miss out on leads because they're simply not listed where customers are searching. Manual submissions are tedious. Freelancers charge a premium. And DIY? It just doesn't scale.
+          Business consultants charge premium project fees for insights you could own with a one-time AI investment. Market research firms take weeks and charge thousands for what our platform generates instantly. Why rent business intelligence when you can own it forever? Make one strategic investment and replace expensive consultant projects permanently.
         </p>
       </section>
 
@@ -71,32 +97,32 @@ export default function LandingPage() {
       <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 bg-secondary-800 text-center">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 sm:mb-12 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent">
-            DirectoryBolt Automates Everything
+            DirectoryBolt: Your AI Business Intelligence Platform
           </h2>
           <ul className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8 max-w-4xl mx-auto text-left">
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base">Submit your business to <strong className="text-volt-400">500+ high-authority directories</strong></span>
+              <span className="text-sm sm:text-base"><strong className="text-volt-400">AI Market Analysis</strong> that replaces $2,000+ consultant reports</span>
             </li>
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base">AI-powered optimization = <strong className="text-volt-400">more visibility, better consistency</strong></span>
+              <span className="text-sm sm:text-base"><strong className="text-volt-400">Competitor Intelligence</strong> = know exactly what your competition is doing</span>
             </li>
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base">Setup in <strong className="text-volt-400">under 2 minutes</strong></span>
+              <span className="text-sm sm:text-base"><strong className="text-volt-400">500+ Directory Network</strong> for maximum online visibility</span>
             </li>
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base">Plans from <strong className="text-volt-400">$49-$159</strong> | <strong className="text-volt-400">Free 14-day trial</strong></span>
+              <span className="text-sm sm:text-base">One-time investment from <strong className="text-volt-400">$149-$799</strong> | <strong className="text-volt-400">Save 93% vs. consultant project fees</strong></span>
             </li>
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base"><strong className="text-volt-400">Cancel anytime</strong>. 30-day money-back guarantee</span>
+              <span className="text-sm sm:text-base"><strong className="text-volt-400">Enterprise-level insights</strong> with automated growth strategies</span>
             </li>
             <li className="flex items-start sm:items-center text-secondary-300 p-2">
               <span className="text-success-400 mr-3 mt-1 sm:mt-0 flex-shrink-0">✓</span>
-              <span className="text-sm sm:text-base"><strong className="text-volt-400">Trusted by 500+ businesses</strong> | ⭐ 4.9/5 rating</span>
+              <span className="text-sm sm:text-base"><strong className="text-volt-400">Pay once, own forever</strong> | <strong className="text-volt-400">Business asset acquisition</strong> | ⭐ 4.9/5 rating</span>
             </li>
           </ul>
         </div>
@@ -107,23 +133,23 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 max-w-6xl mx-auto bg-secondary-800">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-volt-400">What You'll Love</h2>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-volt-400">Enterprise-Level Business Intelligence Features</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8">
           <div className="bg-secondary-800 p-6 sm:p-8 rounded-lg border border-volt-400/20 hover:border-volt-400/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">AI-Optimized Listings</h3>
-            <p className="text-secondary-300 text-sm sm:text-base">We don't just submit—we optimize for visibility in every directory.</p>
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">AI Market Analysis</h3>
+            <p className="text-secondary-300 text-sm sm:text-base">Deep market insights that would cost $2,000+ per project from consultants. Own your competitive intelligence forever.</p>
           </div>
           <div className="bg-secondary-800 p-6 sm:p-8 rounded-lg border border-volt-400/20 hover:border-volt-400/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">Multi-Platform Reach</h3>
-            <p className="text-secondary-300 text-sm sm:text-base">Google Business, Yelp, Apple Maps, Yellow Pages, and 500+ more.</p>
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">Competitor Intelligence Dashboard</h3>
+            <p className="text-secondary-300 text-sm sm:text-base">Monitor competitor strategies, pricing, and positioning. Know exactly what they're doing before they do it.</p>
           </div>
           <div className="bg-secondary-800 p-6 sm:p-8 rounded-lg border border-volt-400/20 hover:border-volt-400/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">Centralized Dashboard</h3>
-            <p className="text-secondary-300 text-sm sm:text-base">Track, update, and manage all listings from one clean interface.</p>
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">Automated Growth Strategies</h3>
+            <p className="text-secondary-300 text-sm sm:text-base">AI-powered recommendations that replace expensive strategy consultant projects. Own your growth playbook forever.</p>
           </div>
           <div className="bg-secondary-800 p-6 sm:p-8 rounded-lg border border-volt-400/20 hover:border-volt-400/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">Auto-Sync Updates</h3>
-            <p className="text-secondary-300 text-sm sm:text-base">Changed your info? We update every listing automatically.</p>
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 text-volt-400">500+ Premium Directory Network</h3>
+            <p className="text-secondary-300 text-sm sm:text-base">Comprehensive online presence optimization across high-authority platforms. Maximum visibility for your brand.</p>
           </div>
         </div>
       </section>
@@ -144,18 +170,18 @@ export default function LandingPage() {
           {/* Urgency banner */}
           <div className="inline-flex items-center gap-2 bg-secondary-900/20 border border-secondary-900/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold text-secondary-900 mb-6 backdrop-blur-sm">
             <div className="w-2 h-2 bg-danger-500 rounded-full animate-ping"></div>
-            487 businesses joined DirectoryBolt this month
+            487 businesses made the one-time investment to own their intelligence this month
           </div>
           
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6">Let's Get You Found — Before Your Competitors</h2>
-          <p className="mb-8 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">Stop being invisible. Start showing up where your ideal customers are searching. <span className="font-bold">Results guaranteed in 48 hours.</span></p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6">Own Your Business Intelligence Before Competitors Do</h2>
+          <p className="mb-8 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">Stop renting business insights from expensive consultants. Make one strategic investment and <span className="font-bold">own enterprise-level intelligence forever. Replace $3,000+ consultant projects with permanent business assets.</span></p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
               onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
               className="w-full sm:w-auto bg-secondary-900 text-volt-400 font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl border-2 border-volt-500 hover:border-volt-400 min-h-[56px] flex items-center justify-center"
             >
-              🚀 Start My Free Trial Today
+              🚀 Get My Analysis Today
             </button>
             
             <button
@@ -173,15 +199,15 @@ export default function LandingPage() {
               <span className="font-bold text-base sm:text-lg">30-Day Money-Back Guarantee</span>
             </div>
             <p className="text-sm sm:text-base opacity-90">
-              Get 5 new customers in 30 days or receive a full refund. No questions asked.
+              Get 5 new customers in 30 days or receive a full refund. Risk-free business asset acquisition.
             </p>
           </div>
           
           <div className="mt-6 grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm opacity-90">
-            <span>✅ No setup fees</span>
-            <span>✅ Cancel anytime</span>
+            <span>✅ No recurring fees</span>
+            <span>✅ Lifetime access</span>
             <span>✅ Results guaranteed</span>
-            <span>✅ Instant activation</span>
+            <span>✅ Instant delivery</span>
           </div>
         </div>
       </section>

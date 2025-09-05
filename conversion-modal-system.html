@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt - Conversion Modal System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .demo-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .modal-trigger {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            border: none;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-trigger:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .modal-trigger.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-trigger.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #f59e0b;
+        }
+
+        /* Base Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1.5rem;
+            padding: 0;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.9) translateY(50px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Sample Analysis Modal */
+        .sample-modal .modal-content {
+            max-width: 1000px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .sample-header {
+            background: linear-gradient(45deg, #7c3aed, #8b5cf6);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .sample-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .sample-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sample-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sample-content {
+            padding: 2rem;
+        }
+
+        .insights-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .insight-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-metric {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f59e0b;
+            margin-bottom: 0.8rem;
+        }
+
+        .insight-description {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Value Proposition Modal */
+        .value-modal .modal-content {
+            max-width: 700px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .value-headline {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .value-subheadline {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .savings-showcase {
+            background: linear-gradient(45deg, #059669, #10b981);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            color: white;
+        }
+
+        .savings-amount {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .savings-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .value-breakdown {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .value-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .value-check {
+            color: #10b981;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .value-text {
+            color: #e2e8f0;
+        }
+
+        /* ROI Calculator Modal */
+        .roi-modal .modal-content {
+            max-width: 800px;
+            padding: 0;
+        }
+
+        .roi-header {
+            background: linear-gradient(45deg, #10b981, #059669);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .roi-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .roi-content {
+            padding: 2rem;
+        }
+
+        .roi-calculator {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        .calculator-input {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-label {
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .calculator-input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.8rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .calculator-input-field:focus {
+            outline: none;
+            border-color: #f59e0b;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .roi-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .roi-result-card {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .roi-result-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #10b981;
+            margin-bottom: 0.3rem;
+        }
+
+        .roi-result-label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Interactive Demo Modal */
+        .demo-modal .modal-content {
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .demo-content {
+            padding: 2rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .demo-steps {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .demo-step {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-step:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .demo-step.active {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f59e0b;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .step-description {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* CTA Buttons */
+        .modal-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #0f172a;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(45deg, #eab308, #f59e0b);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cta-button.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #f59e0b;
+        }
+
+        .guarantee-text {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                margin: 1rem;
+            }
+            
+            .sample-title, .value-headline {
+                font-size: 2rem;
+            }
+            
+            .insights-preview {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-input {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .value-modal .modal-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scale-in {
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.95); }
+            to { transform: scale(1); }
+        }
+
+        /* Loading states */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f59e0b;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-page">
+        <h1 class="demo-title">Conversion Modal System Demo</h1>
+        <p style="color: #94a3b8; font-size: 1.2rem; margin-bottom: 3rem;">
+            Professional modal system for AI analysis demos and conversion optimization
+        </p>
+
+        <div class="demo-buttons">
+            <button class="modal-trigger" onclick="openModal('sampleAnalysis')">
+                View Sample Analysis
+            </button>
+            <button class="modal-trigger" onclick="openModal('valueProposition')">
+                See Value Proposition
+            </button>
+            <button class="modal-trigger" onclick="openModal('roiCalculator')">
+                Calculate Your ROI
+            </button>
+            <button class="modal-trigger secondary" onclick="openModal('interactiveDemo')">
+                Interactive Demo Steps
+            </button>
+        </div>
+    </div>
+
+    <!-- Sample Analysis Modal -->
+    <div class="modal-overlay sample-modal" id="sampleAnalysisModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('sampleAnalysis')">&times;</button>
+            <div class="sample-header">
+                <h2 class="sample-title">Sample AI Analysis Results</h2>
+                <p class="sample-subtitle">See exactly what insights you'll receive from our AI business intelligence platform</p>
+            </div>
+            <div class="sample-content">
+                <div class="insights-preview">
+                    <div class="insight-card">
+                        <div class="insight-icon">📊</div>
+                        <h3 class="insight-title">Market Position</h3>
+                        <div class="insight-metric">Top 18%</div>
+                        <p class="insight-description">Your business ranks in the top 18% for digital presence in your industry sector.</p>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">⚡</div>
+                        <h3 class="insight-title">Revenue Gap</h3>
+                        <div class="insight-metric">$264K/year</div>
+                        <p class="insight-description">Annual revenue opportunity identified through strategic directory optimization.</p>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">🎯</div>
+                        <h3 class="insight-title">Quick Wins</h3>
+                        <div class="insight-metric">89 Opportunities</div>
+                        <p class="insight-description">High-impact opportunities for immediate competitive advantage.</p>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">🚀</div>
+                        <h3 class="insight-title">Success Rate</h3>
+                        <div class="insight-metric">94%</div>
+                        <p class="insight-description">AI-calculated probability of achieving projected ROI within 6 months.</p>
+                    </div>
+                </div>
+                <div class="modal-cta">
+                    <a href="ai-analysis-executive-demo.html" class="cta-button" target="_blank">View Full Executive Demo</a>
+                    <a href="pricing.html" class="cta-button secondary">Get My Custom Analysis</a>
+                </div>
+                <p class="guarantee-text">
+                    🔒 30-day money-back guarantee • ⚡ Results in 48 hours • 🎯 94% success rate
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Value Proposition Modal -->
+    <div class="modal-overlay value-modal" id="valuePropositionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('valueProposition')">&times;</button>
+            <h2 class="value-headline">$4,300 Analysis for $299</h2>
+            <p class="value-subheadline">Get consultant-grade business intelligence at 93% savings</p>
+            
+            <div class="savings-showcase">
+                <div class="savings-amount">93%</div>
+                <p class="savings-description">You Save $4,001</p>
+            </div>
+
+            <div class="value-breakdown">
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">AI-powered comprehensive business analysis ($2,000 value)</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">Competitive intelligence report with market positioning ($800 value)</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">300+ premium directory submissions with tracking ($1,500 value)</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">Executive summary PDF and strategic implementation roadmap</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">Ongoing competitor monitoring and market alerts</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-check">✓</div>
+                    <div class="value-text">Priority support with dedicated strategy consultant</div>
+                </div>
+            </div>
+
+            <div class="modal-cta">
+                <a href="pricing.html" class="cta-button">Start My Analysis - $299</a>
+                <button class="cta-button secondary" onclick="openModal('roiCalculator')">Calculate My ROI</button>
+            </div>
+            <p class="guarantee-text">
+                Launch special pricing • Limited time offer • 30-day guarantee
+            </p>
+        </div>
+    </div>
+
+    <!-- ROI Calculator Modal -->
+    <div class="modal-overlay roi-modal" id="roiCalculatorModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('roiCalculator')">&times;</button>
+            <div class="roi-header">
+                <h2 class="roi-title">Calculate Your ROI</h2>
+                <p>Enter your business metrics to see projected revenue impact</p>
+            </div>
+            <div class="roi-content">
+                <div class="roi-calculator">
+                    <div class="calculator-input">
+                        <div class="input-group">
+                            <label class="input-label">Current Monthly Revenue</label>
+                            <input type="number" class="calculator-input-field" id="currentRevenue" placeholder="50000" value="50000">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Industry Category</label>
+                            <select class="calculator-input-field" id="industryCategory">
+                                <option value="saas">SaaS / Technology</option>
+                                <option value="ecommerce">E-commerce</option>
+                                <option value="professional">Professional Services</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Current Directory Presence</label>
+                            <select class="calculator-input-field" id="directoryPresence">
+                                <option value="low">Low (0-50 directories)</option>
+                                <option value="medium">Medium (51-150 directories)</option>
+                                <option value="high">High (151+ directories)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Competition Level</label>
+                            <select class="calculator-input-field" id="competitionLevel">
+                                <option value="low">Low Competition</option>
+                                <option value="medium">Medium Competition</option>
+                                <option value="high">High Competition</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="roi-results">
+                        <div class="roi-result-card">
+                            <div class="roi-result-value" id="additionalRevenue">$22K</div>
+                            <div class="roi-result-label">Additional Monthly Revenue</div>
+                        </div>
+                        <div class="roi-result-card">
+                            <div class="roi-result-value" id="annualIncrease">$264K</div>
+                            <div class="roi-result-label">Annual Revenue Increase</div>
+                        </div>
+                        <div class="roi-result-card">
+                            <div class="roi-result-value" id="roiPercentage">285%</div>
+                            <div class="roi-result-label">6-Month ROI</div>
+                        </div>
+                        <div class="roi-result-card">
+                            <div class="roi-result-value" id="paybackPeriod">4.3mo</div>
+                            <div class="roi-result-label">Payback Period</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-cta">
+                    <a href="pricing.html" class="cta-button">Get My Analysis - $299</a>
+                    <button class="cta-button secondary" onclick="openModal('sampleAnalysis')">See Sample Results</button>
+                </div>
+                <p class="guarantee-text">
+                    Conservative projections based on 3,000+ similar businesses
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Demo Modal -->
+    <div class="modal-overlay demo-modal" id="interactiveDemoModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('interactiveDemo')">&times;</button>
+            <div class="demo-content">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #f59e0b; font-size: 2rem; font-weight: 900;">Interactive Demo Steps</h2>
+                
+                <div class="demo-steps">
+                    <div class="demo-step active" onclick="toggleStep(this)">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <h3 class="step-title">Business Information Input</h3>
+                        </div>
+                        <p class="step-description">Enter your website URL, industry, and business goals. Our AI begins analysis of your digital footprint and competitive landscape.</p>
+                    </div>
+                    
+                    <div class="demo-step" onclick="toggleStep(this)">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <h3 class="step-title">AI Market Analysis</h3>
+                        </div>
+                        <p class="step-description">Watch real-time as our AI scans 500+ directories, analyzes competitors, and processes market intelligence data.</p>
+                    </div>
+                    
+                    <div class="demo-step" onclick="toggleStep(this)">
+                        <div class="step-header">
+                            <div class="step-number">3</div>
+                            <h3 class="step-title">Competitive Intelligence</h3>
+                        </div>
+                        <p class="step-description">See detailed competitor analysis showing exactly where they outperform you and identifying strategic opportunities.</p>
+                    </div>
+                    
+                    <div class="demo-step" onclick="toggleStep(this)">
+                        <div class="step-header">
+                            <div class="step-number">4</div>
+                            <h3 class="step-title">Revenue Opportunity Calculation</h3>
+                        </div>
+                        <p class="step-description">AI calculates precise revenue projections based on market gaps, competitor analysis, and industry benchmarks.</p>
+                    </div>
+                    
+                    <div class="demo-step" onclick="toggleStep(this)">
+                        <div class="step-header">
+                            <div class="step-number">5</div>
+                            <h3 class="step-title">Strategic Implementation Plan</h3>
+                        </div>
+                        <p class="step-description">Receive your custom action plan with prioritized tasks, timelines, and success probability scoring.</p>
+                    </div>
+                </div>
+
+                <div class="modal-cta">
+                    <a href="ai-analysis-interactive-demo.html" class="cta-button" target="_blank">Try Interactive Demo</a>
+                    <a href="pricing.html" class="cta-button secondary">Skip to Analysis</a>
+                </div>
+                <p class="guarantee-text">
+                    Complete demo takes 3-5 minutes • No registration required
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Management
+        function openModal(modalType) {
+            const modalId = modalType + 'Modal';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // Analytics tracking
+                trackModalOpen(modalType);
+                
+                // Auto-populate calculator if ROI modal
+                if (modalType === 'roiCalculator') {
+                    setTimeout(() => calculateROI(), 500);
+                }
+            }
+        }
+
+        function closeModal(modalType) {
+            const modalId = modalType + 'Modal';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // ROI Calculator
+        function calculateROI() {
+            const currentRevenue = parseInt(document.getElementById('currentRevenue').value) || 50000;
+            const industry = document.getElementById('industoryCategory')?.value || 'saas';
+            const directoryPresence = document.getElementById('directoryPresence')?.value || 'low';
+            const competition = document.getElementById('competitionLevel')?.value || 'medium';
+
+            // Calculate multipliers based on inputs
+            let multiplier = 0.4; // Base 40% increase
+            
+            // Industry multipliers
+            const industryMultipliers = {
+                'saas': 0.5,
+                'ecommerce': 0.45,
+                'professional': 0.4,
+                'healthcare': 0.35,
+                'finance': 0.3
+            };
+            
+            // Directory presence impact
+            const directoryMultipliers = {
+                'low': 0.5,
+                'medium': 0.3,
+                'high': 0.2
+            };
+            
+            // Competition impact
+            const competitionMultipliers = {
+                'low': 0.6,
+                'medium': 0.4,
+                'high': 0.3
+            };
+
+            multiplier = (industryMultipliers[industry] || 0.4) + 
+                        (directoryMultipliers[directoryPresence] || 0.4) + 
+                        (competitionMultipliers[competition] || 0.4);
+
+            const additionalMonthly = Math.round(currentRevenue * multiplier);
+            const additionalAnnual = additionalMonthly * 12;
+            const investment = 299;
+            const roi = Math.round(((additionalAnnual - investment) / investment) * 100);
+            const paybackMonths = Math.round(investment / additionalMonthly * 10) / 10;
+
+            // Update display
+            document.getElementById('additionalRevenue').textContent = '$' + (additionalMonthly/1000).toFixed(0) + 'K';
+            document.getElementById('annualIncrease').textContent = '$' + (additionalAnnual/1000).toFixed(0) + 'K';
+            document.getElementById('roiPercentage').textContent = roi + '%';
+            document.getElementById('paybackPeriod').textContent = paybackMonths + 'mo';
+        }
+
+        // Add input listeners for real-time calculation
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculatorInputs = document.querySelectorAll('#roiCalculatorModal input, #roiCalculatorModal select');
+            calculatorInputs.forEach(input => {
+                input.addEventListener('change', calculateROI);
+                input.addEventListener('input', calculateROI);
+            });
+        });
+
+        // Demo Steps Interaction
+        function toggleStep(stepElement) {
+            // Remove active from all steps
+            document.querySelectorAll('.demo-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Add active to clicked step
+            stepElement.classList.add('active');
+            
+            // Add visual feedback
+            stepElement.classList.add('scale-in');
+            setTimeout(() => {
+                stepElement.classList.remove('scale-in');
+            }, 300);
+        }
+
+        // Analytics Tracking
+        function trackModalOpen(modalType) {
+            // Add your analytics tracking here
+            console.log(`Modal opened: ${modalType}`);
+            
+            // Example Google Analytics event
+            // gtag('event', 'modal_open', {
+            //     'modal_type': modalType,
+            //     'page_location': window.location.href
+            // });
+        }
+
+        // Auto-open modal based on URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const modal = urlParams.get('modal');
+            if (modal) {
+                setTimeout(() => openModal(modal), 500);
+            }
+        });
+
+        // Exit intent detection (simplified)
+        let exitIntentTriggered = false;
+        document.addEventListener('mouseout', function(e) {
+            if (!exitIntentTriggered && e.clientY <= 0) {
+                exitIntentTriggered = true;
+                setTimeout(() => {
+                    if (!document.querySelector('.modal-overlay.active')) {
+                        openModal('valueProposition');
+                    }
+                }, 500);
+            }
+        });
+
+        // Scroll-based modal triggering
+        let scrollModalTriggered = false;
+        window.addEventListener('scroll', function() {
+            const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            
+            if (!scrollModalTriggered && scrollPercent > 50) {
+                scrollModalTriggered = true;
+                // Could trigger a modal here based on engagement
+            }
+        });
+    </script>
+</body>
+</html>
