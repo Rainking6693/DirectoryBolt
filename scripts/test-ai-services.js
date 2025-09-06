@@ -1,239 +1,74 @@
 #!/usr/bin/env node
 
-/**
- * AI Services Test Script
- * Tests connectivity and configuration for OpenAI and Anthropic APIs
- */
+// 🧪 AI SERVICES INTEGRATION TEST
+// Tests all AI services to ensure they're working correctly
 
-const puppeteer = require('puppeteer');
+const { createEnhancedWebsiteAnalyzer } = require('../lib/services/enhanced-website-analyzer')
+const { createAIBusinessAnalyzer } = require('../lib/services/ai-business-analyzer')
+const { DirectoryMatcher } = require('../lib/services/directory-matcher')
 
-// Load environment variables
-require('dotenv').config();
-
-const colors = {
-  green: '\x1b[32m',
-  red: '\x1b[31m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  reset: '\x1b[0m'
-};
-
-const log = (message, color = 'reset') => {
-  console.log(`${colors[color]}${message}${colors.reset}`);
-};
-
-const makeRequest = async (url, options = {}) => {
-  try {
-    // Use axios for HTTP requests
-    const axios = require('axios');
-    const response = await axios({
-      url,
-      method: options.method || 'GET',
-      headers: options.headers || {},
-      data: options.body,
-      timeout: 30000,
-      validateStatus: () => true // Don't throw on HTTP error status
-    });
-    
-    return {
-      ok: response.status >= 200 && response.status < 300,
-      status: response.status,
-      json: () => Promise.resolve(response.data),
-      text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data))
-    };
-  } catch (error) {
-    throw new Error(`Request failed: ${error.message}`);
+// Test configuration
+const TEST_URL = 'https://example.com'
+const TEST_CONFIG = {
+  timeout: 10000,
+  maxRetries: 1,
+  userAgent: 'DirectoryBolt Test Agent',
+  enableScreenshots: false, // Disable for testing
+  enableSocialAnalysis: true,
+  enableTechStackAnalysis: true,
+  screenshotOptions: {
+    fullPage: false,
+    width: 1200,
+    height: 800,
+    quality: 50,
+    format: 'png'
   }
-};
-
-const checkOpenAI = async () => {
-  log('🤖 Testing OpenAI API...', 'blue');
-  
-  if (!process.env.OPENAI_API_KEY) {
-    log('❌ OPENAI_API_KEY not found in environment variables', 'red');
-    return false;
-  }
-  
-  try {
-    // Test OpenAI API with a simple request
-    const response = await makeRequest('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      log(`✅ OpenAI API connection successful (${data.data?.length || 0} models available)`, 'green');
-      return true;
-    } else {
-      const errorData = await response.text();
-      log(`❌ OpenAI API connection failed: ${response.status} - ${errorData}`, 'red');
-      return false;
-    }
-  } catch (error) {
-    log(`❌ OpenAI API error: ${error.message}`, 'red');
-    return false;
-  }
-};
-
-const checkAnthropic = async () => {
-  log('🧠 Testing Anthropic API...', 'blue');
-  
-  if (!process.env.ANTHROPIC_API_KEY) {
-    log('❌ ANTHROPIC_API_KEY not found in environment variables', 'red');
-    return false;
-  }
-  
-  try {
-    // For Anthropic, we'll just check if the API key format is valid
-    if (process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
-      log('✅ Anthropic API key format is valid', 'green');
-      return true;
-    } else {
-      log('❌ Anthropic API key format is invalid', 'red');
-      return false;
-    }
-  } catch (error) {
-    log(`❌ Anthropic API error: ${error.message}`, 'red');
-    return false;
-  }
-};
-
-const checkPuppeteer = async () => {
-  log('🌐 Testing Puppeteer setup...', 'blue');
-  
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
-    });
-    
-    const version = await browser.version();
-    log(`✅ Puppeteer browser launch successful (${version})`, 'green');
-    
-    await browser.close();
-    return true;
-    
-  } catch (error) {
-    log(`❌ Puppeteer error: ${error.message}`, 'red');
-    return false;
-  }
-};
-
-const checkNetlifyEnvironment = () => {
-  log('🚀 Checking Netlify environment...', 'blue');
-  
-  const netlifyVars = {
-    NETLIFY: process.env.NETLIFY || 'false',
-    URL: process.env.URL || 'not set',
-    DEPLOY_URL: process.env.DEPLOY_URL || 'not set',
-    CONTEXT: process.env.CONTEXT || 'not set',
-    NODE_ENV: process.env.NODE_ENV || 'not set'
-  };
-  
-  console.table(netlifyVars);
-  
-  if (process.env.NETLIFY === 'true') {
-    log('✅ Running in Netlify environment', 'green');
-    
-    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-      log(`✅ Puppeteer executable path configured: ${process.env.PUPPETEER_EXECUTABLE_PATH}`, 'green');
-    } else {
-      log('⚠️ PUPPETEER_EXECUTABLE_PATH not set - may cause issues in Netlify functions', 'yellow');
-    }
-    
-    return true;
-  } else {
-    log('ℹ️ Running in local development environment', 'blue');
-    return false;
-  }
-};
-
-const generateReport = (results) => {
-  log('\n📊 AI Services Test Report', 'blue');
-  log('='.repeat(50));
-  
-  const serviceResults = [
-    { name: 'OpenAI API', status: results.openai },
-    { name: 'Anthropic API', status: results.anthropic },
-    { name: 'Puppeteer', status: results.puppeteer }
-  ];
-  
-  serviceResults.forEach(service => {
-    const status = service.status ? '✅ PASS' : '❌ FAIL';
-    const color = service.status ? 'green' : 'red';
-    log(`${service.name.padEnd(20)} ${status}`, color);
-  });
-  
-  const passCount = serviceResults.filter(s => s.status).length;
-  const totalCount = serviceResults.length;
-  
-  log(`\n📈 Overall Status: ${passCount}/${totalCount} services operational`);
-  
-  if (passCount === 0) {
-    log('🚨 CRITICAL: No AI services are operational. Configure at least one AI API key.', 'red');
-  } else if (passCount < totalCount) {
-    log('⚠️ WARNING: Some AI services are not operational. Some features may be disabled.', 'yellow');
-  } else {
-    log('🎉 SUCCESS: All AI services are operational and ready for production!', 'green');
-  }
-  
-  // Recommendations
-  log('\n🔧 Recommendations:', 'blue');
-  if (!results.openai) {
-    log('   • Set OPENAI_API_KEY environment variable', 'yellow');
-  }
-  if (!results.anthropic) {
-    log('   • Set ANTHROPIC_API_KEY environment variable', 'yellow');
-  }
-  if (!results.puppeteer) {
-    log('   • Install Puppeteer dependencies and check system requirements', 'yellow');
-  }
-  
-  log('\n✅ Test completed successfully!', 'green');
-};
-
-// Main execution
-const main = async () => {
-  log('🔍 DirectoryBolt AI Services Connectivity Test', 'blue');
-  log('='.repeat(48) + '\n');
-  
-  const results = {
-    openai: false,
-    anthropic: false,
-    puppeteer: false,
-    netlify: false
-  };
-  
-  // Run all tests
-  results.openai = await checkOpenAI();
-  results.anthropic = await checkAnthropic();
-  results.puppeteer = await checkPuppeteer();
-  results.netlify = checkNetlifyEnvironment();
-  
-  // Generate and display report
-  generateReport(results);
-};
-
-// Handle script execution
-if (require.main === module) {
-  main().catch(error => {
-    log(`💥 Test script failed: ${error.message}`, 'red');
-    console.error(error);
-    process.exit(1);
-  });
 }
 
-module.exports = { checkOpenAI, checkAnthropic, checkPuppeteer, checkNetlifyEnvironment };
+async function testEnhancedWebsiteAnalyzer() {
+  console.log('🔍 Testing Enhanced Website Analyzer...')
+  
+  try {
+    const analyzer = createEnhancedWebsiteAnalyzer(TEST_CONFIG)
+    const result = await analyzer.analyzeWebsite(TEST_URL)
+    
+    console.log('✅ Enhanced Website Analyzer - SUCCESS')
+    console.log(`   - Business Name: ${result.businessProfile.name}`)
+    console.log(`   - SEO Score: ${result.seoAnalysis.currentScore}`)
+    console.log(`   - Tech Stack: ${Object.keys(result.techStack).length} categories`)
+    console.log(`   - Social Platforms: ${result.socialPresence.platforms.length}`)
+    
+    return { success: true, data: result }
+  } catch (error) {
+    console.log('❌ Enhanced Website Analyzer - FAILED')
+    console.log(`   Error: ${error.message}`)
+    return { success: false, error: error.message }
+  }
+}
+
+async function testAIBusinessAnalyzer(websiteData) {
+  console.log('🤖 Testing AI Business Analyzer...')
+  
+  // Check if OpenAI API key is available
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
+    console.log('⚠️  AI Business Analyzer - SKIPPED (No OpenAI API key)')
+    return { success: false, error: 'No OpenAI API key configured' }
+  }
+  
+  try {
+    const analyzer = createAIBusinessAnalyzer({
+      model: 'gpt-4o',
+      temperature: 0.3,
+      maxTokens: 2000,
+      enableRevenueProjections: true,
+      enableCompetitorAnalysis: true,
+      analysisDepth: 'standard'
+    })
+    
+    const context = {
+      websiteData,
+      url: TEST_URL,
+      userInput: {
+        businessGoals: ['Increase online visibility', 'Generate more leads'],
+        targetAudience: 'Small business owners',
+        budget: 1000,\n        timeline: '3 months'\n      }\n    }\n    \n    const result = await analyzer.analyzeBusinessIntelligence(context)\n    \n    console.log('✅ AI Business Analyzer - SUCCESS')\n    console.log(`   - Primary Category: ${result.profile.primaryCategory}`)\n    console.log(`   - Industry: ${result.profile.industryVertical}`)\n    console.log(`   - Confidence: ${result.confidence}%`)\n    console.log(`   - Market Size: $${result.industryAnalysis.marketSize}B`)\n    \n    return { success: true, data: result }\n  } catch (error) {\n    console.log('❌ AI Business Analyzer - FAILED')\n    console.log(`   Error: ${error.message}`)\n    return { success: false, error: error.message }\n  }\n}\n\nasync function testDirectoryMatcher(businessIntelligence) {\n  console.log('📁 Testing Directory Matcher...')\n  \n  try {\n    const matcher = new DirectoryMatcher({\n      maxDirectories: 10,\n      enableAIOptimization: false, // Disable AI for testing\n      includeInternational: true,\n      includePremium: false,\n      budgetRange: { min: 0, max: 100 },\n      industryFocus: ['Technology'],\n      targetROI: 200,\n      analysisDepth: 'basic'\n    })\n    \n    const result = await matcher.findOptimalDirectories(businessIntelligence)\n    \n    console.log('✅ Directory Matcher - SUCCESS')\n    console.log(`   - Total Directories: ${result.totalDirectories}`)\n    console.log(`   - High Authority: ${result.categorizedOpportunities.highAuthority.length}`)\n    console.log(`   - Free Directories: ${result.categorizedOpportunities.freeDirectories.length}`)\n    console.log(`   - Expected Traffic: +${result.estimatedResults.totalTrafficIncrease}`)\n    \n    return { success: true, data: result }\n  } catch (error) {\n    console.log('❌ Directory Matcher - FAILED')\n    console.log(`   Error: ${error.message}`)\n    return { success: false, error: error.message }\n  }\n}\n\nasync function testAPIEndpoint() {\n  console.log('🌐 Testing API Endpoint...')\n  \n  try {\n    const response = await fetch('http://localhost:3000/api/analyze', {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify({\n        url: TEST_URL,\n        tier: 'free'\n      })\n    })\n    \n    if (!response.ok) {\n      throw new Error(`HTTP ${response.status}: ${response.statusText}`)\n    }\n    \n    const result = await response.json()\n    \n    console.log('✅ API Endpoint - SUCCESS')\n    console.log(`   - Response: ${result.success ? 'Success' : 'Failed'}`)\n    console.log(`   - Data Type: ${result.data?.tier || 'Unknown'}`)\n    console.log(`   - Processing Time: ${result.processingTime || 0}ms`)\n    \n    return { success: true, data: result }\n  } catch (error) {\n    console.log('❌ API Endpoint - FAILED')\n    console.log(`   Error: ${error.message}`)\n    return { success: false, error: error.message }\n  }\n}\n\nasync function runAllTests() {\n  console.log('🚀 DirectoryBolt AI Services Integration Test')\n  console.log('=' .repeat(50))\n  \n  const results = {\n    websiteAnalyzer: null,\n    aiAnalyzer: null,\n    directoryMatcher: null,\n    apiEndpoint: null\n  }\n  \n  // Test 1: Enhanced Website Analyzer\n  results.websiteAnalyzer = await testEnhancedWebsiteAnalyzer()\n  \n  // Test 2: AI Business Analyzer (only if website analyzer succeeded)\n  if (results.websiteAnalyzer.success) {\n    results.aiAnalyzer = await testAIBusinessAnalyzer(results.websiteAnalyzer.data)\n  } else {\n    console.log('⚠️  AI Business Analyzer - SKIPPED (Website analyzer failed)')\n    results.aiAnalyzer = { success: false, error: 'Website analyzer failed' }\n  }\n  \n  // Test 3: Directory Matcher (only if AI analyzer succeeded or use fallback)\n  if (results.aiAnalyzer.success) {\n    results.directoryMatcher = await testDirectoryMatcher(results.aiAnalyzer.data)\n  } else {\n    // Create minimal business intelligence for testing\n    const fallbackBI = {\n      profile: {\n        name: 'Test Business',\n        primaryCategory: 'Technology',\n        industryVertical: 'Software',\n        businessModel: { type: 'B2B' },\n        targetMarket: { primaryAudience: 'Developers' }\n      },\n      industryAnalysis: { marketSize: 10, growthRate: 5 },\n      competitiveAnalysis: { directCompetitors: [] }\n    }\n    results.directoryMatcher = await testDirectoryMatcher(fallbackBI)\n  }\n  \n  // Test 4: API Endpoint\n  results.apiEndpoint = await testAPIEndpoint()\n  \n  // Summary\n  console.log('\\n' + '=' .repeat(50))\n  console.log('📊 TEST SUMMARY')\n  console.log('=' .repeat(50))\n  \n  const tests = [\n    { name: 'Enhanced Website Analyzer', result: results.websiteAnalyzer },\n    { name: 'AI Business Analyzer', result: results.aiAnalyzer },\n    { name: 'Directory Matcher', result: results.directoryMatcher },\n    { name: 'API Endpoint', result: results.apiEndpoint }\n  ]\n  \n  let passedTests = 0\n  let totalTests = tests.length\n  \n  tests.forEach(test => {\n    const status = test.result.success ? '✅ PASS' : '❌ FAIL'\n    console.log(`${status} - ${test.name}`)\n    if (test.result.success) passedTests++\n    if (!test.result.success && test.result.error) {\n      console.log(`      Error: ${test.result.error}`)\n    }\n  })\n  \n  console.log('\\n' + '-'.repeat(50))\n  console.log(`OVERALL: ${passedTests}/${totalTests} tests passed`)\n  \n  if (passedTests === totalTests) {\n    console.log('🎉 ALL TESTS PASSED! AI services are ready for production.')\n    process.exit(0)\n  } else {\n    console.log('⚠️  Some tests failed. Please check the configuration and try again.')\n    \n    // Provide helpful suggestions\n    console.log('\\n💡 TROUBLESHOOTING TIPS:')\n    if (!results.websiteAnalyzer.success) {\n      console.log('   - Check internet connection and URL accessibility')\n      console.log('   - Verify Node.js polyfills are working correctly')\n    }\n    if (!results.aiAnalyzer.success) {\n      console.log('   - Set OPENAI_API_KEY in your .env.local file')\n      console.log('   - Ensure you have OpenAI API credits available')\n    }\n    if (!results.directoryMatcher.success) {\n      console.log('   - Check database connection and directory data')\n    }\n    if (!results.apiEndpoint.success) {\n      console.log('   - Make sure the development server is running (npm run dev)')\n      console.log('   - Check for any compilation errors')\n    }\n    \n    process.exit(1)\n  }\n}\n\n// Run the tests\nif (require.main === module) {\n  runAllTests().catch(error => {\n    console.error('💥 Test runner crashed:', error)\n    process.exit(1)\n  })\n}\n\nmodule.exports = {\n  testEnhancedWebsiteAnalyzer,\n  testAIBusinessAnalyzer,\n  testDirectoryMatcher,\n  testAPIEndpoint,\n  runAllTests\n}"

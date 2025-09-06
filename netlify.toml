@@ -13,7 +13,11 @@
 
 # Node.js version specification
 [build.environment]
-  NODE_VERSION = "20.17.0"
+  NODE_VERSION = "20.18.1"
+  # Puppeteer configuration for serverless
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+  # Disable Puppeteer executable path - @sparticuz/chromium handles this
+  # PUPPETEER_EXECUTABLE_PATH is intentionally NOT set
 
 # Environment variable handling
 [context.production.environment]

@@ -3,7 +3,8 @@
 
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import puppeteer, { Browser, Page } from 'puppeteer'
+import puppeteer, { Browser, Page } from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 import { logger } from '../utils/logger'
 import { BusinessIntelligence, EnhancedBusinessProfile, SEOAnalysis, ContentAnalysis, SocialMediaPresence, TechnologyStack } from '../types/business-intelligence'
 
@@ -152,10 +153,25 @@ export class EnhancedWebsiteAnalyzer {
 
       // Initialize browser for screenshots if enabled
       if (this.config.enableScreenshots) {
-        this.browser = await puppeteer.launch({
-          headless: 'new',
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        })
+        // Configure for serverless environment
+        const isServerless = process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+        
+        if (isServerless) {
+          // Use @sparticuz/chromium for serverless
+          this.browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+          })
+        } else {
+          // Use local Chrome for development
+          this.browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          })
+        }
       }
 
       // Parallel execution of analysis tasks
