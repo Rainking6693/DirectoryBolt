@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt Extension Screenshots</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+        
+        .screenshot-container {
+            width: 1280px;
+            height: 800px;
+            background: white;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .extension-popup {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #1976d2;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logo h1 {
+            margin: 0;
+            color: #1976d2;
+            font-size: 18px;
+        }
+        
+        .status-section {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+        
+        .status-dot.loading {
+            background: #ff9800;
+        }
+        
+        .auth-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .auth-section h3 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        
+        .customer-id-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .customer-info {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .progress-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4caf50;
+            width: 65%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .screenshot-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #1976d2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screenshot 1: Authentication Form -->
+    <div class="screenshot-container">
+        <div class="screenshot-label">Screenshot 1: Customer Authentication</div>
+        <div class="extension-popup">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">DB</div>
+                    <h1>DirectoryBolt</h1>
+                </div>
+                <div style="font-size: 12px; color: #666;">Directory Submission Automation</div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-indicator">
+                    <div class="status-dot loading"></div>
+                    <span>Authentication required</span>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <h3>🔐 Customer Authentication Required</h3>
+                <p style="margin: 10px 0; font-size: 13px;">Please enter your DirectoryBolt Customer ID to begin:</p>
+                <input type="text" class="customer-id-input" placeholder="DB-2024-123456" value="">
+                <button class="btn btn-primary">
+                    🔑 Authenticate
+                </button>
+                <div class="help-text">
+                    Your Customer ID was provided in your DirectoryBolt purchase confirmation email.
+                    <br><a href="#" style="color: #1976d2;">Need help?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screenshot 2: Authenticated Customer Interface -->
+    <div class="screenshot-container">
+        <div class="screenshot-label">Screenshot 2: Customer Dashboard</div>
+        <div class="extension-popup">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">DB</div>
+                    <h1>DirectoryBolt</h1>
+                </div>
+                <div style="font-size: 12px; color: #666;">Directory Submission Automation</div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Ready for processing</span>
+                </div>
+            </div>
+
+            <div class="customer-info">
+                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">Customer Information</h3>
+                <div class="info-row">
+                    <span class="info-label">Business:</span>
+                    <span class="info-value">Demo Marketing Agency</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Package:</span>
+                    <span class="info-value">Growth Plan</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">Active</span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary">
+                    🚀 Start Directory Processing
+                </button>
+                <button class="btn btn-secondary">
+                    📊 View Progress Dashboard
+                </button>
+                <button class="btn btn-secondary">
+                    🔄 Refresh Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screenshot 3: Processing Progress -->
+    <div class="screenshot-container">
+        <div class="screenshot-label">Screenshot 3: Processing Progress</div>
+        <div class="extension-popup">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">DB</div>
+                    <h1>DirectoryBolt</h1>
+                </div>
+                <div style="font-size: 12px; color: #666;">Directory Submission Automation</div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-indicator">
+                    <div class="status-dot loading"></div>
+                    <span>Processing directories...</span>
+                </div>
+            </div>
+
+            <div class="customer-info">
+                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">Customer Information</h3>
+                <div class="info-row">
+                    <span class="info-label">Business:</span>
+                    <span class="info-value">Demo Marketing Agency</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Package:</span>
+                    <span class="info-value">Growth Plan</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">Processing</span>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px;">Processing Progress</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="progress-text">65 of 100 directories processed</div>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    Currently processing: Yelp Business Listings
+                </div>
+                <button class="btn btn-secondary" style="margin-top: 10px;">
+                    ⏹️ Stop Processing
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0; color: #666;">
+        <h2>DirectoryBolt Chrome Extension Screenshots</h2>
+        <p>Use these mockups to take screenshots for Chrome Web Store submission</p>
+        <p><strong>Instructions:</strong> Open this file in Chrome, set browser zoom to 100%, and capture each screenshot at 1280x800 resolution</p>
+    </div>
+</body>
+</html>
