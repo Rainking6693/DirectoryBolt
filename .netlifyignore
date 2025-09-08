@@ -5,8 +5,15 @@
 sync-directorybolt-to-autobolt.js
 verify-sync.js
 
-# AutoBolt extension files (not needed for web build)
-# autobolt-extension/
+# AutoBolt extension files (COMPLETELY EXCLUDED)
+autobolt-extension/
+
+# All problematic scripts and files
+scripts/
+background-batch.js
+background.js
+queue-processor*.js
+directory-registry.js
 
 # Development and testing files
 scripts/

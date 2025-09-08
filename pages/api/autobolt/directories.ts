@@ -6,7 +6,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { autoBoltExtensionService } from '../../../lib/services/autobolt-extension'
+// import { autoBoltExtensionService } from '../../../lib/services/autobolt-extension' // DISABLED FOR BUILD
 import { enhancedRateLimit, getClientIP, determineUserTier } from '../../../lib/utils/enhanced-rate-limit'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

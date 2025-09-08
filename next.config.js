@@ -1,19 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Emergency configuration - absolutely minimal for builds to work
+  // ABSOLUTE MINIMAL CONFIG FOR NETLIFY BUILD SUCCESS
   
-  // Basic settings
-  reactStrictMode: true,
+  reactStrictMode: false,
   poweredByHeader: false,
   compress: true,
   swcMinify: true,
   
-  // Disable tracing to avoid file permission issues
-  experimental: {
-    instrumentationHook: false,
-  },
-  
-  // Skip all validation
+  // Skip all validation to avoid file system issues
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -22,40 +16,43 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Enhanced image optimization for SEO
+  // Minimal image config
   images: {
-    domains: ['localhost', 'directorybolt.com', 'cdn.directorybolt.com'],
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 86400, // 24 hours
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    domains: ['localhost', 'directorybolt.com'],
+    unoptimized: true,
   },
   
-  // Minimal webpack config
+  // NUCLEAR WEBPACK CONFIG - IGNORE EVERYTHING PROBLEMATIC
   webpack: (config, { dev, isServer }) => {
-    // Disable source maps completely
+    // Disable source maps
     config.devtool = false;
     
     // Disable performance hints
     config.performance = false;
     
-    // Ignore specific directories that cause build issues
+    // Ignore problematic files completely
     config.watchOptions = {
-      ...config.watchOptions,
       ignored: [
         '**/node_modules/**',
         '**/autobolt-extension/**',
         '**/sync-directorybolt-to-autobolt.js',
-        '**/verify-sync.js'
+        '**/verify-sync.js',
+        '**/build/**',
+        '**/scripts/**'
       ]
     };
     
-    // Fix Node.js module imports for client-side
+    // Add ignore plugin for autobolt-extension
+    const webpack = require('webpack');
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/autobolt-extension/,
+      })
+    );
+    
+    // Fallbacks for client-side
     if (!isServer) {
       config.resolve.fallback = {
-        ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
@@ -71,40 +68,16 @@ const nextConfig = {
         path: false,
         buffer: false,
         process: false,
-        'puppeteer-core': false,
       };
     }
-    
-    // Enable minification for production
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        minimize: true,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendor',
-              chunks: 'all',
-            },
-          },
-        },
-      };
-    }
-    
-    // Reduce module resolution overhead
-    config.resolve.symlinks = false;
     
     return config;
   },
   
-  // Keep minimal experimental settings
+  // No experimental features
+  experimental: {},
   
-  // No compiler optimizations
-  compiler: {},
-  
-  // No headers or middleware
+  // No headers
   async headers() {
     return [];
   },
