@@ -36,7 +36,7 @@ sk_live_[REDACTED_FOR_SECURITY]
   ```bash
   # Line 4: Remove fallback with hardcoded key
   # BEFORE: 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_live_51RyJPc...', {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_live_[REDACTED]', {
   
   # AFTER:
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -63,7 +63,7 @@ grep -r "pk_live_" . --exclude-dir=node_modules --exclude-dir=.git
 grep -r "pk_test_" . --exclude-dir=node_modules --exclude-dir=.git
 
 # Search for the specific exposed key
-grep -r "51RyJPcPQdMywmVkHrXA1zCAXaHt8RUVIaaaThycEmR9jaWjdIqe3kPdGR83foHV7HTPLNhaNPXhamAtZNFecJaRm00B9AS5yvY" . --exclude-dir=node_modules --exclude-dir=.git
+grep -r "[REDACTED_STRIPE_KEY_PATTERN]" . --exclude-dir=node_modules --exclude-dir=.git
 ```
 
 ### ✅ 1.3 Verify Environment Configuration
@@ -178,7 +178,7 @@ git log --follow -p -- COMPREHENSIVE_STRIPE_CHECKOUT_QA_REPORT.md | grep "sk_liv
 **In Stripe Dashboard:**
 - [ ] **Login to Stripe Dashboard** → https://dashboard.stripe.com/
 - [ ] **Navigate to Developers → API keys**
-- [ ] **Deactivate/Delete the exposed key:** `sk_live_51RyJPc...`
+- [ ] **Deactivate/Delete the exposed key:** `sk_live_[REDACTED]`
 - [ ] **Create new live secret key**
 - [ ] **Create new live publishable key**
 - [ ] **Update webhook endpoint secrets** (if using webhooks)
@@ -254,7 +254,7 @@ git secrets --add 'pk_live_[a-zA-Z0-9]{99}'
 git secrets --add 'pk_test_[a-zA-Z0-9]{99}'
 
 # Add the specific compromised pattern
-git secrets --add '51RyJPcPQdMywmVkHrXA1zCAXaHt8RUVIaaaThycEmR9jaWjdIqe3kPdGR83foHV7HTPLNhaNPXhamAtZNFecJaRm00B9AS5yvY'
+git secrets --add '[REDACTED_STRIPE_KEY_PATTERN]'
 
 # Test current repository
 git secrets --scan

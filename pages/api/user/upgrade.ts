@@ -492,12 +492,13 @@ export async function getUpgradeOptions(req: TierValidationRequest, res: NextApi
 }
 
 function getRecommendedTier(currentTier: SubscriptionTier): SubscriptionTier {
-  const recommendations = {
+  const recommendations: { [key in SubscriptionTier]: SubscriptionTier } = {
     free: 'starter',
     starter: 'growth',
     growth: 'professional',
-    professional: 'enterprise'
+    professional: 'enterprise',
+    enterprise: 'enterprise'
   }
   
-  return recommendations[currentTier] as SubscriptionTier
+  return recommendations[currentTier]
 }

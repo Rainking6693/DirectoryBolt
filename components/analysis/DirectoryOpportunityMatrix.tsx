@@ -183,8 +183,8 @@ export default function DirectoryOpportunityMatrix({
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="bg-secondary-700/50 rounded-lg p-3 text-center">
-            <div className="text-volt-400 font-bold text-lg">${opportunity.monthlyValue}</div>
-            <div className="text-secondary-400 text-xs">Monthly Value</div>
+            <div className="text-volt-400 font-bold text-lg">${opportunity.monthlyValue * 12}/yr</div>
+            <div className="text-secondary-400 text-xs">Annual Value</div>
           </div>
           <div className="bg-secondary-700/50 rounded-lg p-3 text-center">
             <div className="text-success-400 font-bold text-lg">{opportunity.authority}</div>
@@ -302,7 +302,7 @@ export default function DirectoryOpportunityMatrix({
         </div>
       </td>
       <td className="px-6 py-4 text-center">
-        <div className="text-volt-400 font-semibold">${opportunity.monthlyValue}</div>
+        <div className="text-volt-400 font-semibold">${opportunity.monthlyValue * 12}/yr</div>
       </td>
       <td className="px-6 py-4 text-center">
         <div className="text-orange-400 font-medium">{opportunity.timeToApproval}</div>

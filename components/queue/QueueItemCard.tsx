@@ -216,7 +216,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
               {/* View Details */}
               {onViewDetails && (
                 <button
-                  onClick={onViewDetails}
+                  onClick={() => onViewDetails(item.customerId)}
                   className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                   title="View Details"
                 >
@@ -227,7 +227,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
               {/* Action Buttons based on status */}
               {item.submissionStatus === 'pending' && onProcess && (
                 <button
-                  onClick={() => handleAction(onProcess)}
+                  onClick={() => handleAction(() => onProcess(item.customerId))}
                   disabled={isProcessing}
                   className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Process Now"
@@ -239,7 +239,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
 
               {item.submissionStatus === 'in-progress' && onPause && (
                 <button
-                  onClick={() => handleAction(onPause)}
+                  onClick={() => handleAction(() => onPause(item.customerId))}
                   disabled={isProcessing}
                   className="px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Pause Processing"
@@ -251,7 +251,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
 
               {item.submissionStatus === 'paused' && onResume && (
                 <button
-                  onClick={() => handleAction(onResume)}
+                  onClick={() => handleAction(() => onResume(item.customerId))}
                   disabled={isProcessing}
                   className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Resume Processing"
@@ -263,7 +263,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
 
               {(item.submissionStatus === 'failed') && onCancel && (
                 <button
-                  onClick={() => handleAction(() => onCancel?.())}
+                  onClick={() => handleAction(() => onCancel(item.customerId))}
                   disabled={isProcessing}
                   className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Retry"
@@ -275,7 +275,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
 
               {onCancel && item.submissionStatus !== 'completed' && item.submissionStatus !== 'failed' && (
                 <button
-                  onClick={() => handleAction(() => onCancel?.())}
+                  onClick={() => handleAction(() => onCancel(item.customerId))}
                   disabled={isProcessing}
                   className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Cancel"

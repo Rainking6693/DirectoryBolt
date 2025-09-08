@@ -7,7 +7,7 @@
 const DEFAULT_CONFIG = {
     airtableBaseId: 'appZDNMzebkaOkLXo',
     airtableTableName: 'Sheet1',
-    airtableApiToken: 'patAQfH6wBtnssFCs.99d8c54fa5e73233c2544b3da12b538f2bd026cda161c02c27a47c0fa14e2faf',
+    airtableApiToken: 'your_airtable_api_token_here',
     maxConcurrentProcessors: 10,
     queuePollInterval: 30000, // 30 seconds
     apiTimeout: 10000 // 10 seconds

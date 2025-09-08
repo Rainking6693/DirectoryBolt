@@ -309,8 +309,8 @@ const CheckoutButton = ({
         })
       }
       
-      // Use the v3 API endpoint directly for better error handling with secure fetch
-      const response = await secureFetch('/api/create-checkout-session-v3', {
+      // Use the new Stripe API endpoint for Phase 2 pricing
+      const response = await secureFetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -678,7 +678,7 @@ function validateCheckoutRequest(plan, stripeConfigured, configurationStatus) {
   if (!plan) {
     errors.push('Please select a pricing plan to continue')
   } else if (!validPlans.includes(plan)) {
-    errors.push(`The selected plan "${plan}" is not available. Please choose from: Starter ($49), Growth ($89), Pro ($159), or Subscription ($49/month)`)
+    errors.push(`The selected plan "${plan}" is not available. Please choose from: Starter ($149 ONE-TIME), Growth ($299 ONE-TIME), Pro ($499 ONE-TIME), or Enterprise ($799 ONE-TIME)`)
   }
   
   // Skip Stripe validation for free plan
@@ -846,4 +846,5 @@ function DebugPanel({ plan, requestPayload, responseData, error, apiLogs }) {
   )
 }
 
-export default CheckoutButton
+export { CheckoutButton as default }
+export { CheckoutButton }

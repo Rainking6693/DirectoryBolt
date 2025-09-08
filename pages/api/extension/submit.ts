@@ -14,7 +14,7 @@ import rateLimit from 'express-rate-limit'
 const extensionLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // limit each API key to 10 submissions per hour
-  keyGenerator: (req) => req.headers['x-api-key'] as string || req.ip,
+  keyGenerator: (req) => (req.headers['x-api-key'] as string) || req.ip || 'default',
   message: {
     success: false,
     error: 'Extension submission rate limit exceeded',
@@ -158,7 +158,7 @@ async function handleExtensionSubmission(req: NextApiRequest, res: NextApiRespon
       businessPhone: submission.businessData.businessPhone,
       businessAddress: submission.businessData.businessAddress,
       businessCategory: submission.businessData.businessCategory,
-      packageType: submission.packageType.toLowerCase(),
+      packageType: submission.packageType.toLowerCase() as 'starter' | 'growth' | 'pro' | 'subscription',
       submissionStatus: 'pending' as const,
       purchaseDate: new Date().toISOString(),
       processingNotes: `Submitted via Chrome Extension with API key ${submission.apiKey.slice(0, 8)}...`
@@ -175,7 +175,7 @@ async function handleExtensionSubmission(req: NextApiRequest, res: NextApiRespon
       
       // Try to add to Airtable
       try {
-        await airtableService.createRecord(businessSubmissionRecord)
+        await airtableService.createBusinessSubmission(businessSubmissionRecord)
       } catch (airtableError) {
         console.error('Failed to add to Airtable:', airtableError)
         // Continue anyway - the record can be processed without Airtable

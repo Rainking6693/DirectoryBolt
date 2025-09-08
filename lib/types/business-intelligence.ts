@@ -524,6 +524,7 @@ export interface SubmissionTimeline {
   review: number // days
   goLive: number // days
   optimization: number // days
+  totalTime: number // total days calculated
 }
 
 export interface PricingInfo {

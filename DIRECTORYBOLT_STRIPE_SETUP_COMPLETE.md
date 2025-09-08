@@ -200,8 +200,8 @@ Add `?debug=true` to any checkout URL to see debug information and API calls.
 
 ## 💳 Live Stripe Keys in Use
 
-- **Secret Key**: `sk_live_51RyJPcPQdMywmVkH...` (configured)
-- **Publishable Key**: `pk_live_51RyJPcPQdMywmVkH...` (configured)
+- **Secret Key**: `sk_live_[REDACTED]...` (configured)
+- **Publishable Key**: `pk_live_[REDACTED]...` (configured)
 - **Domain**: `https://directorybolt.com`
 
 The system is ready to accept live payments once you create the Stripe products!

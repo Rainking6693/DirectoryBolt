@@ -13,8 +13,8 @@
 ### 1. **PRODUCTION API KEYS EXPOSED** ⚠️ **SEVERITY: CRITICAL**
 **Issue**: Live Stripe production keys found in `.env` file in working directory
 ```
-STRIPE_SECRET_KEY=sk_live_51RyJPcPQ[...]
-STRIPE_PUBLISHABLE_KEY=pk_live_51RyJPcPQ[...]
+STRIPE_SECRET_KEY=sk_live_[REDACTED]
+STRIPE_PUBLISHABLE_KEY=pk_live_[REDACTED]
 ```
 
 **Risk**: 

@@ -10,6 +10,28 @@ import {
   getOrderSummary
 } from '../../lib/config/directoryBoltProducts';
 
+// Critical environment variable validation for security
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('🚨 CRITICAL: STRIPE_SECRET_KEY environment variable is required in production');
+    process.exit(1);
+  }
+  
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('🚨 CRITICAL: STRIPE_WEBHOOK_SECRET environment variable is required for webhook security');
+    console.error('Without webhook secret verification, your application is vulnerable to webhook spoofing attacks');
+    process.exit(1);
+  }
+  
+  // Validate webhook secret format
+  if (!process.env.STRIPE_WEBHOOK_SECRET.startsWith('whsec_')) {
+    console.error('🚨 CRITICAL: STRIPE_WEBHOOK_SECRET must start with "whsec_" - invalid format detected');
+    process.exit(1);
+  }
+  
+  console.log('✅ Webhook security validation passed - environment variables properly configured');
+}
+
 // Initialize Stripe client safely
 let stripe = null;
 
@@ -69,30 +91,66 @@ export default async function handler(req, res) {
   let event;
 
   try {
-    // Verify webhook signature
+    // Enhanced webhook signature verification with security logging
     const { verifyWebhookSignature } = require('../../lib/utils/stripe-client');
-    event = verifyWebhookSignature(buf, sig);
     
-    log('info', 'DirectoryBolt webhook signature verified', {
+    // Critical security check: Ensure we have a signature
+    if (!sig) {
+      log('error', 'DirectoryBolt webhook rejected - missing signature header', {
+        request_id: requestId,
+        security_alert: 'Webhook without signature detected - potential spoofing attempt',
+        user_agent: req.headers['user-agent'] || 'unknown',
+        source_ip: req.ip || req.connection?.remoteAddress || 'unknown'
+      });
+      
+      console.error(`🚨 DirectoryBolt webhook SECURITY ALERT: Missing signature header`);
+      return res.status(400).json({ 
+        error: 'Missing signature - webhook rejected for security',
+        request_id: requestId 
+      });
+    }
+
+    // Verify signature with enhanced security features
+    event = verifyWebhookSignature(buf, sig, null, req);
+    
+    log('info', 'DirectoryBolt webhook signature verified successfully', {
       event_type: event.type,
       event_id: event.id,
-      request_id: requestId
+      request_id: requestId,
+      signature_validated: true,
+      security_status: 'verified'
     });
     
-    console.log(`✅ DirectoryBolt webhook verified: ${event.type}`, { request_id: requestId });
+    console.log(`✅ DirectoryBolt webhook signature verified: ${event.type}`, { 
+      event_id: event.id,
+      request_id: requestId 
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    log('error', 'DirectoryBolt webhook signature verification failed', {
+    // Enhanced security logging for failed verification attempts
+    log('error', 'DirectoryBolt webhook signature verification FAILED', {
       error: errorMessage,
       request_id: requestId,
-      has_signature: !!sig
+      has_signature: !!sig,
+      signature_preview: sig ? sig.substring(0, 20) + '...' : 'none',
+      body_size: buf.length,
+      user_agent: req.headers['user-agent'] || 'unknown',
+      source_ip: req.ip || req.connection?.remoteAddress || 'unknown',
+      security_alert: 'Failed webhook verification - potential attack',
+      timestamp: new Date().toISOString()
     });
     
-    console.error(`❌ DirectoryBolt webhook verification failed:`, errorMessage);
+    console.error(`🚨 DirectoryBolt SECURITY ALERT - Webhook verification failed:`, {
+      error: errorMessage,
+      request_id: requestId,
+      security_context: 'webhook_spoofing_attempt_detected'
+    });
+    
     return res.status(400).json({ 
       error: 'Webhook signature verification failed',
-      request_id: requestId 
+      request_id: requestId,
+      security_note: 'Request rejected for security reasons'
     });
   }
 

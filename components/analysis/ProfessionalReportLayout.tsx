@@ -79,7 +79,8 @@ export default function ProfessionalReportLayout({
       'growth': ['appendices'],
       'professional': []
     }
-    return lockedSections[userTier]?.includes(section) || false
+    const sections = lockedSections[userTier as keyof typeof lockedSections] || []
+    return sections.includes(section)
   }
 
   const sections = [

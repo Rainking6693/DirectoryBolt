@@ -68,10 +68,10 @@ onClick={() => router.push('/analyze?intent=purchase&plan=growth')}
 **Changes**:
 ```javascript
 // BEFORE (Broken)
-router.push(`/analyze?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+router.push(`/analyze?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'one_time'}`)
 
 // AFTER (Fixed) 
-router.push(`/checkout?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}`)
+router.push(`/checkout?plan=${tier.id}&billing=${isAnnual ? 'annual' : 'one_time'}`)
 ```
 
 #### 1.3 Results Page Upgrade Button

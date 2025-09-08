@@ -1,0 +1,420 @@
+/**
+ * Phase 3.2: Enhanced AI Analysis Caching Service
+ * 
+ * This service provides intelligent caching for AI Business Intelligence results,
+ * preventing duplicate analysis costs and optimizing performance while maintaining
+ * data freshness for the DirectoryBolt AI-Enhanced platform.
+ */
+
+import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } from '../types/business-intelligence'
+import { AirtableService, BusinessSubmissionRecord } from './airtable'
+import { createAirtableService } from './airtable'
+
+export interface AnalysisCacheEntry {
+  customerId: string
+  analysisData: BusinessIntelligence
+  directoryOpportunities: DirectoryOpportunityMatrix
+  revenueProjections: RevenueProjections
+  cachedAt: Date
+  lastBusinessProfileHash: string
+  analysisVersion: string
+  confidenceScore: number
+}
+
+export interface CacheValidationResult {
+  isValid: boolean
+  reason?: 'fresh' | 'stale' | 'profile_changed' | 'not_found'
+  daysOld?: number
+  confidenceScore?: number
+}
+
+export interface AnalysisMetrics {
+  cacheHitRate: number
+  totalAnalyses: number
+  cachedAnalyses: number
+  costSavings: number // estimated dollars saved
+  averageAnalysisAge: number // days
+}
+
+export class AIAnalysisCacheService {
+  private airtableService: AirtableService
+  private cacheExpiryDays: number
+  private minConfidenceScore: number
+
+  constructor(
+    airtableService?: AirtableService,
+    options: {
+      cacheExpiryDays?: number
+      minConfidenceScore?: number
+    } = {}
+  ) {
+    this.airtableService = airtableService || createAirtableService()
+    this.cacheExpiryDays = options.cacheExpiryDays || 30
+    this.minConfidenceScore = options.minConfidenceScore || 75
+  }
+
+  /**
+   * Phase 3.2: Get cached analysis or determine if new analysis is needed
+   */
+  async getCachedAnalysisOrValidate(
+    customerId: string,
+    currentBusinessData: Partial<BusinessSubmissionRecord>
+  ): Promise<{
+    cached: AnalysisCacheEntry | null
+    validation: CacheValidationResult
+  }> {
+    try {
+      console.log('🔍 Checking AI analysis cache for customer:', customerId)
+
+      // Try to get cached analysis
+      const cachedAnalysis = await this.airtableService.getCachedAnalysisResults(customerId)
+      
+      if (!cachedAnalysis) {
+        return {
+          cached: null,
+          validation: {
+            isValid: false,
+            reason: 'not_found'
+          }
+        }
+      }
+
+      // Get full record to check business profile changes
+      const record = await this.airtableService.findByCustomerId(customerId)
+      if (!record) {
+        return {
+          cached: null,
+          validation: {
+            isValid: false,
+            reason: 'not_found'
+          }
+        }
+      }
+
+      // Check if business profile has changed
+      const hasChanged = await this.airtableService.hasBusinessProfileChanged(customerId, currentBusinessData)
+      if (hasChanged) {
+        console.log('🔄 Business profile changed, cache invalid')
+        return {
+          cached: null,
+          validation: {
+            isValid: false,
+            reason: 'profile_changed'
+          }
+        }
+      }
+
+      // Check cache age
+      const analysisDate = new Date(record.lastAnalysisDate)
+      const daysOld = Math.floor((Date.now() - analysisDate.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (daysOld > this.cacheExpiryDays) {
+        console.log(`🕒 Cached analysis is ${daysOld} days old, exceeds ${this.cacheExpiryDays} day limit`)
+        return {
+          cached: null,
+          validation: {
+            isValid: false,
+            reason: 'stale',
+            daysOld
+          }
+        }
+      }
+
+      // Check confidence score
+      const confidenceScore = record.analysisConfidenceScore || 0
+      if (confidenceScore < this.minConfidenceScore) {
+        console.log(`📊 Analysis confidence ${confidenceScore} below minimum ${this.minConfidenceScore}`)
+        return {
+          cached: null,
+          validation: {
+            isValid: false,
+            reason: 'stale',
+            confidenceScore
+          }
+        }
+      }
+
+      // Cache is valid, construct cache entry
+      const cacheEntry: AnalysisCacheEntry = {
+        customerId,
+        analysisData: cachedAnalysis,
+        directoryOpportunities: JSON.parse(record.prioritizedDirectories || '{"prioritizedSubmissions": []}'),
+        revenueProjections: JSON.parse(record.revenueProjections || '{"baseline": {}}'),
+        cachedAt: analysisDate,
+        lastBusinessProfileHash: this.hashBusinessProfile(currentBusinessData),
+        analysisVersion: record.analysisVersion || '3.2.0',
+        confidenceScore
+      }
+
+      console.log('✅ Valid cached analysis found, cache hit!')
+      return {
+        cached: cacheEntry,
+        validation: {
+          isValid: true,
+          reason: 'fresh',
+          daysOld,
+          confidenceScore
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ Error validating analysis cache:', error)
+      return {
+        cached: null,
+        validation: {
+          isValid: false,
+          reason: 'not_found'
+        }
+      }
+    }
+  }
+
+  /**
+   * Phase 3.2: Store new analysis results in cache
+   */
+  async storeAnalysisResults(
+    customerId: string,
+    analysisData: BusinessIntelligence,
+    directoryOpportunities: DirectoryOpportunityMatrix,
+    revenueProjections: RevenueProjections,
+    businessProfile: Partial<BusinessSubmissionRecord>
+  ): Promise<boolean> {
+    try {
+      console.log('💾 Storing AI analysis results in cache for customer:', customerId)
+
+      await this.airtableService.storeAIAnalysisResults(
+        customerId,
+        analysisData,
+        directoryOpportunities,
+        revenueProjections
+      )
+
+      console.log('✅ AI analysis results successfully cached')
+      return true
+
+    } catch (error) {
+      console.error('❌ Failed to store analysis results in cache:', error)
+      return false
+    }
+  }
+
+  /**
+   * Phase 3.2: Invalidate cache for a specific customer (force re-analysis)
+   */
+  async invalidateCustomerCache(customerId: string, reason?: string): Promise<boolean> {
+    try {
+      console.log('🗑️ Invalidating cache for customer:', customerId, 'Reason:', reason)
+
+      // Clear analysis data by setting last analysis date to null
+      const existingRecord = await this.airtableService.findByCustomerId(customerId)
+      if (existingRecord) {
+        await this.airtableService.updateBusinessSubmission(existingRecord.recordId, {
+          lastAnalysisDate: null,
+          aiAnalysisResults: null,
+          analysisConfidenceScore: null
+        } as any)
+      }
+
+      console.log('✅ Customer cache invalidated successfully')
+      return true
+
+    } catch (error) {
+      console.error('❌ Failed to invalidate customer cache:', error)
+      return false
+    }
+  }
+
+  /**
+   * Phase 3.2: Get cache metrics and analytics
+   */
+  async getCacheMetrics(timeframeDays: number = 30): Promise<AnalysisMetrics> {
+    try {
+      console.log('📊 Calculating cache metrics for last', timeframeDays, 'days')
+
+      // This would require more sophisticated tracking in a production system
+      // For now, we'll return estimated metrics based on cached records
+      const allRecords = await this.airtableService.findByStatus('completed')
+      
+      const recentRecords = allRecords.filter((record: any) => {
+        if (!record.lastAnalysisDate) return false
+        const analysisDate = new Date(record.lastAnalysisDate)
+        const cutoffDate = new Date(Date.now() - timeframeDays * 24 * 60 * 60 * 1000)
+        return analysisDate > cutoffDate
+      })
+
+      const cachedRecords = recentRecords.filter((record: any) => record.aiAnalysisResults)
+      const totalAnalyses = recentRecords.length
+      const cachedAnalyses = cachedRecords.length
+      const cacheHitRate = totalAnalyses > 0 ? (cachedAnalyses / totalAnalyses) : 0
+
+      // Estimate cost savings (assuming $50 per analysis)
+      const costSavings = cachedAnalyses * 50
+
+      // Calculate average analysis age
+      const analysisAges = cachedRecords.map((record: any) => {
+        const analysisDate = new Date(record.lastAnalysisDate)
+        return Math.floor((Date.now() - analysisDate.getTime()) / (1000 * 60 * 60 * 24))
+      })
+      const averageAnalysisAge = analysisAges.length > 0 
+        ? analysisAges.reduce((sum, age) => sum + age, 0) / analysisAges.length 
+        : 0
+
+      return {
+        cacheHitRate: Math.round(cacheHitRate * 100) / 100,
+        totalAnalyses,
+        cachedAnalyses,
+        costSavings,
+        averageAnalysisAge: Math.round(averageAnalysisAge * 100) / 100
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to calculate cache metrics:', error)
+      return {
+        cacheHitRate: 0,
+        totalAnalyses: 0,
+        cachedAnalyses: 0,
+        costSavings: 0,
+        averageAnalysisAge: 0
+      }
+    }
+  }
+
+  /**
+   * Phase 3.2: Clean up stale cache entries
+   */
+  async cleanupStaleCache(olderThanDays: number = 60): Promise<number> {
+    try {
+      console.log('🧹 Cleaning up stale cache entries older than', olderThanDays, 'days')
+
+      let cleanedCount = 0
+      const allRecords = await this.airtableService.findByStatus('completed')
+      
+      for (const record of allRecords) {
+        if (record.lastAnalysisDate) {
+          const analysisDate = new Date(record.lastAnalysisDate)
+          const cutoffDate = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000)
+          
+          if (analysisDate < cutoffDate) {
+            await this.airtableService.updateBusinessSubmission(record.recordId, {
+              aiAnalysisResults: null,
+              lastAnalysisDate: null,
+              analysisConfidenceScore: null
+            } as any)
+            cleanedCount++
+          }
+        }
+      }
+
+      console.log(`✅ Cleaned up ${cleanedCount} stale cache entries`)
+      return cleanedCount
+
+    } catch (error) {
+      console.error('❌ Failed to cleanup stale cache:', error)
+      return 0
+    }
+  }
+
+  /**
+   * Phase 3.2: Get cache statistics for monitoring
+   */
+  async getCacheStats(): Promise<{
+    totalCachedRecords: number
+    averageAge: number
+    oldestEntry: Date | null
+    newestEntry: Date | null
+    confidenceDistribution: { [key: string]: number }
+  }> {
+    try {
+      const allRecords = await this.airtableService.findByStatus('completed')
+      const cachedRecords = allRecords.filter((record: any) => record.aiAnalysisResults)
+
+      if (cachedRecords.length === 0) {
+        return {
+          totalCachedRecords: 0,
+          averageAge: 0,
+          oldestEntry: null,
+          newestEntry: null,
+          confidenceDistribution: {}
+        }
+      }
+
+      // Calculate age statistics
+      const ages = cachedRecords.map((record: any) => {
+        const analysisDate = new Date(record.lastAnalysisDate)
+        return Math.floor((Date.now() - analysisDate.getTime()) / (1000 * 60 * 60 * 24))
+      })
+
+      const averageAge = ages.reduce((sum, age) => sum + age, 0) / ages.length
+
+      // Find oldest and newest entries
+      const dates = cachedRecords.map((record: any) => new Date(record.lastAnalysisDate))
+      const oldestEntry = new Date(Math.min(...dates.map(d => d.getTime())))
+      const newestEntry = new Date(Math.max(...dates.map(d => d.getTime())))
+
+      // Confidence score distribution
+      const confidenceDistribution: { [key: string]: number } = {}
+      cachedRecords.forEach((record: any) => {
+        const score = record.analysisConfidenceScore || 0
+        const bucket = `${Math.floor(score / 10) * 10}-${Math.floor(score / 10) * 10 + 9}`
+        confidenceDistribution[bucket] = (confidenceDistribution[bucket] || 0) + 1
+      })
+
+      return {
+        totalCachedRecords: cachedRecords.length,
+        averageAge: Math.round(averageAge * 100) / 100,
+        oldestEntry,
+        newestEntry,
+        confidenceDistribution
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to get cache statistics:', error)
+      return {
+        totalCachedRecords: 0,
+        averageAge: 0,
+        oldestEntry: null,
+        newestEntry: null,
+        confidenceDistribution: {}
+      }
+    }
+  }
+
+  /**
+   * Helper: Create a hash of business profile for change detection
+   */
+  private hashBusinessProfile(businessData: Partial<BusinessSubmissionRecord>): string {
+    const relevantFields = [
+      businessData.businessName,
+      businessData.website,
+      businessData.description,
+      businessData.city,
+      businessData.state,
+      businessData.phone
+    ].filter(Boolean).join('|')
+
+    // Simple hash function for change detection
+    let hash = 0
+    for (let i = 0; i < relevantFields.length; i++) {
+      const char = relevantFields.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash // Convert to 32-bit integer
+    }
+    
+    return hash.toString(36)
+  }
+}
+
+/**
+ * Factory function to create AI Analysis Cache Service
+ */
+export function createAIAnalysisCacheService(options?: {
+  cacheExpiryDays?: number
+  minConfidenceScore?: number
+}): AIAnalysisCacheService {
+  return new AIAnalysisCacheService(undefined, options)
+}
+
+/**
+ * Export default instance
+ */
+export default createAIAnalysisCacheService

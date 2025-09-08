@@ -89,3 +89,10 @@
   to = "/.netlify/functions/puppeteer-handler"
   status = 200
   force = true
+  [[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"                    # Prevents clickjacking
+    X-Content-Type-Options = "nosniff"          # Prevents MIME sniffing attacks
+    Referrer-Policy = "strict-origin-when-cross-origin"  # Privacy protection
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"  # API restrictions

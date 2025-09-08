@@ -145,7 +145,10 @@ async function handleGetTierStatus(
         amount_paid: purchase.amount_paid,
         currency: purchase.currency
       })),
-      upgrade_options: upgradeOptions.upgradeOptions,
+      upgrade_options: upgradeOptions.upgradeOptions.map(option => ({
+        ...option,
+        directory_limit: option.directoryLimit
+      })),
       notifications
     }
     
@@ -257,7 +260,11 @@ function getAvailableFeatures(tier: TierLevel): {
     }
   }
   
-  return tierFeatures[tier] || tierFeatures.free
+  const features = tierFeatures[tier] || tierFeatures.free
+  return {
+    features_available: features.features,
+    ai_features_available: features.ai_features
+  }
 }
 
 // Generate notifications based on tier status

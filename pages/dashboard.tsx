@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 import Layout from '../components/layout/Layout'
-import CustomerDashboard from '../components/dashboard/CustomerDashboard'
 import { LoadingState } from '../components/ui/LoadingState'
+
+const CustomerDashboard = dynamic(() => import('../components/dashboard/CustomerDashboard'), {
+  loading: () => <LoadingState message="Loading dashboard..." />,
+  ssr: false, // Dashboard doesn't need SSR
+})
 
 // Mock authentication hook (replace with real auth in production)
 const useAuth = () => {

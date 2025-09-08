@@ -279,7 +279,8 @@ export function getTierConfig(tier: SubscriptionTier) {
 }
 
 export function canAccessFeature(tier: SubscriptionTier, feature: keyof typeof ANALYSIS_TIERS[SubscriptionTier]['features']): boolean {
-  return ANALYSIS_TIERS[tier].features[feature]
+  const featureValue = ANALYSIS_TIERS[tier].features[feature]
+  return typeof featureValue === 'boolean' ? featureValue : !!featureValue
 }
 
 export function getMonthlyLimit(tier: SubscriptionTier): number {

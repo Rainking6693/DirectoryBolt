@@ -178,12 +178,17 @@ export default function CollectInfoPage({}: CollectInfoPageProps) {
             </div>
             
             <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent">
-              Let's Optimize Your Directory Listings
+              🤖 AI-Enhanced Business Profile Setup
             </h1>
-            <p className="text-lg text-secondary-300 max-w-3xl mx-auto">
-              We need some additional information to ensure your business gets listed accurately across all directories.
-              This will take just a few minutes and significantly improve your results.
+            <p className="text-lg text-secondary-300 max-w-3xl mx-auto mb-4">
+              Our AI will analyze your business information to create optimized profiles for each directory.
+              This intelligent approach increases your success rate by up to 73%.
             </p>
+            <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/10 border border-volt-500/30 rounded-xl p-4 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-2 text-volt-400 font-semibold">
+                ✨ <span>AI-Powered Optimization</span> • <span>Higher Success Rates</span> • <span>Faster Approvals</span>
+              </div>
+            </div>
           </div>
 
           <main className="py-8">

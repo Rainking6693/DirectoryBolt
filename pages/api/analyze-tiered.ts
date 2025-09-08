@@ -351,10 +351,11 @@ export default withRateLimit(
   {
     ...rateLimitConfigs.analyze,
     windowMs: 60000, // 1 minute window
-    max: tier => tier === 'free' ? 2 : tier === 'basic' ? 10 : 50, // Tier-based rate limits
-    keyGenerator: (req: NextApiRequest) => {
+    max: (tier: any) => tier === 'free' ? 2 : tier === 'basic' ? 10 : 50, // Tier-based rate limits
+    keyGenerator: (req: NextApiRequest & { ip?: string }) => {
       const { userId, tier } = req.body || {}
-      return `${req.ip || 'unknown'}_${userId || 'anonymous'}_${tier || 'free'}`
+      const clientIp = req.headers['x-forwarded-for'] as string || req.headers['x-real-ip'] as string || 'unknown'
+      return `${clientIp}_${userId || 'anonymous'}_${tier || 'free'}`
     }
   },
   '/api/analyze-tiered'

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import Header from './Header'
+import SampleAnalysisModal from './demo/SampleAnalysisModal'
 
 // Lazy load below-the-fold components
 const TestimonialsSection = dynamic(() => import('./sections/TestimonialsSection'), { ssr: false })
@@ -12,6 +13,7 @@ const PricingPreviewSection = dynamic(() => import('./sections/PricingPreviewSec
 export default function LandingPage() {
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
+  const [showSampleModal, setShowSampleModal] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
@@ -58,14 +60,24 @@ export default function LandingPage() {
                   <span className="text-xl">→ Your Price: $299 ONE-TIME (Save 93%)</span>
                 </div>
               </div>
-              <button
-                onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
-                className="animate-zoom-in bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-8 py-4 rounded-xl shadow-2xl hover:shadow-volt-500/50 hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
-                style={{ animationDelay: '0.4s' }}
-              >
-                Get Your Analysis Today
-                <span className="ml-2">🚀</span>
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button
+                  onClick={() => typeof window !== 'undefined' && (window.location.href = '/analyze')}
+                  className="animate-zoom-in bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-8 py-4 rounded-xl shadow-2xl hover:shadow-volt-500/50 hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
+                  style={{ animationDelay: '0.4s' }}
+                >
+                  Start Free Analysis
+                  <span className="ml-2">🚀</span>
+                </button>
+                <button
+                  onClick={() => setShowSampleModal(true)}
+                  className="animate-zoom-in border-2 border-volt-500 text-volt-500 font-bold px-8 py-4 rounded-xl hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
+                  style={{ animationDelay: '0.5s' }}
+                >
+                  See Sample Analysis
+                  <span className="ml-2">🔍</span>
+                </button>
+              </div>
               <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>One-time purchase | Results in 48 hours | 30-day money-back guarantee</p>
             </div>
             <div className="relative">
@@ -170,7 +182,7 @@ export default function LandingPage() {
           {/* Urgency banner */}
           <div className="inline-flex items-center gap-2 bg-secondary-900/20 border border-secondary-900/30 px-4 py-2 rounded-full text-xs sm:text-sm font-bold text-secondary-900 mb-6 backdrop-blur-sm">
             <div className="w-2 h-2 bg-danger-500 rounded-full animate-ping"></div>
-            487 businesses made the one-time investment to own their intelligence this month
+            🔥 Limited Time: 487 businesses upgraded this month - Join them before prices increase
           </div>
           
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6">Own Your Business Intelligence Before Competitors Do</h2>
@@ -178,10 +190,10 @@ export default function LandingPage() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
-              onClick={() => typeof window !== 'undefined' && (window.location.href = '/onboarding')}
+              onClick={() => typeof window !== 'undefined' && (window.location.href = '/analyze')}
               className="w-full sm:w-auto bg-secondary-900 text-volt-400 font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-secondary-800 transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl border-2 border-volt-500 hover:border-volt-400 min-h-[56px] flex items-center justify-center"
             >
-              🚀 Get My Analysis Today
+              🚀 Start Free Analysis
             </button>
             
             <button
@@ -211,6 +223,12 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Sample Analysis Modal */}
+      <SampleAnalysisModal 
+        isOpen={showSampleModal} 
+        onClose={() => setShowSampleModal(false)} 
+      />
     </div>
   )
 }

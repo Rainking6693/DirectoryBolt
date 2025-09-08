@@ -1,0 +1,32 @@
+{
+  "name": "directory-knowledge-base-testing",
+  "version": "1.0.0",
+  "description": "Comprehensive testing framework for DirectoryBolt Directory Knowledge Base",
+  "main": "run-complete-testing-suite.js",
+  "scripts": {
+    "test": "node run-complete-testing-suite.js",
+    "test:content": "node directory-knowledge-base-testing-framework.js",
+    "test:seo": "node seo-technical-testing.js",
+    "test:ux": "node user-experience-testing.js",
+    "test:performance": "node performance-analytics-testing.js",
+    "test:maintenance": "node content-maintenance-testing.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "puppeteer": "^21.0.0",
+    "lighthouse": "^11.0.0",
+    "chrome-launcher": "^1.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "keywords": [
+    "testing",
+    "directory",
+    "seo",
+    "performance",
+    "content-management"
+  ],
+  "author": "DirectoryBolt Testing Team",
+  "license": "MIT"
+}

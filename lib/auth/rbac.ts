@@ -6,6 +6,9 @@ import type { UserRole } from './jwt'
 import { AuthorizationError } from '../utils/errors'
 import { logger } from '../utils/logger'
 
+// Export UserRole type locally to avoid import issues
+export type { UserRole }
+
 // Permission definitions
 export type Permission = 
   // Directory Management

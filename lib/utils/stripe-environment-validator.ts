@@ -170,6 +170,51 @@ export function validateStripeEnvironment(): ValidationResult {
 }
 
 /**
+ * Critical security validation for webhook secrets
+ * Ensures webhook secrets are properly configured for production
+ */
+export function validateWebhookSecurity(): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Critical: Webhook secret must be configured
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    errors.push('STRIPE_WEBHOOK_SECRET is required for webhook security - critical security vulnerability if missing');
+  } else {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    
+    // Validate format
+    if (!webhookSecret.startsWith('whsec_')) {
+      errors.push('STRIPE_WEBHOOK_SECRET must start with "whsec_" - invalid format detected');
+    }
+    
+    // Check for placeholder values
+    if (webhookSecret.includes('test_123') || webhookSecret.includes('mock') || webhookSecret.includes('replace_with_actual')) {
+      errors.push('STRIPE_WEBHOOK_SECRET appears to be a placeholder value - critical security risk');
+    }
+    
+    // Minimum length check (Stripe webhook secrets are typically 64+ characters)
+    if (webhookSecret.length < 50) {
+      errors.push('STRIPE_WEBHOOK_SECRET appears to be too short - may be invalid');
+    }
+  }
+
+  // Check for optional rotation secret
+  if (process.env.STRIPE_WEBHOOK_SECRET_OLD) {
+    const oldSecret = process.env.STRIPE_WEBHOOK_SECRET_OLD;
+    if (!oldSecret.startsWith('whsec_')) {
+      warnings.push('STRIPE_WEBHOOK_SECRET_OLD has invalid format - should start with "whsec_"');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
  * Startup validation - throws error if configuration is invalid
  * Use this to fail fast during application startup
  * Skip validation during build time
@@ -200,7 +245,20 @@ export function validateStripeEnvironmentOrThrow(): StripeEnvironmentConfig {
 
   const result = validateStripeEnvironment();
   
-  if (!result.isValid) {
+  // Also validate webhook security for production - critical security enforcement
+  if (process.env.NODE_ENV === 'production') {
+    const securityResult = validateWebhookSecurity();
+    result.errors.push(...securityResult.errors);
+    result.warnings.push(...securityResult.warnings);
+    
+    // Add production-specific webhook security enforcement message
+    if (securityResult.errors.length > 0) {
+      console.error('🚨 CRITICAL: Production webhook security validation failed');
+      console.error('Webhook signature verification is mandatory for production security');
+    }
+  }
+  
+  if (!result.isValid || result.errors.length > 0) {
     const errorMessage = [
       '🚨 STRIPE CONFIGURATION INVALID',
       '',
@@ -213,7 +271,10 @@ export function validateStripeEnvironmentOrThrow(): StripeEnvironmentConfig {
         ''
       ] : []),
       'Please check your environment variables and try again.',
-      'See .env.example for the required format.'
+      'See .env.example for the required format.',
+      '',
+      '🔒 CRITICAL: Webhook signature verification is required for security.',
+      'Without proper webhook secrets, your application is vulnerable to webhook spoofing attacks.'
     ].join('\n');
     
     throw new Error(errorMessage);

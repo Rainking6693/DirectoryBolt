@@ -145,7 +145,7 @@ export default function DataVisualizations({
                       <div>Success Rate: {directory.successRate}%</div>
                       <div>Competition: {directory.competition}%</div>
                       <div className="text-success-400 font-semibold">
-                        Est. Value: ${directory.monthlyValue}/month
+                        Est. Value: ${directory.monthlyValue * 12}/year
                       </div>
                     </div>
                   </div>

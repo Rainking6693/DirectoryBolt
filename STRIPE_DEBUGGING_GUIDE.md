@@ -184,7 +184,7 @@ node scripts/stripe-api-debugger.js
 # - Valid requests
 # - Invalid parameters  
 # - Error handling
-# - All subscription plans
+# - All purchase plans
 ```
 
 ### Step 4: Complete Analysis

@@ -203,7 +203,8 @@ export function canAccessFeature(userTier: string, feature: string): boolean {
   const tierData = TIER_FEATURES[userTier as keyof typeof TIER_FEATURES]
   if (!tierData) return false
   
-  return tierData.features.includes(feature) || tierData.ai_features.includes(feature)
+  return (tierData.features as readonly string[]).includes(feature) || 
+         (tierData.ai_features as readonly string[]).includes(feature)
 }
 
 // Helper function to get directory limit for tier
@@ -213,11 +214,6 @@ export function getDirectoryLimit(tier: string): number {
 }
 
 export default {
-  OneTimePurchase,
-  User,
-  FailedPaymentAttempt,
-  PurchaseAnalytics,
-  SubscriptionMigration,
   TIER_FEATURES,
   canAccessFeature,
   getDirectoryLimit

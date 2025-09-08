@@ -189,10 +189,12 @@ async function performWebsiteAnalysis(
     logger.info('Website analysis completed', {
       requestId,
       userId: user.id,
-      analysisType: data.analysisType,
-      websiteUrl: data.websiteUrl,
-      totalCost: costBreakdown.totalCost,
-      processingTime: Date.now() - startTime
+      metadata: {
+        analysisType: data.analysisType,
+        websiteUrl: data.websiteUrl,
+        totalCost: costBreakdown.totalCost,
+        processingTime: Date.now() - startTime
+      }
     })
 
   } catch (error) {
@@ -269,10 +271,12 @@ async function executeAnalysis(
 
   } catch (error) {
     logger.error('Analysis execution error', {
-      jobId,
-      analysisType: data.analysisType,
-      userTier,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      metadata: {
+        jobId,
+        analysisType: data.analysisType,
+        userTier,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
     })
     throw error
   }
@@ -353,7 +357,7 @@ async function performCompetitorAnalysis(websiteUrl: string, businessName?: stri
   }
 
   const tokensUsed = 5200
-  const aiUsage = {
+  const aiUsage: any = {
     openai: {
       model: 'gpt-4o',
       inputTokens: 3000,
@@ -451,10 +455,12 @@ async function createAnalysisJob(params: {
   // await db.analysisJobs.create({ data: job })
 
   logger.info('Analysis job created', {
-    jobId: job.id,
-    userId: params.userId,
-    analysisType: params.analysisType,
-    estimatedCost: params.estimatedCost
+    metadata: {
+      jobId: job.id,
+      userId: params.userId,
+      analysisType: params.analysisType,
+      estimatedCost: params.estimatedCost
+    }
   })
 
   return job
@@ -480,9 +486,11 @@ async function completeAnalysisJob(jobId: string, results: {
   // })
 
   logger.info('Analysis job completed', {
-    jobId,
-    processingTime: results.processingTime,
-    totalCost: results.costBreakdown.totalCost
+    metadata: {
+      jobId,
+      processingTime: results.processingTime,
+      totalCost: results.costBreakdown.totalCost
+    }
   })
 }
 
@@ -497,7 +505,7 @@ async function failAnalysisJob(jobId: string, errorMessage: string): Promise<voi
   //   }
   // })
 
-  logger.error('Analysis job failed', { jobId, errorMessage })
+  logger.error('Analysis job failed', { metadata: { jobId, errorMessage } })
 }
 
 // Utility functions

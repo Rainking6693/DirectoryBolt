@@ -105,7 +105,7 @@ export const SUBSCRIPTION_SERVICE = {
   id: 'auto_update',
   name: 'Auto Update & Resubmission',
   price: 49,
-  billing: 'monthly',
+  billing: 'one_time',
   description: 'Automatically monitor and resubmit to directories that remove your listing',
   features: [
     'Automatic directory monitoring',

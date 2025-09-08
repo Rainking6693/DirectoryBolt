@@ -488,7 +488,7 @@ export default function BusinessIntelligenceDashboard({
             onClick={onUpgrade}
             className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-black py-4 px-8 text-lg rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-volt-500/50"
           >
-            🎯 Unlock Complete Analysis - From $79/month
+            🎯 Unlock Complete Analysis - From $299 ONE-TIME
           </button>
         </div>
       )}

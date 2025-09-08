@@ -279,10 +279,12 @@ async function generateDashboard(
   logger.info('Dashboard generated', {
     requestId,
     userId: user.id,
-    tier: user.tier,
-    totalAnalyses: currentMonthUsage.total_analyses,
-    totalCost: currentMonthUsage.total_ai_cost,
-    upgradePrompted: !!upgradePrompt
+    metadata: {
+      tier: user.tier,
+      totalAnalyses: currentMonthUsage.total_analyses,
+      totalCost: currentMonthUsage.total_ai_cost,
+      upgradePrompted: !!upgradePrompt
+    }
   })
 }
 

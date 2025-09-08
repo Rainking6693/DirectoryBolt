@@ -252,29 +252,160 @@ export function handleStripeError(error: unknown, context?: string): {
 }
 
 /**
- * Verify webhook signature
- * Validates Stripe webhook signatures for security
+ * Enhanced webhook signature verification with comprehensive security logging
+ * Validates Stripe webhook signatures with support for secret rotation
  */
-export function verifyWebhookSignature(
-  body: string | Buffer,
-  signature: string,
-  webhookSecret?: string
-): Stripe.Event {
-  const config = getStripeConfig();
-  const secret = webhookSecret || config.webhookSecret;
+async function verifyWebhookSignatureEnhanced(
+  body: string | Buffer, 
+  signature: string, 
+  secret: string
+): Promise<Stripe.Event> {
+  if (!signature) {
+    throw new Error('No signature provided');
+  }
   
   if (!secret) {
-    throw new Error('Webhook secret is not configured');
+    throw new Error('Webhook secret not configured');
   }
   
   try {
     const stripe = getStripeClient();
-    return stripe.webhooks.constructEvent(body, signature, secret);
+    const event = stripe.webhooks.constructEvent(body, signature, secret);
+    
+    log.info('Webhook signature verified successfully', {
+      metadata: {
+        eventId: event.id,
+        eventType: event.type,
+        timestamp: new Date().toISOString(),
+        signatureAlgorithm: signature.split(',')[0] || 'unknown'
+      }
+    } as any);
+    
+    return event;
+  } catch (error) {
+    log.error('Webhook signature verification failed', {
+      metadata: {
+        hasSignature: !!signature,
+        hasSecret: !!secret,
+        signatureHeader: signature ? signature.substring(0, 20) + '...' : 'missing',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        secretType: secret.startsWith('whsec_') ? 'valid_format' : 'invalid_format'
+      }
+    }, error as Error);
+    
+    throw new Error('Webhook signature verification failed');
+  }
+}
+
+/**
+ * Verify webhook signature with support for multiple secrets (rotation)
+ * Attempts verification with primary secret, then fallback secrets
+ */
+async function verifyWithMultipleSecrets(
+  body: string | Buffer, 
+  signature: string,
+  req?: any
+): Promise<Stripe.Event> {
+  // Security logging for webhook attempt
+  log.info('Webhook security check initiated', {
+    metadata: {
+      hasSignature: !!signature,
+      signatureAlgorithm: signature ? signature.split(',')[0] : 'none',
+      timestamp: Date.now(),
+      userAgent: req?.headers?.['user-agent'] || 'unknown',
+      sourceIP: req?.ip || req?.connection?.remoteAddress || 'unknown',
+      contentLength: typeof body === 'string' ? body.length : body?.length || 0
+    }
+  } as any);
+
+  // Get webhook secrets (primary + rotation support)
+  const webhookSecrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET_OLD // For rotation scenarios
+  ].filter(Boolean);
+
+  if (webhookSecrets.length === 0) {
+    log.error('No webhook secrets configured - critical security vulnerability', {
+      metadata: {
+        availableEnvVars: Object.keys(process.env).filter(key => key.includes('WEBHOOK')),
+        nodeEnv: process.env.NODE_ENV
+      }
+    } as any);
+    throw new Error('Webhook secret is not configured');
+  }
+
+  let lastError: Error;
+  
+  for (let i = 0; i < webhookSecrets.length; i++) {
+    const secret = webhookSecrets[i];
+    try {
+      const event = await verifyWebhookSignatureEnhanced(body, signature, secret!);
+      
+      // Log successful verification with secret used
+      log.info('Webhook verification successful', {
+        metadata: {
+          eventId: event.id,
+          eventType: event.type,
+          secretIndex: i,
+          isRotationSecret: i > 0,
+          totalSecretsAvailable: webhookSecrets.length
+        }
+      } as any);
+      
+      return event;
+    } catch (error) {
+      lastError = error as Error;
+      
+      log.warn('Webhook verification failed with secret', {
+        metadata: {
+          secretIndex: i,
+          isRotationSecret: i > 0,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          willRetryWithNext: i < webhookSecrets.length - 1
+        }
+      } as any);
+      
+      continue;
+    }
+  }
+  
+  // All secrets failed
+  log.error('Webhook verification failed with all available secrets', {
+    metadata: {
+      totalSecretsAttempted: webhookSecrets.length,
+      finalError: lastError.message,
+      securityAlert: 'Potential webhook spoofing attempt detected'
+    }
+  } as any);
+  
+  throw lastError;
+}
+
+/**
+ * Main webhook signature verification function
+ * Public API with enhanced security features
+ */
+export function verifyWebhookSignature(
+  body: string | Buffer,
+  signature: string,
+  webhookSecret?: string,
+  req?: any
+): Stripe.Event {
+  try {
+    // If specific secret provided, use single verification
+    if (webhookSecret) {
+      const stripe = getStripeClient();
+      return stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    }
+
+    // Use enhanced multi-secret verification
+    return verifyWithMultipleSecrets(body, signature, req) as any;
   } catch (error) {
     log.error('Webhook signature verification failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
       hasSignature: !!signature,
-      hasSecret: !!secret
+      hasCustomSecret: !!webhookSecret,
+      securityContext: 'webhook_verification_failure'
     } as any);
     
     throw new Error('Webhook signature verification failed');

@@ -11,8 +11,8 @@ export interface AuthenticatedRequest extends NextApiRequest {
     id: string
     email: string
     tier: TierLevel
-    hasAccess: (tier: TierLevel) => boolean
-    canUseFeature: (feature: string) => boolean
+    hasAccess: (tier: TierLevel) => Promise<boolean>
+    canUseFeature: (feature: string) => Promise<boolean>
     directoryUsage: {
       used: number
       limit: number

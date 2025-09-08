@@ -67,13 +67,13 @@ Return concise, actionable diagnostics with commands and suggested fixes:
  "summary": "one paragraph: key risks and likely root cause",
  "config_findings": [
  {"API_URL"],
- "runtime": { "node": "20.17.0", "packageManager": "pnpm@10.15.0" }
+ "runtime": { "node": "20.18.1", "packageManager": "pnpm@10.15.0" }
  },
  "recommended_changes": [
  {
  "type": "config",
  "files": ["package.json", ".nvmrc", "netlify.toml"],
- "summary": "Align Node version to 20.17.0 across repo; set packageManager to pnpm@10.15.0"
+ "summary": "Align Node version to 20.18.1 across repo; set packageManager to pnpm@10.15.0"
  }
  ],
  "auditors": ["Hudson", "Cora"],

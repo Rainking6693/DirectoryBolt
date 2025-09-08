@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AnalysisTier, UpgradePrompt } from '../lib/services/analysis-tier-manager'
-import { getConversionTracker } from '../lib/services/conversion-tracker'
+import { getConversionTracker, ConversionEventType } from '../lib/services/conversion-tracker'
 
 interface TierUpgradePromptProps {
   userId: string
@@ -93,7 +93,7 @@ export const TierUpgradePrompt: React.FC<TierUpgradePromptProps> = ({
     // Track dismissal
     getConversionTracker().trackEvent({
       userId,
-      eventType: 'upgrade_prompt_dismissed',
+      eventType: 'upgrade_prompt_dismissed' as ConversionEventType,
       stage: 'consideration',
       data: { 
         trigger,

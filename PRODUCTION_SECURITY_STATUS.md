@@ -126,8 +126,8 @@ Security Dependencies:
 ### ❌ **CRITICAL** - Environment Management (0%)
 - ❌ **EXPOSED**: Live Stripe keys in `.env` file
   ```
-  STRIPE_SECRET_KEY=sk_live_51RyJPcPQdMywmVkH[...]
-  STRIPE_PUBLISHABLE_KEY=pk_live_51RyJPcPQdMywmVkH[...]
+  STRIPE_SECRET_KEY=sk_live_[REDACTED]
+  STRIPE_PUBLISHABLE_KEY=pk_live_[REDACTED]
   ```
 - ⚠️ Multiple environment files present in working directory
 - ✅ Comprehensive `.gitignore` patterns for environment files

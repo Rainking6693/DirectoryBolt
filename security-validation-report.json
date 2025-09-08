@@ -1,73 +1,10 @@
 {
-  "score": 93,
-  "cspHeaders": {
-    "default-src": [
-      "'self'"
-    ],
-    "script-src": [
-      "'self'",
-      "'unsafe-inline'",
-      "https://js.stripe.com",
-      "https://www.googletagmanager.com",
-      "https://www.google-analytics.com",
-      "https://ssl.google-analytics.com"
-    ],
-    "style-src": [
-      "'self'",
-      "'unsafe-inline'",
-      "https://fonts.googleapis.com"
-    ],
-    "font-src": [
-      "'self'",
-      "https://fonts.gstatic.com",
-      "data:"
-    ],
-    "img-src": [
-      "'self'",
-      "data:",
-      "https:",
-      "blob:"
-    ],
-    "connect-src": [
-      "'self'",
-      "https://api.stripe.com",
-      "https://www.google-analytics.com",
-      "https://www.googletagmanager.com",
-      "https://airtable.com",
-      "https://api.airtable.com",
-      "wss:"
-    ],
-    "frame-src": [
-      "https://js.stripe.com",
-      "https://hooks.stripe.com"
-    ],
-    "object-src": [
-      "'none'"
-    ],
-    "base-uri": [
-      "'self'"
-    ],
-    "upgrade-insecure-requests": [],
-    "require-trusted-types-for": [
-      "'script'"
-    ],
-    "trusted-types": [
-      "'default'",
-      "'nextjs'"
-    ]
-  },
-  "securityHeaders": {
-    "x-frame-options": "DENY",
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "strict-origin-when-cross-origin",
-    "x-xss-protection": "1; mode=block",
-    "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
-    "cross-origin-opener-policy": "same-origin",
-    "cross-origin-embedder-policy": "require-corp"
-  },
+  "score": 50,
+  "cspHeaders": {},
+  "securityHeaders": {},
   "trustedTypes": {},
   "violations": [],
-  "passed": 80,
-  "failed": 0,
-  "warnings": 6
+  "passed": 4,
+  "failed": 4,
+  "warnings": 0
 }

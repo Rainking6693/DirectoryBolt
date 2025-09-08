@@ -218,7 +218,7 @@ DirectoryBolt has completed a fundamental business model transformation from sub
 
 ## Final Strategic Summary
 
-The transformation from monthly subscriptions to ONE-TIME purchases represents a fundamental competitive repositioning that:
+The transformation from one-time purchases to ONE-TIME purchases represents a fundamental competitive repositioning that:
 
 1. **Eliminates Customer Churn** - customers own the solution permanently
 2. **Improves Cash Flow** - upfront payments vs monthly collections

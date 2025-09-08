@@ -173,7 +173,9 @@ export function withTierValidation(
       logger.error('Tier validation middleware error', {
         requestId,
         error: error instanceof Error ? error.message : 'Unknown error',
-        path: req.url
+        metadata: {
+          path: req.url
+        }
       })
 
       const errorResponse = handleApiError(error as Error, requestId)
@@ -368,7 +370,7 @@ function getRequiredTierForFeature(feature: string): SubscriptionTier {
     'dedicated_support': 'enterprise'
   }
 
-  return featureRequirements[feature as keyof typeof featureRequirements] || 'starter'
+  return (featureRequirements[feature as keyof typeof featureRequirements] || 'starter') as SubscriptionTier
 }
 
 async function logTierValidation(
@@ -403,4 +405,4 @@ async function logTierValidation(
 }
 
 // Export additional utilities
-export { TierValidationRequest, TierValidationResult }
+export type { TierValidationRequest, TierValidationResult }

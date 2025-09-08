@@ -2,7 +2,7 @@
 // Complete $299+ AI-powered business analysis platform integration
 
 import { logger } from '../utils/logger'
-import { 
+import type { 
   BusinessIntelligence, 
   BusinessIntelligenceResponse, 
   AnalysisProgress,
@@ -26,6 +26,15 @@ import {
   DirectoryMatcher,
   DEFAULT_DIRECTORY_MATCHING_CONFIG
 } from './directory-matcher'
+
+// Export AnalysisProgress interface
+export interface AnalysisProgress {
+  stage: string
+  progress: number
+  message: string
+  timeElapsed: number
+  estimatedTimeRemaining: number
+}
 
 export interface BusinessIntelligenceConfig {
   websiteAnalysis: typeof DEFAULT_ENHANCED_CONFIG
@@ -117,8 +126,8 @@ export class AIBusinessIntelligenceEngine {
     }
 
     this.websiteAnalyzer = new EnhancedWebsiteAnalyzer(this.config.websiteAnalysis)
-    this.aiAnalyzer = new AIBusinessAnalyzer(this.config.aiAnalysis)
-    this.directoryMatcher = new DirectoryMatcher(this.config.directoryMatching)
+    this.aiAnalyzer = AIBusinessAnalyzer.getInstance()
+    this.directoryMatcher = DirectoryMatcher.getInstance()
 
     logger.info('AI Business Intelligence Engine initialized', {
       metadata: {

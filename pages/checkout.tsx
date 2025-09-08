@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import DirectoryBoltCheckout from '../components/checkout/DirectoryBoltCheckout'
+import AIEnhancedDirectoryBoltCheckout from '../components/checkout/AIEnhancedDirectoryBoltCheckout'
 
 interface CheckoutPageProps {
   domain: string
@@ -32,7 +32,7 @@ export default function CheckoutPage({ domain, cancelled }: CheckoutPageProps) {
           </div>
         )}
         
-        <DirectoryBoltCheckout />
+        <AIEnhancedDirectoryBoltCheckout />
       </main>
     </>
   )

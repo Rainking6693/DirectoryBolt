@@ -6,8 +6,9 @@
  */
 
 import Airtable from 'airtable'
+import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } from '../types/business-intelligence'
 
-// Airtable Field Mapping Interface
+// Enhanced Airtable Field Mapping Interface with AI Analysis Data
 export interface BusinessSubmissionRecord {
   firstName: string
   lastName: string
@@ -33,6 +34,21 @@ export interface BusinessSubmissionRecord {
   sessionId?: string
   stripeCustomerId?: string
   totalDirectories?: number
+  
+  // Phase 3.2: Enhanced AI Analysis Fields
+  aiAnalysisResults?: string // JSON string of BusinessIntelligence data
+  competitivePositioning?: string // Text field for competitive analysis summary
+  directorySuccessProbabilities?: string // JSON string of success probability data
+  seoRecommendations?: string // JSON array of SEO recommendations
+  lastAnalysisDate?: string // ISO date string
+  analysisConfidenceScore?: number // 0-100
+  industryCategory?: string // Primary industry classification
+  targetMarketAnalysis?: string // JSON string of target market data
+  revenueProjections?: string // JSON string of revenue projection data
+  competitiveAdvantages?: string // JSON array of competitive advantages
+  marketPositioning?: string // JSON string of positioning data
+  prioritizedDirectories?: string // JSON array of prioritized directory submissions
+  analysisVersion?: string // Version tracking for analysis updates
 }
 
 export interface AirtableConfig {
@@ -273,6 +289,192 @@ export class AirtableService {
    */
   async getPendingSubmissions(): Promise<any[]> {
     return await this.findByStatus('pending')
+  }
+
+  /**
+   * Phase 3.2: Store AI analysis results for a customer
+   */
+  async storeAIAnalysisResults(
+    customerId: string,
+    analysisData: BusinessIntelligence,
+    directoryOpportunities: DirectoryOpportunityMatrix,
+    revenueProjections: RevenueProjections
+  ): Promise<any> {
+    try {
+      console.log('🧠 Storing AI analysis results for customer:', customerId)
+
+      // Find existing record
+      const existingRecord = await this.findByCustomerId(customerId)
+      if (!existingRecord) {
+        throw new Error(`No record found for customer ID: ${customerId}`)
+      }
+
+      // Prepare analysis data for storage
+      const analysisUpdate = {
+        aiAnalysisResults: JSON.stringify(analysisData),
+        competitivePositioning: this.extractCompetitivePositioning(analysisData),
+        directorySuccessProbabilities: JSON.stringify(directoryOpportunities.prioritizedSubmissions.map(dir => ({
+          directoryId: dir.directoryId,
+          directoryName: dir.directoryName,
+          successProbability: dir.successProbability,
+          estimatedROI: dir.expectedROI,
+          priority: dir.priority
+        }))),
+        seoRecommendations: JSON.stringify(analysisData.seoAnalysis.improvementOpportunities.map(opp => opp.description)),
+        lastAnalysisDate: new Date().toISOString(),
+        analysisConfidenceScore: analysisData.confidence,
+        industryCategory: analysisData.industryAnalysis.primaryIndustry,
+        targetMarketAnalysis: JSON.stringify(analysisData.profile.targetMarket),
+        revenueProjections: JSON.stringify(revenueProjections),
+        competitiveAdvantages: JSON.stringify(analysisData.competitiveAnalysis.competitiveAdvantages),
+        marketPositioning: JSON.stringify(analysisData.marketPositioning),
+        prioritizedDirectories: JSON.stringify(directoryOpportunities.prioritizedSubmissions.slice(0, 20)), // Top 20 directories
+        analysisVersion: '3.2.0'
+      }
+
+      return await this.updateBusinessSubmission(existingRecord.recordId, analysisUpdate)
+
+    } catch (error) {
+      console.error('❌ Failed to store AI analysis results:', error)
+      throw new Error(`AI analysis storage failed: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+
+  /**
+   * Phase 3.2: Retrieve cached AI analysis results
+   */
+  async getCachedAnalysisResults(customerId: string): Promise<BusinessIntelligence | null> {
+    try {
+      const record = await this.findByCustomerId(customerId)
+      if (!record || !record.aiAnalysisResults) {
+        return null
+      }
+
+      // Check if analysis is still valid (not older than 30 days)
+      const analysisDate = new Date(record.lastAnalysisDate || '2000-01-01')
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      
+      if (analysisDate < thirtyDaysAgo) {
+        console.log('🕒 Cached analysis is older than 30 days, requiring refresh')
+        return null
+      }
+
+      // Parse and return analysis data
+      const analysisData = JSON.parse(record.aiAnalysisResults) as BusinessIntelligence
+      console.log('✅ Retrieved cached AI analysis results for customer:', customerId)
+      
+      return analysisData
+
+    } catch (error) {
+      console.error('❌ Failed to retrieve cached analysis results:', error)
+      return null
+    }
+  }
+
+  /**
+   * Phase 3.2: Check if business profile has changed since last analysis
+   */
+  async hasBusinessProfileChanged(customerId: string, currentBusinessData: Partial<BusinessSubmissionRecord>): Promise<boolean> {
+    try {
+      const record = await this.findByCustomerId(customerId)
+      if (!record || !record.lastAnalysisDate) {
+        return true // No previous analysis, consider it changed
+      }
+
+      // Compare key business fields
+      const keyFields = ['businessName', 'website', 'description', 'city', 'state']
+      for (const field of keyFields) {
+        if (record[field] !== currentBusinessData[field]) {
+          console.log(`🔄 Business profile changed: ${field} updated`)
+          return true
+        }
+      }
+
+      return false
+
+    } catch (error) {
+      console.error('❌ Failed to check business profile changes:', error)
+      return true // Assume changed on error to be safe
+    }
+  }
+
+  /**
+   * Phase 3.2: Get analysis history for trend tracking
+   */
+  async getAnalysisHistory(customerId: string): Promise<any[]> {
+    try {
+      // Since Airtable doesn't have native versioning, we could implement this
+      // by storing historical data or by querying based on analysis dates
+      // For now, return the current analysis with metadata
+      const record = await this.findByCustomerId(customerId)
+      if (!record || !record.aiAnalysisResults) {
+        return []
+      }
+
+      return [{
+        analysisDate: record.lastAnalysisDate,
+        version: record.analysisVersion || '1.0.0',
+        confidenceScore: record.analysisConfidenceScore,
+        industryCategory: record.industryCategory,
+        competitivePositioning: record.competitivePositioning
+      }]
+
+    } catch (error) {
+      console.error('❌ Failed to retrieve analysis history:', error)
+      return []
+    }
+  }
+
+  /**
+   * Phase 3.2: Track optimization improvements over time
+   */
+  async trackOptimizationProgress(
+    customerId: string, 
+    optimizationResults: {
+      directoriesSubmittedSinceAnalysis: number
+      approvalRate: number
+      trafficIncrease?: number
+      leadIncrease?: number
+    }
+  ): Promise<any> {
+    try {
+      const updates = {
+        directoriesSubmitted: optimizationResults.directoriesSubmittedSinceAnalysis,
+        // Store optimization metrics as JSON for detailed tracking
+        optimizationResults: JSON.stringify({
+          ...optimizationResults,
+          lastUpdated: new Date().toISOString()
+        })
+      }
+
+      const existingRecord = await this.findByCustomerId(customerId)
+      if (!existingRecord) {
+        throw new Error(`No record found for customer ID: ${customerId}`)
+      }
+
+      return await this.updateBusinessSubmission(existingRecord.recordId, updates)
+
+    } catch (error) {
+      console.error('❌ Failed to track optimization progress:', error)
+      throw new Error(`Optimization tracking failed: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+
+  /**
+   * Helper: Extract competitive positioning summary from analysis data
+   */
+  private extractCompetitivePositioning(analysisData: BusinessIntelligence): string {
+    const competitive = analysisData.competitiveAnalysis
+    const positioning = analysisData.marketPositioning
+    
+    const summary = [
+      `Current Position: ${positioning.currentPosition}`,
+      `Recommended Position: ${positioning.recommendedPosition}`,
+      `Key Advantages: ${competitive.competitiveAdvantages.slice(0, 3).join(', ')}`,
+      `Market Gaps: ${competitive.marketGaps.slice(0, 2).map(gap => gap.description).join('; ')}`
+    ].join(' | ')
+
+    return summary.substring(0, 500) // Limit to 500 chars for Airtable
   }
 
   /**

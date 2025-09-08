@@ -3,9 +3,25 @@
 
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import puppeteer, { Browser, Page } from 'puppeteer-core'
-import chromium from '@sparticuz/chromium'
 import { logger } from '../utils/logger'
+
+// Dynamic imports for server-side only modules
+let puppeteer: any = null;
+let chromium: any = null;
+let Browser: any = null;
+let Page: any = null;
+
+// Only import puppeteer on server-side
+if (typeof window === 'undefined') {
+  try {
+    puppeteer = require('puppeteer-core');
+    chromium = require('@sparticuz/chromium');
+    // Import types from puppeteer-core for server-side use
+    ({ Browser, Page } = require('puppeteer-core'));
+  } catch (error) {
+    console.warn('Puppeteer modules not available:', error);
+  }
+}
 import { BusinessIntelligence, EnhancedBusinessProfile, SEOAnalysis, ContentAnalysis, SocialMediaPresence, TechnologyStack } from '../types/business-intelligence'
 
 export interface EnhancedAnalysisConfig {

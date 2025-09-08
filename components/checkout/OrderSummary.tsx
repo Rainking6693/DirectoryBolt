@@ -220,8 +220,8 @@ export function OrderSummary({
               </div>
               {checkoutState.wantsSubscription && (
                 <div className="flex justify-between text-secondary-200">
-                  <span>Then Monthly:</span>
-                  <span className="font-bold">${checkoutState.pricing.monthlyRecurring}/month</span>
+                  <span>One-Time Service:</span>
+                  <span className="font-bold">${checkoutState.pricing.monthlyRecurring} ONE-TIME</span>
                 </div>
               )}
             </div>

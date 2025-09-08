@@ -8,9 +8,9 @@ export default function PricingPreviewSection() {
           <span>🔥</span>
           Replace Your Entire Marketing Stack
         </div>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-volt-400">Business Intelligence Plans</h2>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-volt-400">One-Time Purchase Business Intelligence Plans</h2>
         <p className="text-secondary-300 mb-8 max-w-3xl mx-auto text-lg">
-          Stop paying $3,000+ for consultant projects. Own enterprise-level AI insights and automated growth strategies with one strategic investment.
+          Stop paying $3,000+ for consultant projects. <strong className="text-volt-400">Pay once, own forever.</strong> Get enterprise-level AI insights and automated growth strategies with one strategic investment.
         </p>
         
         {/* Market Comparison */}
@@ -36,16 +36,16 @@ export default function PricingPreviewSection() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto">
         {/* Starter Intelligence Plan */}
         <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
           <div className="text-center">
             <h3 className="text-xl font-bold text-white mb-2">Starter Intelligence</h3>
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-sm text-secondary-400 line-through">$2,000</span>
+              <span className="text-sm text-secondary-400 line-through">$2,700</span>
               <div className="text-3xl font-black text-volt-400">$149</div>
             </div>
-            <div className="text-success-400 font-bold text-sm mb-4">Save 93% vs. Consultant Projects</div>
+            <div className="text-success-400 font-bold text-sm mb-4">Save 94% vs. Consultant Projects</div>
             <ul className="text-xs text-secondary-400 space-y-2 mb-6 text-left">
               <li>• <strong className="text-volt-400">AI Market Analysis</strong> (Worth $1,500)</li>
               <li>• <strong className="text-volt-400">100 Directory Submissions</strong> (Worth $400)</li>
@@ -59,7 +59,7 @@ export default function PricingPreviewSection() {
               successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=starter`}
               cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=starter`}
             >
-              Get Instant Access
+              Get Full Analysis - $149
             </StartTrialButton>
           </div>
         </div>
@@ -91,7 +91,34 @@ export default function PricingPreviewSection() {
               successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=growth`}
               cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=growth`}
             >
-              Get Instant Access
+              Get Full Analysis - $299
+            </StartTrialButton>
+          </div>
+        </div>
+
+        {/* Professional Intelligence Plan */}
+        <div className="bg-gradient-to-br from-secondary-800/80 to-secondary-900/60 rounded-2xl p-6 border border-secondary-600 backdrop-blur-sm hover:border-volt-500/50 transition-all duration-300 transform hover:scale-105">
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-white mb-2">Professional Intelligence</h3>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-sm text-secondary-400 line-through">$7,500</span>
+              <div className="text-3xl font-black text-volt-400">$499</div>
+            </div>
+            <div className="text-success-400 font-bold text-sm mb-4">Save 93% vs. Consultant Projects</div>
+            <ul className="text-xs text-secondary-400 space-y-2 mb-6 text-left">
+              <li>• <strong className="text-volt-400">Enterprise AI Intelligence Suite</strong> (Worth $3,000)</li>
+              <li>• <strong className="text-volt-400">400 Premium Directory Network</strong> (Worth $1,500)</li>
+              <li>• <strong className="text-volt-400">Deep Market Intelligence</strong> (Worth $2,000)</li>
+              <li>• <strong className="text-volt-400">White-label Reports</strong> (Worth $1,000)</li>
+              <li>• Dedicated account manager</li>
+            </ul>
+            <StartTrialButton
+              plan="professional"
+              className="w-full py-3 text-sm bg-secondary-700 hover:bg-secondary-600 text-white rounded-lg transition-colors font-bold"
+              successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=professional`}
+              cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=professional`}
+            >
+              Get Full Analysis - $499
             </StartTrialButton>
           </div>
         </div>
@@ -101,24 +128,24 @@ export default function PricingPreviewSection() {
           <div className="text-center">
             <h3 className="text-xl font-bold text-white mb-2">Enterprise Intelligence</h3>
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-sm text-secondary-400 line-through">$8,500</span>
+              <span className="text-sm text-secondary-400 line-through">$9,700</span>
               <div className="text-3xl font-black text-volt-400">$799</div>
             </div>
-            <div className="text-success-400 font-bold text-sm mb-4">Save 91% vs. Consultant Projects</div>
+            <div className="text-success-400 font-bold text-sm mb-4">Save 92% vs. Consultant Projects</div>
             <ul className="text-xs text-secondary-400 space-y-2 mb-6 text-left">
-              <li>• <strong className="text-volt-400">Enterprise AI Intelligence Suite</strong> (Worth $4,000)</li>
+              <li>• <strong className="text-volt-400">Complete AI Intelligence Platform</strong> (Worth $4,000)</li>
               <li>• <strong className="text-volt-400">500+ Premium Directory Network</strong> (Worth $2,000)</li>
-              <li>• <strong className="text-volt-400">Deep Market Intelligence</strong> (Worth $2,500)</li>
-              <li>• <strong className="text-volt-400">White-label Reports</strong> (Worth $1,200)</li>
-              <li>• Dedicated success manager</li>
+              <li>• <strong className="text-volt-400">Advanced Market Intelligence</strong> (Worth $2,500)</li>
+              <li>• <strong className="text-volt-400">Custom White-label Reports</strong> (Worth $1,200)</li>
+              <li>• Dedicated success manager + SLA</li>
             </ul>
             <StartTrialButton
-              plan="pro"
+              plan="enterprise"
               className="w-full py-3 text-sm bg-secondary-700 hover:bg-secondary-600 text-white rounded-lg transition-colors font-bold"
-              successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=pro`}
-              cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=pro`}
+              successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=enterprise`}
+              cancelUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=enterprise`}
             >
-              Get Instant Access
+              Get Full Analysis - $799
             </StartTrialButton>
           </div>
         </div>

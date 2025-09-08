@@ -154,7 +154,7 @@ export default function ConversionOptimizedUpgradePrompts({
       trigger: 'analysis_complete',
       title: '🎯 Your Analysis is Complete',
       headline: `Ready to Capture ${analysisContext.opportunitiesFound} Opportunities Worth $${analysisContext.estimatedMonthlyValue.toLocaleString()}/Month?`,
-      urgencyMessage: `Industry data shows ${analysisContext.currentVisibilityGap}% visibility gap costs you ~$${Math.round(analysisContext.estimatedMonthlyValue * 0.3)}/month`,
+      urgencyMessage: `Industry data shows ${analysisContext.currentVisibilityGap}% visibility gap costs you ~$${Math.round(analysisContext.estimatedMonthlyValue * 3.6)}/year in lost revenue`,
       valueProps: [
         `Turn insights into action with automated submissions`,
         `Get ahead of competitors with exclusive directory access`,
@@ -415,7 +415,7 @@ export default function ConversionOptimizedUpgradePrompts({
             <h3 className="text-lg font-bold text-volt-400">Premium Feature</h3>
           </div>
           <p className="text-secondary-300 text-sm mb-3">
-            Unlock {analysisContext.opportunitiesFound - 5} more opportunities worth ${(analysisContext.estimatedMonthlyValue - 1200).toLocaleString()}/month
+            Unlock {analysisContext.opportunitiesFound - 5} more opportunities worth ${((analysisContext.estimatedMonthlyValue - 1200) * 12).toLocaleString()}/year in potential revenue
           </p>
           <div className="flex items-center gap-4 text-xs text-secondary-400">
             <span>⚡ {calculateROI()}% ROI</span>

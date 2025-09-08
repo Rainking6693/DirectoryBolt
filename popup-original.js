@@ -7,7 +7,7 @@
 const DEFAULT_AIRTABLE_CONFIG = {
     baseId: 'appZDNMzebkaOkLXo',
     tableName: 'Sheet1',
-    apiToken: 'patAQfH6wBtnssFCs.99d8c54fa5e73233c2544b3da12b538f2bd026cda161c02c27a47c0fa14e2faf',
+    apiToken: 'your_airtable_api_token_here',
     apiUrl: 'https://api.airtable.com/v0'
 };
 

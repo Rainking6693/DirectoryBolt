@@ -39,13 +39,13 @@ export class QueueAPIClient {
 
   constructor(config: QueueAPIConfig) {
     this.config = {
-      timeout: 30000,
-      retryAttempts: 3,
-      retryDelay: 1000,
-      enableWebSocket: true,
-      enablePolling: false,
-      pollingInterval: 5000,
-      ...config
+      ...config,
+      timeout: config.timeout ?? 30000,
+      retryAttempts: config.retryAttempts ?? 3,
+      retryDelay: config.retryDelay ?? 1000,
+      enableWebSocket: config.enableWebSocket ?? true,
+      enablePolling: config.enablePolling ?? false,
+      pollingInterval: config.pollingInterval ?? 5000
     }
   }
 

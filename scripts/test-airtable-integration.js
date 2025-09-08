@@ -8,7 +8,7 @@
 const path = require('path');
 
 // Mock environment variables for testing
-process.env.AIRTABLE_API_KEY = 'test_api_key';
+process.env.AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || 'mock_key_for_testing';
 process.env.AIRTABLE_BASE_ID = 'test_base_id';
 process.env.AIRTABLE_TABLE_NAME = 'Business_Submissions';
 

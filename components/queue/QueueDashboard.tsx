@@ -73,7 +73,9 @@ const QueueDashboard: React.FC<QueueDashboardProps> = ({
   const { 
     updates, 
     isConnected, 
-    connectionError 
+    connectionError,
+    connect,
+    disconnect
   } = useQueueUpdates()
 
   const {
@@ -203,7 +205,7 @@ const QueueDashboard: React.FC<QueueDashboardProps> = ({
             <RealTimeIndicator 
               isConnected={isConnected} 
               lastUpdate={updates[0]?.timestamp}
-              error={connectionError}
+              onToggle={() => isConnected ? disconnect() : connect()}
             />
           )}
           

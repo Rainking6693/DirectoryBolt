@@ -1,0 +1,51 @@
+# 🔑 DirectoryBolt Environment Variables Template
+# Copy this to your .env.local file and fill in your actual values
+
+# =============================================================================
+# OPENAI CONFIGURATION (REQUIRED)
+# =============================================================================
+# Get from: https://platform.openai.com/api-keys
+OPENAI_API_KEY=sk-proj-YOUR_OPENAI_API_KEY_HERE
+
+# =============================================================================
+# STRIPE CONFIGURATION (REQUIRED)
+# =============================================================================
+# Get from: https://dashboard.stripe.com/test/apikeys
+STRIPE_SECRET_KEY=sk_test_YOUR_STRIPE_SECRET_KEY_HERE
+STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE
+
+# Webhook secret from: https://dashboard.stripe.com/test/webhooks
+STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE
+
+# =============================================================================
+# STRIPE PRICE IDS (CREATE IN STRIPE DASHBOARD)
+# =============================================================================
+# Create products at: https://dashboard.stripe.com/test/products
+STRIPE_STARTER_PRICE_ID=price_YOUR_STARTER_PRICE_ID_HERE
+STRIPE_GROWTH_PRICE_ID=price_YOUR_GROWTH_PRICE_ID_HERE
+STRIPE_PROFESSIONAL_PRICE_ID=price_YOUR_PROFESSIONAL_PRICE_ID_HERE
+STRIPE_ENTERPRISE_PRICE_ID=price_YOUR_ENTERPRISE_PRICE_ID_HERE
+
+# =============================================================================
+# APPLICATION CONFIGURATION (KEEP AS-IS FOR DEVELOPMENT)
+# =============================================================================
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NODE_ENV=development
+DEBUG=true
+LOG_LEVEL=debug
+
+# =============================================================================
+# EXISTING CONFIGURATION (KEEP AS-IS)
+# =============================================================================
+SUPABASE_URL=https://kolgqfjgncdwddziqloz.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+
+AIRTABLE_ACCESS_TOKEN=your_airtable_access_token_here
+AIRTABLE_API_KEY=your_airtable_api_key_here
+AIRTABLE_BASE_ID=appZDNMzebkaOkLXo
+AIRTABLE_TABLE_NAME=Directory Bolt Import.xlsx
+
+USER_AGENT=DirectoryBolt/2.0 (+https://directorybolt.com)
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true

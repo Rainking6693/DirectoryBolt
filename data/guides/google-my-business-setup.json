@@ -1,0 +1,123 @@
+{
+  "slug": "google-my-business-setup",
+  "title": "Complete Guide to Setting Up Google My Business for Maximum Visibility",
+  "description": "Learn how to create, optimize, and manage your Google My Business profile to improve local search visibility and attract more customers.",
+  "directoryName": "Google My Business",
+  "category": "Local Search",
+  "difficulty": "beginner",
+  "estimatedReadTime": "8 min read",
+  "featuredImage": "https://directorybolt.com/images/guides/google-my-business-hero.jpg",
+  "publishedAt": "2024-01-15T09:00:00Z",
+  "updatedAt": "2024-12-01T14:30:00Z",
+  "version": "2.1.0",
+  "viewCount": 1435,
+  "seo": {
+    "title": "Google My Business Setup Guide 2024 | Complete Step-by-Step Tutorial",
+    "description": "Master Google My Business setup with our comprehensive 2024 guide. Boost local SEO, attract customers, and dominate local search results.",
+    "keywords": [
+      "google my business",
+      "local seo",
+      "google business profile",
+      "local search optimization",
+      "business listing",
+      "google maps listing",
+      "local business marketing"
+    ]
+  },
+  "content": {
+    "requirements": [
+      "Valid business address (can be home-based)",
+      "Business phone number",
+      "Google account (Gmail recommended)",
+      "High-quality business photos",
+      "Business operating hours information"
+    ],
+    "tools": [
+      "Google My Business dashboard",
+      "Google Search Console",
+      "Google Analytics",
+      "Photo editing software",
+      "Review management tool"
+    ],
+    "sections": [
+      {
+        "id": "account-setup",
+        "title": "Create Your Google My Business Account",
+        "content": "<p>Start by visiting <a href='https://business.google.com' target='_blank'>business.google.com</a> and signing in with your Google account. If you don't have one, create a new Gmail account specifically for your business.</p><p>Click 'Manage now' and then 'Add your business to Google'. Enter your business name exactly as you want it to appear in search results. Google will search for existing listings - if your business already exists, claim it. If not, you'll create a new listing.</p><p><strong>Pro tip:</strong> Use your official business name as registered with local authorities. Avoid keyword stuffing in the business name as this violates Google's guidelines.</p>",
+        "tips": [
+          "Use the same business name across all online directories for consistency",
+          "If you have multiple locations, set up separate profiles for each",
+          "Choose a strong password and enable two-factor authentication"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-account-setup.jpg"
+      },
+      {
+        "id": "business-information",
+        "title": "Complete Your Business Information",
+        "content": "<p>Fill out every section of your business profile completely. This includes:</p><ul><li><strong>Business Category:</strong> Choose the most specific primary category that describes your business. You can add up to 10 additional categories.</li><li><strong>Address:</strong> Enter your complete, accurate business address. For service-area businesses, you can hide your address and show service areas instead.</li><li><strong>Phone Number:</strong> Use a local phone number that connects directly to your business.</li><li><strong>Website:</strong> Link to your main business website or a landing page optimized for local visitors.</li><li><strong>Hours:</strong> Set accurate business hours including special hours for holidays.</li></ul><p>Accuracy is crucial - Google may suspend listings with incorrect information.</p>",
+        "tips": [
+          "Double-check your address matches exactly what's on your website and other listings",
+          "Use a local phone number rather than toll-free numbers when possible",
+          "Set up special hours for holidays in advance"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-business-info.jpg"
+      },
+      {
+        "id": "verification",
+        "title": "Verify Your Business Listing",
+        "content": "<p>Google needs to verify that you're the legitimate owner of the business. The most common verification method is by postcard, which takes 5-14 days to arrive.</p><p>When you receive the postcard, log into your Google My Business account and enter the verification code. Some businesses may be eligible for instant verification via phone, email, or Google Search Console if they've already verified their website.</p><p>During the verification process, avoid making changes to your business information as this can delay verification or require re-verification.</p>",
+        "tips": [
+          "Check your mail daily - verification postcards can arrive quickly",
+          "Don't request multiple verification codes as this can delay the process",
+          "Keep your business information unchanged until verification is complete"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-verification.jpg"
+      },
+      {
+        "id": "optimization",
+        "title": "Optimize Your Profile for Maximum Visibility",
+        "content": "<p>Once verified, optimize your profile to stand out in local search results:</p><p><strong>Photos:</strong> Upload high-quality photos including:</p><ul><li>Logo (square format, minimum 720x720 pixels)</li><li>Cover photo (landscape format, minimum 1024x575 pixels)</li><li>Interior and exterior photos</li><li>Product or service photos</li><li>Team photos</li></ul><p><strong>Business Description:</strong> Write a compelling 750-character description that includes relevant keywords naturally. Focus on what makes your business unique and valuable to customers.</p><p><strong>Attributes:</strong> Select all applicable business attributes (wheelchair accessible, free WiFi, outdoor seating, etc.) to help customers understand what to expect.</p>",
+        "tips": [
+          "Update photos regularly to show your business is active",
+          "Include faces in photos when possible - they get 40% more clicks",
+          "Use natural lighting and avoid overly filtered images"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-optimization.jpg"
+      },
+      {
+        "id": "posts-updates",
+        "title": "Create Posts and Regular Updates",
+        "content": "<p>Google My Business posts appear in your knowledge panel and can drive engagement. Create posts for:</p><ul><li><strong>What's New:</strong> Announce new products, services, or business updates</li><li><strong>Events:</strong> Promote upcoming events, sales, or special offers</li><li><strong>Offers:</strong> Share discounts, promotions, or special deals</li><li><strong>Products:</strong> Highlight specific products with photos and descriptions</li></ul><p>Posts stay visible for 7 days (events until the event date), so post regularly to maintain visibility. Include high-quality images, compelling text, and clear calls-to-action.</p>",
+        "tips": [
+          "Post at least once per week to keep your profile fresh",
+          "Use holiday-themed posts to capitalize on seasonal traffic",
+          "Include relevant keywords in your post descriptions naturally"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-posts.jpg"
+      },
+      {
+        "id": "reviews-management",
+        "title": "Manage Reviews and Customer Interactions",
+        "content": "<p>Reviews are crucial for local search rankings and customer trust. Here's how to manage them effectively:</p><p><strong>Encourage Reviews:</strong></p><ul><li>Ask satisfied customers to leave reviews</li><li>Send follow-up emails with review links</li><li>Display review request cards at your business location</li><li>Include review requests in receipts or invoices</li></ul><p><strong>Respond to Reviews:</strong></p><ul><li>Respond to all reviews, both positive and negative</li><li>Keep responses professional and personalized</li><li>Address specific concerns mentioned in negative reviews</li><li>Thank customers for positive feedback</li></ul><p><strong>Monitor and Analyze:</strong> Use the insights section to track how customers find your business and what actions they take.</p>",
+        "tips": [
+          "Respond to reviews within 24-48 hours when possible",
+          "Never ask customers to change or delete negative reviews",
+          "Use review responses as an opportunity to showcase your customer service"
+        ],
+        "image": "https://directorybolt.com/images/guides/gmb-reviews.jpg"
+      }
+    ]
+  },
+  "internalLinks": {
+    "relatedGuides": [
+      "local-seo-optimization",
+      "yelp-business-setup",
+      "online-reputation-management"
+    ],
+    "relatedDirectories": [
+      "yelp",
+      "facebook-business",
+      "apple-maps"
+    ]
+  }
+}

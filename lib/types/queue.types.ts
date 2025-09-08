@@ -101,7 +101,7 @@ export interface QueueUpdate {
 
 // API Request/Response Types
 export interface GetQueueRequest {
-  status?: 'pending' | 'in-progress' | 'completed' | 'failed' | 'paused'
+  status?: 'pending' | 'in-progress' | 'completed' | 'failed' | 'paused' | 'all'
   limit?: number
   offset?: number
   sortBy?: 'priority' | 'createdAt' | 'packageType'

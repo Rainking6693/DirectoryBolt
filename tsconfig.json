@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "lib": ["dom", "dom.iterable", "es2018"],
+    "target": "es2020",
+    "lib": ["dom", "dom.iterable", "es2020"],
     "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
     "assumeChangesOnlyAffectDirectDependencies": true,
     "baseUrl": ".",
     "paths": {

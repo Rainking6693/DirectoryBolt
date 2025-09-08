@@ -99,10 +99,11 @@ export function authMiddleware(config: AuthMiddlewareConfig = {}) {
 
       // Get user information if not already set
       if (!req.user) {
-        req.user = await getUserById(tokenPayload.sub)
-        if (!req.user) {
+        const user = await getUserById(tokenPayload.sub)
+        if (!user) {
           throw new AuthenticationError('User not found', 'USER_NOT_FOUND')
         }
+        req.user = user
       }
 
       // Verify user status
@@ -282,10 +283,11 @@ export function apiKeyAuth() {
     }
 
     // Get user associated with API key
-    req.user = await getUserById(keyRecord.user_id)
-    if (!req.user) {
+    const user = await getUserById(keyRecord.user_id)
+    if (!user) {
       throw new AuthenticationError('API key user not found', 'USER_NOT_FOUND')
     }
+    req.user = user
 
     req.role = getUserRole(req.user)
     req.rateLimitKey = rateLimitKey

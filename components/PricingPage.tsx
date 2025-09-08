@@ -177,24 +177,24 @@ export default function PricingPage() {
 
   // This function now just determines where to route, actual checkout is handled by CheckoutButton
   const getSuccessUrl = (planId: string) => {
-    return `${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&billing=${isAnnual ? 'annual' : 'monthly'}`
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&billing=one_time`
   }
 
   const getCancelUrl = (planId: string) => {
-    return `${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=${planId}&billing=${isAnnual ? 'annual' : 'monthly'}`
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/pricing?cancelled=true&plan=${planId}&billing=one_time`
   }
 
   const calculateROI = (tier: PricingTier) => {
-    const monthlyInvestment = isAnnual ? tier.annualPrice : tier.price
+    const oneTimeInvestment = tier.price
     const estimatedNewCustomers = parseInt(tier.roi.newCustomers.split('-')[0])
     const monthlyReturn = estimatedNewCustomers * newCustomersWorth
-    const roiPercentage = ((monthlyReturn - monthlyInvestment) / monthlyInvestment) * 100
+    const roiPercentage = ((monthlyReturn - oneTimeInvestment) / oneTimeInvestment) * 100
     
     return {
       monthlyReturn,
       roiPercentage: Math.round(roiPercentage),
       annualReturn: monthlyReturn * 12,
-      annualInvestment: monthlyInvestment * 12
+      oneTimeInvestment: oneTimeInvestment
     }
   }
 
@@ -374,7 +374,7 @@ export default function PricingPage() {
                         customerEmail=""
                         showAddOnUpsell={tier.id !== 'free' && tier.id !== 'subscription'}
                         addons={selectedAddOns}
-                        metadata={{ billingPeriod: isAnnual ? 'annual' : 'monthly', price: isAnnual ? tier.annualPrice : tier.price }}
+                        metadata={{ billingPeriod: 'one_time', price: tier.price }}
                         onAddOnsSelected={(addons: any) => {
                           console.log('Add-ons selected for plan:', tier.id, addons)
                           if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -394,8 +394,8 @@ export default function PricingPage() {
                           if (typeof window !== 'undefined' && (window as any).gtag) {
                             (window as any).gtag('event', 'purchase_initiated', {
                               plan: tier.id,
-                              billing: isAnnual ? 'annual' : 'monthly',
-                              value: isAnnual ? tier.annualPrice : tier.price
+                              billing: 'one_time',
+                              value: tier.price
                             })
                           }
                         }}
@@ -408,7 +408,7 @@ export default function PricingPage() {
                               // Mobile-specific fallback
                               alert(`${errorMessage}. Redirecting to manual setup...`);
                             }
-                            router.push(`/analyze?recommended_plan=${tier.id}&billing=${isAnnual ? 'annual' : 'monthly'}&error=checkout_failed`);
+                            router.push(`/analyze?recommended_plan=${tier.id}&billing=one_time&error=checkout_failed`);
                           }
                         }}
                       >
@@ -427,7 +427,7 @@ export default function PricingPage() {
                     {/* Directory Examples */}
                     <div className="text-center mt-4 p-3 bg-secondary-900/30 rounded-lg border border-secondary-600/30 group-hover:bg-secondary-900/50 group-hover:border-secondary-500/50 transition-all duration-300">
                       <div className="text-xs font-bold text-secondary-300 mb-2">
-                        {tier.id === 'subscription' ? '🔄 Monthly Service' : `🎯 ${tier.directories} Premium Directories`}
+                        {tier.id === 'subscription' ? '🎯 One-Time Service' : `🎯 ${tier.directories} Premium Directories`}
                       </div>
                       <div className="text-xs text-secondary-400 space-y-1">
                         {tier.id === 'starter' && (
@@ -458,7 +458,7 @@ export default function PricingPage() {
                           <>
                             <div>• Keep all listings updated</div>
                             <div>• Automatic resubmissions</div>
-                            <div>• Monthly reports</div>
+                            <div>• Quarterly reports</div>
                             <div>• Profile optimization</div>
                           </>
                         )}
@@ -642,7 +642,7 @@ export default function PricingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8">
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-secondary-300 mb-2">
-                  Current Monthly Revenue
+                  Current Business Revenue
                 </label>
                 <input
                   type="range"
@@ -692,7 +692,7 @@ export default function PricingPage() {
                         <div className="text-2xl font-black text-success-400">
                           +${roi.monthlyReturn.toLocaleString()}
                         </div>
-                        <div className="text-sm text-secondary-300">Monthly Revenue</div>
+                        <div className="text-sm text-secondary-300">Projected Monthly Revenue</div>
                       </div>
                       <div className="text-center p-4 bg-volt-900/30 rounded-lg border border-volt-600/30">
                         <div className="text-2xl font-black text-volt-400">
@@ -829,8 +829,8 @@ export default function PricingPage() {
                   if (typeof window !== 'undefined' && (window as any).gtag) {
                     (window as any).gtag('event', 'purchase_initiated', {
                       plan: 'growth',
-                      billing: isAnnual ? 'annual' : 'monthly',
-                      value: isAnnual ? 63 : 79,
+                      billing: 'one_time',
+                      value: 299,
                       source: 'final_cta'
                     })
                   }

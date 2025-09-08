@@ -54,6 +54,10 @@ export type ConversionEventType =
   | 'tier_upgraded'
   | 'analysis_completed'
   | 'report_downloaded'
+  | 'pricing_viewed'
+  | 'tier_selected'
+  | 'billing_preference_changed'
+  | 'upgrade_prompt_dismissed'
 
 export interface ConversionMetrics {
   funnelId: string

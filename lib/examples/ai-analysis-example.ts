@@ -4,12 +4,11 @@
 import { 
   BusinessIntelligence,
   AnalysisRequest,
-  createBusinessIntelligenceEngine,
-  AnalysisProgress
+  createBusinessIntelligenceEngine
 } from '../services/ai-business-intelligence-engine'
 
 // Example 1: Basic Business Analysis
-export async function basicAnalysisExample() {
+export const basicAnalysisExample = async () => {
   console.log('🚀 Running Basic Business Analysis Example')
 
   const request: AnalysisRequest = {
@@ -42,7 +41,7 @@ export async function basicAnalysisExample() {
 }
 
 // Example 2: Advanced Analysis with Custom Configuration
-export async function advancedAnalysisExample() {
+export const advancedAnalysisExample = async () => {
   console.log('🚀 Running Advanced Business Analysis Example')
 
   const engine = createBusinessIntelligenceEngine({
@@ -52,17 +51,14 @@ export async function advancedAnalysisExample() {
       maxTokens: 3000,
       enableRevenueProjections: true,
       enableCompetitorAnalysis: true,
-      analysisDepth: 'comprehensive'
+      analysisDepth: 'comprehensive',
+      enableScreenshots: true
     },
     directoryMatching: {
-      maxDirectories: 75,
-      enableAIOptimization: true,
-      includeInternational: true,
-      includePremium: true,
-      budgetRange: { min: 0, max: 2000 },
-      industryFocus: ['SaaS', 'Technology'],
-      targetROI: 300,
-      analysisDepth: 'comprehensive'
+      maxDirectoryCount: 75,
+      enablePremiumDirectories: true,
+      focusOnHighAuthority: true,
+      includeNicheDirectories: true
     },
     websiteAnalysis: {
       timeout: 45000,
@@ -147,7 +143,7 @@ export async function advancedAnalysisExample() {
         console.log(`   Success Probability: ${dir.successProbability}%`)
         console.log(`   Expected ROI: ${dir.expectedROI}%`)
         console.log(`   Cost: $${dir.cost}`)
-        console.log(`   Timeline: ${dir.timeline.totalTime} days`)
+        console.log(`   Timeline: ${dir.timeline?.totalTime || 'N/A'} days`)
         console.log('')
       })
 
@@ -185,7 +181,7 @@ export async function advancedAnalysisExample() {
 }
 
 // Example 3: Health Check and Monitoring
-export async function healthCheckExample() {
+export const healthCheckExample = async () => {
   console.log('🚀 Running Health Check Example')
 
   try {
@@ -206,7 +202,7 @@ export async function healthCheckExample() {
 }
 
 // Example 4: Error Handling and Recovery
-export async function errorHandlingExample() {
+export const errorHandlingExample = async () => {
   console.log('🚀 Running Error Handling Example')
 
   const request: AnalysisRequest = {
@@ -239,7 +235,7 @@ export async function errorHandlingExample() {
 }
 
 // Example 5: Batch Analysis (Multiple URLs)
-export async function batchAnalysisExample() {
+export const batchAnalysisExample = async () => {
   console.log('🚀 Running Batch Analysis Example')
 
   const urls = [
@@ -255,12 +251,14 @@ export async function batchAnalysisExample() {
       maxTokens: 2000,
       enableRevenueProjections: false, // Faster analysis
       enableCompetitorAnalysis: false,
-      analysisDepth: 'standard'
+      analysisDepth: 'standard',
+      enableScreenshots: false
     },
     directoryMatching: {
-      maxDirectories: 25, // Fewer directories for faster processing
-      enableAIOptimization: false,
-      budgetRange: { min: 0, max: 1000 }
+      maxDirectoryCount: 25,
+      enablePremiumDirectories: false,
+      focusOnHighAuthority: true,
+      includeNicheDirectories: false
     }
   })
 
@@ -322,20 +320,25 @@ export async function batchAnalysisExample() {
 }
 
 // Example 6: Custom Configuration for Different Business Types
-export async function businessTypeExamples() {
+export const businessTypeExamples = async () => {
   console.log('🚀 Running Business Type Specific Examples')
 
   // E-commerce Configuration
   const ecommerceConfig = {
     aiAnalysis: {
       model: 'gpt-4' as const,
+      temperature: 0.3,
+      maxTokens: 3000,
+      enableScreenshots: true,
       enableRevenueProjections: true,
+      enableCompetitorAnalysis: true,
       analysisDepth: 'comprehensive' as const
     },
     directoryMatching: {
-      maxDirectories: 60,
-      industryFocus: ['E-commerce', 'Retail', 'Shopping'],
-      targetROI: 250
+      maxDirectoryCount: 60,
+      enablePremiumDirectories: true,
+      focusOnHighAuthority: true,
+      includeNicheDirectories: true
     }
   }
 
@@ -343,14 +346,18 @@ export async function businessTypeExamples() {
   const saasConfig = {
     aiAnalysis: {
       model: 'gpt-4o' as const,
+      temperature: 0.2,
+      maxTokens: 4000,
+      enableScreenshots: true,
+      enableRevenueProjections: true,
       enableCompetitorAnalysis: true,
       analysisDepth: 'comprehensive' as const
     },
     directoryMatching: {
-      maxDirectories: 50,
-      industryFocus: ['SaaS', 'Software', 'Technology'],
-      includePremium: true,
-      targetROI: 300
+      maxDirectoryCount: 50,
+      enablePremiumDirectories: true,
+      focusOnHighAuthority: true,
+      includeNicheDirectories: true
     }
   }
 
@@ -358,13 +365,18 @@ export async function businessTypeExamples() {
   const localConfig = {
     aiAnalysis: {
       model: 'gpt-4o' as const,
+      temperature: 0.4,
+      maxTokens: 2000,
+      enableScreenshots: false,
+      enableRevenueProjections: false,
+      enableCompetitorAnalysis: true,
       analysisDepth: 'standard' as const
     },
     directoryMatching: {
-      maxDirectories: 30,
-      includeInternational: false,
-      budgetRange: { min: 0, max: 500 },
-      targetROI: 200
+      maxDirectoryCount: 30,
+      enablePremiumDirectories: false,
+      focusOnHighAuthority: true,
+      includeNicheDirectories: false
     }
   }
 
@@ -433,11 +445,4 @@ export async function runAllExamples() {
 }
 
 // Export for use in other files
-export {
-  basicAnalysisExample,
-  advancedAnalysisExample,
-  healthCheckExample,
-  errorHandlingExample,
-  batchAnalysisExample,
-  businessTypeExamples
-}
+// All functions are already exported individually above

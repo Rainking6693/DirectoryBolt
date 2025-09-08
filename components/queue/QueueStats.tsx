@@ -14,7 +14,7 @@ import {
   XCircleIcon,
   ChartBarIcon,
   UsersIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ExclamationTriangleIcon,
   PauseIcon
 } from '@heroicons/react/24/outline'
@@ -123,9 +123,9 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
-        return <TrendingUpIcon className="h-4 w-4 text-green-500" />
+        return <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
       case 'down':
-        return <TrendingUpIcon className="h-4 w-4 text-red-500 transform rotate-180" />
+        return <ArrowTrendingUpIcon className="h-4 w-4 text-red-500 transform rotate-180" />
       default:
         return <div className="h-4 w-4 bg-gray-300 rounded-full" />
     }
@@ -194,28 +194,28 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">Daily Goal Progress</span>
                 <span className="text-sm text-gray-600">
-                  {formatNumber(stats.todaysCompleted)} / {formatNumber(stats.todaysGoal)}
+                  {formatNumber(stats.todaysProcessed)} / {formatNumber(stats.todaysGoal)}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all duration-300 ${
-                    getProgressPercentage(stats.todaysCompleted, stats.todaysGoal) >= 100
+                    getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) >= 100
                       ? 'bg-green-500'
-                      : getProgressPercentage(stats.todaysCompleted, stats.todaysGoal) >= 75
+                      : getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) >= 75
                       ? 'bg-blue-500'
-                      : getProgressPercentage(stats.todaysCompleted, stats.todaysGoal) >= 50
+                      : getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) >= 50
                       ? 'bg-yellow-500'
                       : 'bg-red-500'
                   }`}
                   style={{
-                    width: `${getProgressPercentage(stats.todaysCompleted, stats.todaysGoal)}%`
+                    width: `${getProgressPercentage(stats.todaysProcessed, stats.todaysGoal)}%`
                   }}
                 />
               </div>
               <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>0</span>
-                <span>{formatPercentage(getProgressPercentage(stats.todaysCompleted, stats.todaysGoal) / 100)}</span>
+                <span>{formatPercentage(getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) / 100)}</span>
                 <span>{formatNumber(stats.todaysGoal)}</span>
               </div>
             </div>

@@ -12,21 +12,12 @@
  * - 3.1.5: Error handling and retry logic
  */
 
-import { createAirtableService, BusinessSubmissionRecord } from './airtable'
+import { createAirtableService } from './airtable'
 import { autoBoltExtensionService, AutoBoltProcessingResult, DirectoryEntry } from './autobolt-extension'
 import { enhancedAutoBoltService, EnhancedProcessingResult } from './enhanced-autobolt-service'
+import { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
 
-export interface QueueItem {
-  recordId: string
-  customerId: string
-  businessName: string
-  packageType: 'starter' | 'growth' | 'pro' | 'subscription'
-  directoryLimit: number
-  submissionStatus: 'pending' | 'in-progress' | 'completed' | 'failed'
-  priority: number
-  createdAt: Date
-  businessData: BusinessSubmissionRecord
-}
+export { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
 
 export interface QueueProcessingResult {
   success: boolean
@@ -34,7 +25,10 @@ export interface QueueProcessingResult {
   directoriesProcessed: number
   directoriesFailed: number
   completedAt: Date
+  processingTimeSeconds: number
   errors?: string[]
+  warnings?: string[]
+  skippedDirectories?: string[]
 }
 
 export interface QueueStats {
@@ -42,8 +36,15 @@ export interface QueueStats {
   totalInProgress: number
   totalCompleted: number
   totalFailed: number
+  totalPaused: number
   averageProcessingTime: number
+  averageWaitTime: number
   queueDepth: number
+  todaysProcessed: number
+  todaysGoal: number
+  successRate: number
+  currentThroughput: number
+  peakHours: { hour: number; count: number }[]
 }
 
 export class QueueManager {
@@ -90,7 +91,8 @@ export class QueueManager {
           directoryLimit,
           submissionStatus: record.submissionStatus,
           priority: this.calculatePriority(packageType, record.purchaseDate),
-          createdAt: new Date(record.purchaseDate),
+          createdAt: record.purchaseDate,
+          updatedAt: new Date().toISOString(),
           businessData: record
         }
       })
@@ -100,7 +102,7 @@ export class QueueManager {
         if (a.priority !== b.priority) {
           return b.priority - a.priority
         }
-        return a.createdAt.getTime() - b.createdAt.getTime()
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       })
 
       console.log(`✅ Found ${queueItems.length} pending submissions`)
@@ -151,7 +153,7 @@ export class QueueManager {
    */
   async updateSubmissionStatus(
     customerId: string, 
-    status: 'pending' | 'in-progress' | 'completed' | 'failed',
+    status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'paused',
     directoriesSubmitted?: number,
     failedDirectories?: number
   ): Promise<void> {
@@ -277,6 +279,7 @@ export class QueueManager {
       directoriesProcessed: 0,
       directoriesFailed: directoryLimit,
       completedAt: new Date(),
+      processingTimeSeconds: 0,
       errors: [lastError?.message || 'Unknown error after multiple retries']
     }
   }
@@ -342,6 +345,7 @@ export class QueueManager {
         directoriesProcessed: result.successfulSubmissions,
         directoriesFailed: result.failedSubmissions,
         completedAt: result.completedAt,
+        processingTimeSeconds: result.processingTimeSeconds || 0,
         errors: result.results
           .filter(r => !r.success)
           .map(r => `${r.directoryName}: ${r.error}`)
@@ -384,6 +388,7 @@ export class QueueManager {
         directoriesProcessed: result.successfulSubmissions,
         directoriesFailed: result.failedSubmissions,
         completedAt: result.completedAt,
+        processingTimeSeconds: result.processingTimeSeconds || 0,
         errors: result.results
           .filter(r => !r.success)
           .map(r => `${r.directoryName}: ${r.error}`)
@@ -398,6 +403,7 @@ export class QueueManager {
         directoriesProcessed: 0,
         directoriesFailed: directoryLimit,
         completedAt: new Date(),
+        processingTimeSeconds: 0,
         errors: [`AutoBolt processing error: ${error instanceof Error ? error.message : String(error)}`]
       }
     }
@@ -429,8 +435,15 @@ export class QueueManager {
         totalInProgress: inProgress.length,
         totalCompleted: completed.length,
         totalFailed: failed.length,
+        totalPaused: 0,
         averageProcessingTime: 0, // TODO: Calculate from actual data
-        queueDepth: pending.length + inProgress.length
+        averageWaitTime: 0,
+        queueDepth: pending.length + inProgress.length,
+        todaysProcessed: 0,
+        todaysGoal: 50,
+        successRate: completed.length / Math.max(completed.length + failed.length, 1),
+        currentThroughput: 0,
+        peakHours: []
       }
     } catch (error) {
       console.error('❌ Failed to get queue stats:', error)
@@ -469,7 +482,8 @@ export class QueueManager {
         directoryLimit: this.getDirectoryLimit(record.packageType),
         submissionStatus: record.submissionStatus,
         priority: this.calculatePriority(record.packageType, record.purchaseDate),
-        createdAt: new Date(record.purchaseDate),
+        createdAt: record.purchaseDate,
+        updatedAt: new Date().toISOString(),
         businessData: record
       }
 

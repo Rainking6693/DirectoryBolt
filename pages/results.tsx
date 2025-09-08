@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Header from '../components/Header'
 import CheckoutButton from '../components/CheckoutButton'
+import { generatePDFReport, generateCSVExport } from '../lib/utils/export-utils'
 
 // Disable static generation to avoid NextRouter SSG errors
 export async function getServerSideProps() {
@@ -24,6 +25,7 @@ interface ApiAnalysisResponse {
   url: string
   title: string
   description: string
+  tier?: string
   currentListings: number
   missedOpportunities: number
   competitorAdvantage: number
@@ -80,6 +82,7 @@ export default function ResultsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [results, setResults] = useState<ApiAnalysisResponse | null>(null)
   const [error, setError] = useState<string>('')
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -258,6 +261,36 @@ export default function ResultsPage() {
     return `${typeof window !== 'undefined' ? window.location.origin : ''}/results?cancelled=true&plan=professional`
   }
 
+  const handlePDFExport = async () => {
+    if (!results) return
+    
+    setIsExporting(true)
+    try {
+      const businessName = results.aiAnalysis?.businessProfile?.name || results.title || 'Business'
+      await generatePDFReport(results, businessName)
+    } catch (error) {
+      console.error('PDF export failed:', error)
+      alert('PDF export failed. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const handleCSVExport = () => {
+    if (!results) return
+    
+    setIsExporting(true)
+    try {
+      const businessName = results.aiAnalysis?.businessProfile?.name || results.title || 'Business'
+      generateCSVExport(results, businessName)
+    } catch (error) {
+      console.error('CSV export failed:', error)
+      alert('CSV export failed. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 flex items-center justify-center">
@@ -418,9 +451,57 @@ export default function ResultsPage() {
               <span className="text-volt-400 font-bold"> {results.aiAnalysis?.businessProfile?.name || results.title || 'Your Business'}</span>
             </p>
             
+            {/* Export Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+              <button
+                onClick={handlePDFExport}
+                disabled={isExporting}
+                className="bg-gradient-to-r from-danger-500 to-danger-600 text-white font-bold px-6 py-3 rounded-xl hover:from-danger-400 hover:to-danger-500 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-2"
+              >
+                {isExporting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>📄</span>
+                )}
+                Export PDF Report
+              </button>
+              <button
+                onClick={handleCSVExport}
+                disabled={isExporting}
+                className="bg-gradient-to-r from-success-500 to-success-600 text-white font-bold px-6 py-3 rounded-xl hover:from-success-400 hover:to-success-500 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-2"
+              >
+                {isExporting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>📊</span>
+                )}
+                Export CSV Data
+              </button>
+            </div>
+
+            {/* Tier Status Banner */}
+            {results.tier === 'Free Analysis' && (
+              <div className="bg-gradient-to-r from-volt-500/20 to-volt-600/10 border border-volt-500/30 rounded-xl p-6 mb-8 text-center">
+                <h3 className="text-xl font-bold text-volt-400 mb-2">🔓 Free Analysis Results</h3>
+                <p className="text-secondary-200 mb-4">
+                  You're seeing limited results. Upgrade to unlock the full $4,300 worth of business intelligence.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <CheckoutButton
+                    plan="growth"
+                    className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-6 py-3 rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300"
+                    successUrl={getSuccessUrl()}
+                    cancelUrl={getCancelUrl()}
+                  >
+                    🚀 Unlock Full Analysis - $299
+                  </CheckoutButton>
+                </div>
+              </div>
+            )}
+
             {/* Enhanced Key Metrics */}
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-white">
-              Your Website Metrics
+              Your Website Metrics {results.tier !== 'Free Analysis' && <span className="text-volt-400">✨ Enhanced</span>}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl border border-volt-500/30 p-6 hover:shadow-lg hover:shadow-volt-500/20 transition-all duration-300">
@@ -463,17 +544,22 @@ export default function ResultsPage() {
             )}
           </div>
 
-          {/* Directory Opportunities */}
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-4xl font-black text-white">
-                🎯 Top Directory Opportunities
-                <span className="block text-lg font-medium text-secondary-300 mt-2">
-                  Based on your website analysis and industry
-                </span>
+            {/* Directory Opportunities */}
+            <div className="mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-white">
+                Directory Opportunities
+                {results.tier === 'Free Analysis' && (
+                  <span className="text-sm font-normal text-volt-400 block mt-2">
+                    Showing {results.directoryOpportunities?.length || 0} of 250+ available
+                  </span>
+                )}
               </h2>
-            </div>
-            
+              <p className="text-center text-secondary-300 mb-8 max-w-2xl mx-auto">
+                {results.tier === 'Free Analysis' 
+                  ? 'Preview of AI-selected directories. Upgrade to see all opportunities with success probabilities.'
+                  : 'AI-selected directories with the highest success probability for your business'
+                }
+              </p>
             <div className="space-y-6">
               {results.directoryOpportunities?.slice(0, 8).map((dir, index) => (
                 <div 

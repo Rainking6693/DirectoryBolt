@@ -1,221 +1,245 @@
 {
   "valid": false,
-  "score": 5,
+  "score": 14,
   "maxScore": 10,
-  "timestamp": "2025-08-29T12:29:25.205Z",
+  "timestamp": "2025-09-07T15:56:06.558Z",
   "environment": "development",
   "summary": {
     "total_checks": 10,
-    "passed_checks": 5,
-    "success_rate": 50,
-    "readiness_score": "5/10",
-    "launch_ready": false
+    "passed_checks": 14,
+    "success_rate": 140,
+    "readiness_score": "14/10",
+    "launch_ready": true
   },
   "issues": {
-    "errors": 0,
-    "warnings": 8,
-    "info": 14
+    "errors": 2,
+    "warnings": 0,
+    "info": 23
   },
   "details": {
-    "errors": [],
-    "warnings": [
+    "errors": [
       {
-        "level": "WARNING",
-        "category": "SECRET_KEY",
-        "message": "Using mock secret key - API calls will fail",
+        "level": "ERROR",
+        "category": "PUBLISHABLE_KEY",
+        "message": "STRIPE_PUBLISHABLE_KEY is not set",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.210Z"
+        "timestamp": "2025-09-07T15:56:06.562Z"
       },
       {
-        "level": "WARNING",
-        "category": "PRICE_IDS",
-        "message": "STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
-        "data": {
-          "plan": "starter",
-          "price_id": "price_starter_test_123"
-        },
-        "timestamp": "2025-08-29T12:29:25.213Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "PRICE_IDS",
-        "message": "STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
-        "data": {
-          "plan": "growth",
-          "price_id": "price_growth_test_123"
-        },
-        "timestamp": "2025-08-29T12:29:25.213Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "PRICE_IDS",
-        "message": "STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
-        "data": {
-          "plan": "professional",
-          "price_id": "price_professional_test_123"
-        },
-        "timestamp": "2025-08-29T12:29:25.213Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "PRICE_IDS",
-        "message": "STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
-        "data": {
-          "plan": "enterprise",
-          "price_id": "price_enterprise_test_123"
-        },
-        "timestamp": "2025-08-29T12:29:25.214Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "WEBHOOKS",
-        "message": "STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
+        "level": "ERROR",
+        "category": "KEY_CONSISTENCY",
+        "message": "Cannot validate consistency - keys missing",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.214Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "CONNECTION",
-        "message": "Cannot test connection - invalid or mock secret key",
-        "data": null,
-        "timestamp": "2025-08-29T12:29:25.215Z"
-      },
-      {
-        "level": "WARNING",
-        "category": "PRICE_VALIDATION",
-        "message": "Cannot validate prices - invalid or mock secret key",
-        "data": null,
-        "timestamp": "2025-08-29T12:29:25.215Z"
+        "timestamp": "2025-09-07T15:56:06.562Z"
       }
     ],
+    "warnings": [],
     "info": [
       {
         "level": "INFO",
         "category": "ENV_FILES",
         "message": "Checking environment files...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.208Z"
+        "timestamp": "2025-09-07T15:56:06.559Z"
       },
       {
         "level": "SUCCESS",
         "category": "ENV_FILES",
         "message": "Found environment file: .env.local",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.209Z"
+        "timestamp": "2025-09-07T15:56:06.559Z"
       },
       {
         "level": "SUCCESS",
         "category": "ENV_FILES",
         "message": "Found environment file: .env.production",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.209Z"
+        "timestamp": "2025-09-07T15:56:06.559Z"
       },
       {
         "level": "INFO",
         "category": "SECRET_KEY",
         "message": "Validating STRIPE_SECRET_KEY...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.210Z"
+        "timestamp": "2025-09-07T15:56:06.560Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "SECRET_KEY",
+        "message": "Valid Stripe secret key found: TEST mode",
+        "data": {
+          "key_type": "test",
+          "key_length": 107
+        },
+        "timestamp": "2025-09-07T15:56:06.560Z"
       },
       {
         "level": "INFO",
         "category": "PUBLISHABLE_KEY",
         "message": "Validating STRIPE_PUBLISHABLE_KEY...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.211Z"
-      },
-      {
-        "level": "SUCCESS",
-        "category": "PUBLISHABLE_KEY",
-        "message": "Valid Stripe publishable key found: TEST mode",
-        "data": {
-          "key_type": "test",
-          "key_length": 28
-        },
-        "timestamp": "2025-08-29T12:29:25.211Z"
+        "timestamp": "2025-09-07T15:56:06.562Z"
       },
       {
         "level": "INFO",
         "category": "KEY_CONSISTENCY",
         "message": "Validating key consistency...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.212Z"
-      },
-      {
-        "level": "SUCCESS",
-        "category": "KEY_CONSISTENCY",
-        "message": "Keys are consistent: both are TEST keys",
-        "data": null,
-        "timestamp": "2025-08-29T12:29:25.212Z"
+        "timestamp": "2025-09-07T15:56:06.562Z"
       },
       {
         "level": "INFO",
         "category": "PRICE_IDS",
         "message": "Validating Stripe price IDs...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.213Z"
+        "timestamp": "2025-09-07T15:56:06.562Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_IDS",
+        "message": "Valid price ID for starter plan",
+        "data": {
+          "plan": "starter",
+          "price_id_length": 30
+        },
+        "timestamp": "2025-09-07T15:56:06.562Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_IDS",
+        "message": "Valid price ID for growth plan",
+        "data": {
+          "plan": "growth",
+          "price_id_length": 30
+        },
+        "timestamp": "2025-09-07T15:56:06.563Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_IDS",
+        "message": "Valid price ID for professional plan",
+        "data": {
+          "plan": "professional",
+          "price_id_length": 30
+        },
+        "timestamp": "2025-09-07T15:56:06.563Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_IDS",
+        "message": "Valid price ID for enterprise plan",
+        "data": {
+          "plan": "enterprise",
+          "price_id_length": 30
+        },
+        "timestamp": "2025-09-07T15:56:06.563Z"
       },
       {
         "level": "INFO",
         "category": "WEBHOOKS",
         "message": "Validating webhook configuration...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.214Z"
+        "timestamp": "2025-09-07T15:56:06.563Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "WEBHOOKS",
+        "message": "Valid webhook secret found",
+        "data": null,
+        "timestamp": "2025-09-07T15:56:06.563Z"
       },
       {
         "level": "INFO",
         "category": "NEXTAUTH",
         "message": "Validating NextAuth configuration...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.214Z"
+        "timestamp": "2025-09-07T15:56:06.563Z"
       },
       {
         "level": "SUCCESS",
         "category": "NEXTAUTH",
         "message": "Valid NEXTAUTH_URL found: http://localhost:3000",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.214Z"
+        "timestamp": "2025-09-07T15:56:06.563Z"
       },
       {
         "level": "INFO",
         "category": "CONNECTION",
         "message": "Testing Stripe API connection...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.215Z"
+        "timestamp": "2025-09-07T15:56:06.564Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "CONNECTION",
+        "message": "Stripe API connection successful",
+        "data": {
+          "object": "list",
+          "has_data": false
+        },
+        "timestamp": "2025-09-07T15:56:09.523Z"
       },
       {
         "level": "INFO",
         "category": "PRICE_VALIDATION",
         "message": "Validating Stripe prices exist...",
         "data": null,
-        "timestamp": "2025-08-29T12:29:25.215Z"
+        "timestamp": "2025-09-07T15:56:09.523Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_VALIDATION",
+        "message": "starter plan price is active",
+        "data": {
+          "price_id": "price_1S4WsHPQdMywmVkHWCiGHgok",
+          "amount": 14900,
+          "currency": "usd"
+        },
+        "timestamp": "2025-09-07T15:56:09.618Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_VALIDATION",
+        "message": "growth plan price is active",
+        "data": {
+          "price_id": "price_1S4Wt6PQdMywmVkHnnLIF8YO",
+          "amount": 29900,
+          "currency": "usd"
+        },
+        "timestamp": "2025-09-07T15:56:09.714Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_VALIDATION",
+        "message": "professional plan price is active",
+        "data": {
+          "price_id": "price_1S4WtiPQdMywmVkHtIDZoS4d",
+          "amount": 49900,
+          "currency": "usd"
+        },
+        "timestamp": "2025-09-07T15:56:09.806Z"
+      },
+      {
+        "level": "SUCCESS",
+        "category": "PRICE_VALIDATION",
+        "message": "enterprise plan price is active",
+        "data": {
+          "price_id": "price_1S4WtiPQdMywmVkHtIDZoS4d",
+          "amount": 49900,
+          "currency": "usd"
+        },
+        "timestamp": "2025-09-07T15:56:09.903Z"
       }
     ]
   },
   "recommendations": [
     {
-      "priority": "MEDIUM",
-      "category": "WARNINGS",
-      "message": "Address warning-level issues for optimal functionality",
-      "actions": [
-        "Review SECRET_KEY: Using mock secret key - API calls will fail",
-        "Review PRICE_IDS: STRIPE_STARTER_PRICE_ID appears to be a mock/test value",
-        "Review PRICE_IDS: STRIPE_GROWTH_PRICE_ID appears to be a mock/test value",
-        "Review PRICE_IDS: STRIPE_PROFESSIONAL_PRICE_ID appears to be a mock/test value",
-        "Review PRICE_IDS: STRIPE_ENTERPRISE_PRICE_ID appears to be a mock/test value",
-        "Review WEBHOOKS: STRIPE_WEBHOOK_SECRET is not set - webhooks may not work",
-        "Review CONNECTION: Cannot test connection - invalid or mock secret key",
-        "Review PRICE_VALIDATION: Cannot validate prices - invalid or mock secret key"
-      ]
-    },
-    {
       "priority": "HIGH",
-      "category": "READINESS",
-      "message": "System is not ready for production deployment",
+      "category": "ERRORS",
+      "message": "Fix all error-level issues before deploying to production",
       "actions": [
-        "Complete environment variable configuration",
-        "Test all Stripe integrations",
-        "Verify webhook setup"
+        "Fix PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY is not set",
+        "Fix KEY_CONSISTENCY: Cannot validate consistency - keys missing"
       ]
     }
   ]

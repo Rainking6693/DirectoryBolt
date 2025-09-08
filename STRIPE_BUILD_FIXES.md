@@ -19,7 +19,7 @@ Fixed critical build errors preventing Netlify deployment related to Stripe API 
 
 **Solution**:
 - Updated `stripe-environment-validator.ts` to handle build-time scenarios
-- Added support for `STRIPE_SUBSCRIPTION_PRICE_ID` as alternative to `STRIPE_ENTERPRISE_PRICE_ID`
+- Added support for `STRIPE_PURCHASE_PRICE_ID` as alternative to `STRIPE_ENTERPRISE_PRICE_ID`
 - Improved build-time detection (CI, Netlify, BUILDING flags)
 - Added placeholder configurations for build environments
 
@@ -117,7 +117,7 @@ function initializeStripeComponents() {
 
 ### Optional (Choose One)
 - `STRIPE_ENTERPRISE_PRICE_ID` - Enterprise plan price ID
-- `STRIPE_SUBSCRIPTION_PRICE_ID` - Monthly subscription price ID
+- `STRIPE_PURCHASE_PRICE_ID` - Monthly subscription price ID
 
 ### Optional but Recommended
 - `STRIPE_WEBHOOK_SECRET` - For webhook signature verification

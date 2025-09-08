@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { AnalysisTier, getTierManager } from '../lib/services/analysis-tier-manager'
-import { getConversionTracker } from '../lib/services/conversion-tracker'
+import { getConversionTracker, ConversionEventType } from '../lib/services/conversion-tracker'
 
 interface TierPricingDisplayProps {
   userId: string
@@ -104,7 +104,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
               <span className="text-5xl font-bold text-gray-900">
                 {isAnnual ? getMonthlyPrice() : config.price}
               </span>
-              <span className="text-lg text-gray-500 ml-1">/month</span>
+              <span className="text-lg text-gray-500 ml-1"> ONE-TIME</span>
             </div>
           )}
           
@@ -128,7 +128,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
             </div>
             <div>
               <div className="text-lg font-bold text-green-600">{valueHighlight.savings}</div>
-              <div className="text-xs text-gray-600">Monthly Savings</div>
+              <div className="text-xs text-gray-600">Total Savings</div>
             </div>
             <div>
               <div className="text-lg font-bold text-purple-600">{valueHighlight.timeToValue}</div>
@@ -154,7 +154,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <span className="text-gray-600">Monthly Analyses:</span>
+            <span className="text-gray-600">Total Analyses:</span>
             <span className="font-medium ml-1">
               {config.limits.monthlyAnalyses === -1 ? 'Unlimited' : config.limits.monthlyAnalyses}
             </span>
@@ -225,7 +225,7 @@ export const TierPricingDisplay: React.FC<TierPricingDisplayProps> = ({
     if (!hasTrackedView) {
       getConversionTracker().trackEvent({
         userId,
-        eventType: 'pricing_viewed',
+        eventType: 'pricing_viewed' as ConversionEventType,
         stage: 'consideration',
         data: { 
           currentTier,
@@ -243,12 +243,12 @@ export const TierPricingDisplay: React.FC<TierPricingDisplayProps> = ({
     // Track tier selection
     getConversionTracker().trackEvent({
       userId,
-      eventType: 'tier_selected',
+      eventType: 'tier_selected' as ConversionEventType,
       stage: 'conversion',
       data: { 
         fromTier: currentTier,
         toTier: tier,
-        billingCycle: isAnnual ? 'annual' : 'monthly'
+        billingCycle: 'one_time'
       },
       source: 'tier_pricing_display',
       sessionId: `session_${Date.now()}`
@@ -263,10 +263,10 @@ export const TierPricingDisplay: React.FC<TierPricingDisplayProps> = ({
     // Track billing preference
     getConversionTracker().trackEvent({
       userId,
-      eventType: 'billing_preference_changed',
+      eventType: 'billing_preference_changed' as ConversionEventType,
       stage: 'consideration',
       data: { 
-        billingCycle: annual ? 'annual' : 'monthly',
+        billingCycle: 'one_time',
         currentTier
       },
       source: 'tier_pricing_display',
@@ -308,11 +308,11 @@ export const TierPricingDisplay: React.FC<TierPricingDisplayProps> = ({
           Unlock AI-powered business intelligence that drives real results
         </p>
 
-        {/* Annual/Monthly toggle */}
+        {/* One-Time Purchase Notice */}
         {showAnnualToggle && (
           <div className="flex items-center justify-center space-x-4 mb-8">
             <span className={`text-sm ${!isAnnual ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              Monthly
+              One-Time Purchase
             </span>
             <motion.button
               whileTap={{ scale: 0.95 }}

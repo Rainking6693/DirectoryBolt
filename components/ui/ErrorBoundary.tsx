@@ -58,13 +58,21 @@ export class ErrorBoundary extends Component<Props, State> {
             
             <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.reload()
+                  }
+                }}
                 className="flex-1 px-4 py-3 bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold rounded-lg hover:from-volt-400 hover:to-volt-500 transition-all duration-300"
               >
                 🔄 Refresh Page
               </button>
               <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '/'
+                  }
+                }}
                 className="flex-1 px-4 py-3 border-2 border-volt-500 text-volt-500 font-bold rounded-lg hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300"
               >
                 🏠 Go Home

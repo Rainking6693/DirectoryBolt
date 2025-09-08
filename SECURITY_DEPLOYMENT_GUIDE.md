@@ -12,7 +12,7 @@ The following Stripe keys have been exposed and must be revoked immediately:
 
 1. **Login to Stripe Dashboard**
    - Go to [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
-   - Find the exposed keys (sk_live_51RyJPcPQ... and pk_live_51RyJPcPQ...)
+   - Find the exposed keys (sk_live_[REDACTED] and pk_live_[REDACTED])
    - Click "Reveal" and then "Delete" for each key
 
 2. **Generate New Production Keys**
