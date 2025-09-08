@@ -135,6 +135,9 @@ temp/
 
 .env
 
+# AutoBolt Extension placeholder (build compatibility only)
+autobolt-extension/
+
 # Windows Reserved Filenames - CRITICAL: Never commit these
 # Device names (case-insensitive)
 nul

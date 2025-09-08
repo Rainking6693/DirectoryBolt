@@ -13,9 +13,6 @@ const nextConfig = {
     instrumentationHook: false,
   },
   
-  // Use standard .next directory but disable tracing
-  // distDir: '.next',
-  
   // Skip all validation
   eslint: {
     ignoreDuringBuilds: true,
@@ -25,11 +22,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Restore image optimization
+  // Enhanced image optimization for SEO
   images: {
-    domains: ['localhost', 'directorybolt.com'],
+    domains: ['localhost', 'directorybolt.com', 'cdn.directorybolt.com'],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400, // 24 hours
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   // Minimal webpack config
@@ -39,6 +40,17 @@ const nextConfig = {
     
     // Disable performance hints
     config.performance = false;
+    
+    // Ignore specific directories that cause build issues
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/node_modules/**',
+        '**/autobolt-extension/**',
+        '**/sync-directorybolt-to-autobolt.js',
+        '**/verify-sync.js'
+      ]
+    };
     
     // Fix Node.js module imports for client-side
     if (!isServer) {

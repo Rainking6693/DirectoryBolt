@@ -1,0 +1,54 @@
+# Netlify Build Ignore File
+# Files and directories to exclude from Netlify builds
+
+# Sync scripts that reference missing autobolt-extension directory
+sync-directorybolt-to-autobolt.js
+verify-sync.js
+
+# Missing autobolt-extension directory
+autobolt-extension/
+
+# Development and testing files
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Documentation files
+*.md
+!README.md
+
+# Build artifacts
+.next/
+dist/
+build/
+
+# Environment files (already in .gitignore but being explicit)
+.env*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Backup files
+*.backup
+*.bak
+
+# Test coverage
+coverage/
+
+# Node modules (should be installed during build)
+node_modules/

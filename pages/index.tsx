@@ -19,8 +19,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>AI Business Intelligence Platform - Replace Your Marketing Stack | DirectoryBolt</title>
-        <meta name="description" content="Get $4,300 worth of business intelligence for $299 ONE-TIME. AI market analysis, competitor insights, and 500+ premium directories. Save 93% vs. consultants." />
+        <title>Directory Submission Service | AI-Powered Business Listings | DirectoryBolt</title>
+        <meta name="description" content="Professional directory submission service that submits your business to 200+ directories automatically. AI-powered optimization ensures maximum approval rates. Starting at $49." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/" />
@@ -45,7 +45,7 @@ export default function Home() {
         <meta name="twitter:site" content="@DirectoryBolt" />
         
         {/* Additional SEO Meta Tags */}
-        <meta name="keywords" content="business intelligence platform, AI market analysis, competitor intelligence, business consulting alternative, marketing stack replacement, automated business insights, enterprise intelligence, consultant alternative, business strategy AI, competitive analysis platform" />
+        <meta name="keywords" content="directory submission service, business directory submission, online directory submission, local directory submission, automated directory listings, business listing service, ai powered directory submissions, directory marketing" />
         <meta name="author" content="DirectoryBolt" />
         <meta name="publisher" content="DirectoryBolt" />
         <meta name="copyright" content="DirectoryBolt" />
