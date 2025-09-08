@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt Extension DB Customer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .success { border-color: #4CAF50; background: #f0fff0; }
+        .error { border-color: #f44336; background: #fff0f0; }
+        .loading { border-color: #2196F3; background: #f0f8ff; }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #005a87; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+            background: #f0f0f0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .customer-id-input {
+            width: 200px;
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 DirectoryBolt Extension DB Customer Testing</h1>
+        <p>This tool tests the DirectoryBolt extension authentication with DB customer IDs.</p>
+
+        <!-- Step 1: Create Test Customers -->
+        <div class="test-section" id="createSection">
+            <h3>Step 1: Create Test Customers</h3>
+            <p>Create test customers with DB prefixes in the database.</p>
+            <button onclick="createTestCustomers()" id="createBtn">Create Test Customers</button>
+            <div id="createResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Step 2: Test Validation API -->
+        <div class="test-section" id="validateSection">
+            <h3>Step 2: Test Enhanced Validation API</h3>
+            <p>Test the enhanced validation API with different customer ID formats.</p>
+            <input type="text" id="customerIdInput" class="customer-id-input" placeholder="DB-2025-TEST01" value="DB-2025-TEST01">
+            <button onclick="testValidation()" id="validateBtn">Test Validation</button>
+            <div id="validateResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Step 3: Test Debug API -->
+        <div class="test-section" id="debugSection">
+            <h3>Step 3: Test Debug API</h3>
+            <p>Get detailed debugging information about the validation process.</p>
+            <input type="text" id="debugCustomerIdInput" class="customer-id-input" placeholder="DB-2025-TEST01" value="DB-2025-TEST01">
+            <button onclick="testDebug()" id="debugBtn">Test Debug</button>
+            <div id="debugResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Step 4: Test Case Variations -->
+        <div class="test-section" id="variationsSection">
+            <h3>Step 4: Test Customer ID Variations</h3>
+            <p>Test different formats of the same customer ID.</p>
+            <button onclick="testVariations()" id="variationsBtn">Test All Variations</button>
+            <div id="variationsResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Extension Instructions -->
+        <div class="test-section">
+            <h3>🔧 Extension Testing Instructions</h3>
+            <ol>
+                <li><strong>Install Extension:</strong> Load the DirectoryBolt extension in Chrome</li>
+                <li><strong>Open Extension:</strong> Click the extension icon in Chrome toolbar</li>
+                <li><strong>Enter Customer ID:</strong> Use <code>DB-2025-TEST01</code> or <code>db-2025-test01</code></li>
+                <li><strong>Click Authenticate:</strong> Should show "DB Test Business" and "Growth" package</li>
+                <li><strong>Check Console:</strong> Open Chrome DevTools to see detailed logs</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://directorybolt.com/api/extension';
+
+        async function createTestCustomers() {
+            const btn = document.getElementById('createBtn');
+            const result = document.getElementById('createResult');
+            const section = document.getElementById('createSection');
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            section.className = 'test-section loading';
+            result.style.display = 'block';
+            result.textContent = 'Creating test customers...';
+
+            try {
+                const response = await fetch(`${API_BASE}/test-customer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    section.className = 'test-section success';
+                    result.textContent = `✅ Success!\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    section.className = 'test-section error';
+                    result.textContent = `❌ Failed!\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                section.className = 'test-section error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Create Test Customers';
+        }
+
+        async function testValidation() {
+            const btn = document.getElementById('validateBtn');
+            const result = document.getElementById('validateResult');
+            const section = document.getElementById('validateSection');
+            const customerId = document.getElementById('customerIdInput').value;
+            
+            if (!customerId) {
+                alert('Please enter a Customer ID');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            section.className = 'test-section loading';
+            result.style.display = 'block';
+            result.textContent = 'Testing validation...';
+
+            try {
+                const response = await fetch(`${API_BASE}/validate-enhanced`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerId: customerId,
+                        extensionVersion: '1.0.0',
+                        timestamp: Date.now()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.valid) {
+                    section.className = 'test-section success';
+                    result.textContent = `✅ Validation Success!\n\nCustomer: ${data.customerName}\nPackage: ${data.packageType}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    section.className = 'test-section error';
+                    result.textContent = `❌ Validation Failed!\n\nError: ${data.error}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                section.className = 'test-section error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Test Validation';
+        }
+
+        async function testDebug() {
+            const btn = document.getElementById('debugBtn');
+            const result = document.getElementById('debugResult');
+            const section = document.getElementById('debugSection');
+            const customerId = document.getElementById('debugCustomerIdInput').value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            section.className = 'test-section loading';
+            result.style.display = 'block';
+            result.textContent = 'Getting debug info...';
+
+            try {
+                const response = await fetch(`${API_BASE}/debug-validation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: customerId })
+                });
+
+                const data = await response.json();
+                section.className = 'test-section success';
+                result.textContent = `🔍 Debug Information:\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                section.className = 'test-section error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Test Debug';
+        }
+
+        async function testVariations() {
+            const btn = document.getElementById('variationsBtn');
+            const result = document.getElementById('variationsResult');
+            const section = document.getElementById('variationsSection');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            section.className = 'test-section loading';
+            result.style.display = 'block';
+            result.textContent = 'Testing customer ID variations...';
+
+            const variations = [
+                'DB-2025-TEST01',
+                'db-2025-test01',
+                ' DB-2025-TEST01 ',
+                'DB-2025-TEST02',
+                'DIR-2025-TEST03'
+            ];
+
+            let results = [];
+
+            for (const customerId of variations) {
+                try {
+                    const response = await fetch(`${API_BASE}/validate-enhanced`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            customerId: customerId,
+                            extensionVersion: '1.0.0',
+                            timestamp: Date.now()
+                        })
+                    });
+
+                    const data = await response.json();
+                    results.push({
+                        input: customerId,
+                        valid: data.valid,
+                        customerName: data.customerName,
+                        packageType: data.packageType,
+                        error: data.error
+                    });
+                } catch (error) {
+                    results.push({
+                        input: customerId,
+                        valid: false,
+                        error: error.message
+                    });
+                }
+            }
+
+            const successCount = results.filter(r => r.valid).length;
+            
+            if (successCount > 0) {
+                section.className = 'test-section success';
+            } else {
+                section.className = 'test-section error';
+            }
+
+            result.textContent = `📊 Variation Test Results (${successCount}/${variations.length} successful):\n\n${JSON.stringify(results, null, 2)}`;
+
+            btn.disabled = false;
+            btn.textContent = 'Test All Variations';
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * TEST Customer Creation API
+ * Create Test Customers API
  * Creates test customer records for extension validation testing
  */
 
@@ -46,8 +46,8 @@ export default async function handler(
         zip: '90210',
         website: 'https://test-db-business.com',
         description: 'Test business for DB prefix validation',
-        packageType: 'growth',
-        submissionStatus: 'pending'
+        packageType: 'growth' as const,
+        submissionStatus: 'pending' as const
       },
       {
         customerId: 'DB-2025-TEST02',
@@ -62,8 +62,8 @@ export default async function handler(
         zip: '10001',
         website: 'https://test-db-premium.com',
         description: 'Premium test business for DB prefix validation',
-        packageType: 'pro',
-        submissionStatus: 'pending'
+        packageType: 'pro' as const,
+        submissionStatus: 'pending' as const
       },
       {
         customerId: 'DIR-2025-TEST03',
@@ -78,8 +78,8 @@ export default async function handler(
         zip: '75001',
         website: 'https://test-dir-legacy.com',
         description: 'Legacy test business for DIR prefix validation',
-        packageType: 'starter',
-        submissionStatus: 'pending'
+        packageType: 'starter' as const,
+        submissionStatus: 'pending' as const
       }
     ]
 

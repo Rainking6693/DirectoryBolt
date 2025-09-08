@@ -76,8 +76,13 @@ export default async function handler(
       })
     }
 
-    console.log('🔍 Looking up customer:', customerId)
-    debugInfo.customerId = customerId
+    // Normalize customer ID (trim whitespace, convert to uppercase)
+    const normalizedCustomerId = customerId.trim().toUpperCase()
+    debugInfo.originalCustomerId = customerId
+    debugInfo.normalizedCustomerId = normalizedCustomerId
+    
+    console.log('🔍 Looking up customer:', normalizedCustomerId)
+    debugInfo.lookupCustomerId = normalizedCustomerId
 
     // Try to import and use Airtable service with comprehensive error handling
     try {
@@ -93,15 +98,45 @@ export default async function handler(
       debugInfo.healthCheck = healthCheck
       
       if (!healthCheck) {
-        throw new Error('Airtable health check failed')
+        throw new Error('Airtable health check failed - database connection issue')
       }
       
-      // Find customer
-      const customer = await airtableService.findByCustomerId(customerId)
+      // Find customer with normalized ID
+      let customer = await airtableService.findByCustomerId(normalizedCustomerId)
       debugInfo.customerFound = !!customer
+      debugInfo.searchAttempts = [normalizedCustomerId]
+      
+      // If not found with normalized ID, try original ID
+      if (!customer && normalizedCustomerId !== customerId) {
+        console.log('🔍 Trying original customer ID:', customerId)
+        customer = await airtableService.findByCustomerId(customerId)
+        debugInfo.customerFound = !!customer
+        debugInfo.searchAttempts.push(customerId)
+      }
+      
+      // If still not found, try case variations
+      if (!customer) {
+        const variations = [
+          customerId.toLowerCase(),
+          customerId.toUpperCase(),
+          normalizedCustomerId.toLowerCase()
+        ].filter(id => !debugInfo.searchAttempts.includes(id))
+        
+        for (const variation of variations) {
+          console.log('🔍 Trying customer ID variation:', variation)
+          customer = await airtableService.findByCustomerId(variation)
+          debugInfo.searchAttempts.push(variation)
+          if (customer) {
+            debugInfo.customerFound = true
+            break
+          }
+        }
+      }
+      
+      debugInfo.totalSearchAttempts = debugInfo.searchAttempts.length
       
       if (!customer) {
-        console.log(`❌ Customer not found: ${customerId}`)
+        console.log(`❌ Customer not found after ${debugInfo.searchAttempts.length} attempts:`, debugInfo.searchAttempts)
         return res.status(401).json({
           valid: false,
           error: 'Customer not found in database',
