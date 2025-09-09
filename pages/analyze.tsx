@@ -104,11 +104,7 @@ export default function AnalyzePage() {
           },
           body: JSON.stringify({ 
             url: trimmedUrl,
-            options: {
-              deep: true,
-              includeCompetitors: true,
-              checkDirectories: true
-            }
+            tier: 'starter'
           }),
         }).then(async response => {
           if (!response.ok) {
@@ -122,32 +118,23 @@ export default function AnalyzePage() {
       ])
 
       // Store analysis results in sessionStorage for the results page
-      if (analysisResult.success && analysisResult.data) {
+      if (analysisResult && analysisResult.success && analysisResult.data) {
         sessionStorage.setItem('analysisResults', JSON.stringify({
           url: trimmedUrl,
           data: analysisResult.data,
           timestamp: Date.now()
         }))
+        // Analysis successful - progress will complete and redirect
       } else {
-        throw new Error(analysisResult.error || 'Analysis returned no data')
+        // Handle API error response
+        const errorMsg = analysisResult?.error || 'Analysis failed. Please try again.'
+        throw new Error(errorMsg)
       }
 
     } catch (err) {
-      // Error already logged by API layer
+      // Simple error handling - just show the error message
       const errorMessage = err instanceof Error ? err.message : 'Analysis failed. Please try again.'
-      
-      // Provide specific error messages for common issues
-      if (errorMessage.includes('timeout')) {
-        setError('Analysis timed out. The website might be slow or unavailable. Please try again.')
-      } else if (errorMessage.includes('blocked') || errorMessage.includes('forbidden')) {
-        setError('This website blocks automated access. Please try a different website.')
-      } else if (errorMessage.includes('Rate limit')) {
-        setError('Too many requests. Please wait a moment before trying again.')
-      } else if (errorMessage.includes('Network')) {
-        setError('Network error. Please check your connection and try again.')
-      } else {
-        setError(`Analysis failed: ${errorMessage}`)
-      }
+      setError(errorMessage)
       
       setIsAnalyzing(false)
       setProgress({ step: 0, total: 5, message: '', completed: false })
