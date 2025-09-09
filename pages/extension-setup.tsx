@@ -113,7 +113,7 @@ export default function ExtensionSetup() {
                       {customerIdExample} (example)
                     </div>
                     <p className="text-sm text-gray-500 mt-2">
-                      Customer IDs start with "DIR-" or "DB-" followed by the year and a unique identifier.
+                      Customer IDs start with "DIR-" followed by the year and a unique identifier.
                     </p>
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export default function ExtensionSetup() {
               <div>
                 <strong>Authentication Failed:</strong>
                 <ul className="list-disc list-inside mt-1 ml-4 space-y-1">
-                  <li>Double-check your Customer ID format (should start with DIR- or DB-)</li>
+                  <li>Double-check your Customer ID format (should start with DIR-)</li>
                   <li>Ensure you've completed your DirectoryBolt purchase</li>
                   <li>Check that your account status is active</li>
                   <li>Try refreshing the extension and re-entering your Customer ID</li>
