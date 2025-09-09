@@ -83,7 +83,7 @@ export class AirtableService {
     const year = new Date().getFullYear()
     const timestamp = Date.now().toString().slice(-6) // Last 6 digits of timestamp
     const randomSuffix = Math.random().toString(36).substr(2, 4).toUpperCase()
-    return `DB-${year}-${timestamp}${randomSuffix}`
+    return `DIR-${year}-${timestamp}${randomSuffix}`
   }
 
   /**
