@@ -17,8 +17,19 @@ export function useQueueData(): UseQueueDataReturn {
     try {
       setError(null)
       
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+      
       // Fetch queue stats
-      const statsResponse = await fetch('/api/autobolt/queue-status')
+      const statsResponse = await fetch('/api/autobolt/queue-status', {
+        signal: controller.signal
+      })
+      
+      if (!statsResponse.ok) {
+        throw new Error(`HTTP ${statsResponse.status}: ${statsResponse.statusText}`)
+      }
+      
       const statsResult = await statsResponse.json()
       
       if (!statsResult.success) {
@@ -26,7 +37,16 @@ export function useQueueData(): UseQueueDataReturn {
       }
 
       // Fetch pending customers
-      const customersResponse = await fetch('/api/autobolt/pending-customers?limit=50')
+      const customersResponse = await fetch('/api/autobolt/pending-customers?limit=50', {
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
+      if (!customersResponse.ok) {
+        throw new Error(`HTTP ${customersResponse.status}: ${customersResponse.statusText}`)
+      }
+      
       const customersResult = await customersResponse.json()
       
       if (!customersResult.success) {
@@ -75,7 +95,23 @@ export function useQueueData(): UseQueueDataReturn {
 
     } catch (err) {
       console.error('Error fetching queue data:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch queue data')
+      
+      // Provide specific error messages
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          setError('Request timeout - please check your connection and try again')
+        } else if (err.message.includes('Airtable') || err.message.includes('configuration')) {
+          setError('Database configuration issue - using demo data for development')
+        } else if (err.message.includes('HTTP 500')) {
+          setError('Server error - please try again in a moment')
+        } else if (err.message.includes('HTTP 429')) {
+          setError('Rate limit exceeded - please wait a moment before refreshing')
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError('Failed to fetch queue data - please try again')
+      }
     } finally {
       setIsLoading(false)
     }
