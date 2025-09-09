@@ -153,7 +153,10 @@ export default function ProcessingInterface() {
             businessName: nextCustomer.businessName,
             packageType: nextCustomer.packageType,
             directoryLimit: nextCustomer.directoryLimit,
-            waitTime: calculateWaitTime(nextCustomer.createdAt)
+            waitTime: calculateWaitTime(nextCustomer.createdAt),
+            email: nextCustomer.email,
+            website: nextCustomer.website,
+            purchaseDate: nextCustomer.purchaseDate
           } : null}
           isProcessing={isProcessing}
           onStartProcessing={handleStartProcessing}

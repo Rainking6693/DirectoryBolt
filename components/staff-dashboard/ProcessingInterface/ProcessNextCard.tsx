@@ -9,6 +9,9 @@ interface ProcessNextCardProps {
     packageType: string
     directoryLimit: number
     waitTime: number
+    email?: string
+    website?: string
+    purchaseDate?: string
   } | null
   isProcessing?: boolean
   onStartProcessing: (customerId: string, priorityMode?: boolean) => Promise<void>
@@ -40,6 +43,58 @@ export default function ProcessNextCard({
       // Error handling is done in parent component
     } finally {
       setIsStarting(false)
+    }
+  }
+
+  const handleReviewDetails = () => {
+    if (!nextCustomer) return
+    
+    // Create detailed customer information display
+    const details = `
+Customer Details:
+
+ID: ${nextCustomer.customerId}
+Business: ${nextCustomer.businessName}
+Email: ${nextCustomer.email || 'Not provided'}
+Website: ${nextCustomer.website || 'Not provided'}
+Package: ${nextCustomer.packageType}
+Directory Limit: ${nextCustomer.directoryLimit}
+Wait Time: ${nextCustomer.waitTime} hours
+Purchase Date: ${nextCustomer.purchaseDate ? new Date(nextCustomer.purchaseDate).toLocaleDateString() : 'Not provided'}
+
+Processing Information:
+Estimated Time: ${getEstimatedTime(nextCustomer.directoryLimit, nextCustomer.packageType)}
+Priority: ${nextCustomer.packageType === 'PRO' ? 'High' : nextCustomer.packageType === 'GROWTH' ? 'Medium' : 'Standard'}
+    `
+    alert(details)
+  }
+
+  const handleSchedule = () => {
+    if (!nextCustomer) return
+    
+    // Simple scheduling interface
+    const scheduleTime = prompt(
+      `Schedule processing for ${nextCustomer.businessName}\n\nEnter delay in hours (e.g., 2 for 2 hours from now):
+
+Current time: ${new Date().toLocaleString()}
+Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
+      '1'
+    )
+    
+    if (scheduleTime && !isNaN(Number(scheduleTime))) {
+      const hours = Number(scheduleTime)
+      const scheduledDate = new Date(Date.now() + hours * 60 * 60 * 1000)
+      
+      alert(
+        `✅ Processing scheduled for ${nextCustomer.businessName}\n\n` +
+        `Scheduled Time: ${scheduledDate.toLocaleString()}\n` +
+        `Customer: ${nextCustomer.customerId}\n` +
+        `Package: ${nextCustomer.packageType}\n` +
+        `Directories: ${nextCustomer.directoryLimit}\n\n` +
+        `Note: This is a demo implementation. In production, this would integrate with your scheduling system.`
+      )
+    } else if (scheduleTime !== null) {
+      alert('Invalid time entered. Please enter a number of hours.')
     }
   }
 
@@ -147,17 +202,27 @@ export default function ProcessNextCard({
 
         {/* Secondary Actions */}
         <div className="flex space-x-3">
-          <button className="flex-1 border-2 border-secondary-600 hover:border-volt-500 text-secondary-300 hover:text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+          <button 
+            onClick={handleReviewDetails}
+            className="flex-1 border-2 border-secondary-600 hover:border-volt-500 text-secondary-300 hover:text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
             <span>📋</span>
             <span>Review Details</span>
           </button>
           
-          <button className="flex-1 border-2 border-orange-600 hover:border-orange-500 text-orange-300 hover:text-orange-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+          <button 
+            onClick={() => handleConfirmProcessing(true)}
+            disabled={isStarting}
+            className="flex-1 border-2 border-orange-600 hover:border-orange-500 text-orange-300 hover:text-orange-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span>⚡</span>
             <span>Priority Process</span>
           </button>
           
-          <button className="flex-1 border-2 border-blue-600 hover:border-blue-500 text-blue-300 hover:text-blue-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+          <button 
+            onClick={handleSchedule}
+            className="flex-1 border-2 border-blue-600 hover:border-blue-500 text-blue-300 hover:text-blue-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
             <span>⏰</span>
             <span>Schedule</span>
           </button>
