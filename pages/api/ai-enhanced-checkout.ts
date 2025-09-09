@@ -22,12 +22,7 @@ function getStripeClientSafe() {
 }
 
 function getStripeConfigSafe() {
-  try {
-    const { getStripeConfig } = require('../../lib/utils/stripe-environment-validator')
-    return getStripeConfig()
-  } catch (error) {
-    return { nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000' }
-  }
+  return { nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000' }
 }
 
 interface AICheckoutRequest {

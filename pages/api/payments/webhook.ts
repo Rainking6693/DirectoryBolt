@@ -4,7 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, ExternalServiceError } from '../../../lib/utils/errors'
 import { verifyWebhookSignature, handleStripeError } from '../../../lib/utils/stripe-client'
-import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator'
+// Removed broken import: stripe-environment-validator
 import { log } from '../../../lib/utils/logger'
 import type { Payment, User } from '../../../lib/database/schema'
 
@@ -13,14 +13,9 @@ let config: any = null
 
 function getConfigSafely() {
   if (!config) {
-    try {
-      config = getStripeConfig()
-    } catch (error) {
-      console.warn('Stripe config initialization failed:', error instanceof Error ? error.message : 'Unknown error')
-      config = {
-        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-        nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
-      }
+    config = {
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+      nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
     }
   }
   return config

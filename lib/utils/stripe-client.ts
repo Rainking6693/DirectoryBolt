@@ -2,11 +2,9 @@
 // Provides a validated Stripe client instance with comprehensive error handling
 
 import Stripe from 'stripe';
-import { getStripeConfig, logStripeEnvironmentStatus } from './stripe-environment-validator';
 import { log } from './logger';
 
 let stripeInstance: Stripe | null = null;
-let configValidated = false;
 
 /**
  * Get a validated Stripe instance
@@ -14,16 +12,17 @@ let configValidated = false;
  */
 export function getStripeClient(): Stripe {
   if (!stripeInstance) {
-    // Validate environment on first access
-    const config = getStripeConfig();
+    // Simple environment validation
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is required');
+    }
     
-    // Log configuration status in development
-    if (process.env.NODE_ENV !== 'production') {
-      logStripeEnvironmentStatus();
+    if (!process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+      throw new Error('STRIPE_SECRET_KEY must start with "sk_"');
     }
     
     // Create Stripe instance with validated configuration
-    stripeInstance = new Stripe(config.secretKey, {
+    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-08-16',
       typescript: true,
       // Add request timeout and retries for reliability
@@ -31,12 +30,9 @@ export function getStripeClient(): Stripe {
       maxNetworkRetries: 3,
     });
     
-    configValidated = true;
-    
     log.info('Stripe client initialized successfully', {
-      keyType: config.secretKey.startsWith('sk_live_') ? 'live' : 'test',
+      keyType: process.env.STRIPE_SECRET_KEY.startsWith('sk_live_') ? 'live' : 'test',
       apiVersion: '2023-08-16',
-      hasWebhookSecret: !!config.webhookSecret,
       environment: process.env.NODE_ENV
     } as any);
   }
@@ -120,33 +116,6 @@ export async function validateStripePrice(priceId: string): Promise<{
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
-}
-
-/**
- * Validate all configured price IDs
- */
-export async function validateAllPrices(): Promise<{
-  valid: boolean;
-  results: Record<string, { valid: boolean; error?: string; price?: Stripe.Price }>;
-}> {
-  const config = getStripeConfig();
-  const results: Record<string, { valid: boolean; error?: string; price?: Stripe.Price }> = {};
-  
-  let allValid = true;
-  
-  for (const [planName, priceId] of Object.entries(config.priceIds)) {
-    const result = await validateStripePrice(priceId);
-    results[planName] = result;
-    
-    if (!result.valid) {
-      allValid = false;
-    }
-  }
-  
-  return {
-    valid: allValid,
-    results
-  };
 }
 
 /**
@@ -252,154 +221,22 @@ export function handleStripeError(error: unknown, context?: string): {
 }
 
 /**
- * Enhanced webhook signature verification with comprehensive security logging
- * Validates Stripe webhook signatures with support for secret rotation
- */
-async function verifyWebhookSignatureEnhanced(
-  body: string | Buffer, 
-  signature: string, 
-  secret: string
-): Promise<Stripe.Event> {
-  if (!signature) {
-    throw new Error('No signature provided');
-  }
-  
-  if (!secret) {
-    throw new Error('Webhook secret not configured');
-  }
-  
-  try {
-    const stripe = getStripeClient();
-    const event = stripe.webhooks.constructEvent(body, signature, secret);
-    
-    log.info('Webhook signature verified successfully', {
-      metadata: {
-        eventId: event.id,
-        eventType: event.type,
-        timestamp: new Date().toISOString(),
-        signatureAlgorithm: signature.split(',')[0] || 'unknown'
-      }
-    } as any);
-    
-    return event;
-  } catch (error) {
-    log.error('Webhook signature verification failed', {
-      metadata: {
-        hasSignature: !!signature,
-        hasSecret: !!secret,
-        signatureHeader: signature ? signature.substring(0, 20) + '...' : 'missing',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        secretType: secret.startsWith('whsec_') ? 'valid_format' : 'invalid_format'
-      }
-    }, error as Error);
-    
-    throw new Error('Webhook signature verification failed');
-  }
-}
-
-/**
- * Verify webhook signature with support for multiple secrets (rotation)
- * Attempts verification with primary secret, then fallback secrets
- */
-async function verifyWithMultipleSecrets(
-  body: string | Buffer, 
-  signature: string,
-  req?: any
-): Promise<Stripe.Event> {
-  // Security logging for webhook attempt
-  log.info('Webhook security check initiated', {
-    metadata: {
-      hasSignature: !!signature,
-      signatureAlgorithm: signature ? signature.split(',')[0] : 'none',
-      timestamp: Date.now(),
-      userAgent: req?.headers?.['user-agent'] || 'unknown',
-      sourceIP: req?.ip || req?.connection?.remoteAddress || 'unknown',
-      contentLength: typeof body === 'string' ? body.length : body?.length || 0
-    }
-  } as any);
-
-  // Get webhook secrets (primary + rotation support)
-  const webhookSecrets = [
-    process.env.STRIPE_WEBHOOK_SECRET,
-    process.env.STRIPE_WEBHOOK_SECRET_OLD // For rotation scenarios
-  ].filter(Boolean);
-
-  if (webhookSecrets.length === 0) {
-    log.error('No webhook secrets configured - critical security vulnerability', {
-      metadata: {
-        availableEnvVars: Object.keys(process.env).filter(key => key.includes('WEBHOOK')),
-        nodeEnv: process.env.NODE_ENV
-      }
-    } as any);
-    throw new Error('Webhook secret is not configured');
-  }
-
-  let lastError: Error;
-  
-  for (let i = 0; i < webhookSecrets.length; i++) {
-    const secret = webhookSecrets[i];
-    try {
-      const event = await verifyWebhookSignatureEnhanced(body, signature, secret!);
-      
-      // Log successful verification with secret used
-      log.info('Webhook verification successful', {
-        metadata: {
-          eventId: event.id,
-          eventType: event.type,
-          secretIndex: i,
-          isRotationSecret: i > 0,
-          totalSecretsAvailable: webhookSecrets.length
-        }
-      } as any);
-      
-      return event;
-    } catch (error) {
-      lastError = error as Error;
-      
-      log.warn('Webhook verification failed with secret', {
-        metadata: {
-          secretIndex: i,
-          isRotationSecret: i > 0,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          willRetryWithNext: i < webhookSecrets.length - 1
-        }
-      } as any);
-      
-      continue;
-    }
-  }
-  
-  // All secrets failed
-  log.error('Webhook verification failed with all available secrets', {
-    metadata: {
-      totalSecretsAttempted: webhookSecrets.length,
-      finalError: lastError.message,
-      securityAlert: 'Potential webhook spoofing attempt detected'
-    }
-  } as any);
-  
-  throw lastError;
-}
-
-/**
- * Main webhook signature verification function
- * Public API with enhanced security features
+ * Enhanced webhook signature verification
  */
 export function verifyWebhookSignature(
   body: string | Buffer,
   signature: string,
-  webhookSecret?: string,
-  req?: any
+  webhookSecret?: string
 ): Stripe.Event {
   try {
-    // If specific secret provided, use single verification
-    if (webhookSecret) {
-      const stripe = getStripeClient();
-      return stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    const stripe = getStripeClient();
+    const secret = webhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
+    
+    if (!secret) {
+      throw new Error('Webhook secret is not configured');
     }
-
-    // Use enhanced multi-secret verification
-    return verifyWithMultipleSecrets(body, signature, req) as any;
+    
+    return stripe.webhooks.constructEvent(body, signature, secret);
   } catch (error) {
     log.error('Webhook signature verification failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -416,8 +253,7 @@ export function verifyWebhookSignature(
  * Check if we're in development mode (using test keys)
  */
 export function isStripeTestMode(): boolean {
-  const config = getStripeConfig();
-  return config.secretKey.startsWith('sk_test_');
+  return process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') || false;
 }
 
 /**

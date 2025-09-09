@@ -4,7 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError, Errors, ExternalServiceError } from '../../../lib/utils/errors'
 import { getStripeClient, handleStripeError, testStripeConnection } from '../../../lib/utils/stripe-client'
-import { getStripeConfig } from '../../../lib/utils/stripe-environment-validator'
+// Removed broken import: stripe-environment-validator
 import type { User, Payment } from '../../../lib/database/schema'
 
 // Initialize Stripe client and configuration safely at runtime
@@ -15,7 +15,9 @@ function initializeStripeComponents() {
   if (!stripe || !config) {
     try {
       stripe = getStripeClient()
-      config = getStripeConfig()
+      config = {
+        nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000'
+      }
     } catch (error) {
       console.warn('Stripe initialization failed:', error instanceof Error ? error.message : 'Unknown error')
       // Return defaults for build time
