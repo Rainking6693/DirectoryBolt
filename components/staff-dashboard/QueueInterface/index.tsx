@@ -42,14 +42,42 @@ export default function QueueInterface({ data }: QueueInterfaceProps) {
 
     onViewDetails: (customerId: string) => {
       console.log('Viewing details for customer:', customerId)
-      // In a real app, this might open a modal or navigate to a detailed view
-      // For now, we'll just log it
+      
+      // Find customer data
+      const customer = data?.customers.find(c => c.customerId === customerId)
+      if (customer) {
+        // Create a detailed view modal or alert for now
+        const details = `
+Customer Details:
+
+ID: ${customer.customerId}
+Business: ${customer.businessName}
+Email: ${customer.email}
+Website: ${customer.website || 'Not provided'}
+Package: ${customer.packageType}
+Directory Limit: ${customer.directoryLimit}
+Priority: ${customer.priority}
+Wait Time: ${customer.waitTime} hours
+Status: ${customer.submissionStatus}
+Purchase Date: ${new Date(customer.purchaseDate).toLocaleDateString()}
+        `
+        alert(details)
+      }
     },
 
     onContact: (customerId: string) => {
       console.log('Contacting customer:', customerId)
-      // In a real app, this might open an email client or contact form
-      // For now, we'll just log it
+      
+      // Find customer data
+      const customer = data?.customers.find(c => c.customerId === customerId)
+      if (customer) {
+        // Open email client with pre-filled email
+        const subject = encodeURIComponent(`DirectoryBolt Processing Update - ${customer.businessName}`)
+        const body = encodeURIComponent(`Dear ${customer.businessName} team,\n\nWe wanted to update you on your directory submission processing.\n\nCustomer ID: ${customer.customerId}\nPackage: ${customer.packageType}\nCurrent Status: ${customer.submissionStatus}\n\nBest regards,\nDirectoryBolt Support Team`)
+        
+        const mailtoLink = `mailto:${customer.email}?subject=${subject}&body=${body}`
+        window.open(mailtoLink, '_blank')
+      }
     }
   }
 
