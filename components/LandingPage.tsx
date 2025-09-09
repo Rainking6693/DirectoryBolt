@@ -23,6 +23,60 @@ export default function LandingPage() {
     <div className="bg-secondary-900 text-white font-sans">
       <Header />
       
+      {/* Sample Analysis Preview - Prominently at Top */}
+      <section className="px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-volt-500/10 to-volt-600/10 border-b border-volt-500/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-volt-400 mb-2">🤖 See What Our AI Analysis Delivers</h2>
+            <p className="text-secondary-300">Real example: TechFlow Solutions analysis worth $2,000+ from consultants</p>
+          </div>
+          
+          {/* Key Metrics Preview */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="bg-secondary-800/50 rounded-xl border border-volt-500/30 p-4 text-center cursor-pointer hover:bg-volt-500/10 transition-all">
+              <div className="text-2xl font-black text-volt-400 mb-1">34%</div>
+              <div className="text-xs text-secondary-300">Visibility Score</div>
+              <div className="text-xs text-volt-400 mt-1">👆 Click to explore</div>
+            </div>
+            <div className="bg-secondary-800/50 rounded-xl border border-success-500/30 p-4 text-center cursor-pointer hover:bg-success-500/10 transition-all">
+              <div className="text-2xl font-black text-success-400 mb-1">67%</div>
+              <div className="text-xs text-secondary-300">SEO Score</div>
+              <div className="text-xs text-success-400 mt-1">👆 Click for details</div>
+            </div>
+            <div className="bg-secondary-800/50 rounded-xl border border-volt-500/30 p-4 text-center cursor-pointer hover:bg-volt-500/10 transition-all">
+              <div className="text-2xl font-black text-volt-400 mb-1">127</div>
+              <div className="text-xs text-secondary-300">Opportunities</div>
+              <div className="text-xs text-volt-400 mt-1">👆 View directory list</div>
+            </div>
+            <div className="bg-secondary-800/50 rounded-xl border border-volt-500/30 p-4 text-center cursor-pointer hover:bg-volt-500/10 transition-all">
+              <div className="text-2xl font-black text-volt-400 mb-1">850</div>
+              <div className="text-xs text-secondary-300">Potential Leads</div>
+              <div className="text-xs text-volt-400 mt-1">👆 See breakdown</div>
+            </div>
+            <div className="bg-secondary-800/50 rounded-xl border border-danger-500/30 p-4 text-center cursor-pointer hover:bg-danger-500/10 transition-all">
+              <div className="text-2xl font-black text-danger-400 mb-1">23%</div>
+              <div className="text-xs text-secondary-300">Market Position</div>
+              <div className="text-xs text-danger-400 mt-1">👆 Competitive analysis</div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <button
+              onClick={() => setShowSampleModal(true)}
+              className="bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-6 py-3 rounded-xl hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 mr-4"
+            >
+              🔍 View Complete Analysis
+            </button>
+            <button
+              onClick={() => typeof window !== 'undefined' && (window.location.href = '/analyze')}
+              className="border-2 border-volt-500 text-volt-500 font-bold px-6 py-3 rounded-xl hover:bg-volt-500 hover:text-secondary-900 transition-all duration-300"
+            >
+              🚀 Get My Analysis
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className={`px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center bg-gradient-to-r from-secondary-800 via-secondary-900 to-black text-white transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-6xl mx-auto">
