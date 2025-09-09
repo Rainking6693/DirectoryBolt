@@ -183,7 +183,10 @@ async function performWebsiteAnalysis(
     res.setHeader('X-Analysis-Cost', costBreakdown.totalCost.toString())
     res.setHeader('X-User-Tier', user.tier)
 
-    res.status(200).json(response)
+    res.status(200).json({
+  success: true,
+  data: response
+})
 
     // Log successful analysis
     logger.info('Website analysis completed', {
