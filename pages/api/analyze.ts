@@ -380,6 +380,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }, error as Error)
     
     return res.status(500).json({
+      success: false,
       error: 'Analysis failed',
       message: error instanceof Error ? error.message : 'Unknown error',
       processingTime: Date.now() - startTime
