@@ -601,7 +601,7 @@ export const StartTrialButton = ({ plan = 'growth', addons = [], ...props }) => 
   </CheckoutButton>
 )
 
-export const UpgradeButton = ({ plan = 'pro', size = 'md', addons = [], ...props }) => (
+export const UpgradeButton = ({ plan = 'professional', size = 'md', addons = [], ...props }) => (
   <CheckoutButton
     plan={plan}
     addons={addons}
@@ -674,11 +674,11 @@ function validateCheckoutRequest(plan, stripeConfigured, configurationStatus) {
   const errors = []
   
   // Plan validation with user-friendly messages
-  const validPlans = ['free', 'starter', 'growth', 'pro', 'subscription']
+  const validPlans = ['free', 'starter', 'growth', 'professional', 'enterprise', 'pro', 'subscription']
   if (!plan) {
     errors.push('Please select a pricing plan to continue')
   } else if (!validPlans.includes(plan)) {
-    errors.push(`The selected plan "${plan}" is not available. Please choose from: Starter ($149 ONE-TIME), Growth ($299 ONE-TIME), Pro ($499 ONE-TIME), or Enterprise ($799 ONE-TIME)`)
+    errors.push(`The selected plan "${plan}" is not available. Please choose from: Starter ($149 ONE-TIME), Growth ($299 ONE-TIME), Professional ($499 ONE-TIME), or Enterprise ($799 ONE-TIME)`)
   }
   
   // Skip Stripe validation for free plan
