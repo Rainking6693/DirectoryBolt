@@ -367,14 +367,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     })
 
-    return res.status(200).json({
-      ...response,
-      usage: {
-        tokensUsed: 0,
-        cost: 0,
-        processingTime: Date.now() - startTime
-      }
-    })
+    return res.status(200).json({success: true, data: response})
 
   } catch (error) {
     logger.error('Website analysis failed', {
