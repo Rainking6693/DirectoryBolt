@@ -4,66 +4,26 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { logger } from '../../lib/utils/logger'
+import { getEmergencyStripeClient, getEmergencyPricingConfig, isPaymentSystemConfigured } from '../../lib/utils/stripe-emergency-fix'
 
-// Initialize Stripe with proper error handling
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-08-16',
-})
+// Emergency Stripe initialization with fallback handling
+let stripeClient: Stripe | null = null
+let configurationError: string | null = null
 
-// Pricing configuration with real Stripe price IDs
-const PRICING_CONFIG = {
-  starter: {
-    priceId: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter_default',
-    name: 'Starter Intelligence',
-    amount: 14900, // $149.00
-    features: [
-      'AI Business Profile Analysis',
-      '100 Directory Opportunities',
-      'Basic SEO Analysis',
-      'PDF Export',
-      'Email Support'
-    ]
-  },
-  growth: {
-    priceId: process.env.STRIPE_GROWTH_PRICE_ID || 'price_growth_default',
-    name: 'Growth Intelligence',
-    amount: 29900, // $299.00
-    features: [
-      'Complete AI Business Intelligence',
-      '250+ Directory Opportunities',
-      'Competitive Analysis',
-      'Revenue Projections',
-      'Priority Support',
-      'CSV Export'
-    ]
-  },
-  professional: {
-    priceId: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional_default',
-    name: 'Professional Intelligence',
-    amount: 49900, // $499.00
-    features: [
-      'Advanced AI Analysis',
-      '400+ Directory Opportunities',
-      'Market Insights',
-      'White-label Reports',
-      'Phone Support',
-      'Custom Integrations'
-    ]
-  },
-  enterprise: {
-    priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise_default',
-    name: 'Enterprise Intelligence',
-    amount: 79900, // $799.00
-    features: [
-      'Enterprise AI Suite',
-      '500+ Directory Opportunities',
-      'Dedicated Account Manager',
-      'Custom Analysis',
-      'API Access',
-      'Priority Processing'
-    ]
+function getStripeClient(): Stripe {
+  if (!stripeClient) {
+    const config = getEmergencyStripeClient()
+    if (!config.isConfigured || !config.stripe) {
+      configurationError = config.errorMessage || 'Stripe not configured'
+      throw new Error(configurationError)
+    }
+    stripeClient = config.stripe
   }
+  return stripeClient
 }
+
+// Get pricing configuration with emergency fallbacks
+const PRICING_CONFIG = getEmergencyPricingConfig()
 
 interface CheckoutRequest {
   plan: keyof typeof PRICING_CONFIG
@@ -78,7 +38,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // Check payment system configuration first
+  const paymentStatus = isPaymentSystemConfigured()
+  if (!paymentStatus.configured) {
+    return res.status(503).json({
+      error: 'Payment system is not configured',
+      message: 'Payment functionality is temporarily unavailable',
+      issues: paymentStatus.issues,
+      recommendation: 'Contact support to resolve payment configuration'
+    })
+  }
+
   try {
+    const stripe = getStripeClient()
     const { plan, successUrl, cancelUrl, customerEmail, metadata = {} }: CheckoutRequest = req.body
 
     // Validate input
