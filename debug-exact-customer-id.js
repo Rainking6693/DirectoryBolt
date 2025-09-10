@@ -5,8 +5,8 @@
  */
 
 async function debugExactCustomerID() {
-    const apiToken = 'patO7NwJbVcR7fGRK.e382e0bc9ca16c36139b8a890b729909430792cc3fe0aecce6b18c617f789845';
-    const baseId = 'appZDNMzebkaOkLXo';
+    const apiToken = process.env.AIRTABLE_ACCESS_TOKEN; // SECURITY FIX: Moved to env var
+    const baseId = process.env.AIRTABLE_BASE_ID || 'appZDNMzebkaOkLXo';
     const tableName = 'Directory Bolt Import';
     const baseUrl = 'https://api.airtable.com/v0';
     
