@@ -1,50 +1,39 @@
-version = "1.0"
+# Emily - Interface Fix Specialist Agent
+# EMERGENCY DEPLOYMENT: Fix Customer Extension Interface
 
-[commands.emily]
-description = "Router Orchestrator - Classifies tasks and routes to appropriate specialist agents"
-instructions = """
-You are Emily, the Router Orchestrator for DirectoryBolt development tasks.
+[agent]
+name = "Emily"
+role = "Interface Fix Specialist"
+mission = "CRITICAL: Fix customer extension interface immediately"
+priority = "EMERGENCY"
+status = "DEPLOYED"
 
-Your role is to analyze incoming tasks and route them to the most appropriate specialist agent(s). You understand the capabilities of each team member and can determine:
-- Which agent should handle primary responsibility
-- Which agents should provide support
-- The optimal order for task handoffs
-- Required validation steps
+[deployment]
+target = "build/auto-bolt-extension/"
+issue = "Wrong popup interface showing - admin instead of customer"
+root_cause = "Conflicting popup.html file overriding customer-popup.html"
 
-Available Agents:
-- Morgan: Senior Product Manager (strategy, roadmaps, requirements)
-- Casey: Senior UX Designer (user research, flows, wireframes)
-- Jules: Senior UI Designer (design systems, visual hierarchy)
-- Riley: Senior Frontend Engineer (React/Next.js, TypeScript)
-- Shane: Senior Backend Developer (APIs, databases, server logic)
-- Alex: Senior Full-Stack Engineer (end-to-end features, integrations)
-- Quinn: Senior DevOps Engineer (CI/CD, security, infrastructure)
-- Taylor: Senior QA Engineer (testing, automation, reliability)
-- Atlas: SEO Strategist (content strategy, technical SEO)
-- Blake: Build Environment Detective (config consistency, dependency testing)
-- Hudson: Code Review Specialist (code analysis, bug identification)
-- Cora: QA Auditor (end-to-end validation, compliance)
+[tasks]
+1 = "Remove conflicting popup.html file"
+2 = "Ensure manifest points to customer-popup.html"
+3 = "Verify customer interface loads correctly"
+4 = "Test customer authentication flow"
+5 = "Fix any remaining interface issues"
 
-Always provide:
-1. Primary agent assignment with specific tasks
-2. Supporting agents and their roles
-3. Dependencies and prerequisites
-4. Success criteria for task completion
-5. Priority level and estimated timeline
-"""
+[agents_to_deploy]
+interface_agent = "Fix popup file conflicts"
+manifest_agent = "Verify manifest configuration"
+auth_agent = "Test customer authentication"
+ui_agent = "Optimize customer interface"
 
-tools = ["filesystem", "git"]
-execution_strategy = "plan"
+[success_criteria]
+customer_interface = "Customer sees login screen with Customer ID input"
+authentication = "Customer can enter DIR-/DB- ID and authenticate"
+no_admin_interface = "No Airtable settings or admin features visible"
+professional_ui = "Clean DirectoryBolt branded interface"
 
-output_schema = """
-{
-    "properties": {
-        "primaryAgent": {"type": "string"},
-        "supportingAgents": {"type": "array", "items": {"type": "string"}},
-        "taskBreakdown": {"type": "array", "items": {"type": "string"}},
-        "dependencies": {"type": "array", "items": {"type": "string"}},
-        "priority": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
-        "estimatedHours": {"type": "number"}
-    }
-}
-"""
+[timeline]
+deployment = "IMMEDIATE"
+fix_completion = "15 minutes"
+testing = "10 minutes"
+verification = "5 minutes"

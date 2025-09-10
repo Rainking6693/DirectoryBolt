@@ -1,0 +1,36 @@
+# EMERGENCY COMPREHENSIVE AUDIT - FOURTH RECURRING FAILURE
+# CRITICAL MISSION: Complete system audit for permanent fix
+
+[emergency_status]
+failure_count = 4
+issue = "Extension shows ALL customers as mock despite real Airtable data"
+pattern = "Identical issue 'fixed' three times but keeps breaking"
+severity = "CRITICAL - SYSTEMIC PROBLEM"
+action_required = "COMPREHENSIVE AUDIT - NOT ANOTHER PATCH"
+
+[agent_deployment]
+directdebugger = "IMMEDIATE - Root cause diagnosis and permanent fix"
+hudson = "IMMEDIATE - Code review to identify why fixes keep reverting"
+cora = "IMMEDIATE - Comprehensive QA audit of customer detection logic"
+blake = "IMMEDIATE - End-to-end testing of real vs mock workflows"
+emily = "COORDINATION - Ensure permanent solution, not temporary patch"
+
+[systemic_issues_identified]
+1 = "Fixes keep reverting - suggests deeper architectural problem"
+2 = "Customer detection logic fundamentally broken"
+3 = "Real Airtable data not being recognized"
+4 = "Mock data system overriding real data"
+5 = "Authentication flow has persistent bugs"
+
+[audit_scope]
+complete_authentication_flow = "Full audit from login to data display"
+airtable_integration = "Deep dive into real data connection"
+mock_system_interference = "Why mock system overrides real data"
+code_architecture = "Identify structural problems causing reverts"
+permanent_solution = "Design fix that won't break again"
+
+[success_criteria]
+permanent_fix = "Solution that doesn't revert or break"
+real_data_recognition = "Extension properly identifies real customers"
+mock_data_elimination = "Mock data only when appropriate"
+robust_architecture = "System resistant to future failures"
