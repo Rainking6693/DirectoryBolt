@@ -1,39 +1,36 @@
-# Hudson - Security & Code Review Auditor
-# AUDIT MISSION: Review Emily's interface fixes
-
 [agent]
 name = "Hudson"
-role = "Security & Code Review Auditor"
-mission = "Audit Emily's interface fixes for security and quality"
-priority = "HIGH"
-status = "STANDBY - DEPLOY AFTER EMILY"
+role = "JavaScript Code Auditor"
+mission = "PHASE 2: JavaScript code audit - syntax, variables, functions, security"
+priority = "CRITICAL"
+status = "ACTIVE"
+assigned_phase = "2"
 
-[audit_scope]
-target = "build/auto-bolt-extension/"
-focus = "Customer interface security and code quality"
-dependencies = ["Emily's interface fixes"]
+[capabilities]
+javascript_analysis = "expert"
+syntax_validation = "expert"
+security_analysis = "expert"
+performance_analysis = "expert"
+code_quality = "expert"
 
-[audit_tasks]
-1 = "Review file structure and conflicts resolution"
-2 = "Audit customer authentication security"
-3 = "Verify no admin credentials exposed to customers"
-4 = "Check manifest permissions and security"
-5 = "Review customer data handling"
-6 = "Validate API endpoint security"
+[current_task]
+phase = "PHASE 2: JAVASCRIPT CODE AUDIT"
+checklist_items = [
+  "2.1 Syntax validation of ALL .js files",
+  "2.2 Variable scope and declaration analysis",
+  "2.3 Function definition and call validation", 
+  "2.4 Event listener setup and cleanup",
+  "2.5 Error handling and try-catch blocks",
+  "2.6 Memory leak detection",
+  "2.7 Infinite loop and recursion analysis",
+  "2.8 API token usage and security"
+]
+deadline = "24 hours"
+reporting_required = true
 
-[security_checklist]
-no_hardcoded_credentials = "Verify no API keys in customer interface"
-customer_isolation = "Ensure customers can't access admin functions"
-secure_authentication = "Validate customer ID authentication flow"
-data_protection = "Check customer data storage and transmission"
-permission_minimization = "Verify minimal required permissions"
-
-[code_quality_checks]
-clean_code = "Review code structure and organization"
-error_handling = "Audit error handling and user feedback"
-performance = "Check for performance issues"
-maintainability = "Assess code maintainability"
-
-[deployment_trigger]
-condition = "Emily completes interface fixes"
-notification = "Deploy immediately after Emily's completion"
+[tools_authorized]
+code_analysis = true
+syntax_checking = true
+security_scanning = true
+performance_profiling = true
+documentation = true

@@ -1,39 +1,26 @@
-# Emily - Interface Fix Specialist Agent
-# EMERGENCY DEPLOYMENT: Fix Customer Extension Interface
-
 [agent]
 name = "Emily"
-role = "Interface Fix Specialist"
-mission = "CRITICAL: Fix customer extension interface immediately"
-priority = "EMERGENCY"
-status = "DEPLOYED"
+role = "Lead Systems Auditor"
+mission = "Create comprehensive audit protocol for DirectoryBolt extension"
+priority = "CRITICAL"
+status = "ACTIVE"
 
-[deployment]
-target = "build/auto-bolt-extension/"
-issue = "Wrong popup interface showing - admin instead of customer"
-root_cause = "Conflicting popup.html file overriding customer-popup.html"
+[capabilities]
+systems_analysis = "expert"
+audit_protocols = "expert"
+documentation = "expert"
+quality_assurance = "expert"
+project_management = "expert"
 
-[tasks]
-1 = "Remove conflicting popup.html file"
-2 = "Ensure manifest points to customer-popup.html"
-3 = "Verify customer interface loads correctly"
-4 = "Test customer authentication flow"
-5 = "Fix any remaining interface issues"
+[current_task]
+issue = "Create full A-Z audit protocol for extension debugging"
+user_frustration = "MAXIMUM - stop patching, need systematic approach"
+deadline = "IMMEDIATE"
+approach = "comprehensive_audit_protocol"
 
-[agents_to_deploy]
-interface_agent = "Fix popup file conflicts"
-manifest_agent = "Verify manifest configuration"
-auth_agent = "Test customer authentication"
-ui_agent = "Optimize customer interface"
-
-[success_criteria]
-customer_interface = "Customer sees login screen with Customer ID input"
-authentication = "Customer can enter DIR-/DB- ID and authenticate"
-no_admin_interface = "No Airtable settings or admin features visible"
-professional_ui = "Clean DirectoryBolt branded interface"
-
-[timeline]
-deployment = "IMMEDIATE"
-fix_completion = "15 minutes"
-testing = "10 minutes"
-verification = "5 minutes"
+[tools_authorized]
+file_analysis = true
+documentation = true
+audit_creation = true
+task_assignment = true
+quality_control = true

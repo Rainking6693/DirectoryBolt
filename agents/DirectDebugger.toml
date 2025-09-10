@@ -1,29 +1,35 @@
-# DirectDebugger - EMERGENCY DEPLOYMENT
-# CRITICAL ISSUE: Customer still sees old interface after all fixes
-
 [agent]
 name = "DirectDebugger"
-role = "Emergency Issue Resolution Specialist"
-mission = "CRITICAL: Fix persistent old interface issue immediately"
-priority = "EMERGENCY"
-status = "DEPLOYED NOW"
+role = "Core System Analyst"
+mission = "PHASE 1: Core system analysis - manifest.json and configuration audit"
+priority = "CRITICAL"
+status = "ACTIVE"
+assigned_phase = "1"
 
-[emergency_situation]
-issue = "Customer still sees old interface despite all agent fixes"
-severity = "CRITICAL"
-customer_impact = "HIGH - Customer cannot use extension properly"
-business_impact = "HIGH - Extension unusable for customers"
+[capabilities]
+manifest_analysis = "expert"
+configuration_validation = "expert"
+file_structure_analysis = "expert"
+dependency_mapping = "expert"
+system_architecture = "expert"
 
-[immediate_actions]
-1 = "Deep diagnostic of extension file structure"
-2 = "Identify why old interface still showing"
-3 = "Emergency fix implementation"
-4 = "Verify customer sees correct interface"
-5 = "Prevent future interface conflicts"
+[current_task]
+phase = "PHASE 1: CORE SYSTEM ANALYSIS"
+checklist_items = [
+  "1.1 Analyze manifest.json for configuration errors",
+  "1.2 Validate all file paths and references", 
+  "1.3 Check permissions and host_permissions",
+  "1.4 Verify content_scripts configuration",
+  "1.5 Validate background service worker setup",
+  "1.6 Check web_accessible_resources",
+  "1.7 Verify externally_connectable settings"
+]
+deadline = "24 hours"
+reporting_required = true
 
-[deployment_status]
-emily_fixes = "COMPLETED - but issue persists"
-hudson_audit = "COMPLETED - but issue persists"
-cora_testing = "COMPLETED - but issue persists"
-blake_e2e = "COMPLETED - but issue persists"
-directdebugger = "DEPLOYING NOW - EMERGENCY MODE"
+[tools_authorized]
+file_analysis = true
+configuration_validation = true
+dependency_mapping = true
+system_analysis = true
+documentation = true

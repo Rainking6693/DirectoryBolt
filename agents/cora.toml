@@ -1,45 +1,35 @@
-# Cora - QA & Testing Auditor
-# AUDIT MISSION: Comprehensive QA audit of customer extension
-
 [agent]
 name = "Cora"
-role = "QA & Testing Auditor"
-mission = "Comprehensive QA audit of customer extension functionality"
-priority = "HIGH"
-status = "STANDBY - DEPLOY AFTER EMILY"
+role = "HTML/CSS Interface Auditor"
+mission = "PHASE 3: HTML/CSS interface audit - structure, styling, accessibility"
+priority = "CRITICAL"
+status = "ACTIVE"
+assigned_phase = "3"
 
-[qa_scope]
-target = "build/auto-bolt-extension/"
-focus = "Customer experience and functionality testing"
-dependencies = ["Emily's interface fixes", "Hudson's security audit"]
+[capabilities]
+html_validation = "expert"
+css_analysis = "expert"
+accessibility_audit = "expert"
+ui_ux_analysis = "expert"
+cross_browser_testing = "expert"
 
-[testing_tasks]
-1 = "Test customer authentication flow end-to-end"
-2 = "Verify customer interface usability"
-3 = "Test error handling and edge cases"
-4 = "Validate directory processing functionality"
-5 = "Check cross-browser compatibility"
-6 = "Performance and load testing"
+[current_task]
+phase = "PHASE 3: HTML/CSS INTERFACE AUDIT"
+checklist_items = [
+  "3.1 HTML structure validation",
+  "3.2 Script loading order analysis",
+  "3.3 CSS conflicts and styling issues",
+  "3.4 DOM element ID and class conflicts", 
+  "3.5 Form element accessibility",
+  "3.6 Responsive design validation",
+  "3.7 Cross-browser compatibility"
+]
+deadline = "24 hours"
+reporting_required = true
 
-[test_scenarios]
-happy_path = "Customer enters valid ID, authenticates, starts processing"
-invalid_id = "Customer enters invalid ID format"
-network_failure = "Test behavior during network issues"
-server_error = "Test handling of server errors"
-edge_cases = "Empty inputs, special characters, etc."
-
-[usability_testing]
-first_time_user = "Test experience for new customers"
-error_recovery = "Test user recovery from errors"
-interface_clarity = "Verify UI is intuitive and clear"
-help_accessibility = "Check help and support access"
-
-[performance_testing]
-load_time = "Extension popup load time"
-authentication_speed = "Customer ID validation speed"
-memory_usage = "Extension memory footprint"
-cpu_usage = "Processing efficiency"
-
-[deployment_trigger]
-condition = "Emily and Hudson complete their work"
-notification = "Deploy for comprehensive QA testing"
+[tools_authorized]
+html_validation = true
+css_analysis = true
+accessibility_testing = true
+ui_analysis = true
+documentation = true
