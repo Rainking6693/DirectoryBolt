@@ -66,13 +66,16 @@ export default async function handler(
       })
     }
 
-    // Accept only DIR- prefix (matches actual generation)
-    if (!customerId.startsWith('DIR-')) {
-      console.log('❌ Invalid customer ID format:', customerId)
+    // FIXED: Accept both DIR- and DB- prefixes during transition period
+    if (!customerId.startsWith('DIR-') && !customerId.startsWith('DB-')) {
       return res.status(400).json({
         valid: false,
-        error: 'Invalid Customer ID format. Must start with DIR-',
-        debug: debugInfo
+        error: 'Invalid Customer ID format. Customer ID must start with "DIR-" or "DB-"',
+        details: {
+          provided: customerId,
+          expectedFormat: 'DIR-YYYY-XXXXXX or DB-YYYY-XXXXXX',
+          example: 'DIR-2025-123ABC or DB-2025-123ABC'
+        }
       })
     }
 

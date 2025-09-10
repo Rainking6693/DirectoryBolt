@@ -1,0 +1,10 @@
+# External repositories for auditing
+# These are temporary and should not be committed to DirectoryBolt
+
+# Ignore all directories except README
+*
+!.gitignore
+!README.md
+
+# Allow specific repos if needed (uncomment as needed)
+# !important-repo/
