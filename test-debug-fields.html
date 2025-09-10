@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Airtable Fields</title>
+</head>
+<body>
+    <h1>Testing Airtable Field Names</h1>
+    <p>Check console for results...</p>
+    
+    <script>
+        // Copy of debug script to run in browser
+        async function debugCustomerDataFields() {
+            const apiToken = 'patO7NwJbVcR7fGRK.e382e0bc9ca16c36139b8a890b729909430792cc3fe0aecce6b18c617f789845';
+            const baseId = 'appZDNMzebkaOkLXo';
+            const tableName = 'Directory Bolt Import';
+            const baseUrl = 'https://api.airtable.com/v0';
+            
+            const benCustomerId = 'DIR-202597-recwsFS91NG2O90xi';
+            
+            console.log('🔍 DEBUGGING CUSTOMER DATA FIELDS');
+            console.log('Looking for customer:', benCustomerId);
+            
+            try {
+                const url = `${baseUrl}/${baseId}/${encodeURIComponent(tableName)}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('❌ API Error:', response.status, response.statusText);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('📊 Total records:', data.records?.length || 0);
+                
+                // Find Ben's customer record
+                const benRecord = data.records.find(record => {
+                    const fields = record.fields || {};
+                    return fields['customerID'] === benCustomerId;
+                });
+                
+                if (!benRecord) {
+                    console.error('❌ Ben\'s customer record not found!');
+                    console.log('Available customer IDs in first 5 records:');
+                    data.records.slice(0, 5).forEach((record, i) => {
+                        const fields = record.fields || {};
+                        console.log(`Record ${i + 1} customerID:`, fields['customerID']);
+                    });
+                    return;
+                }
+                
+                console.log('✅ FOUND BEN\'S CUSTOMER RECORD:');
+                console.log('Airtable Record ID:', benRecord.id);
+                console.log('Created Time:', benRecord.createdTime);
+                
+                console.log('\n📋 ALL FIELDS IN BEN\'S RECORD:');
+                const fields = benRecord.fields;
+                Object.keys(fields).forEach(fieldName => {
+                    const value = fields[fieldName];
+                    console.log(`  "${fieldName}": "${value}"`);
+                });
+                
+                return fields; // Return the actual fields
+                
+            } catch (error) {
+                console.error('❌ Debug failed:', error);
+            }
+        }
+        
+        // Auto-run on page load
+        debugCustomerDataFields();
+    </script>
+</body>
+</html>

@@ -1,111 +1,106 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import { ReactNode } from 'react'
 import Header from '../Header'
+import Footer from './Footer'
 
 interface LayoutProps {
   children: ReactNode
   title?: string
   description?: string
-  showBackButton?: boolean
-  backButtonUrl?: string
-  backButtonText?: string
+  canonical?: string
+  noIndex?: boolean
+  ogImage?: string
+  jsonLd?: object[]
 }
 
-export default function Layout({ 
-  children, 
-  title = 'DirectoryBolt',
-  description = 'AI-powered directory submission service',
-  showBackButton = false,
-  backButtonUrl,
-  backButtonText
+export default function Layout({
+  children,
+  title,
+  description,
+  canonical,
+  noIndex = false,
+  ogImage,
+  jsonLd = []
 }: LayoutProps) {
+  const defaultTitle = 'DirectoryBolt | AI-Powered Directory Submission Service'
+  const defaultDescription = 'Get your business listed on 480+ directories with our AI-powered submission service. Boost local SEO and increase online visibility.'
+  const defaultOgImage = 'https://directorybolt.com/images/og-default.jpg'
+
+  const pageTitle = title || defaultTitle
+  const pageDescription = description || defaultDescription
+  const pageOgImage = ogImage || defaultOgImage
+
   return (
     <>
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        
+        {/* Robots */}
+        <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
+        <meta name="googlebot" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
+        
+        {/* Canonical URL */}
+        {canonical && <link rel="canonical" href={canonical} />}
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={pageOgImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="DirectoryBolt" />
+        {canonical && <meta property="og:url" content={canonical} />}
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={pageOgImage} />
+        <meta name="twitter:creator" content="@DirectoryBolt" />
+        <meta name="twitter:site" content="@DirectoryBolt" />
+        
+        {/* Additional Meta Tags */}
+        <meta name="author" content="DirectoryBolt" />
+        <meta name="publisher" content="DirectoryBolt" />
+        <meta name="copyright" content="DirectoryBolt" />
+        <meta name="language" content="English" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        
+        {/* Mobile Optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#ccff0a" />
+        <meta name="msapplication-TileColor" content="#ccff0a" />
+        
+        {/* Favicons */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        
+        {/* JSON-LD Structured Data */}
+        {jsonLd.map((schema, index) => (
+          <script
+            key={`jsonld-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
       </Head>
       
-      <div className="min-h-screen bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900">
-        <Header showBackButton={showBackButton} />
-        
-        {/* Custom Back Button for dashboard pages */}
-        {showBackButton && backButtonUrl && (
-          <div className="bg-secondary-800/50 border-b border-secondary-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-              <Link 
-                href={backButtonUrl}
-                className="inline-flex items-center gap-2 text-secondary-300 hover:text-volt-400 transition-colors text-sm font-medium"
-              >
-                ← {backButtonText || 'Back'}
-              </Link>
-            </div>
-          </div>
-        )}
-
-        <main>{children}</main>
-
-        <footer className="bg-secondary-900/80 backdrop-blur-sm text-white py-12 border-t border-volt-500/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent">
-                  ⚡ DirectoryBolt
-                </h3>
-                <p className="text-secondary-300">
-                  AI-powered directory submission service helping businesses get found online.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4 text-volt-400">Product</h4>
-                <ul className="space-y-2 text-secondary-300">
-                  <li>
-                    <Link href="/analyze" className="hover:text-volt-400 transition-colors">
-                      Free Analysis
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pricing" className="hover:text-volt-400 transition-colors">
-                      Pricing Plans
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pricing" className="hover:text-volt-400 transition-colors">
-                      Directory Database
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4 text-volt-400">Features</h4>
-                <ul className="space-y-2 text-secondary-300">
-                  <li>AI-Powered Optimization</li>
-                  <li>500+ Premium Directories</li>
-                  <li>Automated Submissions</li>
-                  <li>Real-time Analytics</li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-semibold mb-4 text-volt-400">Support</h4>
-                <ul className="space-y-2 text-secondary-300">
-                  <li>24/7 Customer Support</li>
-                  <li>30-Day Money Back</li>
-                  <li>Free Trial Available</li>
-                  <li>Success Guarantee</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="mt-8 pt-8 border-t border-secondary-800 text-center text-secondary-400">
-              <p>&copy; 2024 DirectoryBolt. Get listed everywhere that matters.</p>
-            </div>
-          </div>
-        </footer>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          {children}
+        </main>
+        <Footer />
       </div>
     </>
   )

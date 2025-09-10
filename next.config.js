@@ -1,13 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ABSOLUTE MINIMAL CONFIG FOR NETLIFY BUILD SUCCESS
+  // Enhanced configuration for SEO and performance
   
   reactStrictMode: false,
   poweredByHeader: false,
   compress: true,
   swcMinify: true,
   
-  // Skip all validation to avoid file system issues
+  // Skip validation for build stability
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -16,21 +16,60 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Minimal image config
+  // Enhanced image optimization
   images: {
-    domains: ['localhost', 'directorybolt.com'],
-    unoptimized: true,
+    domains: ['localhost', 'directorybolt.com', 'images.unsplash.com'],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000, // 1 year
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
-  // NUCLEAR WEBPACK CONFIG - IGNORE EVERYTHING PROBLEMATIC
-  webpack: (config, { dev, isServer }) => {
-    // Disable source maps
-    config.devtool = false;
+  // Enhanced experimental features for performance
+  experimental: {
+    optimizeCss: true,
+    scrollRestoration: true,
+    legacyBrowsers: false,
+    browsersListForSwc: true,
+  },
+  
+  // Enhanced webpack configuration
+  webpack: (config, { dev, isServer, webpack }) => {
+    // Production optimizations
+    if (!dev) {
+      // Bundle splitting for better caching
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\/]node_modules[\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      }
+      
+      // Tree shaking optimization
+      config.optimization.usedExports = true
+      config.optimization.sideEffects = false
+    }
     
-    // Disable performance hints
-    config.performance = false;
+    // Disable source maps in production for performance
+    if (!dev) {
+      config.devtool = false
+    }
     
-    // Ignore problematic files completely
+    // Ignore problematic files
     config.watchOptions = {
       ignored: [
         '**/node_modules/**',
@@ -40,17 +79,16 @@ const nextConfig = {
         '**/build/**',
         '**/scripts/**'
       ]
-    };
+    }
     
     // Add ignore plugin for autobolt-extension
-    const webpack = require('webpack');
     config.plugins.push(
       new webpack.IgnorePlugin({
         resourceRegExp: /^\.\/autobolt-extension/,
       })
-    );
+    )
     
-    // Fallbacks for client-side
+    // Client-side fallbacks
     if (!isServer) {
       config.resolve.fallback = {
         fs: false,
@@ -68,18 +106,106 @@ const nextConfig = {
         path: false,
         buffer: false,
         process: false,
-      };
+      }
     }
     
-    return config;
+    return config
   },
   
-  // No experimental features
-  experimental: {},
-  
-  // No headers
+  // Enhanced security and performance headers
   async headers() {
-    return [];
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(self)'
+          }
+        ],
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          },
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/'
+          }
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ],
+      }
+    ]
+  },
+  
+  // Enhanced redirects for SEO
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/directory-submission',
+        destination: '/pricing',
+        permanent: true,
+      },
+    ]
+  },
+  
+  // Enhanced rewrites for clean URLs
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/api/sitemap'
+      },
+      {
+        source: '/robots.txt',
+        destination: '/api/robots'
+      }
+    ]
   },
 }
 

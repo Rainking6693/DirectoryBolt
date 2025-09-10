@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
+import { directoryBoltSchema } from '../lib/seo/enhanced-schema'
 
 const LandingPage = dynamic(() => import('../components/LandingPage'), {
   loading: () => (
@@ -66,7 +67,36 @@ export default function Home() {
         <meta name="theme-color" content="#f59e0b" />
         <meta name="msapplication-TileColor" content="#f59e0b" />
         
-        {/* Structured Data - Website */}
+        {/* Enhanced Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(directoryBoltSchema.generateOrganizationSchema())
+          }}
+        />
+        
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(directoryBoltSchema.generateServiceSchema())
+          }}
+        />
+        
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(directoryBoltSchema.generateLocalBusinessSchema())
+          }}
+        />
+        
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(directoryBoltSchema.generateFAQSchema())
+          }}
+        />
+        
+        {/* Website Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -95,84 +125,8 @@ export default function Home() {
               },
               "sameAs": [
                 "https://www.linkedin.com/company/directorybolt",
-                "https://x.com/directorybolt"
-              ]
-            })
-          }}
-        />
-        
-        {/* Structured Data - Organization */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "DirectoryBolt",
-              "alternateName": "Directory Bolt",
-              "url": "https://directorybolt.com/",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://directorybolt.com/images/logo.png",
-                "width": 512,
-                "height": 512
-              },
-              "description": "AI-powered directory submission service helping businesses get listed in 480+ directories for increased online visibility and lead generation.",
-              "foundingDate": "2024",
-              "numberOfEmployees": "10-50",
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "US",
-                "addressRegion": "NY"
-              },
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "contactType": "customer service",
-                "email": "support@directorybolt.com",
-                "availableLanguage": "English"
-              },
-              "sameAs": [
-                "https://www.linkedin.com/company/directorybolt",
-                "https://x.com/directorybolt"
-              ]
-            })
-          }}
-        />
-
-        {/* Structured Data - Service */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org/",
-              "@type": "Service",
-              "serviceType": "Directory Submission Service",
-              "name": "Automated Directory Submissions",
-              "provider": {"@type": "Organization", "name": "DirectoryBolt"},
-              "areaServed": "US",
-              "description": "AI-optimized submissions to 500+ high-authority directories with ongoing maintenance.",
-              "offers": [
-                {
-                  "@type": "Offer",
-                  "name": "Starter",
-                  "priceCurrency": "USD",
-                  "price": "49",
-                  "url": "https://directorybolt.com/pricing"
-                },
-                {
-                  "@type": "Offer",
-                  "name": "Growth",
-                  "priceCurrency": "USD",
-                  "price": "89",
-                  "url": "https://directorybolt.com/pricing"
-                },
-                {
-                  "@type": "Offer",
-                  "name": "Pro",
-                  "priceCurrency": "USD",
-                  "price": "159",
-                  "url": "https://directorybolt.com/pricing"
-                }
+                "https://x.com/directorybolt",
+                "https://www.facebook.com/directorybolt"
               ]
             })
           }}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Field Name Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>DirectoryBolt Extension Field Fix Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="testResults">Testing...</div>
+    </div>
+
+    <script>
+        // Test the actual field fix
+        async function testFieldFix() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<p class="info">Running field name fix test...</p>';
+            
+            try {
+                const apiToken = 'patO7NwJbVcR7fGRK.e382e0bc9ca16c36139b8a890b729909430792cc3fe0aecce6b18c617f789845';
+                const baseId = 'appZDNMzebkaOkLXo';
+                const tableName = 'Directory Bolt Import';
+                const testCustomerId = 'DIR-202597-recwsFS91NG2O90xi';
+                
+                const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Find Ben's customer record
+                const benRecord = data.records.find(record => {
+                    const fields = record.fields || {};
+                    return fields['customerID'] === testCustomerId;
+                });
+                
+                if (!benRecord) {
+                    results.innerHTML = '<p class="error">❌ Ben\'s customer record not found!</p>';
+                    return;
+                }
+                
+                const fields = benRecord.fields;
+                
+                // Test the old mapping (what was broken)
+                const oldBusinessName = fields['Business Name'] || fields['Company Name'] || fields['Name'] || 'Customer';
+                const oldPackageType = fields['Package'] || fields['Package Type'] || fields['Plan'] || 'Professional';
+                
+                // Test the new mapping (what should work)
+                const newBusinessName = fields['business_name'] || fields['Business Name'] || fields['Name'] || 'Customer';
+                const newPackageType = fields['package_type'] || fields['Package Type'] || fields['Plan'] || 'Professional';
+                
+                let resultHTML = '<h3>Field Mapping Test Results:</h3>';
+                
+                resultHTML += '<h4>Available Fields in Ben\'s Record:</h4><ul>';
+                Object.keys(fields).forEach(fieldName => {
+                    resultHTML += `<li><strong>${fieldName}</strong>: "${fields[fieldName]}"</li>`;
+                });
+                resultHTML += '</ul>';
+                
+                resultHTML += '<h4>Old Mapping (BROKEN):</h4>';
+                resultHTML += `<p>Business Name: <span class="${oldBusinessName === 'Customer' ? 'error' : 'success'}">"${oldBusinessName}"</span></p>`;
+                resultHTML += `<p>Package Type: <span class="${oldPackageType === 'Professional' ? 'error' : 'success'}">"${oldPackageType}"</span></p>`;
+                
+                resultHTML += '<h4>New Mapping (FIXED):</h4>';
+                resultHTML += `<p>Business Name: <span class="${newBusinessName === 'Customer' ? 'error' : 'success'}">"${newBusinessName}"</span></p>`;
+                resultHTML += `<p>Package Type: <span class="${newPackageType === 'Professional' ? 'error' : 'success'}">"${newPackageType}"</span></p>`;
+                
+                if (newBusinessName !== 'Customer' && newPackageType !== 'Professional') {
+                    resultHTML += '<p class="success">✅ FIX SUCCESSFUL: Real customer data retrieved!</p>';
+                } else {
+                    resultHTML += '<p class="error">❌ Fix may need adjustment - still showing defaults</p>';
+                }
+                
+                results.innerHTML = resultHTML;
+                
+            } catch (error) {
+                results.innerHTML = `<p class="error">❌ Test failed: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test on page load
+        testFieldFix();
+    </script>
+</body>
+</html>
