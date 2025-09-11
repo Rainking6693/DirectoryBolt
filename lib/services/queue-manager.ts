@@ -58,9 +58,10 @@ interface EnhancedProcessingResult {
     error?: string
   }>
 }
-import { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
 
-export { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
+// Re-export types for convenience
+export type { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
+import type { QueueItem, BusinessSubmissionRecord } from '../types/queue.types'
 
 export interface QueueProcessingResult {
   success: boolean
