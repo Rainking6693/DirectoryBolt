@@ -11,8 +11,39 @@ import { AlertProvider } from '../contexts/AlertContext'
 
 export default function StaffDashboard() {
   const [activeTab, setActiveTab] = useState<'queue' | 'processing' | 'analytics' | 'alerts'>('queue')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const { isConnected, data: wsData } = useWebSocket('/api/ws/staff-dashboard')
   const { queueData, isLoading, error, refreshData } = useQueueData()
+
+  // SECURITY FIX: Check staff authentication
+  useEffect(() => {
+    const checkStaffAuth = async () => {
+      try {
+        const response = await fetch('/api/staff/auth-check', {
+          method: 'GET',
+          credentials: 'include'
+        })
+
+        if (response.ok) {
+          setIsAuthenticated(true)
+        } else {
+          console.warn('Staff authentication failed')
+          setIsAuthenticated(false)
+        }
+      } catch (error) {
+        console.error('Staff auth check failed:', error)
+        // For development, allow access
+        if (process.env.NODE_ENV === 'development') {
+          setIsAuthenticated(true)
+        }
+      } finally {
+        setIsAuthLoading(false)
+      }
+    }
+
+    checkStaffAuth()
+  }, [])
 
   // Auto-refresh every 10 seconds (as specified in requirements)
   useEffect(() => {
@@ -22,6 +53,43 @@ export default function StaffDashboard() {
     
     return () => clearInterval(interval)
   }, [refreshData])
+
+  // SECURITY: Show authentication loading or access denied
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking staff access...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You need staff privileges to access this dashboard.</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+            <p className="text-sm text-yellow-800">
+              <strong>Authentication Methods:</strong><br/>
+              • API Key: Add x-staff-key header<br/>
+              • Session Cookie: staff-session<br/>
+              • Basic Auth: staff / DirectoryBoltStaff2025!
+            </p>
+          </div>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <AlertProvider>

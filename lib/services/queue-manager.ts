@@ -119,16 +119,28 @@ export class QueueManager {
    */
   async getPendingQueue(): Promise<QueueItem[]> {
     try {
-      // Check if Airtable is configured
-      if (!process.env.AIRTABLE_ACCESS_TOKEN || 
-          process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable')) {
-        console.warn('⚠️ Airtable not configured, using mock queue data for development')
+      // FIXED: Better Airtable connection handling
+      const hasValidToken = process.env.AIRTABLE_ACCESS_TOKEN && 
+                           !process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable') &&
+                           process.env.AIRTABLE_ACCESS_TOKEN.length > 10
+
+      if (!hasValidToken) {
+        console.warn('⚠️ Airtable not properly configured, using mock queue data for development')
+        console.log('Debug: TOKEN:', process.env.AIRTABLE_ACCESS_TOKEN ? 'PRESENT' : 'MISSING')
         return this.getMockPendingQueue()
       }
 
       console.log('🔄 Fetching pending submissions from Airtable...')
       
-      const pendingRecords = await this.getAirtableService().findByStatus('pending')
+      // Test Airtable connection first
+      const airtableService = this.getAirtableService()
+      const healthCheck = await airtableService.healthCheck()
+      
+      if (!healthCheck) {
+        throw new Error('Airtable health check failed - connection not working')
+      }
+      
+      const pendingRecords = await airtableService.findByStatus('pending')
       
       const queueItems: QueueItem[] = pendingRecords.map(record => {
         const packageType = record.packageType || 'starter'

@@ -58,7 +58,11 @@
       "Bash(npx webpack-bundle-analyzer:*)",
       "Bash(if exist pnpm-lock.yaml echo \"PNPM lockfile found\")",
       "Bash(if exist package-lock.json echo \"NPM lockfile found\")",
-      "Bash(if exist yarn.lock echo \"Yarn lockfile found\")"
+      "Bash(if exist yarn.lock echo \"Yarn lockfile found\")",
+      "Read(//c/c/Users/Ben/OneDrive/Documents/GitHub/DirectoryBolt/**)",
+      "WebFetch(domain:app.netlify.com)",
+      "Bash(cat:*)",
+      "Read(//c/Users/Ben/auto-bolt-extension/**)"
     ],
     "deny": [],
     "ask": []
