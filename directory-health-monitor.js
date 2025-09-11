@@ -268,8 +268,20 @@ class DirectoryHealthMonitor {
      * Parse form structure from HTML
      */
     parseFormStructure(html, fieldMapping) {
+        // Import DOMPurify for sanitization
+        const DOMPurify = require('dompurify');
+        
+        // Sanitize HTML to prevent XSS attacks
+        const sanitizedHtml = DOMPurify.sanitize(html, {
+            ALLOWED_TAGS: ['form', 'input', 'textarea', 'select', 'option', 'label', 'fieldset', 'legend', 'button', 'div', 'span', 'p'],
+            ALLOWED_ATTR: ['name', 'id', 'class', 'type', 'value', 'placeholder', 'required', 'action', 'method', 'for', 'selected'],
+            FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+            FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'href', 'src'],
+            SANITIZE_DOM: true
+        });
+        
         const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        const doc = parser.parseFromString(sanitizedHtml, 'text/html');
         
         const structure = {
             forms: [],
@@ -488,7 +500,20 @@ class DirectoryHealthMonitor {
         try {
             const response = await fetch(directory.submissionUrl);
             const html = await response.text();
-            const doc = new DOMParser().parseFromString(html, 'text/html');
+            
+            // Import DOMPurify for sanitization
+            const DOMPurify = require('dompurify');
+            
+            // Sanitize HTML to prevent XSS attacks
+            const sanitizedHtml = DOMPurify.sanitize(html, {
+                ALLOWED_TAGS: ['form', 'input', 'textarea', 'select', 'option', 'label', 'fieldset', 'legend', 'button', 'div', 'span', 'p'],
+                ALLOWED_ATTR: ['name', 'id', 'class', 'type', 'value', 'placeholder', 'required', 'action', 'method', 'for', 'selected'],
+                FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+                FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'href', 'src'],
+                SANITIZE_DOM: true
+            });
+            
+            const doc = new DOMParser().parseFromString(sanitizedHtml, 'text/html');
             
             let totalSelectors = 0;
             let validSelectors = 0;

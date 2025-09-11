@@ -131,20 +131,28 @@ export class AirtableService {
 
       const records = await this.base(this.tableName).create([
         {
-          fields: recordData
+          fields: {
+            ...recordData,
+            // Store in the actual Airtable field format (customerID)
+            customerID: recordData.customerId,
+            // Remove the customerId field to avoid conflicts
+            customerId: undefined
+          }
         }
       ])
 
       const record = records[0]
+      const normalizedCustomerId = this.normalizeCustomerIdField(record)
       console.log('✅ Airtable record created successfully:', {
         recordId: record.getId(),
-        customerId: record.get('customerId'),
+        customerId: normalizedCustomerId,
         businessName: record.get('businessName')
       })
 
       return {
         recordId: record.getId(),
-        customerId: record.get('customerId'),
+        customerId: normalizedCustomerId,
+        customerID: normalizedCustomerId, // Provide both formats for compatibility
         ...record.fields
       }
 
@@ -169,14 +177,16 @@ export class AirtableService {
       ])
 
       const record = records[0]
+      const normalizedCustomerId = this.normalizeCustomerIdField(record)
       console.log('✅ Airtable record updated successfully:', {
         recordId: record.getId(),
-        customerId: record.get('customerId')
+        customerId: normalizedCustomerId
       })
 
       return {
         recordId: record.getId(),
-        customerId: record.get('customerId'),
+        customerId: normalizedCustomerId,
+        customerID: normalizedCustomerId, // Provide both formats for compatibility
         ...record.fields
       }
 
@@ -187,12 +197,28 @@ export class AirtableService {
   }
 
   /**
-   * Find business submission by customer ID
+   * Field normalization helper to handle both customerID and customerId formats
+   */
+  private normalizeCustomerIdField(record: any): string | null {
+    // Try both field name formats to handle Airtable case sensitivity
+    return record.get('customerID') || record.get('customerId') || null
+  }
+
+  /**
+   * Get customer ID filter formula that works with both field formats
+   */
+  private getCustomerIdFilterFormula(customerId: string): string {
+    // Create OR condition to check both possible field names
+    return `OR({customerID} = '${customerId}', {customerId} = '${customerId}')`
+  }
+
+  /**
+   * Find business submission by customer ID (handles both customerID and customerId field formats)
    */
   async findByCustomerId(customerId: string): Promise<any> {
     try {
       const records = await this.base(this.tableName).select({
-        filterByFormula: `{customerId} = '${customerId}'`,
+        filterByFormula: this.getCustomerIdFilterFormula(customerId),
         maxRecords: 1
       }).firstPage()
 
@@ -201,9 +227,11 @@ export class AirtableService {
       }
 
       const record = records[0]
+      const normalizedCustomerId = this.normalizeCustomerIdField(record)
       return {
         recordId: record.getId(),
-        customerId: record.get('customerId'),
+        customerId: normalizedCustomerId,
+        customerID: normalizedCustomerId, // Provide both formats for compatibility
         ...record.fields
       }
 
@@ -223,11 +251,15 @@ export class AirtableService {
         sort: [{ field: 'purchaseDate', direction: 'asc' }]
       }).all()
 
-      return records.map((record: any) => ({
-        recordId: record.getId(),
-        customerId: record.get('customerId'),
-        ...record.fields
-      }))
+      return records.map((record: any) => {
+        const normalizedCustomerId = this.normalizeCustomerIdField(record)
+        return {
+          recordId: record.getId(),
+          customerId: normalizedCustomerId,
+          customerID: normalizedCustomerId, // Provide both formats for compatibility
+          ...record.fields
+        }
+      })
 
     } catch (error) {
       console.error('❌ Failed to find Airtable records by status:', error)
@@ -504,7 +536,7 @@ export function createAirtableService(): AirtableService {
   const config: AirtableConfig = {
     accessToken: process.env.AIRTABLE_ACCESS_TOKEN || process.env.AIRTABLE_API_KEY!,  // Support both for backwards compat
     baseId: process.env.AIRTABLE_BASE_ID || 'appZDNMzebkaOkLXo',  // Your base ID
-    tableName: process.env.AIRTABLE_TABLE_NAME || 'Directory Bolt Import.xlsx'  // Your table name
+    tableName: process.env.AIRTABLE_TABLE_NAME || 'Directory Bolt Import'  // Your table name
   }
 
   return new AirtableService(config)

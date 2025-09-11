@@ -3,6 +3,8 @@
  * Handles CSP, Trusted Types, and secure DOM manipulation
  */
 
+import DOMPurify from 'dompurify'
+
 interface TrustedTypesPolicy {
   createHTML: (input: string) => string
   createScript: (input: string) => string
@@ -33,12 +35,16 @@ export function initializeTrustedTypes(): void {
     if (!window.trustedTypes.defaultPolicy) {
       window.trustedTypes.createPolicy('default', {
         createHTML: (input: string): string => {
-          // Sanitize HTML input - remove script tags and dangerous attributes
-          return input
-            .replace(/<script[^>]*>.*?<\/script>/gi, '')
-            .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-            .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-            .replace(/javascript:/gi, '')
+          // Use DOMPurify for comprehensive HTML sanitization
+          return DOMPurify.sanitize(input, {
+            ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'img', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'br', 'strong', 'em', 'i', 'b'],
+            ALLOWED_ATTR: ['class', 'id', 'alt', 'title', 'href', 'src', 'target', 'rel'],
+            FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'select', 'button'],
+            FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'javascript:'],
+            ALLOW_DATA_ATTR: false,
+            SANITIZE_DOM: true,
+            WHOLE_DOCUMENT: false
+          })
         },
         createScript: (input: string): string => {
           // Only allow trusted script content
@@ -97,17 +103,19 @@ export function safeSetHTML(element: Element, htmlString: string): void {
 }
 
 /**
- * Manual HTML sanitization fallback
+ * Manual HTML sanitization fallback using DOMPurify
  */
 function sanitizeHTML(input: string): string {
-  return input
-    .replace(/<script[^>]*>.*?<\/script>/gi, '')
-    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/<iframe[^>]*>/gi, '')
-    .replace(/<object[^>]*>/gi, '')
-    .replace(/<embed[^>]*>/gi, '')
+  // Use DOMPurify as the primary sanitization method
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'img', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'br', 'strong', 'em', 'i', 'b'],
+    ALLOWED_ATTR: ['class', 'id', 'alt', 'title', 'href', 'src', 'target', 'rel'],
+    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'select', 'button'],
+    FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'javascript:'],
+    ALLOW_DATA_ATTR: false,
+    SANITIZE_DOM: true,
+    WHOLE_DOCUMENT: false
+  })
 }
 
 /**

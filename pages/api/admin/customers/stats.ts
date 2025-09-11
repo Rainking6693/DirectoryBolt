@@ -1,8 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { verifyAdminAuth } from '../../../../lib/auth/admin-auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // SECURITY FIX: Require admin authentication for customer stats access
+  if (!(await verifyAdminAuth(req, res))) {
+    return // Response already sent by verifyAdminAuth
   }
 
   try {

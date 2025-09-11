@@ -62,7 +62,9 @@
       "Read(//c/c/Users/Ben/OneDrive/Documents/GitHub/DirectoryBolt/**)",
       "WebFetch(domain:app.netlify.com)",
       "Bash(cat:*)",
-      "Read(//c/Users/Ben/auto-bolt-extension/**)"
+      "Read(//c/Users/Ben/auto-bolt-extension/**)",
+      "Bash(tasklist)",
+      "Bash(PORT=3001 npm run start)"
     ],
     "deny": [],
     "ask": []
