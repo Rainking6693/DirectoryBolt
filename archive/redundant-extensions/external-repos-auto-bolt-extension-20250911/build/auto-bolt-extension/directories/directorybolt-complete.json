@@ -1,0 +1,319 @@
+{
+  "extraction_summary": {
+    "site_analyzed": "https://directorybolt.com",
+    "extraction_date": "2025-08-29",
+    "methodology": "Comprehensive site analysis including homepage, sitemap, API endpoints, and discovery files",
+    "total_directories_found": 20,
+    "total_claimed_directories": "500+",
+    "api_endpoint_discovered": "https://directorybolt.com/api/directories",
+    "pagination_info": {
+      "current_page": 1,
+      "total_pages": 6,
+      "limit_per_page": 20,
+      "total_in_system": 110
+    },
+    "limitations": "Only able to extract first page of API results (20 out of 110 total directories). DirectoryBolt protects their full directory database behind authentication or rate limiting.",
+    "data_quality": "High - extracted from official API endpoint with complete metadata"
+  },
+  "directories": [
+    {
+      "id": "google-business-profile",
+      "name": "Google Business Profile",
+      "url": "https://business.google.com",
+      "category": "Local Business",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-10 minutes",
+      "monthlyTraffic": "50M",
+      "submissionFee": "$0",
+      "domainAuthority": "100"
+    },
+    {
+      "id": "apple-maps-connect",
+      "name": "Apple Maps Connect",
+      "url": "https://mapsconnect.apple.com",
+      "category": "Local Business",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-10 minutes",
+      "monthlyTraffic": "15M",
+      "submissionFee": "$0",
+      "domainAuthority": "95"
+    },
+    {
+      "id": "chrome-web-store",
+      "name": "Chrome Web Store",
+      "url": "https://chrome.google.com",
+      "category": "Tech Startups",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": "15-30 minutes",
+      "monthlyTraffic": "50M",
+      "submissionFee": "$500",
+      "domainAuthority": "100"
+    },
+    {
+      "id": "youtube-creator",
+      "name": "YouTube Creator",
+      "url": "https://youtube.com",
+      "category": "Content Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "250M",
+      "submissionFee": "$0",
+      "domainAuthority": "100"
+    },
+    {
+      "id": "apple-podcasts",
+      "name": "Apple Podcasts",
+      "url": "https://podcasts.apple.com",
+      "category": "Content Media",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "10-20 minutes",
+      "monthlyTraffic": "45M",
+      "submissionFee": "$0",
+      "domainAuthority": "95"
+    },
+    {
+      "id": "facebook-business",
+      "name": "Facebook Business",
+      "url": "https://business.facebook.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "200M",
+      "submissionFee": "$0",
+      "domainAuthority": "96"
+    },
+    {
+      "id": "linkedin-company",
+      "name": "LinkedIn Company",
+      "url": "https://linkedin.com/company",
+      "category": "Professional",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "80M",
+      "submissionFee": "$0",
+      "domainAuthority": "98"
+    },
+    {
+      "id": "twitter-business",
+      "name": "Twitter Business",
+      "url": "https://business.twitter.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "3-10 minutes",
+      "monthlyTraffic": "60M",
+      "submissionFee": "$0",
+      "domainAuthority": "93"
+    },
+    {
+      "id": "instagram-business",
+      "name": "Instagram Business",
+      "url": "https://business.instagram.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "120M",
+      "submissionFee": "$0",
+      "domainAuthority": "94"
+    },
+    {
+      "id": "yelp-business",
+      "name": "Yelp Business",
+      "url": "https://biz.yelp.com",
+      "category": "Local Business",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "35M",
+      "submissionFee": "$0",
+      "domainAuthority": "94"
+    },
+    {
+      "id": "yellow-pages",
+      "name": "Yellow Pages",
+      "url": "https://yellowpages.com",
+      "category": "Local Business",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": "10-20 minutes",
+      "monthlyTraffic": "25M",
+      "submissionFee": "$0",
+      "domainAuthority": "85"
+    },
+    {
+      "id": "better-business-bureau",
+      "name": "Better Business Bureau",
+      "url": "https://bbb.org",
+      "category": "Local Business",
+      "difficulty": "hard",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": "30-60 minutes",
+      "monthlyTraffic": "20M",
+      "submissionFee": "$200-500",
+      "domainAuthority": "90"
+    },
+    {
+      "id": "foursquare-business",
+      "name": "Foursquare Business",
+      "url": "https://business.foursquare.com",
+      "category": "Local Business",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "10-20 minutes",
+      "monthlyTraffic": "15M",
+      "submissionFee": "$0",
+      "domainAuthority": "80"
+    },
+    {
+      "id": "tripadvisor-business",
+      "name": "TripAdvisor Business",
+      "url": "https://business.tripadvisor.com",
+      "category": "Travel & Tourism",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": "15-30 minutes",
+      "monthlyTraffic": "40M",
+      "submissionFee": "$0",
+      "domainAuthority": "91"
+    },
+    {
+      "id": "mapquest-business",
+      "name": "MapQuest Business",
+      "url": "https://business.mapquest.com",
+      "category": "Local Business",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "10-20 minutes",
+      "monthlyTraffic": "12M",
+      "submissionFee": "$0",
+      "domainAuthority": "75"
+    },
+    {
+      "id": "here-places",
+      "name": "HERE Places",
+      "url": "https://places.here.com",
+      "category": "Local Business",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "10-20 minutes",
+      "monthlyTraffic": "8M",
+      "submissionFee": "$0",
+      "domainAuthority": "78"
+    },
+    {
+      "id": "waze-business",
+      "name": "Waze Business",
+      "url": "https://business.waze.com",
+      "category": "Local Business",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "10M",
+      "submissionFee": "$0",
+      "domainAuthority": "82"
+    },
+    {
+      "id": "pinterest-business",
+      "name": "Pinterest Business",
+      "url": "https://business.pinterest.com",
+      "category": "Social Media",
+      "difficulty": "easy",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "5-15 minutes",
+      "monthlyTraffic": "50M",
+      "submissionFee": "$0",
+      "domainAuthority": "94"
+    },
+    {
+      "id": "spotify-artists",
+      "name": "Spotify for Artists",
+      "url": "https://artists.spotify.com",
+      "category": "Content Media",
+      "difficulty": "medium",
+      "requiresLogin": true,
+      "hasAntiBot": false,
+      "estimatedTime": "10-25 minutes",
+      "monthlyTraffic": "30M",
+      "submissionFee": "$0",
+      "domainAuthority": "96"
+    },
+    {
+      "id": "amazon-seller",
+      "name": "Amazon Seller Central",
+      "url": "https://sellercentral.amazon.com",
+      "category": "E-commerce",
+      "difficulty": "hard",
+      "requiresLogin": true,
+      "hasAntiBot": true,
+      "estimatedTime": "60-120 minutes",
+      "monthlyTraffic": "100M",
+      "submissionFee": "$39.99/month",
+      "domainAuthority": "96"
+    }
+  ],
+  "category_breakdown": {
+    "Local Business": 10,
+    "Social Media": 4,
+    "Content Media": 3,
+    "Tech Startups": 1,
+    "Professional": 1,
+    "Travel & Tourism": 1,
+    "E-commerce": 1
+  },
+  "difficulty_breakdown": {
+    "easy": 10,
+    "medium": 7,
+    "hard": 3
+  },
+  "technical_notes": {
+    "api_structure": "REST API with pagination support",
+    "authentication_required": "Likely required for pages 2-6",
+    "rate_limiting": "Appears to be implemented",
+    "data_protection": "DirectoryBolt protects their complete directory database",
+    "extraction_challenges": [
+      "API returns only first page without authentication",
+      "No public endpoint for complete directory list",
+      "Site does not expose full directory data in frontend JavaScript",
+      "Claimed 500+ directories vs actual discoverable 110 suggests multiple tiers or private directories"
+    ]
+  },
+  "recommendations": {
+    "for_automation": [
+      "These 20 directories represent the most accessible and high-value targets",
+      "Focus on 'easy' difficulty directories first for higher success rates",
+      "Local Business category has the highest representation (10/20)",
+      "Most directories require login credentials to be prepared in advance"
+    ],
+    "missing_data": [
+      "90 additional directories from API (pages 2-6)",
+      "Potentially 390+ more directories if the 500+ claim is accurate",
+      "May include niche or industry-specific directories not in the main API"
+    ]
+  }
+}

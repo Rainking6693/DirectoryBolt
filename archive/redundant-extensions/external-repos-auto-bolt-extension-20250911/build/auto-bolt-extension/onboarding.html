@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Bolt Setup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .onboarding-container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e7ff;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .step {
+            padding: 40px;
+            display: none;
+            text-align: center;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin: 0 0 10px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #1f2937;
+            margin: 0 0 10px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin: 0 0 30px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="url"],
+        input[type="tel"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+        }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .directory-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            transition: border-color 0.2s, background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .directory-card.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .directory-card h4 {
+            margin: 0 0 4px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .directory-card p {
+            margin: 0;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .success-animation {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4ade80;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #4ade80;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4ade80;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #4ade80;
+            }
+        }
+
+        .feature-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .skip-link {
+            color: #6b7280;
+            font-size: 14px;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .skip-link:hover {
+            color: #374151;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Step 1: Welcome -->
+        <div class="step active" id="step1">
+            <div class="step-icon">🚀</div>
+            <h1>Welcome to Auto-Bolt!</h1>
+            <p>Streamline your business listings with automated submission to 63+ directories including Google Business Profile, Yelp, and more.</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">✓</div>
+                    <div>
+                        <strong>63+ Directories</strong><br>
+                        Google, Yelp, Yellow Pages, and more
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div>
+                        <strong>One-Click Automation</strong><br>
+                        Fill forms instantly with your business data
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div>
+                        <strong>Progress Tracking</strong><br>
+                        Monitor submissions and success rates
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div>
+                        <strong>Secure & Private</strong><br>
+                        Your data is encrypted and protected
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="nextStep()">Get Started</button>
+        </div>
+
+        <!-- Step 2: Business Information -->
+        <div class="step" id="step2">
+            <div class="step-icon">🏢</div>
+            <h2>Business Information</h2>
+            <p>Enter your business details to automatically fill directory forms.</p>
+
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+            <div class="form-group">
+                <label for="businessName">Business Name *</label>
+                <input type="text" id="businessName" placeholder="Your Business Name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+            </div>
+
+            <div class="form-group">
+                <label for="website">Website URL</label>
+                <input type="url" id="website" placeholder="https://yourbusiness.com">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Business Address</label>
+                <input type="text" id="address" placeholder="123 Main St, City, State 12345">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Business Description</label>
+                <textarea id="description" placeholder="Describe what your business does..."></textarea>
+            </div>
+
+            <button class="btn" onclick="nextStep()">Continue</button>
+            <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        </div>
+
+        <!-- Step 3: Directory Selection -->
+        <div class="step" id="step3">
+            <div class="step-icon">📋</div>
+            <h2>Choose Your Directories</h2>
+            <p>Select which business directories you'd like to submit to. You can always change this later.</p>
+
+            <div class="directory-grid" id="directoryGrid">
+                <!-- Directories will be loaded here -->
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="selectAll">
+                <label for="selectAll">Select all high-priority directories (recommended)</label>
+            </div>
+
+            <button class="btn" onclick="nextStep()">Continue</button>
+            <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        </div>
+
+        <!-- Step 4: Permissions -->
+        <div class="step" id="step4">
+            <div class="step-icon">🔒</div>
+            <h2>Permissions & Privacy</h2>
+            <p>Auto-Bolt needs certain permissions to automatically fill forms on directory websites.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🌐</div>
+                    <div>
+                        <strong>Active Tab</strong><br>
+                        Access current tab to fill forms
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <div>
+                        <strong>Storage</strong><br>
+                        Save your business information locally
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚙️</div>
+                    <div>
+                        <strong>Background Processing</strong><br>
+                        Queue and manage submissions
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="agreeTerms" required>
+                <label for="agreeTerms">I agree to the <a href="https://auto-bolt.netlify.app/terms" target="_blank">Terms of Service</a> and <a href="https://auto-bolt.netlify.app/privacy" target="_blank">Privacy Policy</a></label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="allowAnalytics">
+                <label for="allowAnalytics">Allow anonymous usage analytics to help improve Auto-Bolt (optional)</label>
+            </div>
+
+            <button class="btn" onclick="nextStep()">Accept & Continue</button>
+            <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        </div>
+
+        <!-- Step 5: Complete -->
+        <div class="step" id="step5">
+            <div class="success-animation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="m14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            
+            <h2>You're All Set!</h2>
+            <p>Auto-Bolt is now configured and ready to help you submit your business to directories quickly and efficiently.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div>
+                        <strong>Next Steps</strong><br>
+                        Visit a directory website and click the Auto-Bolt icon
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div>
+                        <strong>Quick Start</strong><br>
+                        Try Google Business Profile first for immediate impact
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📞</div>
+                    <div>
+                        <strong>Need Help?</strong><br>
+                        Visit our support center for guides and tips
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="finishOnboarding()">Start Using Auto-Bolt</button>
+            <a href="https://business.google.com" target="_blank" class="skip-link">Visit Google Business Profile →</a>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        let businessData = {};
+        let selectedDirectories = [];
+
+        // Initialize onboarding
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            loadDirectories();
+            
+            // Set up event listeners
+            document.getElementById('selectAll').addEventListener('change', toggleAllDirectories);
+            document.getElementById('agreeTerms').addEventListener('change', validatePermissions);
+        });
+
+        function nextStep() {
+            if (!validateCurrentStep()) {
+                return;
+            }
+            
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+                
+                if (currentStep === 5) {
+                    completeSetup();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function validateCurrentStep() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            switch (currentStep) {
+                case 2:
+                    return validateBusinessInfo();
+                case 3:
+                    return validateDirectorySelection();
+                case 4:
+                    return validatePermissions();
+                default:
+                    return true;
+            }
+        }
+
+        function validateBusinessInfo() {
+            const businessName = document.getElementById('businessName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const website = document.getElementById('website').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!businessName || !email) {
+                showError('Please fill in all required fields (Business Name and Email).');
+                return false;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address.');
+                return false;
+            }
+
+            if (website && !isValidURL(website)) {
+                showError('Please enter a valid website URL.');
+                return false;
+            }
+
+            // Store business data
+            businessData = {
+                businessName,
+                email,
+                phone,
+                website,
+                address,
+                description
+            };
+
+            return true;
+        }
+
+        function validateDirectorySelection() {
+            const selected = document.querySelectorAll('.directory-card.selected');
+            if (selected.length === 0) {
+                showError('Please select at least one directory to continue.');
+                return false;
+            }
+
+            selectedDirectories = Array.from(selected).map(card => card.dataset.directoryId);
+            return true;
+        }
+
+        function validatePermissions() {
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            if (!agreeTerms) {
+                showError('Please agree to the Terms of Service and Privacy Policy to continue.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function isValidURL(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function loadDirectories() {
+            try {
+                // Mock directory data - replace with actual API call
+                const directories = [
+                    { id: 'google-business', name: 'Google Business', category: 'Search Engines', priority: 'high' },
+                    { id: 'yelp', name: 'Yelp', category: 'Review Sites', priority: 'high' },
+                    { id: 'facebook', name: 'Facebook', category: 'Social Media', priority: 'high' },
+                    { id: 'yellowpages', name: 'Yellow Pages', category: 'Traditional', priority: 'medium' },
+                    { id: 'foursquare', name: 'Foursquare', category: 'Location', priority: 'medium' },
+                    { id: 'apple-maps', name: 'Apple Maps', category: 'Maps', priority: 'medium' },
+                    { id: 'bing-places', name: 'Bing Places', category: 'Search Engines', priority: 'medium' },
+                    { id: 'tripadvisor', name: 'TripAdvisor', category: 'Travel', priority: 'low' }
+                ];
+
+                const grid = document.getElementById('directoryGrid');
+                grid.innerHTML = '';
+
+                directories.forEach(directory => {
+                    const card = document.createElement('div');
+                    card.className = `directory-card ${directory.priority === 'high' ? 'selected' : ''}`;
+                    card.dataset.directoryId = directory.id;
+                    card.innerHTML = `
+                        <h4>${directory.name}</h4>
+                        <p>${directory.category}</p>
+                    `;
+                    card.addEventListener('click', toggleDirectory);
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Failed to load directories:', error);
+                showError('Failed to load directory list. Please try again.');
+            }
+        }
+
+        function toggleDirectory(event) {
+            const card = event.currentTarget;
+            card.classList.toggle('selected');
+        }
+
+        function toggleAllDirectories() {
+            const selectAll = document.getElementById('selectAll').checked;
+            const cards = document.querySelectorAll('.directory-card');
+            
+            cards.forEach(card => {
+                if (selectAll) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        }
+
+        async function completeSetup() {
+            try {
+                const setupData = {
+                    businessInfo: businessData,
+                    selectedDirectories: selectedDirectories,
+                    settings: {
+                        allowAnalytics: document.getElementById('allowAnalytics').checked,
+                        completedOnboarding: true,
+                        onboardingDate: new Date().toISOString()
+                    }
+                };
+
+                // Save to Chrome storage
+                await chrome.storage.local.set({
+                    autoBoltSetup: setupData,
+                    isOnboarded: true
+                });
+
+                // Track onboarding completion
+                if (setupData.settings.allowAnalytics) {
+                    trackEvent('onboarding_completed', {
+                        directoryCount: selectedDirectories.length,
+                        hasWebsite: !!businessData.website,
+                        hasPhone: !!businessData.phone,
+                        hasAddress: !!businessData.address
+                    });
+                }
+
+                console.log('Onboarding completed successfully');
+
+            } catch (error) {
+                console.error('Failed to complete setup:', error);
+                showError('Failed to save settings. Please try again.');
+            }
+        }
+
+        function finishOnboarding() {
+            // Close onboarding and open extension popup
+            window.close();
+        }
+
+        async function trackEvent(eventName, properties = {}) {
+            try {
+                // Send analytics event to backend
+                await fetch('https://auto-bolt.netlify.app/api/analytics/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        eventType: 'onboarding',
+                        eventName: eventName,
+                        properties: properties,
+                        timestamp: new Date().toISOString(),
+                        anonymous: true
+                    })
+                });
+            } catch (error) {
+                console.error('Analytics tracking failed:', error);
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.step) {
+                currentStep = event.state.step;
+                updateProgress();
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById(`step${currentStep}`).classList.add('active');
+            }
+        });
+
+        // Push initial state
+        history.pushState({ step: currentStep }, '', '');
+    </script>
+</body>
+</html>

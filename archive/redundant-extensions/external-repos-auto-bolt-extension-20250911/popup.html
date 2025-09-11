@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoBolt Queue Manager</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="icons/icon48.png" alt="Auto-Bolt" class="logo-icon">
+                <h1>Auto-Bolt</h1>
+            </div>
+            <div class="version">v2.0</div>
+            <div class="queue-status" id="queueStatus">
+                <span class="status-dot" id="queueStatusDot"></span>
+                <span id="queueStatusText">Ready</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="status-section">
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Ready</span>
+                </div>
+            </div>
+
+            <!-- Queue Dashboard -->
+            <div class="queue-section">
+                <h2>Queue Overview</h2>
+                <div class="queue-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingCount">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="processingCount">0</div>
+                        <div class="stat-label">Processing</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedToday">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successRate">0%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <!-- Package Priority Queues -->
+                <div class="package-queues">
+                    <div class="package-queue enterprise" id="enterpriseQueue">
+                        <div class="package-header">
+                            <span class="package-name">Enterprise</span>
+                            <span class="package-count" id="enterpriseCount">0</span>
+                        </div>
+                    </div>
+                    <div class="package-queue professional" id="professionalQueue">
+                        <div class="package-header">
+                            <span class="package-name">Professional</span>
+                            <span class="package-count" id="professionalCount">0</span>
+                        </div>
+                    </div>
+                    <div class="package-queue growth" id="growthQueue">
+                        <div class="package-header">
+                            <span class="package-name">Growth</span>
+                            <span class="package-count" id="growthCount">0</span>
+                        </div>
+                    </div>
+                    <div class="package-queue starter" id="starterQueue">
+                        <div class="package-header">
+                            <span class="package-name">Starter</span>
+                            <span class="package-count" id="starterCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <button id="startProcessingBtn" class="primary-button">
+                    <span class="button-icon">▶️</span>
+                    Start Queue Processing
+                </button>
+                
+                <button id="pauseProcessingBtn" class="secondary-button" disabled>
+                    <span class="button-icon">⏸️</span>
+                    Pause Processing
+                </button>
+                
+                <button id="refreshQueueBtn" class="tertiary-button">
+                    <span class="button-icon">🔄</span>
+                    Refresh Queue
+                </button>
+                
+                <button id="emergencyStopBtn" class="emergency-button">
+                    <span class="button-icon">🚨</span>
+                    Emergency Stop
+                </button>
+            </div>
+
+            <!-- Processing Monitor Section -->
+            <div class="processing-monitor" id="processingMonitor" style="display: none;">
+                <div class="progress-header">
+                    <h3>Live Processing Monitor</h3>
+                    <button id="cancelProcessingButton" class="cancel-button">Cancel</button>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressText">0 / 0 records processed</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+                <!-- Current Customer Processing -->
+                <div class="current-customer" id="currentCustomer" style="display: none;">
+                    <div class="customer-info">
+                        <div class="customer-detail">
+                            <span class="label">Business:</span>
+                            <span class="value" id="currentBusinessName">-</span>
+                        </div>
+                        <div class="customer-detail">
+                            <span class="label">Package:</span>
+                            <span class="value" id="currentPackageType">-</span>
+                        </div>
+                        <div class="customer-detail">
+                            <span class="label">Progress:</span>
+                            <span class="value" id="currentProgress">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="processing-stats">
+                    <div class="status-item">
+                        <span class="status-label">Success Count:</span>
+                        <span id="successCount">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Error Count:</span>
+                        <span id="errorCount">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Active Processors:</span>
+                        <span id="activeProcessors">0</span>
+                    </div>
+                </div>
+                <div class="processing-log" id="processingLog">
+                    <div class="log-header">
+                        <span>Processing Activity Log</span>
+                        <button id="clearLogBtn" class="small-button">Clear</button>
+                    </div>
+                    <div class="log-content" id="logContent">
+                        <div class="log-item info">
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-message">AutoBolt Queue Manager initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <details class="settings-accordion">
+                    <summary>Settings & Configuration</summary>
+                    <div class="settings-content">
+                        <div class="input-group">
+                            <label for="airtableKey">Airtable API Key:</label>
+                            <input type="password" id="airtableKey" placeholder="Enter your Airtable API key">
+                        </div>
+                        <div class="input-group">
+                            <label for="baseId">Base ID:</label>
+                            <input type="text" id="baseId" placeholder="Enter your Airtable Base ID">
+                        </div>
+                        <div class="input-group">
+                            <label for="tableId">Table ID:</label>
+                            <input type="text" id="tableId" placeholder="Enter your Airtable Table ID">
+                        </div>
+                        <div class="input-group">
+                            <label for="maxConcurrentProcessors">Max Processors:</label>
+                            <input type="number" id="maxConcurrentProcessors" value="10" min="1" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label for="queuePollInterval">Poll Interval (sec):</label>
+                            <input type="number" id="queuePollInterval" value="30" min="10" max="300">
+                        </div>
+                        <button id="saveSettings" class="save-button">Save Settings</button>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="help-links">
+                <a href="#" id="helpLink">Help</a>
+                <span class="separator">•</span>
+                <a href="#" id="aboutLink">About</a>
+            </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading business data...</p>
+        </div>
+
+        <!-- Toast notifications -->
+        <div class="toast" id="toast" style="display: none;">
+            <span class="toast-message" id="toastMessage"></span>
+            <button class="toast-close" id="toastClose">&times;</button>
+        </div>
+    </div>
+
+    <script src="popup-content-bridge.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

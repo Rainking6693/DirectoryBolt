@@ -1,15 +1,10 @@
 {
-  "score": 68,
+  "score": 50,
   "cspHeaders": {},
-  "securityHeaders": {
-    "x-frame-options": "DENY",
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "strict-origin-when-cross-origin",
-    "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)"
-  },
+  "securityHeaders": {},
   "trustedTypes": {},
   "violations": [],
-  "passed": 28,
-  "failed": 13,
+  "passed": 4,
+  "failed": 4,
   "warnings": 0
 }

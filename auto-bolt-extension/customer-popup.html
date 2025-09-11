@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt Extension</title>
+    <style>
+        body {
+            width: 350px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ccff0a;
+            margin-bottom: 5px;
+        }
+        .tagline {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .auth-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #ccff0a;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #b8e600;
+        }
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4caf50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+        }
+        .customer-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">DirectoryBolt</div>
+        <div class="tagline">Automated Directory Submissions</div>
+    </div>
+
+    <div id="auth-section" class="auth-section">
+        <div class="form-group">
+            <label for="customer-id">Customer ID:</label>
+            <input type="text" id="customer-id" placeholder="Enter your Customer ID (DIR-XXX...)" />
+        </div>
+        <button id="validate-btn" class="btn">Validate Customer</button>
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+
+    <div id="customer-section" style="display: none;">
+        <div id="customer-info" class="customer-info"></div>
+        
+        <div class="actions">
+            <button id="auto-fill-btn" class="btn btn-small">Auto Fill</button>
+            <button id="queue-btn" class="btn btn-small">Add to Queue</button>
+        </div>
+        
+        <button id="logout-btn" class="btn" style="margin-top: 10px; background: #666;">Logout</button>
+    </div>
+
+    <script src="customer-popup.js"></script>
+</body>
+</html>
