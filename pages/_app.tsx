@@ -6,6 +6,7 @@ import '../styles/globals.css'
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 import { enhancedGA4Config } from '../lib/analytics/enhanced-ga4'
 import { inlineCriticalCSS } from '../lib/utils/critical-css'
+import CookieConsent from '../components/CookieConsent'
 
 const GA = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
@@ -69,6 +70,16 @@ export default function App({ Component, pageProps }: AppProps) {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
+              
+              // Set default consent state
+              gtag('consent', 'default', {
+                'ad_storage': 'denied',
+                'analytics_storage': 'denied',
+                'functionality_storage': 'granted',
+                'personalization_storage': 'denied',
+                'security_storage': 'granted'
+              });
+              
               gtag('config', '${GA}', {
                 page_path: window.location.pathname,
                 custom_map: {
@@ -76,19 +87,30 @@ export default function App({ Component, pageProps }: AppProps) {
                   'custom_dimension_2': 'plan_type',
                   'custom_dimension_3': 'traffic_source'
                 },
-                send_page_view: true,
+                send_page_view: false, // Will send after consent check
                 anonymize_ip: true,
                 allow_google_signals: true,
                 allow_ad_personalization_signals: false
               });
               
-              // Track initial page view with enhanced data
-              gtag('event', 'page_view', {
-                page_title: document.title,
-                page_location: window.location.href,
-                content_group1: 'DirectoryBolt',
-                content_group2: window.location.pathname.split('/')[1] || 'home'
-              });
+              // Check existing consent and track page view if analytics allowed
+              const existingConsent = localStorage.getItem('cookie-consent');
+              if (existingConsent) {
+                const consent = JSON.parse(existingConsent);
+                gtag('consent', 'update', {
+                  'analytics_storage': consent.analytics ? 'granted' : 'denied',
+                  'ad_storage': consent.marketing ? 'granted' : 'denied'
+                });
+                
+                if (consent.analytics) {
+                  gtag('event', 'page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                    content_group1: 'DirectoryBolt',
+                    content_group2: window.location.pathname.split('/')[1] || 'home'
+                  });
+                }
+              }
             `}
           </Script>
         </>
@@ -141,6 +163,7 @@ export default function App({ Component, pageProps }: AppProps) {
       
       <ErrorBoundary>
         <Component {...pageProps} />
+        <CookieConsent />
       </ErrorBoundary>
     </>
   )

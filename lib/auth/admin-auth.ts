@@ -30,7 +30,15 @@ export async function authenticateAdmin(req: NextApiRequest): Promise<AdminAuthR
     
     // Check for admin API key in headers (highest priority)
     const adminKey = req.headers['x-admin-key'] || req.headers['authorization']
-    const validAdminKey = process.env.ADMIN_API_KEY || 'DirectoryBolt-Admin-2025-SecureKey'
+    const validAdminKey = process.env.ADMIN_API_KEY
+    
+    if (!validAdminKey) {
+      console.log('❌ Admin authentication failed - ADMIN_API_KEY environment variable not set')
+      return {
+        authenticated: false,
+        error: 'Admin authentication configuration error - missing ADMIN_API_KEY'
+      }
+    }
     
     if (adminKey === validAdminKey || adminKey === `Bearer ${validAdminKey}`) {
       console.log('✅ Admin authenticated via API key')
@@ -43,9 +51,9 @@ export async function authenticateAdmin(req: NextApiRequest): Promise<AdminAuthR
     // Check for admin session/cookie
     const adminSession = req.cookies?.['admin-session'] || 
       (req.headers.cookie && parseCookie(req.headers.cookie, 'admin-session'))
-    const validAdminSession = process.env.ADMIN_SESSION_TOKEN || 'DirectoryBolt-Session-2025'
+    const validAdminSession = process.env.ADMIN_SESSION_TOKEN
     
-    if (adminSession === validAdminSession) {
+    if (validAdminSession && adminSession === validAdminSession) {
       console.log('✅ Admin authenticated via session')
       return {
         authenticated: true,
@@ -59,8 +67,16 @@ export async function authenticateAdmin(req: NextApiRequest): Promise<AdminAuthR
       const credentials = Buffer.from(authHeader.slice(6), 'base64').toString()
       const [username, password] = credentials.split(':')
       
-      const validUsername = process.env.ADMIN_USERNAME || 'admin'
-      const validPassword = process.env.ADMIN_PASSWORD || 'DirectoryBolt2025!'
+      const validUsername = process.env.ADMIN_USERNAME
+      const validPassword = process.env.ADMIN_PASSWORD
+      
+      if (!validUsername || !validPassword) {
+        console.log('❌ Admin authentication failed - ADMIN_USERNAME or ADMIN_PASSWORD environment variables not set')
+        return {
+          authenticated: false,
+          error: 'Admin authentication configuration error - missing basic auth credentials'
+        }
+      }
       
       if (username === validUsername && password === validPassword) {
         console.log('✅ Admin authenticated via basic auth')

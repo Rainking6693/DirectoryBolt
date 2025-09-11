@@ -76,6 +76,16 @@ class Logger {
     this.addLog(this.createLogEntry('debug', message, metadata?.metadata))
   }
 
+  apiResponse(logData: {
+    requestId: string
+    method: string
+    url: string
+    status: number
+    duration: number
+  }): void {
+    this.info('API Response', { metadata: logData })
+  }
+
   getLogs(level?: LogEntry['level']): LogEntry[] {
     if (level) {
       return this.logs.filter(log => log.level === level)
