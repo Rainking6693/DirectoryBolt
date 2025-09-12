@@ -22,7 +22,7 @@
 ## PRE-TESTING SETUP REQUIREMENTS
 
 ### Extension Setup Validation
-- [ ] AutoBolt extension installed in Chrome from C:\Users\Ben\auto-bolt-extension
+- [ ] AutoBolt extension installed in Chrome from C:\Users\Ben\OneDrive\Documents\GitHub\DirectoryBolt\build\auto-bolt-extension
 - [ ] Extension permissions granted for all directory domains
 - [ ] Extension can access DirectoryBolt API endpoints
 - [ ] Extension manifest.json configured for production use
@@ -30,13 +30,13 @@
 
 ### DirectoryBolt Website Setup
 - [ ] Customer onboarding flow functional (payment → business form)
-- [ ] Airtable integration storing customer data correctly
+- [ ] Google Sheets integration storing customer data correctly
 - [ ] Queue management API endpoints operational
 - [ ] Customer status tracking system working
 - [ ] Environment variables configured properly
 
 ### Data Flow Validation
-- [ ] Airtable contains customer records with submissionStatus="pending"
+- [ ] Google Shetts contains customer records with submissionStatus="pending"
 - [ ] Customer data includes all required fields for directory submissions
 - [ ] API endpoints accessible to AutoBolt extension
 - [ ] Authentication/API keys working between systems
@@ -72,8 +72,8 @@
 
 ### Section 1.2: Queue System Integration Testing
 
-**Airtable Queue Management:**
-- [ ] Customer record appears in Airtable with correct structure
+**Google Sheets Queue Management:**
+- [ ] Customer record appears in Google Sheets with correct structure
 - [ ] submissionStatus="pending" for new customers
 - [ ] packageType determines directory limit (Growth=100 directories)
 - [ ] Priority system works (Pro>Growth>Starter>Subscription)
@@ -131,7 +131,7 @@
 ### Section 2.3: Progress Tracking and Status Updates
 
 **Real-time Status Updates:**
-- [ ] Airtable records updated during processing
+- [ ] Google Sheets records updated during processing
 - [ ] Directory submission attempts logged individually
 - [ ] Success/failure counts maintained accurately
 - [ ] Processing timestamps recorded for each directory

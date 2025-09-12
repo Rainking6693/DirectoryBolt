@@ -30,6 +30,14 @@ interface HealthCheckResponse {
     }
   }
   message: string
+  diagnostic?: {
+    netlifyContext: boolean
+    totalEnvironmentVariables: number
+    googleEnvironmentVariables: string[]
+    missingVariables: string[]
+    nodeEnv: string
+    buildId: string
+  }
 }
 
 export default async function handler(
@@ -102,7 +110,23 @@ export default async function handler(
         .filter(([_, exists]) => !exists)
         .map(([key]) => key)
       
-      healthCheck.message = `Missing environment variables: ${missingVars.join(', ')}`
+      // FRANK EMERGENCY: Enhanced error message with diagnostic info
+      healthCheck.message = `NETLIFY FUNCTIONS ERROR: Missing environment variables: ${missingVars.join(', ')}. 
+      Environment context: ${isNetlifyFunction ? 'Netlify Functions' : 'Next.js API Routes'}. 
+      Available env vars with 'GOOGLE': ${Object.keys(process.env).filter(k => k.includes('GOOGLE')).join(', ') || 'NONE'}.
+      Total env vars: ${Object.keys(process.env).length}.
+      This indicates environment variables are not being properly loaded in the Netlify Functions runtime.`
+      
+      // Add diagnostic details
+      healthCheck.diagnostic = {
+        netlifyContext: isNetlifyFunction,
+        totalEnvironmentVariables: Object.keys(process.env).length,
+        googleEnvironmentVariables: Object.keys(process.env).filter(k => k.includes('GOOGLE')),
+        missingVariables: missingVars,
+        nodeEnv: process.env.NODE_ENV,
+        buildId: process.env.NETLIFY_BUILD_ID || 'N/A'
+      }
+      
       return createResponse(500, healthCheck)
     }
 
