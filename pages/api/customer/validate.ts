@@ -2,25 +2,54 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 
 /**
- * SHANE - Customer Validation API for Extension (Migrated to Google Sheets)
+ * CLIVE - Customer Validation API for Extension (Netlify Functions Compatible)
  * Validates customer authentication using Google Sheets backend
  */
 
+// CLIVE FIX: Detect Netlify Functions context
+const isNetlifyFunction = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)
+
+// CLIVE FIX: Universal response helper for both Next.js and Netlify Functions
+const createResponse = (res: NextApiResponse, statusCode: number, data: any): any => {
+  if (isNetlifyFunction) {
+    return {
+      statusCode,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+      body: JSON.stringify(data)
+    }
+  } else {
+    return res.status(statusCode).json(data)
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return createResponse(res, 405, { error: 'Method not allowed' })
   }
 
   try {
     const { customerId } = req.body
 
     if (!customerId) {
-      return res.status(400).json({ error: 'Customer ID required' })
+      return createResponse(res, 400, { error: 'Customer ID required' })
     }
 
-    console.log('🔍 SHANE - Validating customer with Google Sheets:', customerId)
+    console.log('🔍 CLIVE - Validating customer with Google Sheets:', customerId)
+    console.log('🔍 CLIVE Debug - Environment:', {
+      NODE_ENV: process.env.NODE_ENV,
+      NETLIFY: !!process.env.NETLIFY,
+      LAMBDA: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
+      GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      GOOGLE_PRIVATE_KEY_LENGTH: (process.env.GOOGLE_PRIVATE_KEY || '').length
+    })
 
-    // SHANE MIGRATION: Enhanced customer lookup using Google Sheets service
+    // CLIVE MIGRATION: Enhanced customer lookup using Google Sheets service
     const googleSheetsService = createGoogleSheetsService()
     let customer = await googleSheetsService.findByCustomerId(customerId)
     
@@ -39,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (customer) {
-      return res.status(200).json({
+      return createResponse(res, 200, {
         success: true,
         customer: {
           customerId: customer.customerID || customer.customerId,
@@ -52,9 +81,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // QUINN FIX: Handle test customers for development
+    // CLIVE FIX: Handle test customers for development
     if (customerId.startsWith('TEST-') || customerId.startsWith('DIR-2025-001234')) {
-      return res.status(200).json({
+      return createResponse(res, 200, {
         success: true,
         customer: {
           customerId: customerId,
@@ -70,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Customer not found
     console.log('❌ Customer not found:', customerId)
-    return res.status(404).json({
+    return createResponse(res, 404, {
       error: 'Customer not found',
       message: 'Customer ID not found in database. Please verify your ID starts with "DIR-" or contact support.'
     })
@@ -79,13 +108,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('💥 Customer validation error:', error)
     
     if (error.message?.includes('authentication') || error.message?.includes('401')) {
-      return res.status(401).json({
+      return createResponse(res, 401, {
         error: 'Authentication failed',
         message: 'Unable to connect to customer database'
       })
     }
 
-    return res.status(500).json({
+    return createResponse(res, 500, {
       error: 'Validation failed',
       message: 'Please try again later'
     })

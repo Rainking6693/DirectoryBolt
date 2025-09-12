@@ -1,11 +1,32 @@
 /**
- * Extension Customer Validation API
+ * CLIVE - Extension Customer Validation API (Netlify Functions Compatible)
  * Validates that extension users are paying DirectoryBolt customers
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 import { enhancedRateLimit, getClientIP, determineUserTier } from '../../../lib/utils/enhanced-rate-limit'
+
+// CLIVE FIX: Detect Netlify Functions context
+const isNetlifyFunction = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)
+
+// CLIVE FIX: Universal response helper for both Next.js and Netlify Functions
+const createResponse = (res: NextApiResponse, statusCode: number, data: any): any => {
+  if (isNetlifyFunction) {
+    return {
+      statusCode,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+      body: JSON.stringify(data)
+    }
+  } else {
+    return res.status(statusCode).json(data)
+  }
+}
 
 interface ValidationRequest {
   customerId: string
@@ -25,7 +46,7 @@ export default async function handler(
   res: NextApiResponse<ValidationResponse>
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).json({
+    return createResponse(res, 405, {
       valid: false,
       error: 'Method not allowed. Use POST.'
     })
@@ -45,7 +66,7 @@ export default async function handler(
     })
 
     if (!rateLimitResult.allowed) {
-      return res.status(429).json({
+      return createResponse(res, 429, {
         valid: false,
         error: 'Rate limit exceeded'
       })
@@ -55,14 +76,14 @@ export default async function handler(
 
     // Validate request data
     if (!customerId) {
-      return res.status(400).json({
+      return createResponse(res, 400, {
         valid: false,
         error: 'Customer ID is required'
       })
     }
 
     if (!extensionVersion) {
-      return res.status(400).json({
+      return createResponse(res, 400, {
         valid: false,
         error: 'Extension version is required'
       })
@@ -73,7 +94,7 @@ export default async function handler(
     const maxAge = 5 * 60 * 1000 // 5 minutes
     
     if (!timestamp || Math.abs(now - timestamp) > maxAge) {
-      return res.status(400).json({
+      return createResponse(res, 400, {
         valid: false,
         error: 'Invalid or expired timestamp'
       })
@@ -111,7 +132,7 @@ export default async function handler(
 
     if (!customer) {
       console.log(`❌ Extension validation failed: Customer ${customerId} not found`)
-      return res.status(401).json({
+      return createResponse(res, 401, {
         valid: false,
         error: 'Customer not found'
       })
@@ -121,7 +142,7 @@ export default async function handler(
     const validStatuses = ['pending', 'in-progress', 'completed']
     if (!validStatuses.includes(customer.submissionStatus)) {
       console.log(`❌ Extension validation failed: Customer ${customerId} has invalid status: ${customer.submissionStatus}`)
-      return res.status(401).json({
+      return createResponse(res, 401, {
         valid: false,
         error: 'Customer account is not active'
       })
@@ -130,7 +151,7 @@ export default async function handler(
     // Check if customer has paid (has a package type)
     if (!customer.packageType) {
       console.log(`❌ Extension validation failed: Customer ${customerId} has no package`)
-      return res.status(401).json({
+      return createResponse(res, 401, {
         valid: false,
         error: 'No active package found'
       })
@@ -140,7 +161,7 @@ export default async function handler(
     console.log(`✅ Extension validation successful${usingFallback ? ' (fallback)' : ''}: ${customer.businessName} (${customerId})`)
 
     // Return success response
-    return res.status(200).json({
+    return createResponse(res, 200, {
       valid: true,
       customerName: customer.businessName,
       packageType: customer.packageType,
@@ -168,7 +189,7 @@ export default async function handler(
       }
     }
     
-    return res.status(500).json({
+    return createResponse(res, 500, {
       valid: false,
       error: errorMessage,
       debug: process.env.NODE_ENV === 'development' ? debugInfo : undefined
