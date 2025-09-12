@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function getSubmissionsData(customerId: string): Promise<SubmissionsData | null> {
   try {
-    // This would typically query your Airtable or database
+    // This would typically query your Google Sheets or database
     // For demo purposes, we'll simulate realistic submissions data
     
     // Validate Customer ID format
@@ -142,33 +142,45 @@ async function getSubmissionsData(customerId: string): Promise<SubmissionsData |
   }
 }
 
-// Real implementation would look like this for Airtable:
+// Real implementation using Google Sheets:
 /*
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+
 async function getSubmissionsData(customerId: string): Promise<SubmissionsData | null> {
   try {
-    const Airtable = require('airtable');
-    const base = new Airtable({ apiKey: process.env.AIRTABLE_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
+    const googleSheetsService = createGoogleSheetsService();
     
-    // Get submission records for this customer
-    const submissionRecords = await base('Directory Submissions').select({
-      filterByFormula: `{Customer ID} = '${customerId}'`,
-      sort: [{ field: 'Submission Date', direction: 'desc' }]
-    }).all();
+    // Get customer record which contains submission results
+    const customer = await googleSheetsService.findByCustomerId(customerId);
 
-    const submissions: DirectorySubmission[] = submissionRecords.map(record => ({
-      id: record.id,
-      directoryName: record.get('Directory Name') as string,
-      status: record.get('Status') as DirectorySubmission['status'],
-      submissionDate: record.get('Submission Date') as string,
-      approvalDate: record.get('Approval Date') as string,
-      directoryUrl: record.get('Directory URL') as string,
-      notes: record.get('Notes') as string
-    }));
+    if (!customer) {
+      return null;
+    }
+
+    // Parse submission results from the customer record
+    let submissions: DirectorySubmission[] = [];
+    
+    if (customer.submissionResults) {
+      try {
+        const submissionResults = JSON.parse(customer.submissionResults);
+        submissions = submissionResults.map((result: any, index: number) => ({
+          id: `${customerId}-${index}`,
+          directoryName: result.directoryName || result.directory,
+          status: result.status || 'pending',
+          submissionDate: result.submissionDate || customer.submissionStartDate,
+          approvalDate: result.approvalDate,
+          directoryUrl: result.directoryUrl || result.url,
+          notes: result.notes || result.error
+        }));
+      } catch (parseError) {
+        console.warn('Failed to parse submission results:', parseError);
+      }
+    }
 
     // Calculate statistics
-    const successfulSubmissions = submissions.filter(s => s.status === 'approved').length;
+    const successfulSubmissions = submissions.filter(s => s.status === 'approved' || s.status === 'success').length;
     const pendingSubmissions = submissions.filter(s => s.status === 'pending' || s.status === 'submitted').length;
-    const failedSubmissions = submissions.filter(s => s.status === 'failed').length;
+    const failedSubmissions = submissions.filter(s => s.status === 'failed' || s.status === 'error').length;
 
     return {
       customerId: customerId,
@@ -180,7 +192,7 @@ async function getSubmissionsData(customerId: string): Promise<SubmissionsData |
     };
 
   } catch (error) {
-    console.error('Airtable submissions data error:', error);
+    console.error('Google Sheets submissions data error:', error);
     return null;
   }
 }

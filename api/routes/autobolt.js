@@ -4,12 +4,10 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import Airtable from 'airtable';
+import { createGoogleSheetsService } from '../../lib/services/google-sheets';
 
-// Initialize Airtable
-const base = new Airtable({
-  apiKey: process.env.AIRTABLE_API_KEY
-}).base(process.env.AIRTABLE_BASE_ID);
+// Initialize Google Sheets service
+const googleSheetsService = createGoogleSheetsService();
 
 const CUSTOMERS_TABLE = 'Customers';
 
@@ -21,43 +19,39 @@ export async function getPendingCustomers(req, res) {
   try {
     console.log('🔍 Fetching pending customers for AutoBolt processing...');
 
-    const records = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: "AND({submissionStatus} = 'pending', {packageType} != '')",
-        sort: [
-          { field: 'priority', direction: 'desc' },
-          { field: 'createdAt', direction: 'asc' }
-        ],
-        maxRecords: 10 // Process max 10 customers at once
-      })
-      .all();
+    const records = await googleSheetsService.findCustomers({
+      status: 'pending',
+      hasPackageType: true,
+      maxRecords: 10,
+      sortBy: 'priority'
+    });
 
     const customers = records.map(record => ({
-      customerId: record.get('customerId'),
-      packageType: record.get('packageType'),
-      submissionStatus: record.get('submissionStatus'),
+      customerId: record.customerId,
+      packageType: record.packageType,
+      submissionStatus: record.submissionStatus,
       businessData: {
-        companyName: record.get('businessName') || record.get('companyName'),
-        email: record.get('email'),
-        phone: record.get('phone'),
-        address: record.get('address'),
-        city: record.get('city'),
-        state: record.get('state'),
-        zipCode: record.get('zipCode') || record.get('zip'),
-        website: record.get('website'),
-        firstName: record.get('firstName'),
-        lastName: record.get('lastName'),
-        description: record.get('businessDescription') || record.get('description'),
-        logo: record.get('logoUrl') || record.get('logo'),
-        facebook: record.get('facebook'),
-        instagram: record.get('instagram'),
-        linkedin: record.get('linkedin'),
-        twitter: record.get('twitter')
+        companyName: record.businessName || record.companyName,
+        email: record.email,
+        phone: record.phone,
+        address: record.address,
+        city: record.city,
+        state: record.state,
+        zipCode: record.zipCode || record.zip,
+        website: record.website,
+        firstName: record.firstName,
+        lastName: record.lastName,
+        description: record.businessDescription || record.description,
+        logo: record.logoUrl || record.logo,
+        facebook: record.facebook,
+        instagram: record.instagram,
+        linkedin: record.linkedin,
+        twitter: record.twitter
       },
-      directoryLimits: getDirectoryLimits(record.get('packageType')),
-      createdAt: record.get('createdAt'),
-      priority: getPriorityScore(record.get('packageType')),
-      airtableId: record.id
+      directoryLimits: getDirectoryLimits(record.packageType),
+      createdAt: record.createdAt,
+      priority: getPriorityScore(record.packageType),
+      googleSheetsId: record.id
     }));
 
     console.log(`✅ Found ${customers.length} pending customers`);
@@ -91,22 +85,15 @@ export async function updateCustomerStatus(req, res) {
     console.log(`📊 Updating status for customer ${customerId}: ${status}`);
 
     // Find customer record
-    const records = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: `{customerId} = '${customerId}'`,
-        maxRecords: 1
-      })
-      .all();
+    const record = await googleSheetsService.findCustomerById(customerId);
 
-    if (records.length === 0) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: 'Customer not found',
         customerId
       });
     }
-
-    const record = records[0];
     const updateData = {
       submissionStatus: status,
       lastUpdated: new Date().toISOString()
@@ -138,18 +125,18 @@ export async function updateCustomerStatus(req, res) {
       updateData.errorAt = new Date().toISOString();
     }
 
-    // Update Airtable record
-    await base(CUSTOMERS_TABLE).update(record.id, updateData);
+    // Update Google Sheets record
+    await googleSheetsService.updateCustomer(customerId, updateData);
 
     console.log(`✅ Customer ${customerId} status updated to: ${status}`);
 
     // Send notifications based on status
     if (status === 'in-progress' && progress?.completed === 1) {
-      await sendProgressStartNotification(customerId, record.get('email'));
+      await sendProgressStartNotification(customerId, record.email);
     } else if (status === 'completed') {
-      await sendCompletionNotification(customerId, record.get('email'), results);
+      await sendCompletionNotification(customerId, record.email, results);
     } else if (status === 'failed') {
-      await sendErrorNotification(customerId, record.get('email'), error);
+      await sendErrorNotification(customerId, record.email, error);
     }
 
     res.status(200).json({
@@ -180,14 +167,9 @@ export async function getCustomerData(req, res) {
 
     console.log(`🔍 Fetching data for customer: ${customerId}`);
 
-    const records = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: `{customerId} = '${customerId}'`,
-        maxRecords: 1
-      })
-      .all();
+    const record = await googleSheetsService.findCustomerById(customerId);
 
-    if (records.length === 0) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: 'Customer not found',
@@ -195,38 +177,37 @@ export async function getCustomerData(req, res) {
       });
     }
 
-    const record = records[0];
     const customerData = {
-      customerId: record.get('customerId'),
-      packageType: record.get('packageType'),
-      submissionStatus: record.get('submissionStatus'),
+      customerId: record.customerId,
+      packageType: record.packageType,
+      submissionStatus: record.submissionStatus,
       businessData: {
-        companyName: record.get('businessName') || record.get('companyName'),
-        email: record.get('email'),
-        phone: record.get('phone'),
-        address: record.get('address'),
-        city: record.get('city'),
-        state: record.get('state'),
-        zipCode: record.get('zipCode') || record.get('zip'),
-        website: record.get('website'),
-        firstName: record.get('firstName'),
-        lastName: record.get('lastName'),
-        description: record.get('businessDescription') || record.get('description'),
-        logo: record.get('logoUrl') || record.get('logo')
+        companyName: record.businessName || record.companyName,
+        email: record.email,
+        phone: record.phone,
+        address: record.address,
+        city: record.city,
+        state: record.state,
+        zipCode: record.zipCode || record.zip,
+        website: record.website,
+        firstName: record.firstName,
+        lastName: record.lastName,
+        description: record.businessDescription || record.description,
+        logo: record.logoUrl || record.logo
       },
       progress: {
-        totalDirectories: record.get('totalDirectories') || 0,
-        completed: record.get('completedDirectories') || 0,
-        successful: record.get('successfulDirectories') || 0,
-        failed: record.get('failedDirectories') || 0,
-        percentage: record.get('progressPercentage') || 0,
-        currentDirectory: record.get('currentDirectory')
+        totalDirectories: record.totalDirectories || 0,
+        completed: record.completedDirectories || 0,
+        successful: record.successfulDirectories || 0,
+        failed: record.failedDirectories || 0,
+        percentage: record.progressPercentage || 0,
+        currentDirectory: record.currentDirectory
       },
-      results: record.get('submissionResults') ? JSON.parse(record.get('submissionResults')) : [],
-      directoryLimits: getDirectoryLimits(record.get('packageType')),
-      createdAt: record.get('createdAt'),
-      lastUpdated: record.get('lastUpdated'),
-      completedAt: record.get('completedAt')
+      results: record.submissionResults ? JSON.parse(record.submissionResults) : [],
+      directoryLimits: getDirectoryLimits(record.packageType),
+      createdAt: record.createdAt,
+      lastUpdated: record.lastUpdated,
+      completedAt: record.completedAt
     };
 
     res.status(200).json({
@@ -307,44 +288,27 @@ export async function getSystemStats(req, res) {
     console.log('📊 Fetching AutoBolt system statistics...');
 
     // Get customer counts by status
-    const pendingRecords = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: "{submissionStatus} = 'pending'",
-        fields: ['customerId']
-      })
-      .all();
-
-    const processingRecords = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: "{submissionStatus} = 'in-progress'",
-        fields: ['customerId']
-      })
-      .all();
-
-    const completedRecords = await base(CUSTOMERS_TABLE)
-      .select({
-        filterByFormula: "{submissionStatus} = 'completed'",
-        fields: ['customerId', 'successfulDirectories', 'totalDirectories', 'completedAt']
-      })
-      .all();
+    const pendingRecords = await googleSheetsService.findCustomers({ status: 'pending' });
+    const processingRecords = await googleSheetsService.findCustomers({ status: 'in-progress' });
+    const completedRecords = await googleSheetsService.findCustomers({ status: 'completed' });
 
     // Calculate success rates
     const totalCompleted = completedRecords.length;
     const totalSuccessful = completedRecords.reduce((sum, record) => 
-      sum + (record.get('successfulDirectories') || 0), 0
+      sum + (record.successfulDirectories || 0), 0
     );
     const totalDirectories = completedRecords.reduce((sum, record) => 
-      sum + (record.get('totalDirectories') || 0), 0
+      sum + (record.totalDirectories || 0), 0
     );
 
     const successRate = totalDirectories > 0 ? (totalSuccessful / totalDirectories) : 0;
 
     // Calculate average processing time
     const processingTimes = completedRecords
-      .filter(record => record.get('completedAt') && record.get('createdAt'))
+      .filter(record => record.completedAt && record.createdAt)
       .map(record => {
-        const start = new Date(record.get('createdAt'));
-        const end = new Date(record.get('completedAt'));
+        const start = new Date(record.createdAt);
+        const end = new Date(record.completedAt);
         return (end - start) / (1000 * 60); // minutes
       });
 

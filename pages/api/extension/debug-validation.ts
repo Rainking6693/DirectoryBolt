@@ -1,6 +1,7 @@
 /**
  * DEBUG Extension Customer Validation API
  * Comprehensive debugging for extension authentication issues
+ * Updated to use Google Sheets instead of Airtable
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -27,39 +28,38 @@ export default async function handler(
 
     // Check environment variables
     const envCheck = {
-      AIRTABLE_ACCESS_TOKEN: !!process.env.AIRTABLE_ACCESS_TOKEN,
-      AIRTABLE_API_KEY: !!process.env.AIRTABLE_API_KEY,
-      AIRTABLE_BASE_ID: !!process.env.AIRTABLE_BASE_ID,
-      AIRTABLE_TABLE_NAME: !!process.env.AIRTABLE_TABLE_NAME,
+      GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY,
       NODE_ENV: process.env.NODE_ENV
     }
 
     console.log('🔍 Environment variables:', envCheck)
 
-    // Test Airtable import
-    let airtableImportError = null
-    let airtableServiceError = null
+    // Test Google Sheets import
+    let googleSheetsImportError = null
+    let googleSheetsServiceError = null
     
     try {
-      const { createAirtableService } = await import('../../../lib/services/airtable')
-      console.log('✅ Airtable service imported successfully')
+      const { createGoogleSheetsService } = await import('../../../lib/services/google-sheets')
+      console.log('✅ Google Sheets service imported successfully')
       
       try {
-        const airtableService = createAirtableService()
-        console.log('✅ Airtable service created successfully')
+        const googleSheetsService = createGoogleSheetsService()
+        console.log('✅ Google Sheets service created successfully')
         
         // Test health check
-        const healthCheck = await airtableService.healthCheck()
-        console.log('🔍 Airtable health check:', healthCheck)
+        const healthCheck = await googleSheetsService.healthCheck()
+        console.log('🔍 Google Sheets health check:', healthCheck)
         
       } catch (serviceError) {
-        console.error('❌ Airtable service creation failed:', serviceError)
-        airtableServiceError = serviceError instanceof Error ? serviceError.message : String(serviceError)
+        console.error('❌ Google Sheets service creation failed:', serviceError)
+        googleSheetsServiceError = serviceError instanceof Error ? serviceError.message : String(serviceError)
       }
       
     } catch (importError) {
-      console.error('❌ Airtable import failed:', importError)
-      airtableImportError = importError instanceof Error ? importError.message : String(importError)
+      console.error('❌ Google Sheets import failed:', importError)
+      googleSheetsImportError = importError instanceof Error ? importError.message : String(importError)
     }
 
     // Test customer ID if provided
@@ -70,13 +70,13 @@ export default async function handler(
       console.log('🔍 Testing Customer ID:', customerId)
       
       try {
-        const { createAirtableService } = await import('../../../lib/services/airtable')
-        const airtableService = createAirtableService()
-        const customer = await airtableService.findByCustomerId(customerId as string)
+        const { createGoogleSheetsService } = await import('../../../lib/services/google-sheets')
+        const googleSheetsService = createGoogleSheetsService()
+        const customer = await googleSheetsService.findByCustomerId(customerId as string)
         
         customerTestResult = {
           found: !!customer,
-          customerId: customer?.customerId,
+          customerId: customer?.customerID || customer?.customerId,
           businessName: customer?.businessName,
           packageType: customer?.packageType,
           submissionStatus: customer?.submissionStatus
@@ -96,8 +96,8 @@ export default async function handler(
       debug: true,
       timestamp: new Date().toISOString(),
       environment: envCheck,
-      airtableImportError,
-      airtableServiceError,
+      googleSheetsImportError,
+      googleSheetsServiceError,
       customerTestResult,
       request: {
         method: req.method,

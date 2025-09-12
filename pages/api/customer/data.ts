@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function getCustomerData(customerId: string): Promise<CustomerData | null> {
   try {
-    // This would typically query your Airtable or database
+    // This would typically query your Google Sheets or database
     // For demo purposes, we'll simulate realistic customer data
     
     // Validate Customer ID format
@@ -98,45 +98,41 @@ async function getCustomerData(customerId: string): Promise<CustomerData | null>
   }
 }
 
-// Real implementation would look like this for Airtable:
+// Real implementation using Google Sheets:
 /*
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+
 async function getCustomerData(customerId: string): Promise<CustomerData | null> {
   try {
-    const Airtable = require('airtable');
-    const base = new Airtable({ apiKey: process.env.AIRTABLE_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
+    const googleSheetsService = createGoogleSheetsService();
     
-    const records = await base('Customers').select({
-      filterByFormula: `{Customer ID} = '${customerId}'`,
-      maxRecords: 1
-    }).firstPage();
+    const customer = await googleSheetsService.findByCustomerId(customerId);
 
-    if (records.length === 0) {
+    if (!customer) {
       return null;
     }
-
-    const record = records[0];
     
     // Calculate progress based on submitted directories
-    const submittedDirectories = record.get('Submitted Directories') as number || 0;
-    const directoryLimit = record.get('Directory Limit') as number || 100;
+    const submittedDirectories = customer.directoriesSubmitted || 0;
+    const directoryLimit = customer.totalDirectories || 100;
     const progress = Math.floor((submittedDirectories / directoryLimit) * 100);
     
     return {
-      id: record.get('Customer ID') as string,
-      businessName: record.get('Business Name') as string,
-      email: record.get('Email') as string,
-      website: record.get('Website') as string,
-      packageType: record.get('Package Type') as string,
+      id: customer.customerID || customer.customerId,
+      businessName: customer.businessName,
+      email: customer.email,
+      website: customer.website,
+      packageType: customer.packageType,
       directoryLimit: directoryLimit,
-      status: record.get('Status') as string,
+      status: customer.submissionStatus,
       progress: progress,
       submittedDirectories: submittedDirectories,
-      purchaseDate: record.get('Purchase Date') as string,
-      estimatedCompletion: record.get('Estimated Completion') as string
+      purchaseDate: customer.purchaseDate,
+      estimatedCompletion: customer.submissionEndDate || 'TBD'
     };
 
   } catch (error) {
-    console.error('Airtable customer data error:', error);
+    console.error('Google Sheets customer data error:', error);
     return null;
   }
 }

@@ -3,7 +3,8 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
-import { buffer } from 'micro'
+// Removed micro dependency for Netlify compatibility
+// Buffer handling is done inline for serverless functions
 
 // Simple logger fallback
 const logger = {
@@ -17,12 +18,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
 })
 
-// Disable body parsing for webhook
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
+// Netlify Functions configuration
+// Note: Netlify handles raw body parsing automatically for webhooks
 
 // Webhook event handlers
 const handleCheckoutSessionCompleted = async (session: Stripe.Checkout.Session) => {

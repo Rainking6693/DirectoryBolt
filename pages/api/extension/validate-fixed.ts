@@ -1,6 +1,7 @@
 /**
  * FIXED Extension Customer Validation API
  * Bulletproof validation with comprehensive error handling and debugging
+ * Updated to use Google Sheets instead of Airtable
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -43,9 +44,9 @@ export default async function handler(
     timestamp: new Date().toISOString(),
     environment: {
       NODE_ENV: process.env.NODE_ENV,
-      hasAirtableToken: !!process.env.AIRTABLE_ACCESS_TOKEN || !!process.env.AIRTABLE_API_KEY,
-      hasBaseId: !!process.env.AIRTABLE_BASE_ID,
-      hasTableName: !!process.env.AIRTABLE_TABLE_NAME
+      hasGoogleSheetId: !!process.env.GOOGLE_SHEET_ID,
+      hasServiceAccount: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY
     }
   }
 
@@ -87,32 +88,32 @@ export default async function handler(
     console.log('🔍 Looking up customer:', normalizedCustomerId)
     debugInfo.lookupCustomerId = normalizedCustomerId
 
-    // Try to import and use Airtable service with comprehensive error handling
+    // Try to import and use Google Sheets service with comprehensive error handling
     try {
-      const { createAirtableService } = await import('../../../lib/services/airtable')
-      console.log('✅ Airtable service imported successfully')
+      const { createGoogleSheetsService } = await import('../../../lib/services/google-sheets')
+      console.log('✅ Google Sheets service imported successfully')
       
-      const airtableService = createAirtableService()
-      console.log('✅ Airtable service created successfully')
+      const googleSheetsService = createGoogleSheetsService()
+      console.log('✅ Google Sheets service created successfully')
       
       // Test health check first
-      const healthCheck = await airtableService.healthCheck()
-      console.log('🔍 Airtable health check:', healthCheck)
+      const healthCheck = await googleSheetsService.healthCheck()
+      console.log('🔍 Google Sheets health check:', healthCheck)
       debugInfo.healthCheck = healthCheck
       
       if (!healthCheck) {
-        throw new Error('Airtable health check failed - database connection issue')
+        throw new Error('Google Sheets health check failed - database connection issue')
       }
       
       // Find customer with normalized ID
-      let customer = await airtableService.findByCustomerId(normalizedCustomerId)
+      let customer = await googleSheetsService.findByCustomerId(normalizedCustomerId)
       debugInfo.customerFound = !!customer
       debugInfo.searchAttempts = [normalizedCustomerId]
       
       // If not found with normalized ID, try original ID
       if (!customer && normalizedCustomerId !== customerId) {
         console.log('🔍 Trying original customer ID:', customerId)
-        customer = await airtableService.findByCustomerId(customerId)
+        customer = await googleSheetsService.findByCustomerId(customerId)
         debugInfo.customerFound = !!customer
         debugInfo.searchAttempts.push(customerId)
       }
@@ -127,7 +128,7 @@ export default async function handler(
         
         for (const variation of variations) {
           console.log('🔍 Trying customer ID variation:', variation)
-          customer = await airtableService.findByCustomerId(variation)
+          customer = await googleSheetsService.findByCustomerId(variation)
           debugInfo.searchAttempts.push(variation)
           if (customer) {
             debugInfo.customerFound = true
@@ -190,9 +191,9 @@ export default async function handler(
         debug: debugInfo
       })
 
-    } catch (airtableError) {
-      console.error('❌ Airtable service error:', airtableError)
-      debugInfo.airtableError = airtableError instanceof Error ? airtableError.message : String(airtableError)
+    } catch (googleSheetsError) {
+      console.error('❌ Google Sheets service error:', googleSheetsError)
+      debugInfo.googleSheetsError = googleSheetsError instanceof Error ? googleSheetsError.message : String(googleSheetsError)
       
       return res.status(500).json({
         valid: false,

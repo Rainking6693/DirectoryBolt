@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function getProgressData(customerId: string): Promise<ProgressData | null> {
   try {
-    // This would typically query your Airtable or database
+    // This would typically query your Google Sheets or database
     // For demo purposes, we'll simulate realistic progress data
     
     // Validate Customer ID format
@@ -107,48 +107,66 @@ async function getProgressData(customerId: string): Promise<ProgressData | null>
   }
 }
 
-// Real implementation would look like this for Airtable:
+// Real implementation using Google Sheets:
 /*
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+
 async function getProgressData(customerId: string): Promise<ProgressData | null> {
   try {
-    const Airtable = require('airtable');
-    const base = new Airtable({ apiKey: process.env.AIRTABLE_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
+    const googleSheetsService = createGoogleSheetsService();
     
     // Get customer record
-    const customerRecords = await base('Customers').select({
-      filterByFormula: `{Customer ID} = '${customerId}'`,
-      maxRecords: 1
-    }).firstPage();
+    const customer = await googleSheetsService.findByCustomerId(customerId);
 
-    if (customerRecords.length === 0) {
+    if (!customer) {
       return null;
     }
 
-    const customer = customerRecords[0];
-    const currentProgress = customer.get('Progress Percentage') as number || 0;
+    const currentProgress = customer.successRate || 0;
     
-    // Get milestone records
-    const milestoneRecords = await base('Progress Milestones').select({
-      filterByFormula: `{Customer ID} = '${customerId}'`,
-      sort: [{ field: 'Percentage', direction: 'asc' }]
-    }).firstPage();
-
-    const milestones: ProgressMilestone[] = milestoneRecords.map(record => ({
-      percentage: record.get('Percentage') as number,
-      label: record.get('Label') as string,
-      completed: record.get('Completed') as boolean,
-      date: record.get('Completion Date') as string
-    }));
+    // Generate milestone data based on customer progress
+    const milestones: ProgressMilestone[] = [
+      {
+        percentage: 0,
+        label: 'Processing Started',
+        completed: true,
+        date: customer.submissionStartDate
+      },
+      {
+        percentage: 25,
+        label: 'Initial Submissions',
+        completed: currentProgress >= 25,
+        date: currentProgress >= 25 ? customer.submissionStartDate : undefined
+      },
+      {
+        percentage: 50,
+        label: 'Half Complete',
+        completed: currentProgress >= 50,
+        date: currentProgress >= 50 ? customer.submissionStartDate : undefined
+      },
+      {
+        percentage: 75,
+        label: 'Nearly Complete',
+        completed: currentProgress >= 75,
+        date: currentProgress >= 75 ? customer.submissionStartDate : undefined
+      },
+      {
+        percentage: 100,
+        label: 'All Submissions Complete',
+        completed: currentProgress >= 100,
+        date: currentProgress >= 100 ? customer.submissionEndDate : undefined
+      }
+    ];
 
     return {
       customerId: customerId,
       currentProgress: currentProgress,
       milestones: milestones,
-      lastUpdated: customer.get('Last Updated') as string || new Date().toISOString()
+      lastUpdated: customer.lastUpdated || new Date().toISOString()
     };
 
   } catch (error) {
-    console.error('Airtable progress data error:', error);
+    console.error('Google Sheets progress data error:', error);
     return null;
   }
 }

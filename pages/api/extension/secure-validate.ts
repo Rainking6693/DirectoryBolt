@@ -1,11 +1,11 @@
 /**
  * SECURE Extension Customer Validation API
- * Server-side proxy that handles all Airtable communication
+ * Server-side proxy that handles all Google Sheets communication
  * NO CREDENTIALS EXPOSED TO CLIENT
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createAirtableService } from '../../../lib/services/airtable'
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 
 interface SecureValidationRequest {
   customerId: string
@@ -23,17 +23,43 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SecureValidationResponse>
 ) {
-  // Security headers
-  res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://*')
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Extension-ID')
+  // Detect Netlify Functions context
+  const isNetlifyFunction = !!process.env.NETLIFY || !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  
+  console.log('🔒 Secure validation API called:', {
+    isNetlify: isNetlifyFunction,
+    method: req.method,
+    origin: req.headers.origin
+  })
+  
+  // Create response helper
+  const createResponse = (statusCode: number, data: SecureValidationResponse) => {
+    if (isNetlifyFunction) {
+      return {
+        statusCode,
+        headers: {
+          'Access-Control-Allow-Origin': 'chrome-extension://*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, X-Extension-ID',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+    } else {
+      // Next.js API route response
+      res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://*')
+      res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Extension-ID')
+      return res.status(statusCode).json(data)
+    }
+  }
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end()
+    return createResponse(200, { valid: true })
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({
+    return createResponse(405, {
       valid: false,
       error: 'Method not allowed'
     })
@@ -44,7 +70,7 @@ export default async function handler(
 
     // Validate input
     if (!customerId) {
-      return res.status(400).json({
+      return createResponse(400, {
         valid: false,
         error: 'Customer ID is required'
       })
@@ -52,7 +78,7 @@ export default async function handler(
 
     // Validate customer ID format
     if (!customerId.startsWith('DIR-') && !customerId.startsWith('DB-')) {
-      return res.status(400).json({
+      return createResponse(400, {
         valid: false,
         error: 'Invalid Customer ID format'
       })
@@ -60,33 +86,33 @@ export default async function handler(
 
     console.log('🔒 SECURE: Validating customer via server-side proxy:', customerId)
 
-    // Use secure server-side Airtable service
-    const airtableService = createAirtableService()
+    // Use secure server-side Google Sheets service
+    const googleSheetsService = createGoogleSheetsService()
     
     // Verify environment variables are properly configured
-    if (!process.env.AIRTABLE_ACCESS_TOKEN && !process.env.AIRTABLE_API_KEY) {
-      console.error('❌ SECURITY ERROR: No Airtable credentials in environment')
-      return res.status(500).json({
+    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+      console.error('❌ SECURITY ERROR: Google Sheets credentials missing in environment')
+      return createResponse(500, {
         valid: false,
         error: 'Server configuration error'
       })
     }
 
     // Health check
-    const healthCheck = await airtableService.healthCheck()
+    const healthCheck = await googleSheetsService.healthCheck()
     if (!healthCheck) {
-      return res.status(500).json({
+      return createResponse(500, {
         valid: false,
         error: 'Database connection failed'
       })
     }
 
     // Find customer using secure server-side service
-    const customer = await airtableService.findByCustomerId(customerId.trim())
+    const customer = await googleSheetsService.findByCustomerId(customerId.trim())
 
     if (!customer) {
       console.log(`❌ SECURE: Customer not found: ${customerId}`)
-      return res.status(401).json({
+      return createResponse(401, {
         valid: false,
         error: 'Customer not found'
       })
@@ -94,7 +120,7 @@ export default async function handler(
 
     console.log(`✅ SECURE: Customer validated: ${customer.businessName} (${customerId})`)
 
-    return res.status(200).json({
+    return createResponse(200, {
       valid: true,
       customerName: customer.businessName || `${customer.firstName} ${customer.lastName}`.trim() || 'Customer',
       packageType: customer.packageType || 'basic'
@@ -103,7 +129,7 @@ export default async function handler(
   } catch (error) {
     console.error('❌ SECURE: Validation error:', error)
     
-    return res.status(500).json({
+    return createResponse(500, {
       valid: false,
       error: 'Internal server error'
     })

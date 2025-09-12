@@ -14,11 +14,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Check critical environment variables
     const configStatus = {
-      airtable: {
-        configured: !!(process.env.AIRTABLE_ACCESS_TOKEN && 
-                      !process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable')),
-        baseId: !!process.env.AIRTABLE_BASE_ID,
-        tableName: !!process.env.AIRTABLE_TABLE_NAME,
+      google_sheets: {
+        configured: !!(process.env.GOOGLE_SHEET_ID && 
+                      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && 
+                      process.env.GOOGLE_PRIVATE_KEY),
+        sheetId: !!process.env.GOOGLE_SHEET_ID,
+        serviceAccount: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        privateKey: !!process.env.GOOGLE_PRIVATE_KEY,
         status: 'unknown'
       },
       stripe: {
@@ -36,19 +38,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Determine overall status
-    configStatus.airtable.status = configStatus.airtable.configured ? 'configured' : 'missing'
+    configStatus.google_sheets.status = configStatus.google_sheets.configured ? 'configured' : 'missing'
     configStatus.stripe.status = configStatus.stripe.configured ? 'configured' : 'missing'
     configStatus.openai.status = configStatus.openai.configured ? 'configured' : 'missing'
 
     const overallStatus = {
-      ready: configStatus.airtable.configured && configStatus.stripe.configured,
+      ready: configStatus.google_sheets.configured && configStatus.stripe.configured,
       issues: [],
       recommendations: []
     }
 
-    if (!configStatus.airtable.configured) {
-      overallStatus.issues.push('Airtable access token not configured')
-      overallStatus.recommendations.push('Set AIRTABLE_ACCESS_TOKEN in .env.local')
+    if (!configStatus.google_sheets.configured) {
+      overallStatus.issues.push('Google Sheets credentials not configured')
+      overallStatus.recommendations.push('Set GOOGLE_SHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY in .env.local')
     }
 
     if (!configStatus.stripe.configured) {

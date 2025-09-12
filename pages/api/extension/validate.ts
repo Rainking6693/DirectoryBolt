@@ -4,7 +4,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createAirtableService } from '../../../lib/services/airtable'
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 import { enhancedRateLimit, getClientIP, determineUserTier } from '../../../lib/utils/enhanced-rate-limit'
 
 interface ValidationRequest {
@@ -84,10 +84,10 @@ export default async function handler(
     let usingFallback = false
 
     try {
-      const airtableService = createAirtableService()
-      customer = await airtableService.findByCustomerId(customerId)
-    } catch (airtableError) {
-      console.log('⚠️ Airtable validation failed, using fallback:', airtableError.message)
+      const googleSheetsService = createGoogleSheetsService()
+      customer = await googleSheetsService.findByCustomerId(customerId)
+    } catch (googleSheetsError) {
+      console.log('⚠️ Google Sheets validation failed, using fallback:', googleSheetsError.message)
       usingFallback = true
       
       // EMERGENCY FALLBACK: Allow test customers to work
@@ -155,13 +155,13 @@ export default async function handler(
     let debugInfo: any = {}
     
     if (error instanceof Error) {
-      if (error.message.includes('Airtable')) {
+      if (error.message.includes('Google Sheets') || error.message.includes('GoogleSpreadsheet')) {
         errorMessage = 'Database connection failed'
-        debugInfo.airtableError = error.message
+        debugInfo.googleSheetsError = error.message
         debugInfo.environment = {
-          hasToken: !!process.env.AIRTABLE_ACCESS_TOKEN && !process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable'),
-          baseId: process.env.AIRTABLE_BASE_ID,
-          tableName: process.env.AIRTABLE_TABLE_NAME
+          hasGoogleCredentials: !!process.env.GOOGLE_PRIVATE_KEY && !process.env.GOOGLE_PRIVATE_KEY.includes('your_key'),
+          sheetId: process.env.GOOGLE_SHEET_ID,
+          serviceAccount: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
         }
       } else {
         debugInfo.error = error.message

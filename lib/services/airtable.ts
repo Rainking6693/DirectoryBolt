@@ -5,7 +5,8 @@
  * Handles business submissions, customer tracking, and directory submission status updates.
  */
 
-import Airtable from 'airtable'
+// Migration Note: This service now uses Google Sheets instead of Airtable
+import { createGoogleSheetsService } from './google-sheets'
 import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } from '../types/business-intelligence'
 
 // Enhanced Airtable Field Mapping Interface with AI Analysis Data
@@ -58,22 +59,15 @@ export interface AirtableConfig {
 }
 
 export class AirtableService {
-  private base: any
+  private googleSheets: any
   private tableName: string
 
   constructor(config: AirtableConfig) {
-    if (!config.accessToken || !config.baseId || !config.tableName) {
-      throw new Error('Missing required Airtable configuration: accessToken, baseId, or tableName')
-    }
-
-    // Configure Airtable with Personal Access Token
-    Airtable.configure({
-      endpointUrl: 'https://api.airtable.com',
-      apiKey: config.accessToken  // PAT is passed as apiKey in the SDK
-    })
-
-    this.base = Airtable.base(config.baseId)
-    this.tableName = config.tableName
+    console.log('🔄 AirtableService: Using Google Sheets backend instead of Airtable')
+    
+    // Initialize Google Sheets service
+    this.googleSheets = createGoogleSheetsService()
+    this.tableName = config.tableName || 'Directory Bolt Import'
   }
 
   /**
@@ -129,31 +123,23 @@ export class AirtableService {
         submissionStatus: recordData.submissionStatus
       })
 
-      const records = await this.base(this.tableName).create([
-        {
-          fields: {
-            ...recordData,
-            // Store in the actual Airtable field format (customerID)
-            customerID: recordData.customerId,
-            // Remove the customerId field to avoid conflicts
-            customerId: undefined
-          }
-        }
-      ])
+      const record = await this.googleSheets.createCustomer({
+        ...recordData,
+        customerID: recordData.customerId, // Store in both formats for compatibility
+      })
 
-      const record = records[0]
-      const normalizedCustomerId = this.normalizeCustomerIdField(record)
-      console.log('✅ Airtable record created successfully:', {
-        recordId: record.getId(),
+      const normalizedCustomerId = record.customerId || record.customerID
+      console.log('✅ Google Sheets record created successfully:', {
+        recordId: record.id,
         customerId: normalizedCustomerId,
-        businessName: record.get('businessName')
+        businessName: record.businessName
       })
 
       return {
-        recordId: record.getId(),
+        recordId: record.id,
         customerId: normalizedCustomerId,
         customerID: normalizedCustomerId, // Provide both formats for compatibility
-        ...record.fields
+        ...record
       }
 
     } catch (error) {
@@ -169,25 +155,19 @@ export class AirtableService {
     try {
       console.log('🔄 Updating Airtable record:', { recordId, updates })
 
-      const records = await this.base(this.tableName).update([
-        {
-          id: recordId,
-          fields: updates
-        }
-      ])
+      const record = await this.googleSheets.updateCustomerByRowId(recordId, updates)
 
-      const record = records[0]
-      const normalizedCustomerId = this.normalizeCustomerIdField(record)
-      console.log('✅ Airtable record updated successfully:', {
-        recordId: record.getId(),
+      const normalizedCustomerId = record.customerId || record.customerID
+      console.log('✅ Google Sheets record updated successfully:', {
+        recordId: record.id,
         customerId: normalizedCustomerId
       })
 
       return {
-        recordId: record.getId(),
+        recordId: record.id,
         customerId: normalizedCustomerId,
         customerID: normalizedCustomerId, // Provide both formats for compatibility
-        ...record.fields
+        ...record
       }
 
     } catch (error) {
@@ -228,27 +208,23 @@ export class AirtableService {
    */
   async findByCustomerId(customerId: string): Promise<any> {
     try {
-      const records = await this.base(this.tableName).select({
-        filterByFormula: this.getCustomerIdFilterFormula(customerId),
-        maxRecords: 1
-      }).firstPage()
+      const record = await this.googleSheets.findCustomerById(customerId)
 
-      if (records.length === 0) {
+      if (!record) {
         return null
       }
 
-      const record = records[0]
-      const normalizedCustomerId = this.normalizeCustomerIdField(record)
+      const normalizedCustomerId = record.customerId || record.customerID
       return {
-        recordId: record.getId(),
+        recordId: record.id,
         customerId: normalizedCustomerId,
         customerID: normalizedCustomerId, // Provide both formats for compatibility
-        ...record.fields
+        ...record
       }
 
     } catch (error) {
-      console.error('❌ Failed to find Airtable record by customer ID:', error)
-      throw new Error(`Airtable lookup failed: ${error instanceof Error ? error.message : String(error)}`)
+      console.error('❌ Failed to find Google Sheets record by customer ID:', error)
+      throw new Error(`Google Sheets lookup failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -257,24 +233,24 @@ export class AirtableService {
    */
   async findByStatus(status: 'pending' | 'in-progress' | 'completed' | 'failed'): Promise<any[]> {
     try {
-      const records = await this.base(this.tableName).select({
-        filterByFormula: `{submissionStatus} = '${status}'`,
-        sort: [{ field: 'purchaseDate', direction: 'asc' }]
-      }).all()
+      const records = await this.googleSheets.findCustomers({ 
+        status: status,
+        sortBy: 'purchaseDate'
+      })
 
       return records.map((record: any) => {
-        const normalizedCustomerId = this.normalizeCustomerIdField(record)
+        const normalizedCustomerId = record.customerId || record.customerID
         return {
-          recordId: record.getId(),
+          recordId: record.id,
           customerId: normalizedCustomerId,
           customerID: normalizedCustomerId, // Provide both formats for compatibility
-          ...record.fields
+          ...record
         }
       })
 
     } catch (error) {
-      console.error('❌ Failed to find Airtable records by status:', error)
-      throw new Error(`Airtable status lookup failed: ${error instanceof Error ? error.message : String(error)}`)
+      console.error('❌ Failed to find Google Sheets records by status:', error)
+      throw new Error(`Google Sheets status lookup failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -526,15 +502,13 @@ export class AirtableService {
   async healthCheck(): Promise<boolean> {
     try {
       // Try to fetch one record to verify connection
-      await this.base(this.tableName).select({
-        maxRecords: 1
-      }).firstPage()
+      await this.googleSheets.findCustomers({ maxRecords: 1 })
 
-      console.log('✅ Airtable health check passed')
+      console.log('✅ Google Sheets health check passed')
       return true
 
     } catch (error) {
-      console.error('❌ Airtable health check failed:', error)
+      console.error('❌ Google Sheets health check failed:', error)
       return false
     }
   }
@@ -545,8 +519,8 @@ export class AirtableService {
  */
 export function createAirtableService(): AirtableService {
   const config: AirtableConfig = {
-    accessToken: process.env.AIRTABLE_ACCESS_TOKEN || process.env.AIRTABLE_API_KEY!,  // Support both for backwards compat
-    baseId: process.env.AIRTABLE_BASE_ID || 'appZDNMzebkaOkLXo',  // Your base ID
+    accessToken: 'google-sheets',  // Not needed for Google Sheets but keeping for compatibility
+    baseId: 'google-sheets',  // Not needed for Google Sheets but keeping for compatibility
     tableName: process.env.AIRTABLE_TABLE_NAME || 'Directory Bolt Import'  // Your table name
   }
 

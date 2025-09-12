@@ -3,7 +3,8 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
-import { buffer } from 'micro'
+// Removed micro dependency for Netlify compatibility
+// Buffer handling is done inline for serverless functions
 import { logger } from '../../../lib/utils/logger'
 import { secureWebhookHandler } from '../../../lib/security/webhook-validation'
 import { securityMonitor, monitorPaymentAnomaly } from '../../../lib/security/security-monitoring'

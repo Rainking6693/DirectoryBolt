@@ -1,0 +1,8 @@
+{
+  "auditId": "google_sheets_audit_1757688998540",
+  "status": "EXECUTION_FAILURE",
+  "error": "Cannot read properties of undefined (reading 'overallStatus')",
+  "stack": "TypeError: Cannot read properties of undefined (reading 'overallStatus')\n    at executeDatabaseIntegrityAudit (C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt\\google-sheets-database-integrity-audit.js:1424:26)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+  "timestamp": "2025-09-12T14:56:38.550Z",
+  "recommendation": "CRITICAL: Database audit could not complete - investigate immediately"
+}

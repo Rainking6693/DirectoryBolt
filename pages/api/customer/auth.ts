@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Email or Customer ID is required' });
     }
 
-    // In a real implementation, this would query your database (Airtable, Supabase, etc.)
+    // In a real implementation, this would query your database (Google Sheets, Supabase, etc.)
     // For now, we'll simulate the authentication process
     
     let customer: CustomerRecord | null = null;
@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function authenticateByCustomerId(customerId: string): Promise<CustomerRecord | null> {
   try {
-    // This would typically query your Airtable or database
+    // This would typically query your Google Sheets or database
     // For demo purposes, we'll simulate a database lookup
     
     // Validate Customer ID format
@@ -69,7 +69,7 @@ async function authenticateByCustomerId(customerId: string): Promise<CustomerRec
     }
 
     // Simulate database query
-    // In real implementation, replace with actual Airtable/Supabase query
+    // In real implementation, replace with actual Google Sheets/Supabase query
     const mockCustomer: CustomerRecord = {
       id: customerId,
       businessName: 'Demo Business',
@@ -91,7 +91,7 @@ async function authenticateByCustomerId(customerId: string): Promise<CustomerRec
 
 async function authenticateByEmail(email: string): Promise<CustomerRecord | null> {
   try {
-    // This would typically query your Airtable or database
+    // This would typically query your Google Sheets or database
     // For demo purposes, we'll simulate a database lookup
     
     // Validate email format
@@ -101,7 +101,7 @@ async function authenticateByEmail(email: string): Promise<CustomerRecord | null
     }
 
     // Simulate database query
-    // In real implementation, replace with actual Airtable/Supabase query
+    // In real implementation, replace with actual Google Sheets/Supabase query
     const mockCustomer: CustomerRecord = {
       id: 'DIR-2025-ABC123',
       businessName: 'Demo Business',
@@ -121,36 +121,33 @@ async function authenticateByEmail(email: string): Promise<CustomerRecord | null
   }
 }
 
-// Real implementation would look like this for Airtable:
+// Real implementation using Google Sheets:
 /*
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+
 async function authenticateByCustomerId(customerId: string): Promise<CustomerRecord | null> {
   try {
-    const Airtable = require('airtable');
-    const base = new Airtable({ apiKey: process.env.AIRTABLE_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
+    const googleSheetsService = createGoogleSheetsService();
     
-    const records = await base('Customers').select({
-      filterByFormula: `{Customer ID} = '${customerId}'`,
-      maxRecords: 1
-    }).firstPage();
+    const customer = await googleSheetsService.findByCustomerId(customerId);
 
-    if (records.length === 0) {
+    if (!customer) {
       return null;
     }
 
-    const record = records[0];
     return {
-      id: record.get('Customer ID') as string,
-      businessName: record.get('Business Name') as string,
-      email: record.get('Email') as string,
-      website: record.get('Website') as string,
-      packageType: record.get('Package Type') as string,
-      directoryLimit: record.get('Directory Limit') as number,
-      status: record.get('Status') as string,
-      purchaseDate: record.get('Purchase Date') as string
+      id: customer.customerID || customer.customerId,
+      businessName: customer.businessName,
+      email: customer.email,
+      website: customer.website,
+      packageType: customer.packageType,
+      directoryLimit: customer.totalDirectories,
+      status: customer.submissionStatus,
+      purchaseDate: customer.purchaseDate
     };
 
   } catch (error) {
-    console.error('Airtable authentication error:', error);
+    console.error('Google Sheets authentication error:', error);
     return null;
   }
 }

@@ -7,10 +7,22 @@
  */
 
 import Stripe from 'stripe'
-import { buffer } from 'micro'
 import { logger } from '../../../lib/utils/logger'
-import { createAirtableService } from '../../../lib/services/airtable'
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 import { AutoBoltNotificationService } from '../../../lib/services/autobolt-notifications'
+
+// Netlify Functions compatible buffer handler
+const getRawBody = async (req) => {
+  if (req.body && typeof req.body === 'string') {
+    return Buffer.from(req.body)
+  }
+  
+  const chunks = []
+  for await (const chunk of req) {
+    chunks.push(chunk)
+  }
+  return Buffer.concat(chunks)
+}
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -19,12 +31,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
-// Disable body parsing for webhook
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
+// Netlify Functions configuration
+// Note: Netlify handles raw body parsing automatically for webhooks
 
 // AI Business Intelligence Tier Configuration
 const AI_BUSINESS_TIERS = {
@@ -122,12 +130,29 @@ class WebhookPerformanceMonitor {
   }
 }
 
+// Main webhook handler - compatible with both Next.js and Netlify Functions
 export default async function handler(req, res) {
   const startTime = Date.now()
   const requestId = `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
+  // Netlify Functions context detection
+  const isNetlifyFunction = !!process.env.NETLIFY || !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  
+  console.log('🔄 Stripe webhook triggered:', {
+    isNetlify: isNetlifyFunction,
+    method: req.method,
+    requestId: requestId
+  })
+  
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    const response = { error: 'Method not allowed' }
+    if (isNetlifyFunction) {
+      return {
+        statusCode: 405,
+        body: JSON.stringify(response)
+      }
+    }
+    return res.status(405).json(response)
   }
 
   // Create timeout promise
@@ -156,11 +181,19 @@ export default async function handler(req, res) {
       { requestId, eventType: result.eventType }
     )
 
-    return res.status(200).json({ 
+    const response = { 
       received: true,
       processingTime: processingTime,
       requestId: requestId
-    })
+    }
+    
+    if (isNetlifyFunction) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response)
+      }
+    }
+    return res.status(200).json(response)
 
   } catch (error) {
     const processingTime = Date.now() - startTime
@@ -180,12 +213,20 @@ export default async function handler(req, res) {
       )
       
       // Return 200 to Stripe but log the timeout for investigation
-      return res.status(200).json({ 
+      const response = { 
         received: true,
         timeout: true,
         processingTime: processingTime,
         requestId: requestId
-      })
+      }
+      
+      if (isNetlifyFunction) {
+        return {
+          statusCode: 200,
+          body: JSON.stringify(response)
+        }
+      }
+      return res.status(200).json(response)
     }
 
     logger.error('Webhook processing failed', { 
@@ -201,10 +242,18 @@ export default async function handler(req, res) {
       { requestId, error: error.message }
     )
 
-    return res.status(500).json({ 
+    const response = { 
       error: 'Webhook processing failed',
       requestId: requestId
-    })
+    }
+    
+    if (isNetlifyFunction) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify(response)
+      }
+    }
+    return res.status(500).json(response)
   }
 }
 
@@ -212,7 +261,22 @@ export default async function handler(req, res) {
  * Process webhook event with performance optimization
  */
 async function processWebhookEvent(req, requestId) {
-  const buf = await buffer(req)
+  // Handle buffer for both Next.js and Netlify Functions
+  let buf
+  if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    // Netlify Functions context - body is already parsed
+    if (typeof req.body === 'string') {
+      buf = Buffer.from(req.body, 'utf8')
+    } else if (Buffer.isBuffer(req.body)) {
+      buf = req.body
+    } else {
+      buf = Buffer.from(JSON.stringify(req.body), 'utf8')
+    }
+  } else {
+    // Next.js API route context
+    buf = await getRawBody(req)
+  }
+  
   const signature = req.headers['stripe-signature']
 
   if (!signature) {
@@ -916,8 +980,8 @@ async function prepareCustomerData(session) {
  * Create Airtable record (optimized wrapper)
  */
 async function createAirtableRecord(customerData) {
-  const airtable = createAirtableService()
-  return await airtable.createBusinessSubmission(customerData)
+  const googleSheetsService = createGoogleSheetsService()
+  return await googleSheetsService.createBusinessSubmission(customerData)
 }
 
 /**
@@ -1072,14 +1136,14 @@ async function batchDatabaseOperations(operations) {
  */
 async function createAccessLevelRecord(accessData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Check if access record already exists
-    const existingRecord = await airtable.findByCustomerId(accessData.customerId)
+    const existingRecord = await googleSheetsService.findByCustomerId(accessData.customerId)
     
     if (existingRecord) {
       // Update existing record with access information
-      await airtable.updateBusinessSubmission(existingRecord.recordId, {
+      await googleSheetsService.updateBusinessSubmission(existingRecord.recordId, {
         accessLevel: accessData.accessLevel,
         tierLevel: accessData.tier,
         monthlyDirectoryLimit: accessData.monthlyLimit,
@@ -1090,7 +1154,7 @@ async function createAccessLevelRecord(accessData) {
       })
     } else {
       // Create new access record
-      await airtable.createBusinessSubmission({
+      await googleSheetsService.createBusinessSubmission({
         customerId: accessData.customerId,
         stripeCustomerId: accessData.stripeCustomerId,
         accessLevel: accessData.accessLevel,
@@ -1122,11 +1186,11 @@ async function createAccessLevelRecord(accessData) {
  */
 async function initializeUsageTracking(trackingData) {
   try {
-    const airtable = createAirtableService()
-    const record = await airtable.findByCustomerId(trackingData.customerId)
+    const googleSheetsService = createGoogleSheetsService()
+    const record = await googleSheetsService.findByCustomerId(trackingData.customerId)
     
     if (record) {
-      await airtable.updateBusinessSubmission(record.recordId, {
+      await googleSheetsService.updateBusinessSubmission(record.recordId, {
         currentMonthUsage: 0,
         totalUsage: 0,
         lastUsageReset: new Date().toISOString(),
@@ -1155,20 +1219,20 @@ async function initializeUsageTracking(trackingData) {
  */
 async function updatePaymentStatus(paymentData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize customer ID
     const validatedCustomerId = validateStripeCustomerId(paymentData.stripeCustomerId)
     
     // Find customer by Stripe customer ID using safe query
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         paymentStatus: paymentData.status,
         lastPaymentUpdate: new Date().toISOString(),
         paymentIntentId: paymentData.paymentIntentId,
@@ -1195,20 +1259,20 @@ async function updatePaymentStatus(paymentData) {
  */
 async function storeCustomerProfile(customerData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize customer ID
     const validatedCustomerId = validateStripeCustomerId(customerData.stripeCustomerId)
     
     // Check if customer already exists using safe query
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length === 0) {
       // Create new customer profile
-      await airtable.createBusinessSubmission({
+      await googleSheetsService.createBusinessSubmission({
         stripeCustomerId: customerData.stripeCustomerId,
         email: customerData.email,
         firstName: customerData.name.split(' ')[0] || '',
@@ -1238,20 +1302,20 @@ async function storeCustomerProfile(customerData) {
  */
 async function updateCustomerProfile(customerData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize customer ID
     const validatedCustomerId = validateStripeCustomerId(customerData.stripeCustomerId)
     
     // Find and update customer using safe query
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         email: customerData.email,
         firstName: customerData.name.split(' ')[0] || '',
         lastName: customerData.name.split(' ').slice(1).join(' ') || '',
@@ -1278,19 +1342,19 @@ async function updateCustomerProfile(customerData) {
  */
 async function storeSubscriptionData(subscriptionData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize customer ID
     const validatedCustomerId = validateStripeCustomerId(subscriptionData.stripeCustomerId)
     
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         subscriptionId: subscriptionData.subscriptionId,
         subscriptionStatus: subscriptionData.status,
         currentPeriodStart: subscriptionData.currentPeriodStart,
@@ -1318,19 +1382,19 @@ async function storeSubscriptionData(subscriptionData) {
  */
 async function updateSubscriptionData(subscriptionData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize subscription ID
     const validatedSubscriptionId = validateStripeSubscriptionId(subscriptionData.subscriptionId)
     
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         subscriptionStatus: subscriptionData.status,
         currentPeriodStart: subscriptionData.currentPeriodStart,
         currentPeriodEnd: subscriptionData.currentPeriodEnd,
@@ -1356,19 +1420,19 @@ async function updateSubscriptionData(subscriptionData) {
  */
 async function updateAccessLevel(accessData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize customer ID
     const validatedCustomerId = validateStripeCustomerId(accessData.stripeCustomerId)
     
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         accessStatus: accessData.status,
         accessCancelledAt: accessData.cancelledAt,
         accessValidUntil: accessData.accessValidUntil,
@@ -1394,19 +1458,19 @@ async function updateAccessLevel(accessData) {
  */
 async function handleSubscriptionPayment(paymentData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize subscription ID
     const validatedSubscriptionId = validateStripeSubscriptionId(paymentData.subscriptionId)
     
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         lastPaymentDate: new Date().toISOString(),
         lastPaymentAmount: paymentData.amountPaid,
         paymentStatus: paymentData.status,
@@ -1438,19 +1502,19 @@ async function handleSubscriptionPayment(paymentData) {
  */
 async function handleSubscriptionPaymentFailure(failureData) {
   try {
-    const airtable = createAirtableService()
+    const googleSheetsService = createGoogleSheetsService()
     
     // Validate and sanitize subscription ID
     const validatedSubscriptionId = validateStripeSubscriptionId(failureData.subscriptionId)
     
-    const records = await airtable.base(airtable.tableName).select({
+    const records = await googleSheetsService.base(googleSheetsService.tableName).select({
       filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
     if (records.length > 0) {
       const record = records[0]
-      await airtable.updateBusinessSubmission(record.getId(), {
+      await googleSheetsService.updateBusinessSubmission(record.getId(), {
         paymentStatus: 'failed',
         paymentFailureReason: 'Invoice payment failed',
         failedPaymentAttempts: failureData.attemptCount,
@@ -1627,10 +1691,10 @@ async function triggerAIAnalysisProcess(customerData, tierConfig) {
     })
 
     // Update status in Airtable
-    const airtable = createAirtableService()
-    const record = await airtable.findByCustomerId(customerData.customerId)
+    const googleSheetsService = createGoogleSheetsService()
+    const record = await googleSheetsService.findByCustomerId(customerData.customerId)
     if (record) {
-      await airtable.updateBusinessSubmission(record.recordId, {
+      await googleSheetsService.updateBusinessSubmission(record.recordId, {
         aiAnalysisStatus: 'queued',
         aiAnalysisQueuedAt: new Date().toISOString(),
         aiAnalysisTier: tierConfig.tier
@@ -1666,10 +1730,10 @@ async function addToProcessingQueue(customerData, tierConfig) {
     })
 
     // Update queue status in Airtable
-    const airtable = createAirtableService()
-    const record = await airtable.findByCustomerId(customerData.customerId)
+    const googleSheetsService = createGoogleSheetsService()
+    const record = await googleSheetsService.findByCustomerId(customerData.customerId)
     if (record) {
-      await airtable.updateBusinessSubmission(record.recordId, {
+      await googleSheetsService.updateBusinessSubmission(record.recordId, {
         queueStatus: 'pending',
         queuePriority: queuePriority,
         queuedAt: new Date().toISOString(),

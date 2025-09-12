@@ -77,7 +77,9 @@
       "Bash(dir:*)",
       "Bash(copy \"auto-bolt-extension\\manifest.json\" \"build\\auto-bolt-extension\\manifest.json\")",
       "Bash(echo:*)",
-      "Bash(/bashes)"
+      "Bash(/bashes)",
+      "Bash(set)",
+      "Bash(npx lighthouse:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,14 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import Airtable from 'airtable'
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 
 /**
- * QUINN - Customer Validation API for Extension
- * Fixes extension validation issues and creates missing API endpoint
+ * SHANE - Customer Validation API for Extension (Migrated to Google Sheets)
+ * Validates customer authentication using Google Sheets backend
  */
-
-const base = new Airtable({
-  apiKey: process.env.AIRTABLE_ACCESS_TOKEN
-}).base(process.env.AIRTABLE_BASE_ID || 'appZDNMzebkaOkLXo')
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -22,10 +18,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Customer ID required' })
     }
 
-    console.log('🔍 QUINN - Validating customer:', customerId)
+    console.log('🔍 SHANE - Validating customer with Google Sheets:', customerId)
 
-    // QUINN FIX: Enhanced customer lookup with multiple search strategies
-    let customer = await attemptCustomerLookup(customerId)
+    // SHANE MIGRATION: Enhanced customer lookup using Google Sheets service
+    const googleSheetsService = createGoogleSheetsService()
+    let customer = await googleSheetsService.findByCustomerId(customerId)
     
     if (!customer) {
       // Try alternative ID formats
@@ -33,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       for (const altId of alternatives) {
         console.log('🔄 Trying alternative ID:', altId)
-        customer = await attemptCustomerLookup(altId)
+        customer = await googleSheetsService.findByCustomerId(altId)
         if (customer) {
           console.log('✅ Found customer with alternative ID:', altId)
           break
@@ -45,12 +42,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         success: true,
         customer: {
-          customerId: customer.fields.customerID,
-          businessName: customer.fields.businessName || 'Unknown Business',
-          email: customer.fields.email || '',
-          packageType: customer.fields.packageType || '25 Directories',
-          submissionStatus: customer.fields.submissionStatus || 'active',
-          purchaseDate: customer.fields.purchaseDate || null
+          customerId: customer.customerID || customer.customerId,
+          businessName: customer.businessName || 'Unknown Business',
+          email: customer.email || '',
+          packageType: customer.packageType || 'starter',
+          submissionStatus: customer.submissionStatus || 'active',
+          purchaseDate: customer.purchaseDate || null
         }
       })
     }
@@ -95,20 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-async function attemptCustomerLookup(customerId: string) {
-  try {
-    const records = await base('Directory Bolt Import')
-      .select({
-        filterByFormula: `{customerID} = "${customerId}"`
-      })
-      .firstPage()
-
-    return records.length > 0 ? records[0] : null
-  } catch (error) {
-    console.error('Database lookup error:', error)
-    return null
-  }
-}
+// Helper function removed - now using Google Sheets service directly
 
 function generateAlternativeIds(customerId: string): string[] {
   const alternatives: string[] = []

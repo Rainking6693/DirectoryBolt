@@ -12,7 +12,7 @@
  * - 3.1.5: Error handling and retry logic
  */
 
-import { createAirtableService } from './airtable'
+import { createGoogleSheetsService } from './google-sheets'
 
 // Temporary types for build compatibility
 interface AutoBoltProcessingResult {
@@ -92,7 +92,7 @@ export interface QueueStats {
 }
 
 export class QueueManager {
-  private airtableService: ReturnType<typeof createAirtableService> | null = null
+  private googleSheetsService: ReturnType<typeof createGoogleSheetsService> | null = null
   private isProcessing: boolean = false
   private processingQueue: QueueItem[] = []
   private maxConcurrentProcessing: number = 3
@@ -101,46 +101,48 @@ export class QueueManager {
   private batchDelay: number = 2000 // 2 seconds between batches
 
   constructor() {
-    // Lazy load Airtable service to avoid build-time initialization
+    // Lazy load Google Sheets service to avoid build-time initialization
   }
 
   /**
-   * Get or create Airtable service instance (lazy-loaded)
+   * Get or create Google Sheets service instance (lazy-loaded)
    */
-  private getAirtableService(): ReturnType<typeof createAirtableService> {
-    if (!this.airtableService) {
-      this.airtableService = createAirtableService()
+  private getGoogleSheetsService(): ReturnType<typeof createGoogleSheetsService> {
+    if (!this.googleSheetsService) {
+      this.googleSheetsService = createGoogleSheetsService()
     }
-    return this.airtableService
+    return this.googleSheetsService
   }
 
   /**
-   * 3.1.1: Read "pending" records from Airtable
+   * 3.1.1: Read "pending" records from Google Sheets
    */
   async getPendingQueue(): Promise<QueueItem[]> {
     try {
-      // FIXED: Better Airtable connection handling
-      const hasValidToken = process.env.AIRTABLE_ACCESS_TOKEN && 
-                           !process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable') &&
-                           process.env.AIRTABLE_ACCESS_TOKEN.length > 10
+      // FIXED: Better Google Sheets connection handling
+      const hasValidConfig = process.env.GOOGLE_SHEET_ID && 
+                             process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
+                             process.env.GOOGLE_PRIVATE_KEY
 
-      if (!hasValidToken) {
-        console.warn('⚠️ Airtable not properly configured, using mock queue data for development')
-        console.log('Debug: TOKEN:', process.env.AIRTABLE_ACCESS_TOKEN ? 'PRESENT' : 'MISSING')
+      if (!hasValidConfig) {
+        console.warn('⚠️ Google Sheets not properly configured, using mock queue data for development')
+        console.log('Debug: SHEET_ID:', process.env.GOOGLE_SHEET_ID ? 'PRESENT' : 'MISSING')
+        console.log('Debug: SERVICE_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? 'PRESENT' : 'MISSING') 
+        console.log('Debug: PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? 'PRESENT' : 'MISSING')
         return this.getMockPendingQueue()
       }
 
-      console.log('🔄 Fetching pending submissions from Airtable...')
+      console.log('🔄 Fetching pending submissions from Google Sheets...')
       
-      // Test Airtable connection first
-      const airtableService = this.getAirtableService()
-      const healthCheck = await airtableService.healthCheck()
+      // Test Google Sheets connection first
+      const googleSheetsService = this.getGoogleSheetsService()
+      const healthCheck = await googleSheetsService.healthCheck()
       
       if (!healthCheck) {
-        throw new Error('Airtable health check failed - connection not working')
+        throw new Error('Google Sheets health check failed - connection not working')
       }
       
-      const pendingRecords = await airtableService.findByStatus('pending')
+      const pendingRecords = await googleSheetsService.findByStatus('pending')
       
       const queueItems: QueueItem[] = pendingRecords.map(record => {
         const packageType = record.packageType || 'starter'
@@ -168,11 +170,11 @@ export class QueueManager {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       })
 
-      console.log(`✅ Found ${queueItems.length} pending submissions`)
+      console.log(`✅ Found ${queueItems.length} pending submissions from Google Sheets`)
       return queueItems
 
     } catch (error) {
-      console.error('❌ Failed to fetch pending queue, using mock data:', error)
+      console.error('❌ Failed to fetch pending queue from Google Sheets, using mock data:', error)
       return this.getMockPendingQueue()
     }
   }
@@ -287,7 +289,7 @@ export class QueueManager {
     try {
       console.log(`🔄 Updating status for ${customerId} to ${status}`)
       
-      await this.getAirtableService().updateSubmissionStatus(
+      await this.getGoogleSheetsService().updateSubmissionStatus(
         customerId,
         status,
         directoriesSubmitted,
@@ -533,18 +535,21 @@ export class QueueManager {
    */
   async getQueueStats(): Promise<QueueStats> {
     try {
-      // Check if Airtable is configured
-      if (!process.env.AIRTABLE_ACCESS_TOKEN || 
-          process.env.AIRTABLE_ACCESS_TOKEN.includes('your_airtable')) {
-        console.warn('⚠️ Airtable not configured, using mock data for development')
+      // Check if Google Sheets is configured
+      const hasValidConfig = process.env.GOOGLE_SHEET_ID && 
+                             process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
+                             process.env.GOOGLE_PRIVATE_KEY
+
+      if (!hasValidConfig) {
+        console.warn('⚠️ Google Sheets not configured, using mock data for development')
         return this.getMockQueueStats()
       }
 
       const [pending, inProgress, completed, failed] = await Promise.all([
-        this.getAirtableService().findByStatus('pending'),
-        this.getAirtableService().findByStatus('in-progress'),
-        this.getAirtableService().findByStatus('completed'),
-        this.getAirtableService().findByStatus('failed')
+        this.getGoogleSheetsService().findByStatus('pending'),
+        this.getGoogleSheetsService().findByStatus('in-progress'),
+        this.getGoogleSheetsService().findByStatus('completed'),
+        this.getGoogleSheetsService().findByStatus('failed')
       ])
 
       return {
@@ -611,7 +616,7 @@ export class QueueManager {
    */
   async processSpecificCustomer(customerId: string): Promise<QueueProcessingResult> {
     try {
-      const record = await this.getAirtableService().findByCustomerId(customerId)
+      const record = await this.getGoogleSheetsService().findByCustomerId(customerId)
       
       if (!record) {
         throw new Error(`Customer ${customerId} not found`)

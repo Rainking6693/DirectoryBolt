@@ -19,8 +19,31 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Detect Netlify Functions context
+  const isNetlifyFunction = !!process.env.NETLIFY || !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  
+  console.log('📋 Queue status API called:', {
+    isNetlify: isNetlifyFunction,
+    method: req.method
+  })
+  
+  // Create response helper
+  const createResponse = (statusCode: number, data: any) => {
+    if (isNetlifyFunction) {
+      return {
+        statusCode,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+    } else {
+      return res.status(statusCode).json(data)
+    }
+  }
+  
   if (req.method !== 'GET') {
-    return res.status(405).json({
+    return createResponse(405, {
       success: false,
       error: 'Method not allowed. Use GET.'
     })
@@ -30,7 +53,7 @@ export default async function handler(
     // Apply rate limiting
     await limiter.check(res, 20, 'queue-status') // 20 requests per minute per IP
   } catch {
-    return res.status(429).json({
+    return createResponse(429, {
       success: false,
       error: 'Rate limit exceeded. Please try again later.'
     })
@@ -41,7 +64,7 @@ export default async function handler(
     const isProcessing = queueManager().isQueueProcessing()
     const nextCustomer = await queueManager().getNextCustomer()
 
-    return res.status(200).json({
+    return createResponse(200, {
       success: true,
       data: {
         stats,
@@ -61,7 +84,7 @@ export default async function handler(
   } catch (error) {
     console.error('Queue status API error:', error)
     
-    return res.status(500).json({
+    return createResponse(500, {
       success: false,
       error: 'Failed to get queue status',
       message: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : 'Internal server error'
