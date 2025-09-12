@@ -82,7 +82,7 @@ export default async function handler(
     }
 
     // Find customer using secure server-side service
-    const customer = await airtableService.findByCustomerId(customerId.trim().toUpperCase())
+    const customer = await airtableService.findByCustomerId(customerId.trim())
 
     if (!customer) {
       console.log(`❌ SECURE: Customer not found: ${customerId}`)

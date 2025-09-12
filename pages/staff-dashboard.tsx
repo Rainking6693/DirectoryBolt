@@ -33,10 +33,8 @@ export default function StaffDashboard() {
         }
       } catch (error) {
         console.error('Staff auth check failed:', error)
-        // For development, allow access
-        if (process.env.NODE_ENV === 'development') {
-          setIsAuthenticated(true)
-        }
+        // Always require proper authentication - NO BYPASSES
+        setIsAuthenticated(false)
       } finally {
         setIsAuthLoading(false)
       }

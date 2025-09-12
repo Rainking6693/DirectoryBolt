@@ -31,3 +31,9 @@ For DirectoryBolt specifically:
 
 tools = ["filesystem", "git", "shell"]
 execution_strategy = "plan"
+[tools_authorized]
+data_analysis = true
+state_monitoring = true
+message_tracing = true
+storage_audit = true
+documentation = true

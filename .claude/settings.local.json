@@ -72,7 +72,12 @@
       "Bash(PORT=3005 npm run start)",
       "Bash(mklink:*)",
       "Bash(ln:*)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(chrome:*)",
+      "Bash(dir:*)",
+      "Bash(copy \"auto-bolt-extension\\manifest.json\" \"build\\auto-bolt-extension\\manifest.json\")",
+      "Bash(echo:*)",
+      "Bash(/bashes)"
     ],
     "deny": [],
     "ask": []

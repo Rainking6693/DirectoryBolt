@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { verifyAdminAuth } from '../../../../../lib/auth/admin-auth'
+import { withCSRFProtection } from '../../../../../lib/security/csrf-protection'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -36,3 +37,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: 'Failed to resolve alert' })
   }
 }
+
+// Export with CSRF protection
+export default withCSRFProtection(handler)

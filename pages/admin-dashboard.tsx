@@ -26,12 +26,8 @@ export default function AdminDashboardPage() {
         }
       } catch (error) {
         console.error('Admin auth check failed:', error)
-        // For development, allow access
-        if (process.env.NODE_ENV === 'development') {
-          setIsAuthenticated(true)
-        } else {
-          router.push('/login?redirect=/admin-dashboard')
-        }
+        // Always require proper authentication - NO BYPASSES
+        router.push('/login?redirect=/admin-dashboard')
       } finally {
         setIsLoading(false)
       }

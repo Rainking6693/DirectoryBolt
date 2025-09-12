@@ -60,8 +60,11 @@ export default function AdminMonitoringDashboard() {
     const [loading, setLoading] = useState(true)
     const [selectedTab, setSelectedTab] = useState<'overview' | 'directories' | 'customers' | 'alerts' | 'performance'>('overview')
     const [autoRefresh, setAutoRefresh] = useState(true)
+    const [csrfToken, setCsrfToken] = useState<string>('')
 
     useEffect(() => {
+        // Initialize CSRF token
+        fetchCSRFToken()
         loadDashboardData()
         
         // Auto-refresh every 30 seconds
@@ -73,6 +76,18 @@ export default function AdminMonitoringDashboard() {
         
         return () => clearInterval(interval)
     }, [autoRefresh])
+
+    const fetchCSRFToken = async () => {
+        try {
+            const response = await fetch('/api/csrf-token')
+            if (response.ok) {
+                const data = await response.json()
+                setCsrfToken(data.token)
+            }
+        } catch (error) {
+            console.error('Failed to fetch CSRF token:', error)
+        }
+    }
 
     const loadDashboardData = async () => {
         try {
@@ -112,8 +127,17 @@ export default function AdminMonitoringDashboard() {
 
     const resolveAlert = async (alertId: string) => {
         try {
+            // Refresh CSRF token before sensitive operation
+            if (!csrfToken) {
+                await fetchCSRFToken()
+            }
+
             await fetch(`/api/admin/alerts/${alertId}/resolve`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                }
             })
             
             setSystemAlerts(prev => 
@@ -123,6 +147,8 @@ export default function AdminMonitoringDashboard() {
             )
         } catch (error) {
             console.error('Failed to resolve alert:', error)
+            // Refresh CSRF token on failure (might be expired)
+            await fetchCSRFToken()
         }
     }
 

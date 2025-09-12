@@ -318,7 +318,6 @@
   
   "minimum_chrome_version": "88",
   
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...",
   
   "externally_connectable": {
     "matches": ["https://auto-bolt.netlify.app/*"]

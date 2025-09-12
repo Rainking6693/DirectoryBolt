@@ -197,19 +197,30 @@ export class AirtableService {
   }
 
   /**
-   * Field normalization helper to handle both customerID and customerId formats
+   * Field normalization helper to handle multiple customerID field formats
    */
   private normalizeCustomerIdField(record: any): string | null {
-    // Try both field name formats to handle Airtable case sensitivity
-    return record.get('customerID') || record.get('customerId') || null
+    // Try all possible field name formats to handle Airtable field variations
+    return record.get('customerID') || 
+           record.get('customerId') || 
+           record.get('Customer ID') ||
+           record.get('CUSTOMER_ID') ||
+           record.get('customer_id') ||
+           null
   }
 
   /**
-   * Get customer ID filter formula that works with both field formats
+   * Get customer ID filter formula - simplified and reliable
    */
   private getCustomerIdFilterFormula(customerId: string): string {
-    // Create OR condition to check both possible field names
-    return `OR({customerID} = '${customerId}', {customerId} = '${customerId}')`
+    // Clean and prepare the customer ID
+    const cleanCustomerId = customerId.trim()
+    
+    // Handle both original format and uppercase
+    const upperCustomerId = cleanCustomerId.toUpperCase()
+    
+    // Simple and reliable formula - try the most common field names
+    return `OR({customerID} = '${cleanCustomerId}', {customerId} = '${cleanCustomerId}', {customerID} = '${upperCustomerId}', {customerId} = '${upperCustomerId}')`
   }
 
   /**

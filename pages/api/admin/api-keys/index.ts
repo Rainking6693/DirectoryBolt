@@ -8,6 +8,7 @@ import { getUserRole } from '../../../../lib/auth/rbac'
 import { handleApiError, AuthorizationError, ValidationError } from '../../../../lib/utils/errors'
 import { logger } from '../../../../lib/utils/logger'
 import { apiKeyDatabase } from '../../../../lib/database/api-key-schema'
+import { withCSRFProtection } from '../../../../lib/security/csrf-protection'
 
 interface AdminApiKeysListResponse {
   success: true
@@ -80,7 +81,7 @@ interface AdminApiKeyDetailsResponse {
   requestId: string
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -279,3 +280,6 @@ async function handleBulkOperations(
     throw error
   }
 }
+
+// Export with CSRF protection
+export default withCSRFProtection(handler)
