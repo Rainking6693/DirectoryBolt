@@ -79,7 +79,10 @@
       "Bash(echo:*)",
       "Bash(/bashes)",
       "Bash(set)",
-      "Bash(npx lighthouse:*)"
+      "Bash(npx lighthouse:*)",
+      "WebFetch(domain:business.google.com)",
+      "WebFetch(domain:business.yelp.com)",
+      "WebFetch(domain:www.yellowpages.com)"
     ],
     "deny": [],
     "ask": []

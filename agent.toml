@@ -33,4 +33,6 @@ imports = [
     "agents/blake.toml",
     "agents/hudson.toml",
     "agents/cora.toml"
+    "agents/clive.toml"
+    "agetns/frank.toml"
 ]

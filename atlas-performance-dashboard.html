@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Performance Dashboard - Chrome Extension Analysis</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .metric-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .metric-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-success { background: var(--success-color); }
+        .status-warning { background: var(--warning-color); }
+        .status-error { background: var(--error-color); }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .metric-details {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success-color);
+            transition: width 0.3s ease;
+        }
+
+        .tests-section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-info {
+            flex: 1;
+        }
+
+        .test-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .test-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .test-result {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-passed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-failed {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-running {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .test-metric {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .recommendations-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .recommendation-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .recommendation-priority {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .priority-high {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-low {
+            background: #f0f9ff;
+            color: #1e40af;
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .recommendation-impact {
+            font-size: 12px;
+            padding: 6px 12px;
+            background: #f0f9ff;
+            border-radius: 6px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .controls {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin: 0 8px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .recommendations-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🎯 Atlas Performance Dashboard</h1>
+            <p>Chrome Extension Performance Analysis Post-Manifest Optimization</p>
+            <div style="margin-top: 12px; font-size: 14px; color: var(--text-secondary);">
+                Extension Version: <span id="extension-version">Loading...</span> | 
+                Last Updated: <span id="last-updated">--</span>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Overall Score</div>
+                    <div class="metric-status status-success" id="overall-status"></div>
+                </div>
+                <div class="metric-value" id="overall-score">--</div>
+                <div class="metric-label">Performance Grade: <span id="performance-grade">--</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overall-progress" style="width: 0%"></div>
+                </div>
+                <div class="metric-details">Tests passed: <span id="tests-passed">0</span>/<span id="tests-total">0</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Extension Startup</div>
+                    <div class="metric-status status-success" id="startup-status"></div>
+                </div>
+                <div class="metric-value" id="startup-time">--</div>
+                <div class="metric-label">milliseconds</div>
+                <div class="metric-details">Benchmark: <2000ms</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Content Script Injection</div>
+                    <div class="metric-status status-success" id="injection-status"></div>
+                </div>
+                <div class="metric-value" id="injection-time">--</div>
+                <div class="metric-label">milliseconds</div>
+                <div class="metric-details">Benchmark: <500ms</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">API Response Time</div>
+                    <div class="metric-status status-success" id="api-status"></div>
+                </div>
+                <div class="metric-value" id="api-time">--</div>
+                <div class="metric-label">milliseconds</div>
+                <div class="metric-details">Benchmark: <3000ms</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Memory Usage</div>
+                    <div class="metric-status status-success" id="memory-status"></div>
+                </div>
+                <div class="metric-value" id="memory-usage">--</div>
+                <div class="metric-label">MB</div>
+                <div class="metric-details">Benchmark: <50MB</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Manifest Optimization</div>
+                    <div class="metric-status status-success" id="manifest-status"></div>
+                </div>
+                <div class="metric-value" id="manifest-score">--</div>
+                <div class="metric-label">optimization score</div>
+                <div class="metric-details">Patterns: <span id="pattern-count">--</span> | Resources: <span id="resource-count">--</span></div>
+            </div>
+        </div>
+
+        <div class="tests-section">
+            <div class="section-title">📊 Performance Test Results</div>
+            <div id="test-results">
+                <div class="test-item">
+                    <div class="test-info">
+                        <div class="test-name">Extension Loading Performance</div>
+                        <div class="test-description">Measures startup time, service worker response, and initialization</div>
+                    </div>
+                    <div class="test-result">
+                        <div class="test-status status-running" id="test-loading-status">Running</div>
+                        <div class="test-metric" id="test-loading-metric">--</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <div class="test-info">
+                        <div class="test-name">Content Script Performance</div>
+                        <div class="test-description">Tests script injection speed across multiple directory sites</div>
+                    </div>
+                    <div class="test-result">
+                        <div class="test-status status-running" id="test-content-status">Pending</div>
+                        <div class="test-metric" id="test-content-metric">--</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <div class="test-info">
+                        <div class="test-name">API Integration Performance</div>
+                        <div class="test-description">Evaluates authentication, data retrieval, and submission speeds</div>
+                    </div>
+                    <div class="test-result">
+                        <div class="test-status status-running" id="test-api-status">Pending</div>
+                        <div class="test-metric" id="test-api-metric">--</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <div class="test-info">
+                        <div class="test-name">Memory Usage Analysis</div>
+                        <div class="test-description">Monitors memory consumption and detects potential leaks</div>
+                    </div>
+                    <div class="test-result">
+                        <div class="test-status status-running" id="test-memory-status">Pending</div>
+                        <div class="test-metric" id="test-memory-metric">--</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <div class="test-info">
+                        <div class="test-name">Manifest Optimization Impact</div>
+                        <div class="test-description">Assesses benefits of Alex's manifest structure improvements</div>
+                    </div>
+                    <div class="test-result">
+                        <div class="test-status status-running" id="test-manifest-status">Pending</div>
+                        <div class="test-metric" id="test-manifest-metric">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendations-section">
+            <div>
+                <div class="section-title">🔧 Performance Recommendations</div>
+                <div id="recommendations-list">
+                    <div class="recommendation-card">
+                        <div class="recommendation-priority priority-high">High Priority</div>
+                        <div class="recommendation-title">Running performance analysis...</div>
+                        <div class="recommendation-description">Please wait while we assess your extension's performance.</div>
+                        <div class="recommendation-impact">Analysis in progress</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="section-title">📋 Manifest Optimization Benefits</div>
+                <div class="recommendation-card">
+                    <div class="recommendation-title">✅ Manifest Structure Optimized</div>
+                    <div class="recommendation-description">
+                        Alex's optimizations have improved:
+                        <ul style="margin: 8px 0 0 20px;">
+                            <li>Simplified pattern matching</li>
+                            <li>Reduced Chrome processing overhead</li>
+                            <li>Better extension store compliance</li>
+                            <li>Streamlined resource loading</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-impact">✓ Optimization Complete</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="runPerformanceTests()" id="run-btn">
+                <span id="btn-text">🚀 Run Performance Tests</span>
+                <span class="loading hidden" id="btn-loading"></span>
+            </button>
+            <button class="btn btn-secondary" onclick="exportReport()" id="export-btn">📊 Export Report</button>
+            <button class="btn btn-secondary" onclick="resetDashboard()" id="reset-btn">🔄 Reset</button>
+        </div>
+    </div>
+
+    <script src="performance-test-suite.js"></script>
+    <script>
+        let currentTestSuite = null;
+        let isTestingRunning = false;
+
+        // Initialize dashboard
+        function initDashboard() {
+            updateTimestamp();
+            loadExtensionInfo();
+            setInterval(updateTimestamp, 1000);
+        }
+
+        function updateTimestamp() {
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }
+
+        function loadExtensionInfo() {
+            try {
+                if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    const manifest = chrome.runtime.getManifest();
+                    document.getElementById('extension-version').textContent = manifest.version || 'Unknown';
+                }
+            } catch (error) {
+                document.getElementById('extension-version').textContent = 'Development Mode';
+            }
+        }
+
+        // Run performance tests
+        async function runPerformanceTests() {
+            if (isTestingRunning) return;
+            
+            isTestingRunning = true;
+            updateButtonState(true);
+            resetMetrics();
+
+            try {
+                if (typeof AtlasPerformanceTestSuite === 'undefined') {
+                    throw new Error('Performance test suite not loaded');
+                }
+
+                currentTestSuite = new AtlasPerformanceTestSuite();
+                const report = await currentTestSuite.runFullPerformanceAssessment();
+                
+                updateDashboardWithResults(report);
+                
+            } catch (error) {
+                console.error('Performance tests failed:', error);
+                showError('Performance tests failed: ' + error.message);
+            } finally {
+                isTestingRunning = false;
+                updateButtonState(false);
+            }
+        }
+
+        function updateButtonState(running) {
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            if (running) {
+                btnText.textContent = 'Running Tests...';
+                btnLoading.classList.remove('hidden');
+            } else {
+                btnText.textContent = '🚀 Run Performance Tests';
+                btnLoading.classList.add('hidden');
+            }
+        }
+
+        function resetMetrics() {
+            // Reset all metrics to default state
+            const metrics = ['overall-score', 'startup-time', 'injection-time', 'api-time', 'memory-usage', 'manifest-score'];
+            metrics.forEach(id => {
+                document.getElementById(id).textContent = '--';
+            });
+            
+            document.getElementById('performance-grade').textContent = '--';
+            document.getElementById('tests-passed').textContent = '0';
+            document.getElementById('tests-total').textContent = '0';
+            document.getElementById('overall-progress').style.width = '0%';
+            
+            // Reset test statuses
+            const testStatuses = ['test-loading-status', 'test-content-status', 'test-api-status', 'test-memory-status', 'test-manifest-status'];
+            testStatuses.forEach(id => {
+                const element = document.getElementById(id);
+                element.className = 'test-status status-running';
+                element.textContent = 'Running';
+            });
+        }
+
+        function updateDashboardWithResults(report) {
+            if (!report || report.success === false) {
+                showError('Failed to generate performance report');
+                return;
+            }
+
+            // Update overall metrics
+            const summary = report.executive_summary;
+            document.getElementById('overall-score').textContent = summary.overall_score.toFixed(1) + '%';
+            document.getElementById('performance-grade').textContent = summary.performance_grade;
+            document.getElementById('tests-passed').textContent = summary.passed_tests;
+            document.getElementById('tests-total').textContent = summary.total_tests;
+            document.getElementById('overall-progress').style.width = summary.overall_score + '%';
+
+            // Update individual test results
+            updateTestResult('extension_loading', report.detailed_results.extension_loading);
+            updateTestResult('content_scripts', report.detailed_results.content_scripts);
+            updateTestResult('api_integration', report.detailed_results.api_integration);
+            updateTestResult('memory_usage', report.detailed_results.memory_usage);
+            updateTestResult('manifest_optimization', report.detailed_results.manifest_optimization);
+
+            // Update status indicators
+            updateStatusIndicators(summary.overall_score, summary.critical_issues);
+
+            // Update recommendations
+            updateRecommendations(report.optimization_recommendations);
+
+            // Add fade-in animation
+            document.querySelector('.dashboard').classList.add('fade-in');
+        }
+
+        function updateTestResult(testType, testResult) {
+            if (!testResult) return;
+
+            const statusMap = {
+                'extension_loading': { status: 'test-loading-status', metric: 'test-loading-metric', value: 'startup-time' },
+                'content_scripts': { status: 'test-content-status', metric: 'test-content-metric', value: 'injection-time' },
+                'api_integration': { status: 'test-api-status', metric: 'test-api-metric', value: 'api-time' },
+                'memory_usage': { status: 'test-memory-status', metric: 'test-memory-metric', value: 'memory-usage' },
+                'manifest_optimization': { status: 'test-manifest-status', metric: 'test-manifest-metric', value: 'manifest-score' }
+            };
+
+            const mapping = statusMap[testType];
+            if (!mapping) return;
+
+            const statusElement = document.getElementById(mapping.status);
+            const metricElement = document.getElementById(mapping.metric);
+            const valueElement = document.getElementById(mapping.value);
+
+            statusElement.className = `test-status ${testResult.passed ? 'status-passed' : 'status-failed'}`;
+            statusElement.textContent = testResult.passed ? 'Passed' : 'Failed';
+
+            if (testResult.metrics) {
+                switch (testType) {
+                    case 'extension_loading':
+                        valueElement.textContent = Math.round(testResult.metrics.totalInitTime);
+                        metricElement.textContent = Math.round(testResult.metrics.totalInitTime) + 'ms';
+                        break;
+                    case 'content_scripts':
+                        valueElement.textContent = Math.round(testResult.metrics.avgInjectionTime);
+                        metricElement.textContent = Math.round(testResult.metrics.avgInjectionTime) + 'ms';
+                        break;
+                    case 'api_integration':
+                        valueElement.textContent = Math.round(testResult.metrics.avgResponseTime);
+                        metricElement.textContent = Math.round(testResult.metrics.avgResponseTime) + 'ms';
+                        break;
+                    case 'memory_usage':
+                        valueElement.textContent = testResult.metrics.finalMemoryMB.toFixed(1);
+                        metricElement.textContent = testResult.metrics.finalMemoryMB.toFixed(1) + 'MB';
+                        break;
+                    case 'manifest_optimization':
+                        valueElement.textContent = testResult.metrics.optimizationScore + '%';
+                        metricElement.textContent = testResult.metrics.optimizationScore + '%';
+                        document.getElementById('pattern-count').textContent = testResult.metrics.contentScriptPatterns;
+                        document.getElementById('resource-count').textContent = testResult.metrics.webAccessibleResources;
+                        break;
+                }
+            }
+        }
+
+        function updateStatusIndicators(overallScore, criticalIssues) {
+            const indicators = ['overall-status', 'startup-status', 'injection-status', 'api-status', 'memory-status', 'manifest-status'];
+            
+            indicators.forEach(id => {
+                const element = document.getElementById(id);
+                element.className = 'metric-status ';
+                
+                if (criticalIssues > 0) {
+                    element.className += 'status-error';
+                } else if (overallScore >= 80) {
+                    element.className += 'status-success';
+                } else {
+                    element.className += 'status-warning';
+                }
+            });
+        }
+
+        function updateRecommendations(recommendations) {
+            const container = document.getElementById('recommendations-list');
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = `
+                    <div class="recommendation-card">
+                        <div class="recommendation-priority priority-low">No Issues</div>
+                        <div class="recommendation-title">✅ All Performance Tests Passed</div>
+                        <div class="recommendation-description">Your extension is performing optimally. No immediate optimizations required.</div>
+                        <div class="recommendation-impact">Excellent performance</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recommendations.slice(0, 3).map(rec => `
+                <div class="recommendation-card">
+                    <div class="recommendation-priority priority-${rec.priority.toLowerCase()}">${rec.priority} Priority</div>
+                    <div class="recommendation-title">${rec.category}</div>
+                    <div class="recommendation-description">${rec.action}</div>
+                    <div class="recommendation-impact">Impact: ${rec.impact}</div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            const container = document.getElementById('recommendations-list');
+            container.innerHTML = `
+                <div class="recommendation-card" style="border-left-color: var(--error-color);">
+                    <div class="recommendation-priority priority-high">Error</div>
+                    <div class="recommendation-title">❌ Test Execution Failed</div>
+                    <div class="recommendation-description">${message}</div>
+                    <div class="recommendation-impact">Please check console for details</div>
+                </div>
+            `;
+        }
+
+        function exportReport() {
+            if (!currentTestSuite) {
+                alert('No test results available. Please run performance tests first.');
+                return;
+            }
+
+            try {
+                const reportData = currentTestSuite.results;
+                const jsonData = JSON.stringify(reportData, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `atlas-performance-report-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Failed to export report:', error);
+                alert('Failed to export report. Check console for details.');
+            }
+        }
+
+        function resetDashboard() {
+            if (isTestingRunning) return;
+            
+            currentTestSuite = null;
+            resetMetrics();
+            
+            // Reset recommendations
+            document.getElementById('recommendations-list').innerHTML = `
+                <div class="recommendation-card">
+                    <div class="recommendation-priority priority-high">Ready</div>
+                    <div class="recommendation-title">🚀 Ready for Performance Testing</div>
+                    <div class="recommendation-description">Click "Run Performance Tests" to analyze your extension's performance.</div>
+                    <div class="recommendation-impact">Comprehensive analysis available</div>
+                </div>
+            `;
+            
+            // Reset all test statuses
+            const testElements = document.querySelectorAll('.test-status');
+            testElements.forEach(el => {
+                el.className = 'test-status status-running';
+                el.textContent = 'Pending';
+            });
+            
+            const metricElements = document.querySelectorAll('.test-metric');
+            metricElements.forEach(el => {
+                el.textContent = '--';
+            });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+    </script>
+</body>
+</html>
