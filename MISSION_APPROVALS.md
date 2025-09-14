@@ -58,6 +58,20 @@ Only when all four are `YES` with comments will the next section be unblocked.
 - Clive: [YES] — Security implications understood, env vars must be configured securely — 2025-01-08T00:20:00Z
 - Blake: [YES] — Cannot test customer flows until environment variables are configured — 2025-01-08T00:20:00Z
 
+### Section 3 - Dashboards & Logins
+**STATUS:** 🔄 IN PROGRESS - PENDING AGENT CHECK-INS
+**FINDINGS (to be populated):**
+- ⏳ Route availability checks (admin/staff/customer)
+- ⏳ Auth method validation (x-staff-key, staff-session, basic auth)
+- ⏳ Customer ID/email validation strictness
+- ⏳ Error state visibility and copy consistency
+
+**AUDIT APPROVALS:**
+- Cora: [PENDING] —
+- Frank: [PENDING] —
+- Clive: [PENDING] —
+- Blake: [PENDING] —
+
 ### Section 5 - Critical Failures
 **STATUS:** ✅ ASSESSMENT COMPLETE - READY FOR AUDIT REVIEW
 **FINDINGS:**

@@ -125,30 +125,56 @@ class DirectoryBoltExtension {
     }
 
     async attemptCustomerLookup(customerId) {
-        try {
-            const response = await fetch(`${this.apiUrl}/customer/validate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ customerId })
-            });
+        const endpoints = [
+            `${this.apiUrl}/customer/validate`, // Netlify redirect → function
+            `${this.apiUrl.replace('/api', '')}/.netlify/functions/customer-validate`, // direct function
+            `${this.apiUrl}/extension/secure-validate`, // secure server-side proxy
+            `${this.apiUrl}/extension/validate-fixed` // diagnostic validator
+        ];
 
-            if (response.status === 200) {
-                const data = await response.json();
-                return data.customer || data;
-            } else if (response.status === 404) {
-                return null; // Customer not found
-            } else {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const payload = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerId }) };
+
+        for (const url of endpoints) {
+            try {
+                const response = await fetch(url, payload);
+                if (response.status === 404) {
+                    // Not found at this endpoint, try next
+                    continue;
+                }
+                if (!response.ok) {
+                    // Try next endpoint on non-OK status
+                    continue;
+                }
+                const data = await response.json().catch(() => ({}));
+
+                // Normalize different response shapes
+                // Netlify function shape
+                if (data && data.success && data.customer) {
+                    return data.customer;
+                }
+                // Secure endpoints shape
+                if (data && data.valid === true) {
+                    return {
+                        customerId,
+                        businessName: data.customerName || 'Customer',
+                        packageType: data.packageType || 'starter',
+                        submissionStatus: 'active'
+                    };
+                }
+                // Some endpoints may directly return customer-like object
+                if (data && (data.customerId || data.customerID)) {
+                    return data;
+                }
+
+                // If reached here but response OK, try next as a safety
+            } catch (err) {
+                // Network error on this endpoint, try next
+                continue;
             }
-            
-        } catch (error) {
-            if (error.message.includes('Customer not found')) {
-                return null;
-            }
-            throw error;
         }
+
+        // If none succeeded
+        return null;
     }
 
     createTestCustomer(customerId) {

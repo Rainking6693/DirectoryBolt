@@ -22,12 +22,12 @@ export default function AdminDashboardPage() {
           setIsAuthenticated(true)
         } else {
           // Redirect to login or show access denied
-          router.push('/login?redirect=/admin-dashboard')
+          router.push('/customer-login?redirect=/admin-dashboard')
         }
       } catch (error) {
         console.error('Admin auth check failed:', error)
         // Always require proper authentication - NO BYPASSES
-        router.push('/login?redirect=/admin-dashboard')
+        router.push('/customer-login?redirect=/admin-dashboard')
       } finally {
         setIsLoading(false)
       }
@@ -54,10 +54,10 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-4">You need admin privileges to access this dashboard.</p>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/customer-login?redirect=/admin-dashboard')}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
-            Go Home
+            Go to Login
           </button>
         </div>
       </div>

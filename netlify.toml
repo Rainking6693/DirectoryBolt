@@ -12,6 +12,9 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+  [plugins.inputs]
+    # Exclude specific API routes so redirects to Netlify Functions take effect
+    excludedRoutes = ["/api/customer/*", "/api/health/*", "/api/extension/*"]
 
 [context.production.environment]
   NODE_ENV = "production"
@@ -59,6 +62,12 @@
 [[redirects]]
   from = "/api/customer/validate"
   to = "/.netlify/functions/customer-validate"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/extension/secure-validate"
+  to = "/.netlify/functions/extension-secure-validate"
   status = 200
   force = true
 
