@@ -5,7 +5,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
+const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
 
 interface SecureValidationRequest {
   customerId: string

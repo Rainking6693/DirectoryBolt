@@ -109,7 +109,7 @@ async function getProgressData(customerId: string): Promise<ProgressData | null>
 
 // Real implementation using Google Sheets:
 /*
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets.js';
 
 async function getProgressData(customerId: string): Promise<ProgressData | null> {
   try {

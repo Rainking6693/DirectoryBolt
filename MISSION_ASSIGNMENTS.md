@@ -6,7 +6,7 @@ Assignment mapping (owners and first-step tasks)
 
 Section 1 — Pre-Testing & Setup
 - Owner team: Integration
-- Lead: Jordan (Integration)
+- Lead: 
 - Tasks:
   - Verify extension path `/auto-bolt-extension` and `manifest.json` prod config
   - Confirm env vars present (Netlify/Local) — `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`
@@ -15,7 +15,7 @@ Section 1 — Pre-Testing & Setup
 
 Section 2 — API Endpoints
 - Owner team: Auth + Integration
-- Leads: Sam (Auth), Jordan (Integration)
+- Leads: 
 - Tasks:
   - Reproduce 500/401 errors for listed endpoints and capture logs
   - Inspect `pages/api/analyze.ts`, `pages/api/health`, `pages/api/admin/*` routes for error handling
@@ -24,7 +24,7 @@ Section 2 — API Endpoints
 
 Section 3 — Dashboards & Logins
 - Owner team: UI/UX + Auth
-- Leads: Priya (UI/UX), Sam (Auth)
+- Leads: 
 - Tasks:
   - Verify staff/admin login flows (`x-staff-key`, `staff-session`, basic auth)
   - Fix 404s for admin dashboard routes
@@ -33,7 +33,7 @@ Section 3 — Dashboards & Logins
 
 Section 4 — Extension Customer Journey
 - Owner team: Content + Background + QA
-- Leads: Miguel (Content), Alex (Background), Blake (QA)
+- Leads: 
 - Tasks:
   - Ensure payment -> redirect -> business form works end-to-end
   - Validate Google Sheets writes: `submissionStatus="pending"` and `packageType` mapping
@@ -42,7 +42,7 @@ Section 4 — Extension Customer Journey
 
 Section 5 — Critical Failures
 - Owner team: Integration + Background
-- Leads: Jordan (Integration), Alex (Background)
+- Leads: 
 - Tasks:
   - Fix production Google Sheets auth; validate Netlify env var availability
   - Resolve API routes/pages missing in build
@@ -50,7 +50,7 @@ Section 5 — Critical Failures
 
 Section 6 — Immediate Action Items
 - Owner team: Integration
-- Lead: Jordan
+- Lead: 
 - Tasks:
   - Run `netlify dev`, `netlify env:list`, `netlify functions:list` locally and capture errors
   - Inspect `netlify.toml` and build target
@@ -58,7 +58,7 @@ Section 6 — Immediate Action Items
 
 Section 7 — Urgent Agent Assignments
 - Owner team: QA + Content
-- Leads: Blake (QA), Miguel (Content)
+- Leads: 
 - Tasks:
   - QA runs E2E tests for Chrome extension and dashboards
   - Content updates selectors and mappings for directories
@@ -66,7 +66,7 @@ Section 7 — Urgent Agent Assignments
 
 Section 8 — System Integrity & Recovery
 - Owner team: Background + Integration + Auth
-- Leads: Alex (Background), Jordan (Integration), Sam (Auth)
+- Leads: 
 - Tasks:
   - Ensure data encryption, purge flows, dedupe protections, retry logic
   - Confirm >95% success rate in test runs

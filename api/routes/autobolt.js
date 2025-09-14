@@ -4,7 +4,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createGoogleSheetsService } from '../../lib/services/google-sheets';
+import { createGoogleSheetsService } from '../../lib/services/google-sheets.js';
 
 // Initialize Google Sheets service
 const googleSheetsService = createGoogleSheetsService();

@@ -1,4 +1,5 @@
 # 📋 AutoBolt Extension & DirectoryBolt Crisis Checklist
+AutoBolt Extension Repo:  C:\Users\Ben\OneDrive\Documents\GitHub\DirectoryBolt\auto-bolt-extension
 
 ## 1. Pre-Testing & Setup
 - [ ] Install AutoBolt extension from correct path (`/auto-bolt-extension`)

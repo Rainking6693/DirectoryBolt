@@ -6,7 +6,7 @@
  */
 
 // Migration Note: This service now uses Google Sheets instead of Airtable
-import { createGoogleSheetsService } from './google-sheets'
+const { createGoogleSheetsService } = require('./google-sheets.js')
 import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } from '../types/business-intelligence'
 
 // Enhanced Airtable Field Mapping Interface with AI Analysis Data

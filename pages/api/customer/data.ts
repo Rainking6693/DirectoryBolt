@@ -100,7 +100,7 @@ async function getCustomerData(customerId: string): Promise<CustomerData | null>
 
 // Real implementation using Google Sheets:
 /*
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets.js';
 
 async function getCustomerData(customerId: string): Promise<CustomerData | null> {
   try {

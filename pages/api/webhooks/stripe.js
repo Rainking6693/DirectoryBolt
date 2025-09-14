@@ -8,7 +8,7 @@
 
 import Stripe from 'stripe'
 import { logger } from '../../../lib/utils/logger'
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
+const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
 import { AutoBoltNotificationService } from '../../../lib/services/autobolt-notifications'
 import { getRawBody } from '../../../lib/utils/server-utils'
 

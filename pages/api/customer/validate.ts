@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
+const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
 
 /**
  * CLIVE - Customer Validation API for Extension (Netlify Functions Compatible)

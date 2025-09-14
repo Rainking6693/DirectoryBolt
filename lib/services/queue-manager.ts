@@ -12,7 +12,7 @@
  * - 3.1.5: Error handling and retry logic
  */
 
-import { createGoogleSheetsService } from './google-sheets'
+const { createGoogleSheetsService } = require('./google-sheets.js')
 
 // Temporary types for build compatibility
 interface AutoBoltProcessingResult {

@@ -4,7 +4,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
+const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
 import { enhancedRateLimit, getClientIP, determineUserTier } from '../../../lib/utils/enhanced-rate-limit'
 
 // CLIVE FIX: Detect Netlify Functions context

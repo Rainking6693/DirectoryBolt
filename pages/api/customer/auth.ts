@@ -123,7 +123,7 @@ async function authenticateByEmail(email: string): Promise<CustomerRecord | null
 
 // Real implementation using Google Sheets:
 /*
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets.js';
 
 async function authenticateByCustomerId(customerId: string): Promise<CustomerRecord | null> {
   try {

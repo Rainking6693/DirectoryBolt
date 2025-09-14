@@ -144,7 +144,7 @@ async function getSubmissionsData(customerId: string): Promise<SubmissionsData |
 
 // Real implementation using Google Sheets:
 /*
-import { createGoogleSheetsService } from '../../../lib/services/google-sheets';
+import { createGoogleSheetsService } from '../../../lib/services/google-sheets.js';
 
 async function getSubmissionsData(customerId: string): Promise<SubmissionsData | null> {
   try {

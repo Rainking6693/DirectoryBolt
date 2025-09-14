@@ -3,7 +3,7 @@
 Mission Commander: Emily (mission lead — AutoBolt + DirectoryBolt recovery)
 Objective: Deliver a fully functional, production-ready AutoBolt extension with all API endpoints, dashboards, and customer journeys validated.
 
-Scope: Follow `UPDATEDPLAN.9.14.md` (master checklist). All other workstreams are halted until mission completion.
+Scope: Follow `UPDATEDPLAN.9.14.md` (master checklist). 
 
 ---
 
