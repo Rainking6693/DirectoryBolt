@@ -2,17 +2,7 @@
 // Comprehensive input sanitization and validation for all API endpoints
 
 import { VALIDATION_RULES } from '../database/schema'
-
-export class ValidationError extends Error {
-  constructor(
-    message: string,
-    public field: string,
-    public code: string
-  ) {
-    super(message)
-    this.name = 'ValidationError'
-  }
-}
+import { ValidationError } from './errors'
 
 export interface ValidationResult {
   isValid: boolean

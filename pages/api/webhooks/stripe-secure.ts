@@ -9,9 +9,11 @@ import { logger } from '../../../lib/utils/logger'
 import { secureWebhookHandler } from '../../../lib/security/webhook-validation'
 import { securityMonitor, monitorPaymentAnomaly } from '../../../lib/security/security-monitoring'
 
+import { buffer as getRawBody } from '../../../lib/utils/server-utils'
+
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2023-08-16',
 })
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
@@ -44,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const buf = await buffer(req)
+  const buf = await getRawBody(req as any)
     
     // Store raw body for signature validation
     ;(req as any).rawBody = buf

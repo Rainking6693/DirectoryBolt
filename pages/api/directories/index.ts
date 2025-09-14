@@ -2,7 +2,10 @@
 // GET /api/directories - List directories with filtering and pagination
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { handleApiError, Errors } from '../../../lib/utils/errors'
+import { handleApiError } from '../../../lib/utils/errors'
+// Use local errors shim as a fallback for missing project Errors implementation
+import ErrorsShim from '../../../lib/utils/errors-shim'
+const Errors = (typeof (global as any).ProjectErrors !== 'undefined') ? (global as any).ProjectErrors : ErrorsShim
 import { validateUrl } from '../../../lib/utils/validation'
 import type { Directory, DirectoryCategory } from '../../../lib/database/schema'
 

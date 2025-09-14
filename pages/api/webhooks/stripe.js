@@ -10,23 +10,12 @@ import Stripe from 'stripe'
 import { logger } from '../../../lib/utils/logger'
 import { createGoogleSheetsService } from '../../../lib/services/google-sheets'
 import { AutoBoltNotificationService } from '../../../lib/services/autobolt-notifications'
+import { getRawBody } from '../../../lib/utils/server-utils'
 
-// Netlify Functions compatible buffer handler
-const getRawBody = async (req) => {
-  if (req.body && typeof req.body === 'string') {
-    return Buffer.from(req.body)
-  }
-  
-  const chunks = []
-  for await (const chunk of req) {
-    chunks.push(chunk)
-  }
-  return Buffer.concat(chunks)
-}
-
-// Initialize Stripe
+// Initialize Stripe with configurable API version (fallback to latest supported in types)
+const stripeApiVersion = process.env.STRIPE_API_VERSION || '2023-08-16'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: stripeApiVersion,
 })
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
@@ -134,16 +123,18 @@ class WebhookPerformanceMonitor {
 export default async function handler(req, res) {
   const startTime = Date.now()
   const requestId = `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  
+
   // Netlify Functions context detection
   const isNetlifyFunction = !!process.env.NETLIFY || !!process.env.AWS_LAMBDA_FUNCTION_NAME
-  
-  console.log('🔄 Stripe webhook triggered:', {
-    isNetlify: isNetlifyFunction,
-    method: req.method,
-    requestId: requestId
+
+  logger.info('🔄 Stripe webhook triggered', {
+    metadata: {
+      isNetlify: isNetlifyFunction,
+      method: req.method,
+      requestId
+    }
   })
-  
+
   if (req.method !== 'POST') {
     const response = { error: 'Method not allowed' }
     if (isNetlifyFunction) {
@@ -161,6 +152,16 @@ export default async function handler(req, res) {
   )
 
   try {
+    if (!webhookSecret) {
+      logger.error('Stripe webhook secret not configured', { metadata: { requestId } })
+      // Respond 200 to avoid retries but log for investigation
+      const response = { received: true, warning: 'webhook_secret_missing' }
+      if (isNetlifyFunction) {
+        return { statusCode: 200, body: JSON.stringify(response) }
+      }
+      return res.status(200).json(response)
+    }
+
     // Race webhook processing against timeout
     const result = await Promise.race([
       processWebhookEvent(req, requestId),

@@ -3,11 +3,15 @@
  * Provides web scraping and automated browser operations
  */
 
-const puppeteer = require('puppeteer');
-const chromium = require('@sparticuz/chromium');
+// Lazy-load heavy native modules at runtime. Wrapping require in try/catch
+// prevents the Netlify bundler from failing when the native module isn't
+// available in the build environment. The function will return a helpful
+// error when the module is not present at runtime.
+let puppeteer = null;
+let chromium = null;
 
 // Configure Puppeteer for Netlify environment
-const getBrowserConfig = () => {
+const getBrowserConfig = async () => {
   if (process.env.NETLIFY) {
     return {
       args: [
@@ -204,7 +208,7 @@ exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': process.env.URL || process.env.DEPLOY_URL || 'https://directorybolt.com',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Content-Type': 'application/json'
   };
 
@@ -217,12 +221,27 @@ exports.handler = async (event, context) => {
     };
   }
 
-  if (event.httpMethod !== 'POST') {
+  // Allow a simple GET-based health probe: `GET /.netlify/functions/puppeteer-handler?action=health`
+  if (event.httpMethod === 'GET') {
+    const q = event.queryStringParameters || {};
+    if (!q.action) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing action query parameter' })
+      };
+    }
+
+    // Emulate a POST body for downstream logic
+    event.body = JSON.stringify({ action: q.action, url: q.url, options: {} });
+  }
+
+  if (event.httpMethod !== 'POST' && event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
       headers,
       body: JSON.stringify({ 
-        error: 'Method not allowed. Use POST.' 
+        error: 'Method not allowed. Use POST or GET (for health)'.trim() 
       })
     };
   }
@@ -246,6 +265,27 @@ exports.handler = async (event, context) => {
 
     const { action, url, options } = validateRequest(body);
     
+    // Try to load puppeteer/chromium at runtime. If not installed, return a 501
+    // to indicate the operation is not available in this environment.
+    try {
+      if (!puppeteer) puppeteer = require('puppeteer');
+    } catch (loadErr) {
+      console.error('Puppeteer not available in this environment:', loadErr.message);
+      return {
+        statusCode: 501,
+        headers,
+        body: JSON.stringify({ error: 'Puppeteer is not available in this environment.' })
+      };
+    }
+
+    try {
+      if (!chromium) chromium = require('@sparticuz/chromium');
+    } catch (loadErr) {
+      // chromium is optional; continue if not present — getBrowserConfig will
+      // handle missing chromium by falling back to bundled puppeteer behavior.
+      chromium = null;
+    }
+
     // Launch browser with appropriate configuration
     const browserConfig = await getBrowserConfig();
     browser = await puppeteer.launch(browserConfig);

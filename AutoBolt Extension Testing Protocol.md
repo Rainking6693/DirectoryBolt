@@ -22,7 +22,7 @@
 ## PRE-TESTING SETUP REQUIREMENTS
 
 ### Extension Setup Validation
-- [ ] AutoBolt extension installed in Chrome from C:\Users\Ben\OneDrive\Documents\GitHub\DirectoryBolt\build\auto-bolt-extension
+- [ ] AutoBolt extension installed in Chrome from C:\Users\Ben\OneDrive\Documents\GitHub\DirectoryBolt\auto-bolt-extension
 - [ ] Extension permissions granted for all directory domains
 - [ ] Extension can access DirectoryBolt API endpoints
 - [ ] Extension manifest.json configured for production use

@@ -60,20 +60,27 @@ class Logger {
     }
   }
 
-  info(message: string, metadata?: { metadata?: LogMetadata }): void {
-    this.addLog(this.createLogEntry('info', message, metadata?.metadata))
+  // Accept flexible metadata shapes to match call-sites across the codebase.
+  // Accept any metadata shape (including top-level requestId, error, etc.) and normalize to { metadata }
+  info(message: string, data?: any): void {
+    const normalized = data && data.metadata ? data.metadata : data
+    this.addLog(this.createLogEntry('info', message, normalized as LogMetadata))
   }
 
-  warn(message: string, metadata?: { metadata?: LogMetadata }): void {
-    this.addLog(this.createLogEntry('warn', message, metadata?.metadata))
+  warn(message: string, data?: any): void {
+    const normalized = data && data.metadata ? data.metadata : data
+    this.addLog(this.createLogEntry('warn', message, normalized as LogMetadata))
   }
 
-  error(message: string, metadata?: { metadata?: LogMetadata }, error?: Error): void {
-    this.addLog(this.createLogEntry('error', message, metadata?.metadata, error))
+  error(message: string, data?: any, error?: any): void {
+    const normalized = data && data.metadata ? data.metadata : data
+    const err = error instanceof Error ? error : (error ? new Error(String(error)) : undefined)
+    this.addLog(this.createLogEntry('error', message, normalized as LogMetadata, err))
   }
 
-  debug(message: string, metadata?: { metadata?: LogMetadata }): void {
-    this.addLog(this.createLogEntry('debug', message, metadata?.metadata))
+  debug(message: string, data?: any): void {
+    const normalized = data && data.metadata ? data.metadata : data
+    this.addLog(this.createLogEntry('debug', message, normalized as LogMetadata))
   }
 
   apiResponse(logData: {
@@ -98,5 +105,17 @@ class Logger {
   }
 }
 
-export const logger = new Logger()
-export const log = logger
+// Export logger as `any` to accept flexible call-sites during incremental typing cleanup
+// Export a typed logger interface that accepts flexible call-sites used across the repo
+export interface LoggerLike {
+  info(message: string, data?: any): void
+  warn(message: string, data?: any): void
+  error(message: string, data?: any, error?: any): void
+  debug(message: string, data?: any): void
+  apiResponse?(logData: any): void
+  getLogs?(level?: LogEntry['level']): LogEntry[]
+  clearLogs?(): void
+}
+
+export const logger: LoggerLike = new Logger() as unknown as LoggerLike
+export const log: LoggerLike = logger

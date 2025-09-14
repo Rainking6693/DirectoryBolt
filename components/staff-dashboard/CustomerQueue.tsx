@@ -129,12 +129,12 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
 
   if (loading) {
     return (
-      <div className=\"bg-white rounded-lg shadow p-6\">
-        <div className=\"animate-pulse space-y-4\">
-          <div className=\"h-4 bg-gray-200 rounded w-1/4\"></div>
-          <div className=\"space-y-3\">
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className=\"h-16 bg-gray-200 rounded\"></div>
+              <div key={i} className="h-16 bg-gray-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -144,126 +144,126 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
 
   if (error) {
     return (
-      <div className=\"bg-red-50 border border-red-200 rounded-lg p-6\">
-        <div className=\"text-red-600\">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="text-red-600">
           ⚠️ Error loading queue: {error}
         </div>
       </div>
     );
   }
 
-  return (
-    <div className=\"bg-white rounded-lg shadow\">
+    return (
+    <div className="bg-white rounded-lg shadow">
       {/* Header */}
-      <div className=\"px-6 py-4 border-b border-gray-200\">
-        <div className=\"flex items-center justify-between\">
-          <h2 className=\"text-xl font-semibold text-gray-900\">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">
             Customer Queue ({sortedCustomers.length})
           </h2>
-          <div className=\"flex items-center space-x-4\">
+          <div className="flex items-center space-x-4">
             {/* Filter */}
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className=\"border border-gray-300 rounded-md px-3 py-1 text-sm\"
+              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
             >
-              <option value=\"all\">All Status</option>
-              <option value=\"pending\">Pending</option>
-              <option value=\"in-progress\">In Progress</option>
-              <option value=\"manual-review\">Manual Review</option>
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="manual-review">Manual Review</option>
             </select>
             
             {/* Sort */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className=\"border border-gray-300 rounded-md px-3 py-1 text-sm\"
+              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
             >
-              <option value=\"priority\">Priority</option>
-              <option value=\"date\">Purchase Date</option>
-              <option value=\"progress\">Progress</option>
+              <option value="priority">Priority</option>
+              <option value="date">Purchase Date</option>
+              <option value="progress">Progress</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* Queue List */}
-      <div className=\"overflow-x-auto\">
-        <table className=\"min-w-full divide-y divide-gray-200\">
-          <thead className=\"bg-gray-50\">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Customer
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Package
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Priority
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Progress
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Assigned
               </th>
-              <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className=\"bg-white divide-y divide-gray-200\">
+          <tbody className="bg-white divide-y divide-gray-200">
             {sortedCustomers.map((customer) => (
-              <tr key={customer.id} className=\"hover:bg-gray-50\">
-                <td className=\"px-6 py-4 whitespace-nowrap\">
+              <tr key={customer.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className=\"text-sm font-medium text-gray-900\">
+                    <div className="text-sm font-medium text-gray-900">
                       {customer.businessName}
                     </div>
-                    <div className=\"text-sm text-gray-500\">{customer.email}</div>
-                    <div className=\"text-xs text-gray-400\">{customer.id}</div>
+                    <div className="text-sm text-gray-500">{customer.email}</div>
+                    <div className="text-xs text-gray-400">{customer.id}</div>
                   </div>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap\">
-                  <div className=\"text-sm text-gray-900\">{customer.packageType}</div>
-                  <div className=\"text-xs text-gray-500\">{customer.directoryLimit} directories</div>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{customer.packageType}</div>
+                  <div className="text-xs text-gray-500">{customer.directoryLimit} directories</div>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap\">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(customer.priority)}`}>
                     {customer.priority}
                   </span>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap\">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(customer.status)}`}>
                     {customer.status}
                   </span>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap\">
-                  <div className=\"flex items-center\">
-                    <div className=\"w-16 bg-gray-200 rounded-full h-2 mr-2\">
-                      <div 
-                        className=\"bg-blue-600 h-2 rounded-full\"
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${customer.progress}%` }}
                       ></div>
                     </div>
-                    <span className=\"text-sm text-gray-900\">{customer.progress}%</span>
+                    <span className="text-sm text-gray-900">{customer.progress}%</span>
                   </div>
-                  <div className=\"text-xs text-gray-500\">
+                  <div className="text-xs text-gray-500">
                     {customer.submittedDirectories}/{customer.directoryLimit}
                   </div>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap\">
-                  <div className=\"text-sm text-gray-900\">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">
                     {customer.assignedStaff || 'Unassigned'}
                   </div>
                 </td>
-                <td className=\"px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2\">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button
                     onClick={() => window.open(`/customer-portal?customerId=${customer.id}`, '_blank')}
-                    className=\"text-blue-600 hover:text-blue-900\"
+                    className="text-blue-600 hover:text-blue-900"
                   >
                     View
                   </button>
@@ -271,7 +271,7 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
                   {customer.status === 'pending' && (
                     <button
                       onClick={() => handleUpdateStatus(customer.id, 'in-progress')}
-                      className=\"text-green-600 hover:text-green-900\"
+                      className="text-green-600 hover:text-green-900"
                     >
                       Start
                     </button>
@@ -280,7 +280,7 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
                   {customer.status === 'in-progress' && (
                     <button
                       onClick={() => handleUpdateStatus(customer.id, 'manual-review')}
-                      className=\"text-yellow-600 hover:text-yellow-900\"
+                      className="text-yellow-600 hover:text-yellow-900"
                     >
                       Review
                     </button>
@@ -288,13 +288,13 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
                   
                   <select
                     onChange={(e) => handleAssignCustomer(customer.id, e.target.value)}
-                    className=\"text-xs border border-gray-300 rounded px-2 py-1\"
-                    defaultValue=\"\"
+                    className="text-xs border border-gray-300 rounded px-2 py-1"
+                    defaultValue=""
                   >
-                    <option value=\"\">Assign...</option>
-                    <option value=\"staff1\">John Doe</option>
-                    <option value=\"staff2\">Jane Smith</option>
-                    <option value=\"staff3\">Mike Johnson</option>
+                    <option value="">Assign...</option>
+                    <option value="staff1">John Doe</option>
+                    <option value="staff2">Jane Smith</option>
+                    <option value="staff3">Mike Johnson</option>
                   </select>
                 </td>
               </tr>
@@ -304,18 +304,18 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
       </div>
 
       {sortedCustomers.length === 0 && (
-        <div className=\"text-center py-12\">
-          <div className=\"text-gray-500\">
+        <div className="text-center py-12">
+          <div className="text-gray-500">
             {filter === 'all' ? 'No customers in queue' : `No customers with status: ${filter}`}
           </div>
         </div>
       )}
 
       {/* Real-time indicator */}
-      <div className=\"px-6 py-3 bg-gray-50 border-t border-gray-200\">
-        <div className=\"flex items-center justify-between text-xs text-gray-500\">
-          <div className=\"flex items-center\">
-            <div className=\"w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse\"></div>
+      <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
             Live updates active
           </div>
           <div>

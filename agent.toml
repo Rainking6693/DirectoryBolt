@@ -2,7 +2,7 @@
 version = "1.0"
 
 # Default model for all agents
-model ="claude-3-5-sonnet-20241022"
+model = "claude-4-sonnet"
 
 # Global instructions for DirectoryBolt project context
 instructions = """
@@ -32,7 +32,7 @@ imports = [
     "agents/atlas.toml",
     "agents/blake.toml",
     "agents/hudson.toml",
-    "agents/cora.toml"
-    "agents/clive.toml"
-    "agetns/frank.toml"
+    "agents/cora.toml",
+    "agents/clive.toml",
+    "agents/frank.toml",
 ]

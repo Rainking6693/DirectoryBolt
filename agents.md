@@ -152,8 +152,7 @@ DirectoryBolt/
 - **Styling:** Tailwind CSS 3.4 - Utility-first CSS with custom design system
 
 ### Key Libraries
-- **@anthropic-ai/sdk** - Claude AI integration for business analysis
-- **openai** - GPT integration for competitive intelligence
+- **openai** - GPT integration for business analysis and competitive intelligence
 - **stripe** - Payment processing and subscription management
 - **@supabase/supabase-js** - Database operations and real-time updates
 - **puppeteer-core** - Web scraping and automated form submission
@@ -178,7 +177,7 @@ DirectoryBolt/
 - **Netlify** - Hosting platform with serverless functions and CDN
 
 ### Optional Integrations
-- **Airtable** - Directory data import and management workflows
+- **Google Sheets** - Directory data import and management workflows
 - **Google Analytics** - User behavior tracking and conversion metrics
 - **Sentry** - Error monitoring and performance tracking
 
@@ -193,7 +192,7 @@ SUPABASE_URL=              # Database connection
 SUPABASE_SERVICE_KEY=      # Database admin access
 
 # Optional
-AIRTABLE_ACCESS_TOKEN=     # Directory data import
+GOOGLE_PRIVATE_KEY=     # Directory data import
 GA_MEASUREMENT_ID=         # Analytics tracking
 SENTRY_DSN=               # Error monitoring
 ```

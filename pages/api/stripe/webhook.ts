@@ -3,6 +3,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
+import { buffer as getRawBody } from '../../../lib/utils/server-utils'
 // Removed micro dependency for Netlify compatibility
 // Buffer handling is done inline for serverless functions
 
@@ -244,7 +245,7 @@ async function handleWebhook(req: NextApiRequest, res: NextApiResponse) {
   let event: Stripe.Event
 
   try {
-    const body = await buffer(req)
+  const body = await getRawBody(req as any)
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (error) {
     logger.error('Webhook signature verification failed', {
