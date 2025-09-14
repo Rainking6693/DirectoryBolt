@@ -50,6 +50,18 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/health/google-sheets"
+  to = "/.netlify/functions/health-google-sheets"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/customer/validate"
+  to = "/.netlify/functions/customer-validate"
+  status = 200
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]
