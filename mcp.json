@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "my-filesystem": {
+    "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt"]
     },
@@ -8,7 +8,7 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-git", "--repository", "C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt"]
     },
-    "my-shell": {
+    "shell": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-shell"],
       "env": {
