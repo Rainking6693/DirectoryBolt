@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --include=dev && node scripts/validate-json-guides.js && npm run build"
+  command = "cp .env.netlify .env && npm ci --include=dev && node scripts/validate-json-guides.js && npm run build"
   publish = ".next"
 
   [build.environment]
