@@ -58,9 +58,24 @@ exports.handler = async (event, context) => {
     }
 
     console.log('🔍 Validating customer with Google Sheets:', customerId);
+    
+    // EMILY FIX: Check for service account file or environment variables
+    const fs = require('fs');
+    const path = require('path');
+    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json');
+    
+    let configMethod = 'none';
+    if (fs.existsSync(serviceAccountPath)) {
+      configMethod = 'service-account-file';
+    } else if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      configMethod = 'environment-variables';
+    }
+    
     console.log('🔍 Environment check:', {
       NODE_ENV: process.env.NODE_ENV,
       NETLIFY: !!process.env.NETLIFY,
+      configMethod,
+      serviceAccountFileExists: fs.existsSync(serviceAccountPath),
       GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
       GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       GOOGLE_PRIVATE_KEY_LENGTH: (process.env.GOOGLE_PRIVATE_KEY || '').length

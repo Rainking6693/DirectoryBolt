@@ -33,7 +33,16 @@ export default async function handler(
         google_sheets: {
           sheet_id: !!process.env.GOOGLE_SHEET_ID,
           service_account_email: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-          private_key: !!process.env.GOOGLE_PRIVATE_KEY
+          private_key: !!process.env.GOOGLE_PRIVATE_KEY,
+          service_account_file: (() => {
+            try {
+              const fs = require('fs')
+              const path = require('path')
+              return fs.existsSync(path.join(process.cwd(), 'config', 'google-service-account.json'))
+            } catch {
+              return false
+            }
+          })()
         },
         ai: {
           openai_key: !!process.env.OPENAI_API_KEY,
@@ -90,18 +99,42 @@ export default async function handler(
 
     // Check Google Sheets Configuration
     try {
-      if (!process.env.GOOGLE_SHEET_ID) {
-        status.critical_issues.push('GOOGLE_SHEET_ID is missing')
-      }
-      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
-        status.critical_issues.push('GOOGLE_SERVICE_ACCOUNT_EMAIL is missing')
-      }
-      if (!process.env.GOOGLE_PRIVATE_KEY) {
-        status.critical_issues.push('GOOGLE_PRIVATE_KEY is missing')
+      // EMILY FIX: Check for service account file or environment variables
+      const fs = require('fs')
+      const path = require('path')
+      const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json')
+      
+      let hasValidConfig = false
+      let configMethod = 'none'
+      
+      if (fs.existsSync(serviceAccountPath)) {
+        hasValidConfig = true
+        configMethod = 'service-account-file'
+        status.environment_variables.google_sheets.config_method = 'service-account-file'
+      } else {
+        // Check environment variables
+        if (!process.env.GOOGLE_SHEET_ID) {
+          status.critical_issues.push('GOOGLE_SHEET_ID is missing')
+        }
+        if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+          status.critical_issues.push('GOOGLE_SERVICE_ACCOUNT_EMAIL is missing')
+        }
+        if (!process.env.GOOGLE_PRIVATE_KEY) {
+          status.critical_issues.push('GOOGLE_PRIVATE_KEY is missing')
+        }
+        
+        if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+          hasValidConfig = true
+          configMethod = 'environment-variables'
+          status.environment_variables.google_sheets.config_method = 'environment-variables'
+        }
       }
       
-      if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      if (hasValidConfig) {
         status.api_endpoints.google_sheets_connection = true
+        status.environment_variables.google_sheets.config_method = configMethod
+      } else {
+        status.critical_issues.push('Google Sheets not configured - missing both service account file and environment variables')
       }
     } catch (error) {
       status.critical_issues.push(`Google Sheets configuration error: ${error instanceof Error ? error.message : 'Unknown error'}`)

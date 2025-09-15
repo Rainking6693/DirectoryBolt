@@ -58,21 +58,46 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Verify environment first to provide clear diagnostics
-    const envChecks = {
-      GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
-      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
-    };
+    // EMILY FIX: Verify service account file or environment variables
+    const fs = require('fs');
+    const path = require('path');
+    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json');
+    
+    let hasValidConfig = false;
+    let configMethod = 'none';
+    
+    if (fs.existsSync(serviceAccountPath)) {
+      hasValidConfig = true;
+      configMethod = 'service-account-file';
+    } else {
+      const envChecks = {
+        GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
+        GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
+      };
+      
+      if (envChecks.GOOGLE_SHEET_ID && envChecks.GOOGLE_SERVICE_ACCOUNT_EMAIL && envChecks.GOOGLE_PRIVATE_KEY) {
+        hasValidConfig = true;
+        configMethod = 'environment-variables';
+      }
+    }
 
-    if (!envChecks.GOOGLE_SHEET_ID || !envChecks.GOOGLE_SERVICE_ACCOUNT_EMAIL || !envChecks.GOOGLE_PRIVATE_KEY) {
+    if (!hasValidConfig) {
       return {
         statusCode: 500,
         headers: corsHeaders,
         body: JSON.stringify({
           valid: false,
           error: 'Server configuration error',
-          diagnostic: { environment: envChecks }
+          diagnostic: { 
+            configMethod,
+            serviceAccountFileExists: fs.existsSync(serviceAccountPath),
+            environmentVarsAvailable: {
+              GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
+              GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+              GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
+            }
+          }
         })
       };
     }

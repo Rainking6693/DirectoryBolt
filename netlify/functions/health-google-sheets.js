@@ -28,24 +28,47 @@ exports.handler = async (event, context) => {
   const startTime = Date.now();
   
   try {
-    console.log('🔍 Checking environment variables...');
+    console.log('🔍 Checking Google Sheets configuration...');
     
-    // Check environment variables
-    const envChecks = {
-      GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
-      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
-    };
+    // EMILY FIX: Check for service account file or environment variables
+    const fs = require('fs');
+    const path = require('path');
+    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json');
+    
+    let hasValidConfig = false;
+    let configMethod = 'none';
+    let envChecks = {};
+    
+    if (fs.existsSync(serviceAccountPath)) {
+      hasValidConfig = true;
+      configMethod = 'service-account-file';
+      envChecks = {
+        serviceAccountFile: true,
+        GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID || 'using-default'
+      };
+    } else {
+      // Check environment variables
+      envChecks = {
+        GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
+        GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
+      };
+      
+      if (Object.values(envChecks).every(Boolean)) {
+        hasValidConfig = true;
+        configMethod = 'environment-variables';
+      }
+    }
 
-    console.log('📋 Environment variables status:', envChecks);
+    console.log('📋 Configuration status:', { configMethod, ...envChecks });
     console.log('🔍 Available env vars with GOOGLE:', Object.keys(process.env).filter(k => k.includes('GOOGLE')));
 
-    const envPassed = Object.values(envChecks).every(Boolean);
+    const envPassed = hasValidConfig;
 
     if (!envPassed) {
-      const missingVars = Object.entries(envChecks)
-        .filter(([_, exists]) => !exists)
-        .map(([key]) => key);
+      const missingInfo = configMethod === 'none' ? 
+        'Missing both service account file and environment variables' :
+        `Configuration method ${configMethod} incomplete`;
       
       return {
         statusCode: 500,
@@ -55,17 +78,19 @@ exports.handler = async (event, context) => {
           environment: 'netlify-functions',
           timestamp: new Date().toISOString(),
           checks: {
-            environmentVariables: {
+            configuration: {
               passed: false,
+              method: configMethod,
               details: envChecks
             }
           },
-          message: `Missing environment variables: ${missingVars.join(', ')}`,
+          message: missingInfo,
           diagnostic: {
             netlifyContext: true,
+            configMethod,
+            serviceAccountFileExists: fs.existsSync(serviceAccountPath),
             totalEnvironmentVariables: Object.keys(process.env).length,
-            googleEnvironmentVariables: Object.keys(process.env).filter(k => k.includes('GOOGLE')),
-            missingVariables: missingVars
+            googleEnvironmentVariables: Object.keys(process.env).filter(k => k.includes('GOOGLE'))
           }
         })
       };
@@ -82,8 +107,9 @@ exports.handler = async (event, context) => {
       environment: 'netlify-functions',
       timestamp: new Date().toISOString(),
       checks: {
-        environmentVariables: {
+        configuration: {
           passed: true,
+          method: configMethod,
           details: envChecks
         },
         googleSheetsConnection: {

@@ -89,14 +89,33 @@ export default async function handler(
     // Use secure server-side Google Sheets service
     const googleSheetsService = createGoogleSheetsService()
     
-    // Verify environment variables are properly configured
-    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-      console.error('❌ SECURITY ERROR: Google Sheets credentials missing in environment')
+    // EMILY FIX: Verify service account file or environment variables are properly configured
+    const fs = require('fs')
+    const path = require('path')
+    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json')
+    
+    let hasValidConfig = false
+    let configMethod = 'unknown'
+    
+    if (fs.existsSync(serviceAccountPath)) {
+      hasValidConfig = true
+      configMethod = 'service-account-file'
+      console.log('✅ SECURE: Using service account file for validation')
+    } else if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      hasValidConfig = true
+      configMethod = 'environment-variables'
+      console.log('✅ SECURE: Using environment variables for validation')
+    }
+    
+    if (!hasValidConfig) {
+      console.error('❌ SECURITY ERROR: Google Sheets credentials missing - no service account file or environment variables')
       return createResponse(500, {
         valid: false,
         error: 'Server configuration error'
       })
     }
+    
+    console.log(`🔒 SECURE: Using ${configMethod} for Google Sheets authentication`)
 
     // Health check
     const healthCheck = await googleSheetsService.healthCheck()
