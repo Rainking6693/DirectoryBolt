@@ -12,9 +12,6 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-  [plugins.inputs]
-    # Exclude specific API routes so redirects to Netlify Functions take effect
-    excludedRoutes = ["/api/customer/*", "/api/health/*", "/api/extension/*"]
 
 [context.production.environment]
   NODE_ENV = "production"
