@@ -12,7 +12,7 @@ interface Guide {
   updatedAt: string
 }
 
-// Safe JSON parser with comprehensive error handling for build stability
+// Safe JSON parser with comprehensive error handling
 function safeJsonParse(content: string, filename: string): any | null {
   try {
     // Check for empty or whitespace-only content
@@ -159,7 +159,7 @@ export default async function handler(
   } catch (error) {
     console.error('Critical error in guides API:', error)
     
-    // Return a safe fallback response to prevent build failures
+    // Return a safe fallback response
     res.status(200).json({
       success: false,
       count: 0,

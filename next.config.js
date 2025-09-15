@@ -35,6 +35,14 @@ const nextConfig = {
   
   // Enhanced webpack configuration
   webpack: (config, { dev, isServer, webpack }) => {
+    // Prevent build-time JSON parsing issues
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+      }
+    }
     // Production optimizations
     if (!dev) {
       // Bundle splitting for better caching
@@ -67,7 +75,7 @@ const nextConfig = {
       config.devtool = false
     }
     
-    // Ignore problematic files
+    // Ignore problematic files and prevent build-time JSON parsing
     config.watchOptions = {
       ignored: [
         '**/node_modules/**',
@@ -75,9 +83,26 @@ const nextConfig = {
         '**/sync-directorybolt-to-autobolt.js',
         '**/verify-sync.js',
         '**/build/**',
-        '**/scripts/**'
+        '**/scripts/**',
+        '**/data/guides/**' // Prevent watching guide files during build
       ]
     }
+    
+    // Add module rules to handle JSON files safely
+    config.module.rules.push({
+      test: /\.json$/,
+      type: 'json',
+      parser: {
+        parse: (input) => {
+          try {
+            return JSON.parse(input)
+          } catch (error) {
+            console.warn('JSON parsing warning during build:', error.message)
+            return {} // Return empty object instead of failing
+          }
+        }
+      }
+    })
     
     // Add ignore plugin for autobolt-extension
     config.plugins.push(

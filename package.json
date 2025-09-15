@@ -37,7 +37,9 @@
     "test:e2e-integration": "node test-e2e-integration.js",
     "test:protocol": "node run-comprehensive-tests.js",
     "test:quick": "node quick-test-validation.js",
-    "test:final": "node run-final-test.js"
+    "test:final": "node run-final-test.js",
+    "validate:guides": "node scripts/validate-json-guides.js",
+    "prebuild": "npm run validate:guides"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
