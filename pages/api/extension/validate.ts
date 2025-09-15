@@ -1,1 +1,294 @@
-/**\n * ELITE API ENDPOINT RECOVERY - Extension Customer Validation API\n * \n * CRITICAL PRODUCTION ENDPOINT: Validates AutoBolt extension users against DirectoryBolt customer database\n * \n * SUPPORTS:\n * - GET requests with query parameter: /api/extension/validate?customerId=DIR-20250914-000001\n * - POST requests with JSON body: { \"customerId\": \"DIR-20250914-000001\" }\n * - Netlify serverless functions\n * - Google Sheets authentication with fallback\n * - Chrome extension CORS requirements\n */\n\nimport { NextApiRequest, NextApiResponse } from 'next'\n\n// Import Google Sheets service\nconst { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')\n\n// CORS headers for Chrome extension compatibility\nconst CORS_HEADERS = {\n  'Content-Type': 'application/json',\n  'Access-Control-Allow-Origin': '*',\n  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',\n  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'\n}\n\n// Response interface for TypeScript\ninterface ValidationResponse {\n  valid: boolean\n  customerName?: string\n  packageType?: string\n  submissionStatus?: string\n  error?: string\n  debug?: any\n}\n\n// Test customers for immediate validation (emergency fallback)\nconst TEST_CUSTOMERS = [\n  'DIR-20250914-000001',\n  'DIR-2025-001234',\n  'DIR-2025-005678',\n  'TEST-CUSTOMER-123',\n  'DIR-2025-DEMO01'\n]\n\n/**\n * Universal response helper for both Next.js and Netlify Functions\n */\nfunction createResponse(res: NextApiResponse, statusCode: number, data: ValidationResponse) {\n  // Set CORS headers\n  Object.entries(CORS_HEADERS).forEach(([key, value]) => {\n    res.setHeader(key, value)\n  })\n  \n  return res.status(statusCode).json(data)\n}\n\n/**\n * Validate customer ID format\n */\nfunction validateCustomerIdFormat(customerId: string): boolean {\n  if (!customerId || typeof customerId !== 'string') {\n    return false\n  }\n  \n  // Accept DIR-, TEST-, or DB- prefixes\n  return /^(DIR-|TEST-|DB-)/.test(customerId.trim())\n}\n\n/**\n * Emergency test customer validation\n */\nfunction validateTestCustomer(customerId: string): ValidationResponse | null {\n  const cleanId = customerId.trim()\n  \n  if (TEST_CUSTOMERS.includes(cleanId)) {\n    return {\n      valid: true,\n      customerName: `Test Business for ${cleanId}`,\n      packageType: 'professional',\n      submissionStatus: 'pending',\n      debug: {\n        testCustomer: true,\n        message: 'Emergency test customer validation'\n      }\n    }\n  }\n  \n  return null\n}\n\n/**\n * Validate customer against Google Sheets database\n */\nasync function validateCustomerInDatabase(customerId: string): Promise<ValidationResponse> {\n  try {\n    console.log(`🔍 ELITE API: Validating customer ${customerId} in Google Sheets...`)\n    \n    // Create Google Sheets service\n    const googleSheetsService = createGoogleSheetsService()\n    \n    // Initialize service with timeout\n    const initPromise = googleSheetsService.initialize()\n    const timeoutPromise = new Promise((_, reject) => \n      setTimeout(() => reject(new Error('Google Sheets initialization timeout')), 10000)\n    )\n    \n    await Promise.race([initPromise, timeoutPromise])\n    console.log('✅ ELITE API: Google Sheets service initialized')\n    \n    // Find customer with timeout\n    const lookupPromise = googleSheetsService.findByCustomerId(customerId)\n    const lookupTimeoutPromise = new Promise((_, reject) => \n      setTimeout(() => reject(new Error('Customer lookup timeout')), 5000)\n    )\n    \n    const customer = await Promise.race([lookupPromise, lookupTimeoutPromise])\n    \n    if (!customer) {\n      console.log(`❌ ELITE API: Customer ${customerId} not found in database`)\n      return {\n        valid: false,\n        error: 'Customer not found'\n      }\n    }\n    \n    console.log(`✅ ELITE API: Customer ${customerId} found in database`)\n    \n    // Validate customer status\n    const validStatuses = ['pending', 'in-progress', 'completed', 'active']\n    if (!validStatuses.includes(customer.submissionStatus)) {\n      return {\n        valid: false,\n        error: 'Customer account is not active',\n        debug: {\n          currentStatus: customer.submissionStatus,\n          validStatuses\n        }\n      }\n    }\n    \n    // Validate package type\n    if (!customer.packageType) {\n      return {\n        valid: false,\n        error: 'No active package found'\n      }\n    }\n    \n    // Return successful validation\n    return {\n      valid: true,\n      customerName: customer.businessName || customer.firstName + ' ' + customer.lastName || 'Customer',\n      packageType: customer.packageType,\n      submissionStatus: customer.submissionStatus\n    }\n    \n  } catch (error) {\n    console.error('❌ ELITE API: Google Sheets validation failed:', error)\n    \n    // Return error with debug info\n    return {\n      valid: false,\n      error: 'Database connection failed',\n      debug: {\n        errorMessage: error instanceof Error ? error.message : 'Unknown error',\n        timestamp: new Date().toISOString()\n      }\n    }\n  }\n}\n\n/**\n * Emergency pattern-based validation for production issues\n */\nfunction emergencyPatternValidation(customerId: string): ValidationResponse | null {\n  // Only activate for properly formatted customer IDs\n  if (customerId.match(/^DIR-\\d{4,8}-[A-Z0-9]{6,}$/)) {\n    console.log(`🚨 ELITE API: Emergency pattern validation for ${customerId}`)\n    return {\n      valid: true,\n      customerName: `Emergency Validation for ${customerId}`,\n      packageType: 'starter',\n      submissionStatus: 'pending',\n      debug: {\n        emergency: true,\n        message: 'Emergency pattern-based validation due to database issues'\n      }\n    }\n  }\n  \n  return null\n}\n\n/**\n * Main API handler\n */\nexport default async function handler(\n  req: NextApiRequest,\n  res: NextApiResponse<ValidationResponse>\n) {\n  // Handle CORS preflight requests\n  if (req.method === 'OPTIONS') {\n    Object.entries(CORS_HEADERS).forEach(([key, value]) => {\n      res.setHeader(key, value)\n    })\n    return res.status(200).end()\n  }\n  \n  // Support both GET and POST methods\n  if (req.method !== 'GET' && req.method !== 'POST') {\n    return createResponse(res, 405, {\n      valid: false,\n      error: 'Method not allowed. Use GET or POST.'\n    })\n  }\n  \n  try {\n    // Extract customer ID from query parameter (GET) or request body (POST)\n    let customerId: string\n    \n    if (req.method === 'GET') {\n      customerId = req.query.customerId as string\n    } else {\n      customerId = req.body?.customerId\n    }\n    \n    // Validate customer ID is provided\n    if (!customerId) {\n      return createResponse(res, 400, {\n        valid: false,\n        error: 'Customer ID is required. Use ?customerId=DIR-xxx for GET or {\"customerId\":\"DIR-xxx\"} for POST.'\n      })\n    }\n    \n    // Validate customer ID format\n    if (!validateCustomerIdFormat(customerId)) {\n      return createResponse(res, 400, {\n        valid: false,\n        error: 'Invalid Customer ID format. Must start with DIR-, TEST-, or DB-.'\n      })\n    }\n    \n    console.log(`🎯 ELITE API: Processing validation request for ${customerId}`)\n    \n    // Step 1: Check if it's a test customer (immediate success)\n    const testResult = validateTestCustomer(customerId)\n    if (testResult) {\n      console.log(`✅ ELITE API: Test customer validation successful for ${customerId}`)\n      return createResponse(res, 200, testResult)\n    }\n    \n    // Step 2: Try Google Sheets database validation\n    const databaseResult = await validateCustomerInDatabase(customerId)\n    \n    if (databaseResult.valid) {\n      console.log(`✅ ELITE API: Database validation successful for ${customerId}`)\n      return createResponse(res, 200, databaseResult)\n    }\n    \n    // Step 3: If database fails, try emergency pattern validation\n    if (databaseResult.error === 'Database connection failed') {\n      const emergencyResult = emergencyPatternValidation(customerId)\n      if (emergencyResult) {\n        console.log(`🚨 ELITE API: Emergency validation activated for ${customerId}`)\n        return createResponse(res, 200, emergencyResult)\n      }\n    }\n    \n    // Step 4: All validation methods failed\n    console.log(`❌ ELITE API: All validation methods failed for ${customerId}`)\n    return createResponse(res, 404, {\n      valid: false,\n      error: 'Customer not found. Please verify your ID starts with \"DIR-\" or contact support.',\n      debug: {\n        customerId,\n        databaseError: databaseResult.error,\n        timestamp: new Date().toISOString()\n      }\n    })\n    \n  } catch (error) {\n    console.error('💥 ELITE API: Validation endpoint error:', error)\n    \n    return createResponse(res, 500, {\n      valid: false,\n      error: 'Internal server error',\n      debug: {\n        error: error instanceof Error ? error.message : 'Unknown error',\n        timestamp: new Date().toISOString()\n      }\n    })\n  }\n}"
+/**
+ * ELITE API ENDPOINT RECOVERY - Extension Customer Validation API
+ * 
+ * CRITICAL PRODUCTION ENDPOINT: Validates AutoBolt extension users against DirectoryBolt customer database
+ * 
+ * SUPPORTS:
+ * - GET requests with query parameter: /api/extension/validate?customerId=DIR-20250914-000001
+ * - POST requests with JSON body: { "customerId": "DIR-20250914-000001" }
+ * - Netlify serverless functions
+ * - Google Sheets authentication with fallback
+ * - Chrome extension CORS requirements
+ */
+
+import { NextApiRequest, NextApiResponse } from 'next'
+
+// Import Google Sheets service
+const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
+
+// CORS headers for Chrome extension compatibility
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+}
+
+// Response interface for TypeScript
+interface ValidationResponse {
+  valid: boolean
+  customerName?: string
+  packageType?: string
+  submissionStatus?: string
+  error?: string
+  debug?: any
+}
+
+// Test customers for immediate validation (emergency fallback)
+const TEST_CUSTOMERS = [
+  'DIR-20250914-000001',
+  'DIR-2025-001234',
+  'DIR-2025-005678',
+  'TEST-CUSTOMER-123',
+  'DIR-2025-DEMO01'
+]
+
+/**
+ * Universal response helper for both Next.js and Netlify Functions
+ */
+function createResponse(res: NextApiResponse, statusCode: number, data: ValidationResponse) {
+  // Set CORS headers
+  Object.entries(CORS_HEADERS).forEach(([key, value]) => {
+    res.setHeader(key, value)
+  })
+  
+  return res.status(statusCode).json(data)
+}
+
+/**
+ * Validate customer ID format
+ */
+function validateCustomerIdFormat(customerId: string): boolean {
+  if (!customerId || typeof customerId !== 'string') {
+    return false
+  }
+  
+  // Accept DIR-, TEST-, or DB- prefixes
+  return /^(DIR-|TEST-|DB-)/.test(customerId.trim())
+}
+
+/**
+ * Emergency test customer validation
+ */
+function validateTestCustomer(customerId: string): ValidationResponse | null {
+  const cleanId = customerId.trim()
+  
+  if (TEST_CUSTOMERS.includes(cleanId)) {
+    return {
+      valid: true,
+      customerName: `Test Business for ${cleanId}`,
+      packageType: 'professional',
+      submissionStatus: 'pending',
+      debug: {
+        testCustomer: true,
+        message: 'Emergency test customer validation'
+      }
+    }
+  }
+  
+  return null
+}
+
+/**
+ * Validate customer against Google Sheets database
+ */
+async function validateCustomerInDatabase(customerId: string): Promise<ValidationResponse> {
+  try {
+    console.log(`🔍 ELITE API: Validating customer ${customerId} in Google Sheets...`)
+    
+    // Create Google Sheets service
+    const googleSheetsService = createGoogleSheetsService()
+    
+    // Initialize service with timeout
+    const initPromise = googleSheetsService.initialize()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Google Sheets initialization timeout')), 10000)
+    )
+    
+    await Promise.race([initPromise, timeoutPromise])
+    console.log('✅ ELITE API: Google Sheets service initialized')
+    
+    // Find customer with timeout
+    const lookupPromise = googleSheetsService.findByCustomerId(customerId)
+    const lookupTimeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Customer lookup timeout')), 5000)
+    )
+    
+    const customer = await Promise.race([lookupPromise, lookupTimeoutPromise])
+    
+    if (!customer) {
+      console.log(`❌ ELITE API: Customer ${customerId} not found in database`)
+      return {
+        valid: false,
+        error: 'Customer not found'
+      }
+    }
+    
+    console.log(`✅ ELITE API: Customer ${customerId} found in database`)
+    
+    // Validate customer status
+    const validStatuses = ['pending', 'in-progress', 'completed', 'active']
+    if (!validStatuses.includes(customer.submissionStatus)) {
+      return {
+        valid: false,
+        error: 'Customer account is not active',
+        debug: {
+          currentStatus: customer.submissionStatus,
+          validStatuses
+        }
+      }
+    }
+    
+    // Validate package type
+    if (!customer.packageType) {
+      return {
+        valid: false,
+        error: 'No active package found'
+      }
+    }
+    
+    // Return successful validation
+    return {
+      valid: true,
+      customerName: customer.businessName || customer.firstName + ' ' + customer.lastName || 'Customer',
+      packageType: customer.packageType,
+      submissionStatus: customer.submissionStatus
+    }
+    
+  } catch (error) {
+    console.error('❌ ELITE API: Google Sheets validation failed:', error)
+    
+    // Return error with debug info
+    return {
+      valid: false,
+      error: 'Database connection failed',
+      debug: {
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      }
+    }
+  }
+}
+
+/**
+ * Emergency pattern-based validation for production issues
+ */
+function emergencyPatternValidation(customerId: string): ValidationResponse | null {
+  // CLIVE FIX: Corrected Unicode escape sequence - was \\d, now \\d (proper regex)
+  if (customerId.match(/^DIR-\d{4,8}-[A-Z0-9]{6,}$/)) {
+    console.log(`🚨 ELITE API: Emergency pattern validation for ${customerId}`)
+    return {
+      valid: true,
+      customerName: `Emergency Validation for ${customerId}`,
+      packageType: 'starter',
+      submissionStatus: 'pending',
+      debug: {
+        emergency: true,
+        message: 'Emergency pattern-based validation due to database issues'
+      }
+    }
+  }
+  
+  return null
+}
+
+/**
+ * Main API handler
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ValidationResponse>
+) {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    Object.entries(CORS_HEADERS).forEach(([key, value]) => {
+      res.setHeader(key, value)
+    })
+    return res.status(200).end()
+  }
+  
+  // Support both GET and POST methods
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return createResponse(res, 405, {
+      valid: false,
+      error: 'Method not allowed. Use GET or POST.'
+    })
+  }
+  
+  try {
+    // Extract customer ID from query parameter (GET) or request body (POST)
+    let customerId: string
+    
+    if (req.method === 'GET') {
+      customerId = req.query.customerId as string
+    } else {
+      customerId = req.body?.customerId
+    }
+    
+    // Validate customer ID is provided
+    if (!customerId) {
+      return createResponse(res, 400, {
+        valid: false,
+        error: 'Customer ID is required. Use ?customerId=DIR-xxx for GET or {"customerId":"DIR-xxx"} for POST.'
+      })
+    }
+    
+    // Validate customer ID format
+    if (!validateCustomerIdFormat(customerId)) {
+      return createResponse(res, 400, {
+        valid: false,
+        error: 'Invalid Customer ID format. Must start with DIR-, TEST-, or DB-.'
+      })
+    }
+    
+    console.log(`🎯 ELITE API: Processing validation request for ${customerId}`)
+    
+    // Step 1: Check if it's a test customer (immediate success)
+    const testResult = validateTestCustomer(customerId)
+    if (testResult) {
+      console.log(`✅ ELITE API: Test customer validation successful for ${customerId}`)
+      return createResponse(res, 200, testResult)
+    }
+    
+    // Step 2: Try Google Sheets database validation
+    const databaseResult = await validateCustomerInDatabase(customerId)
+    
+    if (databaseResult.valid) {
+      console.log(`✅ ELITE API: Database validation successful for ${customerId}`)
+      return createResponse(res, 200, databaseResult)
+    }
+    
+    // Step 3: If database fails, try emergency pattern validation
+    if (databaseResult.error === 'Database connection failed') {
+      const emergencyResult = emergencyPatternValidation(customerId)
+      if (emergencyResult) {
+        console.log(`🚨 ELITE API: Emergency validation activated for ${customerId}`)
+        return createResponse(res, 200, emergencyResult)
+      }
+    }
+    
+    // Step 4: All validation methods failed
+    console.log(`❌ ELITE API: All validation methods failed for ${customerId}`)
+    return createResponse(res, 404, {
+      valid: false,
+      error: 'Customer not found. Please verify your ID starts with "DIR-" or contact support.',
+      debug: {
+        customerId,
+        databaseError: databaseResult.error,
+        timestamp: new Date().toISOString()
+      }
+    })
+    
+  } catch (error) {
+    console.error('💥 ELITE API: Validation endpoint error:', error)
+    
+    return createResponse(res, 500, {
+      valid: false,
+      error: 'Internal server error',
+      debug: {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      }
+    })
+  }
+}
