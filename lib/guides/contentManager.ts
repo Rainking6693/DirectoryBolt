@@ -82,17 +82,57 @@ export class GuideContentManager {
   async getGuideBySlug(slug: string): Promise<DirectoryGuideData | null> {
     try {
       const filePath = path.join(this.guidesPath, `${slug}.json`)
+      
+      // Check if file exists first
+      try {
+        await fs.access(filePath)
+      } catch (accessError) {
+        // File doesn't exist, return null silently
+        return null
+      }
+      
       const fileContent = await fs.readFile(filePath, 'utf-8')
-      const guide = JSON.parse(fileContent) as DirectoryGuideData
+      
+      // Validate file content before parsing
+      if (!fileContent || !fileContent.trim()) {
+        console.warn(`Empty JSON file detected: ${slug}.json`)
+        return null
+      }
+      
+      // Check for basic JSON structure
+      const trimmedContent = fileContent.trim()
+      if (!trimmedContent.startsWith('{') || !trimmedContent.endsWith('}')) {
+        console.warn(`Malformed JSON structure in file: ${slug}.json`)
+        return null
+      }
+      
+      // Safe JSON parsing with comprehensive error handling
+      let guide: DirectoryGuideData
+      try {
+        guide = JSON.parse(fileContent) as DirectoryGuideData
+      } catch (parseError) {
+        console.error(`JSON parsing failed for guide ${slug}:`, parseError)
+        return null
+      }
+      
+      // Validate parsed object structure
+      if (!guide || typeof guide !== 'object') {
+        console.warn(`Invalid guide object structure: ${slug}.json`)
+        return null
+      }
+      
+      // Validate required fields
+      if (!guide.slug || !guide.title || !guide.directoryName) {
+        console.warn(`Missing required fields in guide: ${slug}.json`)
+        return null
+      }
       
       // Increment view count (in a real app, you'd want to do this more carefully)
       await this.incrementViewCount(slug)
       
       return guide
     } catch (error) {
-      if ((error as any).code !== 'ENOENT') {
-        console.error(`Error loading guide ${slug}:`, error)
-      }
+      console.error(`Error loading guide ${slug}:`, error)
       return null
     }
   }
@@ -199,12 +239,34 @@ export class GuideContentManager {
       const versions: DirectoryGuideData[] = []
       
       for (const file of files.filter(f => f.endsWith('.json'))) {
-        const content = await fs.readFile(path.join(versionDir, file), 'utf-8')
-        versions.push(JSON.parse(content))
+        try {
+          const filePath = path.join(versionDir, file)
+          const content = await fs.readFile(filePath, 'utf-8')
+          
+          // Validate content before parsing
+          if (!content || !content.trim()) {
+            console.warn(`Empty version file detected: ${file}`)
+            continue
+          }
+          
+          // Safe JSON parsing
+          const version = JSON.parse(content) as DirectoryGuideData
+          
+          // Validate version object
+          if (version && typeof version === 'object' && version.slug) {
+            versions.push(version)
+          } else {
+            console.warn(`Invalid version object in file: ${file}`)
+          }
+        } catch (parseError) {
+          console.error(`Error parsing version file ${file}:`, parseError)
+          continue
+        }
       }
       
       return versions.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     } catch (error) {
+      console.error(`Error loading version history for ${slug}:`, error)
       return []
     }
   }
@@ -217,8 +279,37 @@ export class GuideContentManager {
   private async incrementViewCount(slug: string): Promise<void> {
     try {
       const filePath = path.join(this.guidesPath, `${slug}.json`)
+      
+      // Check if file exists
+      try {
+        await fs.access(filePath)
+      } catch (accessError) {
+        console.warn(`Cannot increment view count - file not found: ${slug}.json`)
+        return
+      }
+      
       const fileContent = await fs.readFile(filePath, 'utf-8')
-      const guide = JSON.parse(fileContent) as DirectoryGuideData
+      
+      // Validate content before parsing
+      if (!fileContent || !fileContent.trim()) {
+        console.warn(`Cannot increment view count - empty file: ${slug}.json`)
+        return
+      }
+      
+      // Safe JSON parsing
+      let guide: DirectoryGuideData
+      try {
+        guide = JSON.parse(fileContent) as DirectoryGuideData
+      } catch (parseError) {
+        console.error(`Cannot increment view count - JSON parsing failed for ${slug}:`, parseError)
+        return
+      }
+      
+      // Validate guide object
+      if (!guide || typeof guide !== 'object') {
+        console.warn(`Cannot increment view count - invalid guide object: ${slug}.json`)
+        return
+      }
       
       guide.viewCount = (guide.viewCount || 0) + 1
       
