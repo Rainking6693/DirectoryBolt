@@ -1,1 +1,286 @@
-/**\n * ELITE API ENDPOINT TESTING SUITE\n * \n * Comprehensive testing for the /api/extension/validate endpoint\n * Tests both GET and POST methods with various customer IDs\n */\n\nconst https = require('https');\nconst http = require('http');\n\n// Test configuration\nconst TEST_CONFIG = {\n  // Local testing\n  local: {\n    host: 'localhost',\n    port: 3000,\n    protocol: 'http:'\n  },\n  // Production testing\n  production: {\n    host: 'directorybolt.com',\n    port: 443,\n    protocol: 'https:'\n  }\n};\n\n// Test customer IDs\nconst TEST_CUSTOMER_IDS = [\n  'DIR-20250914-000001',  // Target customer ID from requirements\n  'DIR-2025-001234',      // Test customer\n  'TEST-CUSTOMER-123',    // Development customer\n  'DIR-2025-005678',      // Alternative test customer\n  'INVALID-FORMAT',       // Should fail format validation\n  '',                     // Should fail - empty\n  'DIR-2025-NONEXISTENT'  // Should fail - not found\n];\n\nconsole.log('🧪 ELITE API ENDPOINT TESTING SUITE');\nconsole.log('=' .repeat(60));\n\n/**\n * Make HTTP request\n */\nfunction makeRequest(options, data = null) {\n  return new Promise((resolve, reject) => {\n    const client = options.protocol === 'https:' ? https : http;\n    \n    const req = client.request(options, (res) => {\n      let body = '';\n      \n      res.on('data', (chunk) => {\n        body += chunk;\n      });\n      \n      res.on('end', () => {\n        try {\n          const jsonBody = JSON.parse(body);\n          resolve({\n            statusCode: res.statusCode,\n            headers: res.headers,\n            body: jsonBody\n          });\n        } catch (e) {\n          resolve({\n            statusCode: res.statusCode,\n            headers: res.headers,\n            body: body\n          });\n        }\n      });\n    });\n    \n    req.on('error', (error) => {\n      reject(error);\n    });\n    \n    if (data) {\n      req.write(data);\n    }\n    \n    req.end();\n  });\n}\n\n/**\n * Test GET request\n */\nasync function testGetRequest(config, customerId) {\n  const options = {\n    ...config,\n    method: 'GET',\n    path: `/api/extension/validate?customerId=${encodeURIComponent(customerId)}`,\n    headers: {\n      'User-Agent': 'ELITE-API-TESTER/1.0'\n    }\n  };\n  \n  try {\n    const response = await makeRequest(options);\n    return response;\n  } catch (error) {\n    return {\n      error: error.message,\n      statusCode: 0\n    };\n  }\n}\n\n/**\n * Test POST request\n */\nasync function testPostRequest(config, customerId) {\n  const postData = JSON.stringify({\n    customerId: customerId,\n    extensionVersion: '3.0.1',\n    timestamp: Date.now()\n  });\n  \n  const options = {\n    ...config,\n    method: 'POST',\n    path: '/api/extension/validate',\n    headers: {\n      'Content-Type': 'application/json',\n      'Content-Length': Buffer.byteLength(postData),\n      'User-Agent': 'ELITE-API-TESTER/1.0'\n    }\n  };\n  \n  try {\n    const response = await makeRequest(options, postData);\n    return response;\n  } catch (error) {\n    return {\n      error: error.message,\n      statusCode: 0\n    };\n  }\n}\n\n/**\n * Test CORS preflight\n */\nasync function testCorsRequest(config) {\n  const options = {\n    ...config,\n    method: 'OPTIONS',\n    path: '/api/extension/validate',\n    headers: {\n      'Origin': 'chrome-extension://test',\n      'Access-Control-Request-Method': 'POST',\n      'Access-Control-Request-Headers': 'Content-Type'\n    }\n  };\n  \n  try {\n    const response = await makeRequest(options);\n    return response;\n  } catch (error) {\n    return {\n      error: error.message,\n      statusCode: 0\n    };\n  }\n}\n\n/**\n * Run comprehensive test suite\n */\nasync function runTestSuite(environment = 'local') {\n  const config = TEST_CONFIG[environment];\n  console.log(`\\n🎯 Testing ${environment} environment: ${config.protocol}//${config.host}:${config.port}`);\n  console.log('-' .repeat(50));\n  \n  // Test CORS preflight\n  console.log('\\n🔗 Testing CORS preflight...');\n  const corsResponse = await testCorsRequest(config);\n  console.log(`CORS Status: ${corsResponse.statusCode}`);\n  if (corsResponse.headers) {\n    console.log('CORS Headers:', {\n      'access-control-allow-origin': corsResponse.headers['access-control-allow-origin'],\n      'access-control-allow-methods': corsResponse.headers['access-control-allow-methods']\n    });\n  }\n  \n  // Test each customer ID with both GET and POST\n  for (const customerId of TEST_CUSTOMER_IDS) {\n    console.log(`\\n📋 Testing Customer ID: \"${customerId}\"`);\n    console.log('-' .repeat(30));\n    \n    // Test GET request\n    console.log('GET Request:');\n    const getResponse = await testGetRequest(config, customerId);\n    console.log(`  Status: ${getResponse.statusCode}`);\n    if (getResponse.body) {\n      console.log(`  Valid: ${getResponse.body.valid}`);\n      if (getResponse.body.error) {\n        console.log(`  Error: ${getResponse.body.error}`);\n      }\n      if (getResponse.body.customerName) {\n        console.log(`  Customer: ${getResponse.body.customerName}`);\n      }\n      if (getResponse.body.debug) {\n        console.log(`  Debug: ${JSON.stringify(getResponse.body.debug)}`);\n      }\n    }\n    \n    // Test POST request\n    console.log('POST Request:');\n    const postResponse = await testPostRequest(config, customerId);\n    console.log(`  Status: ${postResponse.statusCode}`);\n    if (postResponse.body) {\n      console.log(`  Valid: ${postResponse.body.valid}`);\n      if (postResponse.body.error) {\n        console.log(`  Error: ${postResponse.body.error}`);\n      }\n      if (postResponse.body.customerName) {\n        console.log(`  Customer: ${postResponse.body.customerName}`);\n      }\n    }\n  }\n}\n\n/**\n * Test specific customer ID (from requirements)\n */\nasync function testTargetCustomer(environment = 'local') {\n  const config = TEST_CONFIG[environment];\n  const targetCustomerId = 'DIR-20250914-000001';\n  \n  console.log(`\\n🎯 TESTING TARGET CUSTOMER: ${targetCustomerId}`);\n  console.log('=' .repeat(50));\n  \n  const getResponse = await testGetRequest(config, targetCustomerId);\n  \n  console.log('GET Response:');\n  console.log(`Status Code: ${getResponse.statusCode}`);\n  console.log('Response Body:', JSON.stringify(getResponse.body, null, 2));\n  \n  if (getResponse.body && getResponse.body.valid) {\n    console.log('\\n✅ SUCCESS: Target customer validation successful!');\n    console.log(`Customer Name: ${getResponse.body.customerName}`);\n    console.log(`Package Type: ${getResponse.body.packageType}`);\n  } else {\n    console.log('\\n❌ FAILURE: Target customer validation failed');\n    if (getResponse.body && getResponse.body.error) {\n      console.log(`Error: ${getResponse.body.error}`);\n    }\n  }\n}\n\n/**\n * Main test execution\n */\nasync function main() {\n  try {\n    // Test local environment first\n    console.log('\\n🏠 TESTING LOCAL ENVIRONMENT');\n    await runTestSuite('local');\n    \n    // Test target customer specifically\n    await testTargetCustomer('local');\n    \n    // Uncomment to test production\n    // console.log('\\n🌐 TESTING PRODUCTION ENVIRONMENT');\n    // await runTestSuite('production');\n    // await testTargetCustomer('production');\n    \n    console.log('\\n🎉 ELITE API ENDPOINT TESTING COMPLETE');\n    \n  } catch (error) {\n    console.error('💥 Test suite failed:', error);\n  }\n}\n\n// Run tests\nif (require.main === module) {\n  main();\n}\n\nmodule.exports = {\n  testGetRequest,\n  testPostRequest,\n  testTargetCustomer,\n  runTestSuite\n};"
+/**
+ * ELITE API ENDPOINT TESTING SUITE
+ * 
+ * Comprehensive testing for the /api/extension/validate endpoint
+ * Tests both GET and POST methods with various customer IDs
+ */
+
+const https = require('https');
+const http = require('http');
+
+// Test configuration
+const TEST_CONFIG = {
+  // Local testing
+  local: {
+    host: 'localhost',
+    port: 3000,
+    protocol: 'http:'
+  },
+  // Production testing
+  production: {
+    host: 'directorybolt.com',
+    port: 443,
+    protocol: 'https:'
+  }
+};
+
+// Test customer IDs
+const TEST_CUSTOMER_IDS = [
+  'DIR-20250914-000001',  // Target customer ID from requirements
+  'DIR-2025-001234',      // Test customer
+  'TEST-CUSTOMER-123',    // Development customer
+  'DIR-2025-005678',      // Alternative test customer
+  'INVALID-FORMAT',       // Should fail format validation
+  '',                     // Should fail - empty
+  'DIR-2025-NONEXISTENT'  // Should fail - not found
+];
+
+console.log('🧪 ELITE API ENDPOINT TESTING SUITE');
+console.log('='.repeat(60));
+
+/**
+ * Make HTTP request
+ */
+function makeRequest(options, data = null) {
+  return new Promise((resolve, reject) => {
+    const client = options.protocol === 'https:' ? https : http;
+    
+    const req = client.request(options, (res) => {
+      let body = '';
+      
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          const jsonBody = JSON.parse(body);
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            body: jsonBody
+          });
+        } catch (e) {
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            body: body
+          });
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      reject(error);
+    });
+    
+    if (data) {
+      req.write(data);
+    }
+    
+    req.end();
+  });
+}
+
+/**
+ * Test GET request
+ */
+async function testGetRequest(config, customerId) {
+  const options = {
+    ...config,
+    method: 'GET',
+    path: `/api/extension/validate?customerId=${encodeURIComponent(customerId)}`,
+    headers: {
+      'User-Agent': 'ELITE-API-TESTER/1.0'
+    }
+  };
+  
+  try {
+    const response = await makeRequest(options);
+    return response;
+  } catch (error) {
+    return {
+      error: error.message,
+      statusCode: 0
+    };
+  }
+}
+
+/**
+ * Test POST request
+ */
+async function testPostRequest(config, customerId) {
+  const postData = JSON.stringify({
+    customerId: customerId,
+    extensionVersion: '3.0.1',
+    timestamp: Date.now()
+  });
+  
+  const options = {
+    ...config,
+    method: 'POST',
+    path: '/api/extension/validate',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(postData),
+      'User-Agent': 'ELITE-API-TESTER/1.0'
+    }
+  };
+  
+  try {
+    const response = await makeRequest(options, postData);
+    return response;
+  } catch (error) {
+    return {
+      error: error.message,
+      statusCode: 0
+    };
+  }
+}
+
+/**
+ * Test CORS preflight
+ */
+async function testCorsRequest(config) {
+  const options = {
+    ...config,
+    method: 'OPTIONS',
+    path: '/api/extension/validate',
+    headers: {
+      'Origin': 'chrome-extension://test',
+      'Access-Control-Request-Method': 'POST',
+      'Access-Control-Request-Headers': 'Content-Type'
+    }
+  };
+  
+  try {
+    const response = await makeRequest(options);
+    return response;
+  } catch (error) {
+    return {
+      error: error.message,
+      statusCode: 0
+    };
+  }
+}
+
+/**
+ * Run comprehensive test suite
+ */
+async function runTestSuite(environment = 'local') {
+  const config = TEST_CONFIG[environment];
+  console.log(`\n🎯 Testing ${environment} environment: ${config.protocol}//${config.host}:${config.port}`);
+  console.log('-'.repeat(50));
+  
+  // Test CORS preflight
+  console.log('\n🔗 Testing CORS preflight...');
+  const corsResponse = await testCorsRequest(config);
+  console.log(`CORS Status: ${corsResponse.statusCode}`);
+  if (corsResponse.headers) {
+    console.log('CORS Headers:', {
+      'access-control-allow-origin': corsResponse.headers['access-control-allow-origin'],
+      'access-control-allow-methods': corsResponse.headers['access-control-allow-methods']
+    });
+  }
+  
+  // Test each customer ID with both GET and POST
+  for (const customerId of TEST_CUSTOMER_IDS) {
+    console.log(`\n📋 Testing Customer ID: "${customerId}"`);
+    console.log('-'.repeat(30));
+    
+    // Test GET request
+    console.log('GET Request:');
+    const getResponse = await testGetRequest(config, customerId);
+    console.log(`  Status: ${getResponse.statusCode}`);
+    if (getResponse.body) {
+      console.log(`  Valid: ${getResponse.body.valid}`);
+      if (getResponse.body.error) {
+        console.log(`  Error: ${getResponse.body.error}`);
+      }
+      if (getResponse.body.customerName) {
+        console.log(`  Customer: ${getResponse.body.customerName}`);
+      }
+      if (getResponse.body.debug) {
+        console.log(`  Debug: ${JSON.stringify(getResponse.body.debug)}`);
+      }
+    }
+    
+    // Test POST request
+    console.log('POST Request:');
+    const postResponse = await testPostRequest(config, customerId);
+    console.log(`  Status: ${postResponse.statusCode}`);
+    if (postResponse.body) {
+      console.log(`  Valid: ${postResponse.body.valid}`);
+      if (postResponse.body.error) {
+        console.log(`  Error: ${postResponse.body.error}`);
+      }
+      if (postResponse.body.customerName) {
+        console.log(`  Customer: ${postResponse.body.customerName}`);
+      }
+    }
+  }
+}
+
+/**
+ * Test specific customer ID (from requirements)
+ */
+async function testTargetCustomer(environment = 'local') {
+  const config = TEST_CONFIG[environment];
+  const targetCustomerId = 'DIR-20250914-000001';
+  
+  console.log(`\n🎯 TESTING TARGET CUSTOMER: ${targetCustomerId}`);
+  console.log('='.repeat(50));
+  
+  const getResponse = await testGetRequest(config, targetCustomerId);
+  
+  console.log('GET Response:');
+  console.log(`Status Code: ${getResponse.statusCode}`);
+  console.log('Response Body:', JSON.stringify(getResponse.body, null, 2));
+  
+  if (getResponse.body && getResponse.body.valid) {
+    console.log('\n✅ SUCCESS: Target customer validation successful!');
+    console.log(`Customer Name: ${getResponse.body.customerName}`);
+    console.log(`Package Type: ${getResponse.body.packageType}`);
+  } else {
+    console.log('\n❌ FAILURE: Target customer validation failed');
+    if (getResponse.body && getResponse.body.error) {
+      console.log(`Error: ${getResponse.body.error}`);
+    }
+  }
+}
+
+/**
+ * Main test execution
+ */
+async function main() {
+  try {
+    // Test local environment first
+    console.log('\n🏠 TESTING LOCAL ENVIRONMENT');
+    await runTestSuite('local');
+    
+    // Test target customer specifically
+    await testTargetCustomer('local');
+    
+    // Uncomment to test production
+    // console.log('\n🌐 TESTING PRODUCTION ENVIRONMENT');
+    // await runTestSuite('production');
+    // await testTargetCustomer('production');
+    
+    console.log('\n🎉 ELITE API ENDPOINT TESTING COMPLETE');
+    
+  } catch (error) {
+    console.error('💥 Test suite failed:', error);
+  }
+}
+
+// Run tests
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  testGetRequest,
+  testPostRequest,
+  testTargetCustomer,
+  runTestSuite
+};
