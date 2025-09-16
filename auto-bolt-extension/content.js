@@ -1470,28 +1470,35 @@ class AutoBoltContentScript {
 }
 
 // ==================== ADVANCED HELPER CLASSES ====================
-// Loaded dynamically from /lib so popup, background, and content share the same implementations.
+// Load helper modules with fallback to inline classes
 async function loadHelperModules() {
     try {
-        const [pkgModule, mapperModule, detectorModule, fallbackModule] = await Promise.all([
+        // Try to load external modules first
+        const modules = await Promise.allSettled([
             import(chrome.runtime.getURL('lib/PackageTierEngine.js')),
             import(chrome.runtime.getURL('lib/AdvancedFieldMapper.js')),
             import(chrome.runtime.getURL('lib/DynamicFormDetector.js')),
             import(chrome.runtime.getURL('lib/FallbackSelectorEngine.js')),
         ]);
 
+        const [pkgModule, mapperModule, detectorModule, fallbackModule] = modules;
+
         return {
-            PackageTierEngine: pkgModule.default,
-            AdvancedFieldMapper: mapperModule.default,
-            DynamicFormDetector: detectorModule.default,
-            FallbackSelectorEngine: fallbackModule.default,
+            PackageTierEngine: pkgModule.status === 'fulfilled' ? pkgModule.value.default : globalScope.PackageTierEngine,
+            AdvancedFieldMapper: mapperModule.status === 'fulfilled' ? mapperModule.value.default : globalScope.AdvancedFieldMapper,
+            DynamicFormDetector: detectorModule.status === 'fulfilled' ? detectorModule.value.default : globalScope.DynamicFormDetector,
+            FallbackSelectorEngine: fallbackModule.status === 'fulfilled' ? fallbackModule.value.default : globalScope.FallbackSelectorEngine,
         };
     } catch (error) {
-        console.error('AutoBolt: failed to load helper modules', error);
-        return null;
+        console.warn('AutoBolt: failed to load external modules, using inline fallbacks', error);
+        return {
+            PackageTierEngine: globalScope.PackageTierEngine,
+            AdvancedFieldMapper: globalScope.AdvancedFieldMapper,
+            DynamicFormDetector: globalScope.DynamicFormDetector,
+            FallbackSelectorEngine: globalScope.FallbackSelectorEngine,
+        };
     }
 }
-
 
 // Initialize the production content script
 async function bootAutoBolt() {
@@ -1512,6 +1519,7 @@ async function bootAutoBolt() {
                 DynamicFormDetector,
                 FallbackSelectorEngine,
             });
+            console.log('✅ AutoBolt content script successfully initialized!');
         } catch (error) {
             console.error('AutoBolt: failed to start content script', error);
         }

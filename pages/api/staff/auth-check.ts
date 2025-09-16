@@ -1,63 +1,139 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+interface StaffUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'staff' | 'supervisor' | 'admin';
+  permissions: string[];
+  active: boolean;
+}
+
+function authenticateStaff(req: NextApiRequest): { authenticated: boolean; user?: StaffUser } {
+  const authHeader = req.headers.authorization;
+  const staffKey = process.env.STAFF_API_KEY;
+  const adminKey = process.env.ADMIN_API_KEY;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { authenticated: false };
+  }
+  
+  const token = authHeader.substring(7);
+  
+  // Check if it's admin key (admin has all staff permissions)
+  if (adminKey && token === adminKey) {
+    return {
+      authenticated: true,
+      user: {
+        id: 'admin',
+        name: 'System Administrator',
+        email: 'admin@directorybolt.com',
+        role: 'admin',
+        permissions: ['all'],
+        active: true
+      }
+    };
+  }
+  
+  // Check if it's staff key
+  if (staffKey && token === staffKey) {
+    return {
+      authenticated: true,
+      user: {
+        id: 'staff',
+        name: 'Staff User',
+        email: 'staff@directorybolt.com',
+        role: 'staff',
+        permissions: ['view_customers', 'process_queue', 'view_analytics'],
+        active: true
+      }
+    };
+  }
+  
+  return { authenticated: false };
+}
+
+function applyCors(res: NextApiResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  applyCors(res);
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
   }
 
-  // SECURITY FIX: Implement proper staff authentication
-  console.log('🔐 Staff auth check requested from IP:', req.headers['x-forwarded-for'] || req.socket.remoteAddress)
-  
-  // Check for staff API key in headers
-  const staffKey = req.headers['x-staff-key'] || req.headers['authorization']
-  const validStaffKey = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
-  
-  if (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`) {
-    console.log('✅ Staff authenticated via API key')
-    return res.status(200).json({ 
-      authenticated: true, 
-      user: { role: 'staff', method: 'api_key' }
-    })
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    return res.status(405).json({ 
+      ok: false, 
+      code: 'METHOD_NOT_ALLOWED',
+      message: 'Only GET and POST requests are allowed'
+    });
   }
 
-  // Check for staff session/cookie
-  const staffSession = req.cookies['staff-session']
-  const validStaffSession = process.env.STAFF_SESSION_TOKEN || 'DirectoryBolt-Staff-Session-2025'
-  
-  if (staffSession === validStaffSession) {
-    console.log('✅ Staff authenticated via session')
-    return res.status(200).json({ 
-      authenticated: true, 
-      user: { role: 'staff', method: 'session' }
-    })
-  }
-
-  // Check for basic auth credentials
-  const authHeader = req.headers.authorization
-  if (authHeader && authHeader.startsWith('Basic ')) {
-    const credentials = Buffer.from(authHeader.slice(6), 'base64').toString()
-    const [username, password] = credentials.split(':')
+  try {
+    const authResult = authenticateStaff(req);
     
-    const validUsername = process.env.STAFF_USERNAME || 'staff'
-    const validPassword = process.env.STAFF_PASSWORD || 'DirectoryBoltStaff2025!'
-    
-    if (username === validUsername && password === validPassword) {
-      console.log('✅ Staff authenticated via basic auth')
-      return res.status(200).json({ 
-        authenticated: true, 
-        user: { role: 'staff', email: 'staff@directorybolt.com', method: 'basic_auth' }
-      })
+    if (!authResult.authenticated) {
+      return res.status(401).json({
+        ok: false,
+        code: 'UNAUTHORIZED',
+        message: 'Staff authentication required',
+        authenticated: false
+      });
     }
+
+    // For GET requests, return authentication status and user info
+    if (req.method === 'GET') {
+      return res.status(200).json({
+        ok: true,
+        authenticated: true,
+        user: authResult.user,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // For POST requests, validate specific permissions
+    if (req.method === 'POST') {
+      const { permission } = req.body;
+      
+      if (!permission) {
+        return res.status(400).json({
+          ok: false,
+          code: 'MISSING_PERMISSION',
+          message: 'Permission parameter is required'
+        });
+      }
+
+      const user = authResult.user!;
+      const hasPermission = user.permissions.includes('all') || user.permissions.includes(permission);
+
+      return res.status(200).json({
+        ok: true,
+        authenticated: true,
+        hasPermission,
+        user: {
+          id: user.id,
+          name: user.name,
+          role: user.role
+        },
+        requestedPermission: permission,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error: unknown) {
+    const err = error as { name?: string; message?: string };
+    console.error('[staff.auth-check] error', { name: err?.name, message: err?.message });
+    
+    return res.status(500).json({
+      ok: false,
+      code: 'SERVER_ERROR',
+      message: 'Authentication check failed'
+    });
   }
-
-  // SECURITY FIX: Development bypass REMOVED for production security
-  // All authentication must go through proper channels
-
-  // No valid staff authentication found
-  console.log('❌ Staff authentication failed - no valid credentials')
-  return res.status(401).json({ 
-    error: 'Unauthorized', 
-    message: 'Staff authentication required',
-    methods: ['API Key (x-staff-key header)', 'Session Cookie (staff-session)', 'Basic Auth']
-  })
 }

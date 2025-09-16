@@ -1,84 +1,153 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { verifyAdminAuth } from '../../../lib/auth/admin-auth'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+
+interface ConfigStatus {
+  name: string;
+  status: 'ok' | 'missing' | 'error';
+  message: string;
+}
+
+function checkEnvironmentVariable(name: string): ConfigStatus {
+  const value = process.env[name];
+  if (!value) {
+    return {
+      name,
+      status: 'missing',
+      message: `Environment variable ${name} is not set`
+    };
+  }
+  return {
+    name,
+    status: 'ok',
+    message: `Environment variable ${name} is configured`
+  };
+}
+
+function checkFileExists(filePath: string, description: string): ConfigStatus {
+  try {
+    const fullPath = path.join(process.cwd(), filePath);
+    if (fs.existsSync(fullPath)) {
+      return {
+        name: description,
+        status: 'ok',
+        message: `File exists: ${filePath}`
+      };
+    } else {
+      return {
+        name: description,
+        status: 'missing',
+        message: `File missing: ${filePath}`
+      };
+    }
+  } catch (error) {
+    return {
+      name: description,
+      status: 'error',
+      message: `Error checking file: ${filePath}`
+    };
+  }
+}
+
+function authenticateAdmin(req: NextApiRequest): boolean {
+  const authHeader = req.headers.authorization;
+  const adminKey = process.env.ADMIN_API_KEY;
+  
+  if (!adminKey) {
+    return false;
+  }
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return false;
+  }
+  
+  const token = authHeader.substring(7);
+  return token === adminKey;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
   }
 
-  // SECURITY FIX: Require admin authentication for sensitive config access
-  if (!(await verifyAdminAuth(req, res))) {
-    return // Response already sent by verifyAdminAuth
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    return res.status(405).json({ 
+      ok: false, 
+      code: 'METHOD_NOT_ALLOWED',
+      message: 'Only GET requests are allowed'
+    });
+  }
+
+  // Check admin authentication
+  if (!authenticateAdmin(req)) {
+    return res.status(401).json({
+      ok: false,
+      code: 'UNAUTHORIZED',
+      message: 'Admin authentication required'
+    });
   }
 
   try {
-    // Check critical environment variables
-    const configStatus = {
-      google_sheets: {
-        configured: !!(process.env.GOOGLE_SHEET_ID && 
-                      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && 
-                      process.env.GOOGLE_PRIVATE_KEY),
-        sheetId: !!process.env.GOOGLE_SHEET_ID,
-        serviceAccount: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        privateKey: !!process.env.GOOGLE_PRIVATE_KEY,
-        status: 'unknown'
-      },
-      stripe: {
-        configured: !!(process.env.STRIPE_SECRET_KEY && 
-                      !process.env.STRIPE_SECRET_KEY.includes('your_stripe')),
-        publishableKey: !!(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
-                          !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.includes('your_stripe')),
-        status: 'unknown'
-      },
-      openai: {
-        configured: !!(process.env.OPENAI_API_KEY && 
-                      !process.env.OPENAI_API_KEY.includes('your_openai')),
-        status: 'unknown'
+    const configChecks: ConfigStatus[] = [];
+
+    // Check environment variables
+    const envVars = [
+      'GOOGLE_SHEET_ID',
+      'STRIPE_SECRET_KEY',
+      'OPENAI_API_KEY',
+      'ADMIN_API_KEY',
+      'STAFF_API_KEY'
+    ];
+
+    envVars.forEach(envVar => {
+      configChecks.push(checkEnvironmentVariable(envVar));
+    });
+
+    // Check critical files
+    configChecks.push(checkFileExists('config/google-service-account.json', 'Google Service Account'));
+    configChecks.push(checkFileExists('pages/api/extension/validate.ts', 'Extension Validation API'));
+    configChecks.push(checkFileExists('pages/api/health/google-sheets.ts', 'Google Sheets Health Check'));
+
+    // Calculate overall status
+    const hasErrors = configChecks.some(check => check.status === 'error');
+    const hasMissing = configChecks.some(check => check.status === 'missing');
+    
+    let overallStatus: 'healthy' | 'warning' | 'error';
+    if (hasErrors) {
+      overallStatus = 'error';
+    } else if (hasMissing) {
+      overallStatus = 'warning';
+    } else {
+      overallStatus = 'healthy';
+    }
+
+    return res.status(200).json({
+      ok: true,
+      overallStatus,
+      timestamp: new Date().toISOString(),
+      checks: configChecks,
+      summary: {
+        total: configChecks.length,
+        ok: configChecks.filter(c => c.status === 'ok').length,
+        missing: configChecks.filter(c => c.status === 'missing').length,
+        error: configChecks.filter(c => c.status === 'error').length
       }
-    }
+    });
 
-    // Determine overall status
-    configStatus.google_sheets.status = configStatus.google_sheets.configured ? 'configured' : 'missing'
-    configStatus.stripe.status = configStatus.stripe.configured ? 'configured' : 'missing'
-    configStatus.openai.status = configStatus.openai.configured ? 'configured' : 'missing'
-
-    const overallStatus = {
-      ready: configStatus.google_sheets.configured && configStatus.stripe.configured,
-      issues: [],
-      recommendations: []
-    }
-
-    if (!configStatus.google_sheets.configured) {
-      overallStatus.issues.push('Google Sheets credentials not configured')
-      overallStatus.recommendations.push('Set GOOGLE_SHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY in .env.local')
-    }
-
-    if (!configStatus.stripe.configured) {
-      overallStatus.issues.push('Stripe keys not configured')
-      overallStatus.recommendations.push('Set STRIPE_SECRET_KEY and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY in .env.local')
-    }
-
-    if (!configStatus.openai.configured) {
-      overallStatus.issues.push('OpenAI API key not configured')
-      overallStatus.recommendations.push('Set OPENAI_API_KEY in .env.local')
-    }
-
-    res.status(200).json({
-      success: true,
-      data: {
-        overall: overallStatus,
-        services: configStatus,
-        environment: process.env.NODE_ENV,
-        timestamp: new Date().toISOString()
-      }
-    })
-
-  } catch (error) {
-    console.error('Configuration check failed:', error)
-    res.status(500).json({
-      success: false,
-      error: 'Configuration check failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
+  } catch (error: unknown) {
+    const err = error as { name?: string; message?: string };
+    console.error('[admin.config-check] error', { name: err?.name, message: err?.message });
+    
+    return res.status(500).json({
+      ok: false,
+      code: 'SERVER_ERROR',
+      message: 'Failed to check configuration'
+    });
   }
 }

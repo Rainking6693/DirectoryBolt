@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html lang=\"en\">
+<html lang="en">
 <head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DirectoryBolt Customer Validation</title>
     <style>
-        :root {
-            color-scheme: light dark;
-        }
         body {
-            width: 360px;
+            width: 320px;
             margin: 0;
             padding: 16px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -18,141 +15,60 @@
         }
         h1 {
             font-size: 18px;
-            margin: 0 0 4px 0;
+            margin: 0 0 8px 0;
             color: #ccff0a;
         }
         p {
-            margin: 0;
-        }
-        .subtitle {
+            margin: 0 0 16px 0;
             font-size: 12px;
-            opacity: 0.75;
-            margin-bottom: 16px;
+            opacity: 0.7;
         }
-        form {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        label {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-        }
-        input[type="text"] {
+        input {
+            width: 100%;
             padding: 10px;
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(11, 19, 43, 0.6);
+            background: rgba(255, 255, 255, 0.08);
             color: inherit;
+            margin-bottom: 12px;
+            box-sizing: border-box;
             font-size: 14px;
         }
-        input[type="text"]:focus {
+        input:focus {
             outline: none;
             border-color: #ccff0a;
             box-shadow: 0 0 0 2px rgba(204, 255, 10, 0.25);
         }
         button {
+            width: 100%;
             padding: 10px;
             border-radius: 6px;
             border: none;
             background: linear-gradient(135deg, #ccff0a, #9cff00);
             color: #151a2f;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: filter 0.2s ease;
             font-size: 14px;
         }
-        button:hover:not([disabled]) {
+        button:hover {
             filter: brightness(1.05);
         }
-        button:disabled {
-            cursor: progress;
-            opacity: 0.6;
-        }
-        .status {
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            margin-bottom: 12px;
-            border: 1px solid transparent;
-        }
-        .status--hidden {
-            display: none;
-        }
-        .status--info {
-            background: rgba(51, 102, 204, 0.2);
-            border-color: rgba(51, 102, 204, 0.5);
-        }
-        .status--error {
-            background: rgba(228, 57, 63, 0.2);
-            border-color: rgba(228, 57, 63, 0.5);
-        }
-        .status--success {
-            background: rgba(0, 180, 115, 0.2);
-            border-color: rgba(0, 180, 115, 0.5);
-        }
-        .result {
-            padding: 14px;
-            border-radius: 8px;
-            background: rgba(17, 26, 45, 0.85);
-            border: 1px solid rgba(204, 255, 10, 0.3);
-            display: none;
-        }
-        .result__heading {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .result__item {
-            display: flex;
-            justify-content: space-between;
+        #result {
+            margin-top: 16px;
             font-size: 13px;
-            margin-bottom: 4px;
-        }
-        .result__item span {
-            font-weight: 600;
-        }
-        .helper-text {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-top: 12px;
-            line-height: 1.4;
+            line-height: 1.5;
+            min-height: 20px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>DirectoryBolt</h1>
-        <p class="subtitle">Verify your customer access from Google Sheets records.</p>
-    </header>
+    <h1>DirectoryBolt</h1>
+    <p>Enter your customer ID to check your package and directory limit.</p>
 
-    <main>
-        <form id="customer-form">
-            <label for="customer-id">Customer ID</label>
-            <input type="text" id="customer-id" name="customer-id" autocomplete="off" placeholder="DIR-2025..." required>
-            <button type="submit" id="validate-btn">Check Package</button>
-        </form>
+    <input id="customerIdInput" type="text" placeholder="DIR-YYYYMMDD-XXXXXX" autocomplete="off" />
+    <button id="validateBtn" type="button">Validate</button>
 
-        <div id="status" class="status status--hidden" role="alert"></div>
-
-        <section id="customer-result" class="result" aria-live="polite">
-            <div class="result__heading">Current Subscription</div>
-            <div class="result__item">
-                <span>Package</span>
-                <span id="result-package">-</span>
-            </div>
-            <div class="result__item">
-                <span>Directory limit</span>
-                <span id="result-limit">-</span>
-            </div>
-        </section>
-
-        <p class="helper-text" id="helper-text">
-            Need help? Confirm your Customer ID from the onboarding email. For access issues contact support@directorybolt.com.
-        </p>
-    </main>
+    <div id="result"></div>
 
     <script type="module" src="customer-popup.js"></script>
 </body>

@@ -1,168 +1,150 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { createAirtableService, BusinessSubmissionRecord } from '../../../lib/services/airtable'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { getSheets } from '../../../lib/googleSheets';
 
-interface BusinessSubmission {
-  firstName: string
-  lastName: string
-  businessName: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  state: string
-  zip: string
-  website: string
-  description: string
-  facebook?: string
-  instagram?: string
-  linkedin?: string
-  logo?: string // Will be file path after upload
-  sessionId?: string
-  packageType?: string
-  submissionStatus: string
-  purchaseDate: string
-  customerId?: string
+interface BusinessInfo {
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  packageType: string;
 }
 
-/**
- * Map Stripe package types to Airtable package types
- * CRITICAL: Must match payment plan IDs exactly
- */
-function mapPackageType(stripePackage?: string): 'starter' | 'growth' | 'pro' | 'subscription' {
-  switch (stripePackage?.toLowerCase()) {
-    case 'starter':
-    case 'price_starter_49_usd':
-      return 'starter'
-    case 'growth':
-    case 'price_growth_89_usd':
-      return 'growth'
-    case 'pro':
-    case 'professional':
-    case 'price_pro_159_usd':
-      return 'pro'
-    case 'subscription':
-    case 'price_subscription_49_usd':
-      return 'subscription'
-    default:
-      return 'starter' // Default fallback
-  }
+function generateCustomerId(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+  return `DIR-${year}${month}${day}-${random}`;
 }
 
-// Enable standard bodyParser (no file uploads for now)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
+function applyCors(res: NextApiResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  applyCors(res);
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST, OPTIONS');
     return res.status(405).json({ 
-      success: false, 
-      message: 'Method not allowed. Use POST.' 
-    })
+      ok: false, 
+      code: 'METHOD_NOT_ALLOWED',
+      message: 'Only POST requests are allowed'
+    });
   }
 
   try {
-    // Extract form data from request body (no file uploads for now)
-    const businessData: BusinessSubmission = {
-      firstName: req.body.firstName || '',
-      lastName: req.body.lastName || '',
-      businessName: req.body.businessName || '',
-      email: req.body.email || '',
-      phone: req.body.phone || '',
-      address: req.body.address || '',
-      city: req.body.city || '',
-      state: req.body.state || '',
-      zip: req.body.zip || '',
-      website: req.body.website || '',
-      description: req.body.description || '',
-      facebook: req.body.facebook || '',
-      instagram: req.body.instagram || '',
-      linkedin: req.body.linkedin || '',
-      sessionId: req.body.sessionId || '',
-      packageType: req.body.packageType || '',
-      submissionStatus: req.body.submissionStatus || 'pending',
-      purchaseDate: req.body.purchaseDate || new Date().toISOString(),
+    const businessInfo: BusinessInfo = req.body;
+
+    // Validate required fields
+    const requiredFields = ['firstName', 'lastName', 'businessName', 'email', 'packageType'];
+    const missingFields = requiredFields.filter(field => !businessInfo[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        ok: false,
+        code: 'MISSING_FIELDS',
+        message: `Missing required fields: ${missingFields.join(', ')}`
+      });
     }
 
-    // Note: Logo file upload temporarily disabled - can be implemented with base64 or external service
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(businessInfo.email)) {
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_EMAIL',
+        message: 'Invalid email format'
+      });
+    }
 
-    // Initialize Airtable service
-    let airtableService
-    try {
-      airtableService = createAirtableService()
-    } catch (error) {
-      console.error('❌ Failed to initialize Airtable service:', error)
+    // Validate package type
+    const validPackages = ['starter', 'growth', 'professional', 'enterprise'];
+    if (!validPackages.includes(businessInfo.packageType.toLowerCase())) {
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_PACKAGE',
+        message: 'Invalid package type'
+      });
+    }
+
+    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+    if (!spreadsheetId) {
       return res.status(500).json({
-        success: false,
-        message: 'Customer data service unavailable. Please contact support.',
-        error: 'Airtable configuration error'
-      })
+        ok: false,
+        code: 'MISSING_SHEET_ID',
+        message: 'Google Sheets configuration missing'
+      });
     }
 
-    // Create Airtable record with business submission data
-    const airtableRecord = await airtableService.createBusinessSubmission({
-      firstName: businessData.firstName,
-      lastName: businessData.lastName,
-      packageType: mapPackageType(businessData.packageType),
-      submissionStatus: 'pending',
-      purchaseDate: businessData.purchaseDate,
-      businessName: businessData.businessName,
-      email: businessData.email,
-      phone: businessData.phone,
-      address: businessData.address,
-      city: businessData.city,
-      state: businessData.state,
-      zip: businessData.zip,
-      website: businessData.website,
-      description: businessData.description,
-      facebook: businessData.facebook,
-      instagram: businessData.instagram,
-      linkedin: businessData.linkedin,
-      sessionId: businessData.sessionId,
-      logo: businessData.logo
-    })
+    // Generate customer ID
+    const customerId = generateCustomerId();
 
-    console.log('📝 Business Info Submission:', {
-      customerId: airtableRecord.customerId,
-      businessName: airtableRecord.businessName,
-      email: airtableRecord.email,
-      packageType: airtableRecord.packageType,
-      sessionId: airtableRecord.sessionId,
-      hasLogo: !!airtableRecord.logo,
-      airtableRecordId: airtableRecord.recordId
-    })
+    // Prepare data for Google Sheets
+    const timestamp = new Date().toISOString();
+    const rowData = [
+      customerId,
+      businessInfo.firstName,
+      businessInfo.lastName,
+      businessInfo.businessName,
+      businessInfo.email,
+      businessInfo.phone || '',
+      businessInfo.website || '',
+      businessInfo.address || '',
+      businessInfo.city || '',
+      businessInfo.state || '',
+      businessInfo.zip || '',
+      businessInfo.packageType.toLowerCase(),
+      timestamp,
+      'active'
+    ];
 
-    // Success response with actual Airtable data
-    const response = {
-      success: true,
-      customerId: airtableRecord.customerId,
-      message: 'Business information saved successfully',
-      data: {
-        recordId: airtableRecord.recordId,
-        customerId: airtableRecord.customerId,
-        businessName: airtableRecord.businessName,
-        submissionStatus: airtableRecord.submissionStatus,
-        packageType: airtableRecord.packageType,
-        totalDirectories: airtableRecord.totalDirectories,
-        createdAt: new Date().toISOString()
+    // Add to Google Sheets
+    const sheets = await getSheets();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: 'Customers!A:N',
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [rowData]
       }
-    }
+    });
 
-    console.log('✅ Business info submission successful:', response.data)
-    
-    return res.status(200).json(response)
+    return res.status(201).json({
+      ok: true,
+      customerId,
+      message: 'Customer information submitted successfully',
+      data: {
+        customerId,
+        firstName: businessInfo.firstName,
+        lastName: businessInfo.lastName,
+        businessName: businessInfo.businessName,
+        email: businessInfo.email,
+        packageType: businessInfo.packageType.toLowerCase()
+      }
+    });
 
-  } catch (error) {
-    console.error('❌ Business info submission failed:', error)
+  } catch (error: unknown) {
+    const err = error as { name?: string; message?: string };
+    console.error('[business-info.submit] error', { name: err?.name, message: err?.message });
     
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Failed to save business information. Please try again.',
-      error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : 'Internal server error'
-    })
+    return res.status(500).json({
+      ok: false,
+      code: 'SERVER_ERROR',
+      message: 'Failed to submit business information'
+    });
   }
 }
