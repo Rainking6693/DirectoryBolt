@@ -1,5 +1,5 @@
 [build]
-  command = "cp .env.netlify .env && npm ci --include=dev && node scripts/validate-json-guides.js && npm run build"
+  command = "node -e \"require('fs').copyFileSync('.env.netlify', '.env')\" && npm ci --include=dev && node scripts/validate-json-guides.js && npm run build"
   publish = ".next"
 
   [build.environment]
@@ -50,11 +50,6 @@
   status = 200
   force = true
 
-[[redirects]]
-  from = "/api/health/google-sheets"
-  to = "/.netlify/functions/health-google-sheets"
-  status = 200
-  force = true
 
 [[redirects]]
   from = "/api/customer/validate"
@@ -79,3 +74,4 @@
 [dev]
   # Next.js in this environment binds to port 3001; ensure Netlify Dev waits on that port
   targetPort = 3000
+

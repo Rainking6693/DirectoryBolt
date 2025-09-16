@@ -14,6 +14,17 @@ const LIMITS: Record<string, number> = {
   enterprise: 500,
 };
 
+function normalizePackage(value: string): keyof typeof LIMITS {
+  const cleaned = value.trim().toLowerCase();
+  if (cleaned in LIMITS) {
+    return cleaned as keyof typeof LIMITS;
+  }
+  if (cleaned === 'pro') {
+    return 'professional';
+  }
+  return 'starter';
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -34,7 +45,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const sheets = await getSheets();
-    const range = 'Customers!A2:Z';
+    const metadata = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties.title' });
+    const sheetNames = (metadata.data.sheets || [])
+      .map((sheet) => sheet.properties?.title?.trim())
+      .filter((title): title is string => Boolean(title));
+    const sheetName =
+      sheetNames.find((title) => title.toLowerCase() === 'customers') || sheetNames[0];
+    if (!sheetName) {
+      throw new Error('NO_SHEETS_AVAILABLE');
+    }
+    const range = `${sheetName}!A2:Z`;
     const resp = await sheets.spreadsheets.values.get({ spreadsheetId, range });
     const rows = resp.data.values || [];
 
@@ -42,7 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!row)
       return res.status(404).json({ ok: false, code: 'NOT_FOUND', message: 'Customer ID not found.' });
 
-    const pkg = (row[3] || 'starter').toString().toLowerCase();
+    const pkgRaw = (row[3] || 'starter').toString();
+    const pkg = normalizePackage(pkgRaw);
     const directoryLimit = LIMITS[pkg] ?? 50;
 
     return res.status(200).json({ ok: true, customerId, package: pkg, directoryLimit });
