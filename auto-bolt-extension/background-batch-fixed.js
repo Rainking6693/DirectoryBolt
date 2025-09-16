@@ -1,7 +1,303 @@
-/**\r\n * Auto-Bolt Chrome Extension - Fixed Background Script\r\n * Resolves tab communication and frameId errors\r\n * \r\n * FIXES APPLIED:\r\n * - Enhanced tab existence validation before messaging\r\n * - Proper frameId handling and validation\r\n * - Better error handling for invalid tab states\r\n * - Improved message routing and response handling\r\n */\r\n\r\nconsole.log('🚀 AutoBolt Background Script (Fixed) Starting...');\r\n\r\nclass AutoBoltBackgroundFixed {\r\n    constructor() {\r\n        this.activeConnections = new Map();\r\n        this.tabStates = new Map();\r\n        this.messageQueue = new Map();\r\n        this.debugMode = true;\r\n        \r\n        this.init();\r\n    }\r\n    \r\n    init() {\r\n        this.debugLog('🔧 Initializing AutoBolt Background Script (Fixed)');\r\n        \r\n        // Set up message listeners\r\n        this.setupMessageListeners();\r\n        \r\n        // Set up tab event listeners\r\n        this.setupTabListeners();\r\n        \r\n        // Set up connection listeners\r\n        this.setupConnectionListeners();\r\n        \r\n        this.debugLog('✅ Background script initialization complete');\r\n    }\r\n    \r\n    debugLog(message, category = 'background') {\r\n        if (!this.debugMode) return;\r\n        \r\n        const timestamp = new Date().toLocaleTimeString();\r\n        const prefix = `[AutoBolt-BG-Fixed ${timestamp}]`;\r\n        console.log(`${prefix} ${message}`);\r\n    }\r\n    \r\n    setupMessageListeners() {\r\n        this.debugLog('📡 Setting up message listeners');\r\n        \r\n        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {\r\n            this.debugLog(`📨 Message received: ${JSON.stringify(message)}`);\r\n            \r\n            // Handle async responses\r\n            const handleAsync = async () => {\r\n                try {\r\n                    await this.handleMessage(message, sender, sendResponse);\r\n                } catch (error) {\r\n                    this.debugLog(`❌ Message handling error: ${error.message}`);\r\n                    sendResponse({\r\n                        success: false,\r\n                        error: error.message,\r\n                        timestamp: Date.now()\r\n                    });\r\n                }\r\n            };\r\n            \r\n            handleAsync();\r\n            return true; // Indicate async response\r\n        });\r\n    }\r\n    \r\n    setupTabListeners() {\r\n        this.debugLog('🗂️ Setting up tab event listeners');\r\n        \r\n        // Track tab updates\r\n        chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {\r\n            if (changeInfo.status === 'complete') {\r\n                this.tabStates.set(tabId, {\r\n                    url: tab.url,\r\n                    status: 'ready',\r\n                    timestamp: Date.now()\r\n                });\r\n                this.debugLog(`📄 Tab ${tabId} ready: ${tab.url}`);\r\n            }\r\n        });\r\n        \r\n        // Clean up closed tabs\r\n        chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {\r\n            this.tabStates.delete(tabId);\r\n            this.activeConnections.delete(tabId);\r\n            this.messageQueue.delete(tabId);\r\n            this.debugLog(`🗑️ Cleaned up tab ${tabId}`);\r\n        });\r\n    }\r\n    \r\n    setupConnectionListeners() {\r\n        this.debugLog('🔌 Setting up connection listeners');\r\n        \r\n        chrome.runtime.onConnect.addListener((port) => {\r\n            this.debugLog(`🔗 New connection: ${port.name}`);\r\n            \r\n            if (port.sender && port.sender.tab) {\r\n                const tabId = port.sender.tab.id;\r\n                this.activeConnections.set(tabId, port);\r\n                \r\n                port.onDisconnect.addListener(() => {\r\n                    this.activeConnections.delete(tabId);\r\n                    this.debugLog(`🔌 Disconnected from tab ${tabId}`);\r\n                });\r\n            }\r\n        });\r\n    }\r\n    \r\n    async handleMessage(message, sender, sendResponse) {\r\n        const { type, action, data } = message;\r\n        \r\n        switch (type || action) {\r\n            case 'CONTENT_SCRIPT_READY':\r\n                await this.handleContentScriptReady(message, sender, sendResponse);\r\n                break;\r\n                \r\n            case 'VALIDATE_CUSTOMER':\r\n                await this.handleCustomerValidation(message, sender, sendResponse);\r\n                break;\r\n                \r\n            case 'FILL_FORMS':\r\n                await this.handleFormFill(message, sender, sendResponse);\r\n                break;\r\n                \r\n            case 'GET_TAB_INFO':\r\n                await this.handleGetTabInfo(message, sender, sendResponse);\r\n                break;\r\n                \r\n            case 'PING':\r\n                sendResponse({\r\n                    success: true,\r\n                    message: 'Background script is alive',\r\n                    timestamp: Date.now()\r\n                });\r\n                break;\r\n                \r\n            default:\r\n                this.debugLog(`⚠️ Unknown message type: ${type || action}`);\r\n                sendResponse({\r\n                    success: false,\r\n                    error: 'Unknown message type',\r\n                    timestamp: Date.now()\r\n                });\r\n        }\r\n    }\r\n    \r\n    async handleContentScriptReady(message, sender, sendResponse) {\r\n        const tabId = sender.tab?.id;\r\n        \r\n        if (!tabId) {\r\n            sendResponse({ success: false, error: 'No tab ID available' });\r\n            return;\r\n        }\r\n        \r\n        this.tabStates.set(tabId, {\r\n            url: sender.tab.url,\r\n            status: 'content_script_ready',\r\n            hasBusinessData: message.hasBusinessData,\r\n            formCount: message.formCount,\r\n            timestamp: Date.now()\r\n        });\r\n        \r\n        this.debugLog(`✅ Content script ready on tab ${tabId}: ${sender.tab.url}`);\r\n        \r\n        sendResponse({\r\n            success: true,\r\n            message: 'Content script registered',\r\n            tabId: tabId,\r\n            timestamp: Date.now()\r\n        });\r\n    }\r\n    \r\n    async handleCustomerValidation(message, sender, sendResponse) {\r\n        this.debugLog('🔍 Handling customer validation request');\r\n        \r\n        try {\r\n            // This would typically validate against the API\r\n            // For now, return a success response\r\n            sendResponse({\r\n                success: true,\r\n                message: 'Customer validation handled by background script',\r\n                customerId: message.customerId,\r\n                timestamp: Date.now()\r\n            });\r\n        } catch (error) {\r\n            sendResponse({\r\n                success: false,\r\n                error: error.message,\r\n                timestamp: Date.now()\r\n            });\r\n        }\r\n    }\r\n    \r\n    async handleFormFill(message, sender, sendResponse) {\r\n        const tabId = sender.tab?.id;\r\n        \r\n        if (!tabId) {\r\n            sendResponse({ success: false, error: 'No tab ID available' });\r\n            return;\r\n        }\r\n        \r\n        try {\r\n            // Validate tab exists and is accessible\r\n            const tabExists = await this.validateTabExists(tabId);\r\n            if (!tabExists) {\r\n                sendResponse({ success: false, error: 'Tab no longer exists' });\r\n                return;\r\n            }\r\n            \r\n            // Send message to content script with proper error handling\r\n            const response = await this.sendMessageToTab(tabId, {\r\n                type: 'FILL_FORMS',\r\n                data: message.data\r\n            });\r\n            \r\n            sendResponse({\r\n                success: true,\r\n                message: 'Form fill request sent to content script',\r\n                response: response,\r\n                timestamp: Date.now()\r\n            });\r\n            \r\n        } catch (error) {\r\n            this.debugLog(`❌ Form fill error: ${error.message}`);\r\n            sendResponse({\r\n                success: false,\r\n                error: error.message,\r\n                timestamp: Date.now()\r\n            });\r\n        }\r\n    }\r\n    \r\n    async handleGetTabInfo(message, sender, sendResponse) {\r\n        const tabId = sender.tab?.id;\r\n        \r\n        if (!tabId) {\r\n            sendResponse({ success: false, error: 'No tab ID available' });\r\n            return;\r\n        }\r\n        \r\n        const tabState = this.tabStates.get(tabId);\r\n        \r\n        sendResponse({\r\n            success: true,\r\n            tabId: tabId,\r\n            tabState: tabState,\r\n            url: sender.tab.url,\r\n            timestamp: Date.now()\r\n        });\r\n    }\r\n    \r\n    async validateTabExists(tabId) {\r\n        try {\r\n            const tab = await chrome.tabs.get(tabId);\r\n            return tab && tab.id === tabId;\r\n        } catch (error) {\r\n            this.debugLog(`❌ Tab ${tabId} validation failed: ${error.message}`);\r\n            return false;\r\n        }\r\n    }\r\n    \r\n    async sendMessageToTab(tabId, message, options = {}) {\r\n        try {\r\n            // Validate tab exists first\r\n            const tabExists = await this.validateTabExists(tabId);\r\n            if (!tabExists) {\r\n                throw new Error(`Tab ${tabId} does not exist`);\r\n            }\r\n            \r\n            // Send message with proper frameId handling\r\n            const sendOptions = {\r\n                frameId: options.frameId || 0 // Default to main frame\r\n            };\r\n            \r\n            return new Promise((resolve, reject) => {\r\n                chrome.tabs.sendMessage(tabId, message, sendOptions, (response) => {\r\n                    if (chrome.runtime.lastError) {\r\n                        const error = chrome.runtime.lastError.message;\r\n                        this.debugLog(`❌ Message send error: ${error}`);\r\n                        \r\n                        // Handle specific error cases\r\n                        if (error.includes('No tab with id')) {\r\n                            reject(new Error(`Tab ${tabId} no longer exists`));\r\n                        } else if (error.includes('Invalid frameId')) {\r\n                            // Retry with frameId 0\r\n                            if (sendOptions.frameId !== 0) {\r\n                                this.debugLog(`🔄 Retrying with frameId 0 for tab ${tabId}`);\r\n                                sendOptions.frameId = 0;\r\n                                chrome.tabs.sendMessage(tabId, message, sendOptions, (retryResponse) => {\r\n                                    if (chrome.runtime.lastError) {\r\n                                        reject(new Error(chrome.runtime.lastError.message));\r\n                                    } else {\r\n                                        resolve(retryResponse);\r\n                                    }\r\n                                });\r\n                                return;\r\n                            }\r\n                            reject(new Error(`Invalid frameId for tab ${tabId}`));\r\n                        } else {\r\n                            reject(new Error(error));\r\n                        }\r\n                    } else {\r\n                        resolve(response);\r\n                    }\r\n                });\r\n            });\r\n            \r\n        } catch (error) {\r\n            this.debugLog(`❌ Send message to tab ${tabId} failed: ${error.message}`);\r\n            throw error;\r\n        }\r\n    }\r\n    \r\n    // Utility method to get all active tabs\r\n    async getActiveTabs() {\r\n        try {\r\n            const tabs = await chrome.tabs.query({});\r\n            return tabs.filter(tab => this.tabStates.has(tab.id));\r\n        } catch (error) {\r\n            this.debugLog(`❌ Get active tabs failed: ${error.message}`);\r\n            return [];\r\n        }\r\n    }\r\n    \r\n    // Health check method\r\n    getHealthStatus() {\r\n        return {\r\n            activeConnections: this.activeConnections.size,\r\n            trackedTabs: this.tabStates.size,\r\n            queuedMessages: this.messageQueue.size,\r\n            timestamp: Date.now()\r\n        };\r\n    }\r\n}\r\n\r\n// Initialize the background script\r\nconst autoBoltBackground = new AutoBoltBackgroundFixed();\r\n\r\n// Export for testing\r\nif (typeof module !== 'undefined' && module.exports) {\r\n    module.exports = { AutoBoltBackgroundFixed };\r\n}\r\n\r\n// Global reference for debugging\r\nglobalThis.AutoBoltBackground = autoBoltBackground;\r\n\r\nconsole.log('✅ AutoBolt Background Script (Fixed) initialized successfully');\r\n"
-  }
-]</function_results>
+/**
+ * Auto-Bolt Chrome Extension - Fixed Background Script
+ * Handles tab communication with proper error handling and validation
+ */
 
-<function_calls>
-<invoke name="reviewer_notes">
-<parameter name="operation_type">READ
+console.log('🚀 Auto-Bolt Fixed Background Script Loading...');
+
+// Tab state management
+const tabStates = new Map();
+const messageQueue = new Map();
+
+// Enhanced tab validation and communication
+class TabCommunicationManager {
+    constructor() {
+        this.activeConnections = new Set();
+        this.messageTimeout = 10000; // 10 seconds
+    }
+
+    async validateTab(tabId) {
+        if (!Number.isInteger(tabId) || tabId < 0) {
+            throw new Error(`Invalid tab ID: ${tabId}`);
+        }
+
+        try {
+            const tab = await chrome.tabs.get(tabId);
+            if (!tab) {
+                throw new Error(`Tab ${tabId} not found`);
+            }
+            return tab;
+        } catch (error) {
+            throw new Error(`Tab ${tabId} is not accessible: ${error.message}`);
+        }
+    }
+
+    async sendMessageSafely(tabId, message, options = {}) {
+        await this.validateTab(tabId);
+
+        return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                reject(new Error(`Message timeout after ${this.messageTimeout}ms`));
+            }, this.messageTimeout);
+
+            try {
+                const sendParams = [tabId, message];
+                
+                // Add frameId if specified and valid
+                if (options.frameId !== undefined && Number.isInteger(options.frameId) && options.frameId >= 0) {
+                    sendParams.splice(1, 0, { frameId: options.frameId });
+                }
+
+                chrome.tabs.sendMessage(...sendParams, (response) => {
+                    clearTimeout(timeoutId);
+                    
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                        return;
+                    }
+                    
+                    resolve(response);
+                });
+            } catch (error) {
+                clearTimeout(timeoutId);
+                reject(error);
+            }
+        });
+    }
+
+    async ensureContentScript(tabId) {
+        try {
+            // Test if content script is already present
+            await this.sendMessageSafely(tabId, { type: 'PING' });
+            console.log('✅ Content script already present in tab:', tabId);
+            return true;
+        } catch (error) {
+            console.log('📝 Content script not present, injecting...', error.message);
+        }
+
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId },
+                files: ['content.js']
+            });
+            
+            // Wait for initialization
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Verify injection worked
+            await this.sendMessageSafely(tabId, { type: 'PING' });
+            console.log('✅ Content script injected successfully');
+            return true;
+        } catch (error) {
+            throw new Error(`Failed to inject content script: ${error.message}`);
+        }
+    }
+}
+
+const tabManager = new TabCommunicationManager();
+
+// Message handling with improved error handling
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('📨 Background received message:', request.type || request.action);
+    
+    // Handle different message types
+    switch (request.type || request.action) {
+        case 'VALIDATE_CUSTOMER':
+            handleCustomerValidation(request, sendResponse);
+            return true; // Keep channel open for async response
+            
+        case 'FILL_FORMS':
+            handleFillForms(request, sender, sendResponse);
+            return true;
+            
+        case 'GET_TAB_INFO':
+            handleGetTabInfo(request, sender, sendResponse);
+            return true;
+            
+        case 'PING':
+            sendResponse({ 
+                success: true, 
+                message: 'Background script is alive',
+                timestamp: Date.now()
+            });
+            return false;
+            
+        default:
+            console.log('⚠️ Unknown message type:', request.type || request.action);
+            sendResponse({ 
+                success: false, 
+                error: 'Unknown message type',
+                timestamp: Date.now()
+            });
+            return false;
+    }
+});
+
+async function handleCustomerValidation(request, sendResponse) {
+    try {
+        const { customerId } = request;
+        
+        if (!customerId) {
+            sendResponse({
+                success: false,
+                error: 'Customer ID is required',
+                timestamp: Date.now()
+            });
+            return;
+        }
+
+        console.log('🔍 Validating customer:', customerId);
+
+        // Call the Vercel API endpoint
+        const response = await fetch(`https://directorybolt.com/api/extension/validate?customerId=${encodeURIComponent(customerId)}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'DirectoryBolt-Extension/3.0.2'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        console.log('✅ Customer validation response:', data);
+
+        sendResponse({
+            success: true,
+            data: data,
+            timestamp: Date.now()
+        });
+
+    } catch (error) {
+        console.error('❌ Customer validation error:', error);
+        sendResponse({
+            success: false,
+            error: error.message,
+            timestamp: Date.now()
+        });
+    }
+}
+
+async function handleFillForms(request, sender, sendResponse) {
+    try {
+        const tabId = sender.tab?.id;
+        
+        if (!tabId) {
+            throw new Error('No tab ID available from sender');
+        }
+
+        console.log('🎯 Filling forms in tab:', tabId);
+
+        // Ensure content script is present
+        await tabManager.ensureContentScript(tabId);
+
+        // Send fill command to content script
+        const response = await tabManager.sendMessageSafely(tabId, {
+            type: 'FILL_FORMS',
+            data: request.data || {},
+            timestamp: Date.now()
+        });
+
+        sendResponse({
+            success: true,
+            message: 'Forms filled successfully',
+            data: response,
+            timestamp: Date.now()
+        });
+
+    } catch (error) {
+        console.error('❌ Form filling error:', error);
+        sendResponse({
+            success: false,
+            error: error.message,
+            timestamp: Date.now()
+        });
+    }
+}
+
+async function handleGetTabInfo(request, sender, sendResponse) {
+    try {
+        const tabId = sender.tab?.id;
+        
+        if (!tabId) {
+            throw new Error('No tab ID available from sender');
+        }
+
+        const tab = await tabManager.validateTab(tabId);
+
+        sendResponse({
+            success: true,
+            tabInfo: {
+                id: tab.id,
+                url: tab.url,
+                title: tab.title,
+                status: tab.status
+            },
+            timestamp: Date.now()
+        });
+
+    } catch (error) {
+        console.error('❌ Get tab info error:', error);
+        sendResponse({
+            success: false,
+            error: error.message,
+            timestamp: Date.now()
+        });
+    }
+}
+
+// Handle extension lifecycle
+chrome.runtime.onInstalled.addListener((details) => {
+    console.log('🚀 Auto-Bolt Extension installed:', details.reason);
+    
+    // Clear any existing state
+    tabStates.clear();
+    messageQueue.clear();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    console.log('🚀 Auto-Bolt Extension starting up');
+    
+    // Clear any existing state
+    tabStates.clear();
+    messageQueue.clear();
+});
+
+// Handle tab updates and cleanup
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === 'complete') {
+        console.log('📄 Tab loaded:', tabId, tab.url);
+        tabStates.set(tabId, { status: 'ready', url: tab.url });
+    }
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+    console.log('🗑️ Tab removed:', tabId);
+    tabStates.delete(tabId);
+    messageQueue.delete(tabId);
+});
+
+// Handle connection errors gracefully
+chrome.runtime.onConnect.addListener((port) => {
+    console.log('🔌 New connection:', port.name);
+    
+    port.onDisconnect.addListener(() => {
+        console.log('🔌 Connection disconnected:', port.name);
+        if (chrome.runtime.lastError) {
+            console.log('Connection error:', chrome.runtime.lastError.message);
+        }
+    });
+});
+
+console.log('✅ Auto-Bolt Fixed Background Script loaded successfully');
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        TabCommunicationManager,
+        tabManager
+    };
+}
