@@ -153,7 +153,7 @@
     }
   ],
   "background": {
-    "service_worker": "background-batch.js"
+    "service_worker": "background-batch-fixed.js"
   },
   "web_accessible_resources": [
     {
