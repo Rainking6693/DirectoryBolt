@@ -16,6 +16,11 @@ import { NextApiRequest, NextApiResponse } from 'next'
 // Import Google Sheets service
 const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
 
+// HUDSON SECURITY FIX: Simple rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW = 60000 // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10 // 10 requests per minute per IP
+
 // CORS headers for Chrome extension compatibility
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -42,6 +47,40 @@ const TEST_CUSTOMERS = [
   'TEST-CUSTOMER-123',
   'DIR-2025-DEMO01'
 ]
+
+/**
+ * HUDSON SECURITY FIX: Rate limiting function
+ */
+function checkRateLimit(clientIP: string): boolean {
+  const now = Date.now()
+  const clientData = rateLimitMap.get(clientIP)
+  
+  if (!clientData || now > clientData.resetTime) {
+    // Reset or initialize rate limit for this IP
+    rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+  
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false // Rate limit exceeded
+  }
+  
+  clientData.count++
+  return true
+}
+
+/**
+ * Get client IP address
+ */
+function getClientIP(req: NextApiRequest): string {
+  return (
+    req.headers['x-forwarded-for'] as string ||
+    req.headers['x-real-ip'] as string ||
+    req.connection?.remoteAddress ||
+    req.socket?.remoteAddress ||
+    'unknown'
+  ).split(',')[0].trim()
+}
 
 /**
  * Universal response helper for both Next.js and Netlify Functions
@@ -172,10 +211,19 @@ async function validateCustomerInDatabase(customerId: string): Promise<Validatio
 
 /**
  * Emergency pattern-based validation for production issues
+ * HUDSON SECURITY FIX: Restricted to known test customers only
  */
 function emergencyPatternValidation(customerId: string): ValidationResponse | null {
-  // CLIVE FIX: Corrected Unicode escape sequence - was \\d, now \\d (proper regex)
-  if (customerId.match(/^DIR-\d{4,8}-[A-Z0-9]{6,}$/)) {
+  // HUDSON SECURITY FIX: Only allow emergency validation for specific test customers
+  const EMERGENCY_ALLOWED_CUSTOMERS = [
+    'DIR-20250914-000001',
+    'DIR-2025-001234',
+    'DIR-2025-005678',
+    'TEST-CUSTOMER-123'
+  ];
+  
+  // CLIVE FIX: Corrected Unicode escape sequence - was \\d, now \d (proper regex)
+  if (customerId.match(/^DIR-\d{4,8}-[A-Z0-9]{6,}$/) && EMERGENCY_ALLOWED_CUSTOMERS.includes(customerId)) {
     console.log(`🚨 ELITE API: Emergency pattern validation for ${customerId}`)
     return {
       valid: true,
@@ -212,6 +260,16 @@ export default async function handler(
     return createResponse(res, 405, {
       valid: false,
       error: 'Method not allowed. Use GET or POST.'
+    })
+  }
+  
+  // HUDSON SECURITY FIX: Apply rate limiting
+  const clientIP = getClientIP(req)
+  if (!checkRateLimit(clientIP)) {
+    console.log(`🚨 Rate limit exceeded for IP: ${clientIP}`)
+    return createResponse(res, 429, {
+      valid: false,
+      error: 'Too many requests. Please try again later.'
     })
   }
   
