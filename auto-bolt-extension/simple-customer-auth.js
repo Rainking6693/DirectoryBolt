@@ -1,6 +1,6 @@
 /**
  * SECURE CUSTOMER AUTHENTICATION - DIRECTORYBOLT PROXY
- * Uses Ben's secure DirectoryBolt.com proxy instead of direct Airtable access
+ * Uses Ben's secure DirectoryBolt.com proxy instead of direct Google Sheets access
  * NO HARDCODED CREDENTIALS - ALL CALLS VIA SECURE PROXY
  */
 

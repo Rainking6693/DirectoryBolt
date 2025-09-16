@@ -98,7 +98,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('🔥 Background received message:', request.type || request.action);
     
     switch (request.type || request.action) {
-        // Legacy batch processing (Airtable records)
+        // Legacy batch processing (Google Sheets records)
         case 'BATCH_FILL':
             handleBatchFill(request, sendResponse);
             return true; // Keep channel open for async response

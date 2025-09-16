@@ -1,7 +1,7 @@
 /**
  * SECURE DIRECTORYBOLT INTEGRATION - PROXY MODE
  * Connects via Ben's secure DirectoryBolt.com proxy
- * NO DIRECT AIRTABLE ACCESS - SECURE PROXY ONLY
+ * NO DIRECT GOOGLE SHEETS ACCESS - SECURE PROXY ONLY
  */
 
 class RealDirectoryBoltAPI {
@@ -28,7 +28,7 @@ class RealDirectoryBoltAPI {
                 return this.cache.get(customerId);
             }
 
-            // SECURE: Fetch via DirectoryBolt proxy (no direct Airtable access)
+            // SECURE: Fetch via DirectoryBolt proxy (no direct Google Sheets access)
             const customerData = await this.fetchViaSecureProxy(customerId);
             if (customerData) {
                 console.log('✅ Customer data found via secure proxy:', customerData);
@@ -46,7 +46,7 @@ class RealDirectoryBoltAPI {
     }
 
     /**
-     * SECURE: Fetch via DirectoryBolt proxy (no direct Airtable access)
+     * SECURE: Fetch via DirectoryBolt proxy (no direct Google Sheets access)
      */
     async fetchViaSecureProxy(customerId) {
         try {
@@ -201,7 +201,7 @@ class RealDirectoryBoltAPI {
 window.realDirectoryBoltAPI = new RealDirectoryBoltAPI();
 
 console.log('🚀 PERMANENT FIX: Real DirectoryBolt API initialized');
-console.log('📊 Ready to fetch REAL customer data from Airtable');
+console.log('📊 Ready to fetch REAL customer data from Google Sheets');
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
