@@ -14,22 +14,71 @@ const REQUIRED_PREFIX = 'DIR-';
 const FALLBACK_MESSAGE = 'Validation service unavailable.';
 
 class PackageTierEngine {
-  constructor(options = {}) {
+  constructor(customerOrOptions = {}) {
+    let options = customerOrOptions;
+    if (typeof customerOrOptions === 'string') {
+      this.customerId = customerOrOptions.trim();
+      options = {};
+    } else {
+      this.customerId = undefined;
+      options = customerOrOptions || {};
+    }
+
     this.apiBase = this.#normalizeBase(options.apiBase);
     this.endpoint = this.#normalizeEndpoint(options.endpoint);
     this.timeout = this.#normalizeTimeout(options.timeout);
     this.fetchImpl = this.#resolveFetch(options.fetch);
     this.cache = options.cache instanceof Map ? options.cache : new Map();
+
+    this.packageTier = DEFAULT_PACKAGE;
+    this.directoryLimit = PACKAGE_LIMITS[DEFAULT_PACKAGE];
+    this.lastResponse = null;
   }
 
   static async init(customerId, options = {}) {
-    const { engine: existingEngine, ...engineConfig } = options || {};
-    const engine = existingEngine instanceof PackageTierEngine
-      ? existingEngine
-      : new PackageTierEngine(engineConfig);
+    let engine = null;
+    let engineConfig = options;
 
-    const result = await engine.validate(customerId);
+    if (typeof options === 'string') {
+      engine = new PackageTierEngine(options);
+      engineConfig = {};
+    } else if (options instanceof PackageTierEngine) {
+      engine = options;
+      engineConfig = {};
+    } else if (options && typeof options === 'object') {
+      if (options.engine instanceof PackageTierEngine) {
+        engine = options.engine;
+        const { engine: _ignored, ...rest } = options;
+        engineConfig = rest;
+      } else {
+        engineConfig = options;
+      }
+    }
+
+    if (!engine) {
+      engine = new PackageTierEngine(engineConfig);
+    }
+
+    if (customerId) {
+      engine.customerId = customerId.trim();
+    }
+
+    const result = await engine.init();
     return { engine, result };
+  }
+
+  async init(customerId) {
+    if (customerId) {
+      this.customerId = customerId.trim();
+    }
+
+    if (!this.customerId) {
+      const failure = this.buildFailure(null, 'MISSING_ID', 'Customer ID is required.');
+      this.#applyResult(failure);
+      return failure;
+    }
+
+    return this.validate(this.customerId);
   }
 
   #normalizeBase(base) {
@@ -132,20 +181,23 @@ class PackageTierEngine {
     const normalized = this.normalizeCustomerId(customerId);
     if (!normalized.ok) {
       const failure = this.sanitizeFailure(normalized, customerId);
-      if (failure.customerId) {
-        this.cache.set(failure.customerId, failure);
-      }
+      this.#applyResult(failure);
       return failure;
     }
 
     const cacheKey = normalized.customerId;
+    this.customerId = cacheKey;
+
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      const cached = this.cache.get(cacheKey);
+      this.#applyResult(cached);
+      return cached;
     }
 
     if (!this.fetchImpl) {
       const failure = this.buildFailure(cacheKey);
       this.cache.set(cacheKey, failure);
+      this.#applyResult(failure);
       return failure;
     }
 
@@ -182,9 +234,10 @@ class PackageTierEngine {
           package: pkg,
           directoryLimit: this.normalizeLimit(pkg, data.directoryLimit),
           message: this.#normalizeMessage(data.message || ''),
+          ...data,
         };
       } else if (data && typeof data === 'object') {
-        result = this.sanitizeFailure(data, cacheKey);
+        result = { ...this.sanitizeFailure(data, cacheKey), ...data };
       } else {
         result = this.buildFailure(cacheKey);
       }
@@ -194,6 +247,7 @@ class PackageTierEngine {
     }
 
     this.cache.set(cacheKey, result);
+    this.#applyResult(result);
     return result;
   }
 
@@ -216,6 +270,21 @@ class PackageTierEngine {
       return Math.round(numeric);
     }
     return PACKAGE_LIMITS[pkg] ?? DEFAULT_LIMIT;
+  }
+
+  getPackageTier() {
+    return this.packageTier;
+  }
+
+  getDirectoryLimit() {
+    return this.directoryLimit;
+  }
+
+  #applyResult(result) {
+    this.lastResponse = result;
+    const pkg = this.normalizePackage(result.package);
+    this.packageTier = pkg;
+    this.directoryLimit = this.normalizeLimit(pkg, result.directoryLimit);
   }
 
   #normalizeMessage(message) {

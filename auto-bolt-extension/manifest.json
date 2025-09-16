@@ -5,7 +5,6 @@
   "description": "DirectoryBolt secure customer extension for automated directory submissions via secure proxy.",
   "author": "DirectoryBolt Team",
   "homepage_url": "https://directorybolt.com",
-  
   "permissions": [
     "storage",
     "tabs",
@@ -13,11 +12,9 @@
     "scripting",
     "notifications"
   ],
-  
   "host_permissions": [
     "https://directorybolt.com/*"
   ],
-  
   "action": {
     "default_popup": "customer-popup.html",
     "default_title": "DirectoryBolt - Directory Automation",
@@ -27,160 +24,164 @@
       "128": "icons/icon128.png"
     }
   },
-  
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  
- "content_scripts": [
-  {
-    "matches": [
-      "https://business.google.com/*",
-      "https://sellercentral.amazon.com/*",
-      "https://business.amazon.com/*",
-      "https://www.youtube.com/*",
-      "https://youtube.com/*",
-      "https://business.facebook.com/*",
-      "https://www.facebook.com/pages/*",
-      "https://www.linkedin.com/company/*",
-      "https://linkedin.com/company/*",
-      "https://employers.indeed.com/*",
-      "https://www.tripadvisor.com/Owners/*",
-      "https://tripadvisor.com/Owners/*",
-      "https://www.crunchbase.com/*",
-      "https://crunchbase.com/*",
-      "https://www.bbb.org/*",
-      "https://bbb.org/*",
-      "https://www.alibaba.com/*",
-      "https://alibaba.com/*",
-      "https://www.producthunt.com/*",
-      "https://producthunt.com/*",
-      "https://business.trustpilot.com/*",
-      "https://www.trustpilot.com/*",
-      "https://www.yellowpages.com/*",
-      "https://yellowpages.com/*",
-      "https://listings.yellowpages.com/*",
-      "https://wellfound.com/*",
-      "https://www.wellfound.com/*",
-      "https://www.glassdoor.com/*",
-      "https://glassdoor.com/*",
-      "https://www.bingplaces.com/*",
-      "https://bingplaces.com/*",
-      "https://www.angi.com/*",
-      "https://angi.com/*",
-      "https://www.capterra.com/*",
-      "https://capterra.com/*",
-      "https://www.houzz.com/*",
-      "https://houzz.com/*",
-      "https://www.thumbtack.com/*",
-      "https://thumbtack.com/*",
-      "https://business.yelp.com/*",
-      "https://www.yelp.com/*",
-      "https://yelp.com/*",
-      "https://mapsconnect.apple.com/*",
-      "https://business.foursquare.com/*",
-      "https://www.foursquare.com/*",
-      "https://business.waze.com/*",
-      "https://www.waze.com/*",
-      "https://places.here.com/*",
-      "https://developer.here.com/*",
-      "https://www.g2.com/*",
-      "https://g2.com/*",
-      "https://www.getapp.com/*",
-      "https://getapp.com/*",
-      "https://www.saasworthy.com/*",
-      "https://saasworthy.com/*",
-      "https://stackshare.io/*",
-      "https://www.stackshare.io/*",
-      "https://alternativeto.net/*",
-      "https://www.alternativeto.net/*",
-      "https://betalist.com/*",
-      "https://www.betalist.com/*",
-      "https://www.indiehackers.com/*",
-      "https://indiehackers.com/*",
-      "https://www.startupgrind.com/*",
-      "https://startupgrind.com/*",
-      "https://github.com/sindresorhus/awesome/*",
-      "https://www.sitejabber.com/*",
-      "https://sitejabber.com/*",
-      "https://www.uschamber.com/*",
-      "https://uschamber.com/*",
-      "https://business.nextdoor.com/*",
-      "https://www.nextdoor.com/*",
-      "https://nextdoor.com/*",
-      "https://www.monster.com/*",
-      "https://monster.com/*",
-      "https://www.etsy.com/sell*",
-      "https://etsy.com/sell*",
-      "https://partners.shopify.com/*",
-      "https://www.shopify.com/*",
-      "https://shopify.com/*",
-      "https://www.ebay.com/business/*",
-      "https://ebay.com/business/*",
-      "https://www.ebay.com/sl/*",
-      "https://ebay.com/sl/*",
-      "https://medium.com/*",
-      "https://www.medium.com/*",
-      "https://dev.to/*",
-      "https://www.dev.to/*",
-      "https://news.ycombinator.com/*",
-      "https://www.reddit.com/submit*",
-      "https://reddit.com/submit*",
-      "https://www.prnewswire.com/*",
-      "https://prnewswire.com/*",
-      "https://business.pinterest.com/*",
-      "https://www.pinterest.com/*",
-      "https://pinterest.com/*",
-      "https://artists.spotify.com/*",
-      "https://www.spotify.com/*",
-      "https://podcasters.apple.com/*",
-      "https://podcasts.apple.com/*",
-      "https://business.twitter.com/*",
-      "https://twitter.com/*",
-      "https://business.instagram.com/*",
-      "https://www.instagram.com/*",
-      "https://instagram.com/*",
-      "https://chrome.google.com/webstore/devconsole/*",
-      "https://smallbusiness.yahoo.com/*",
-      "https://www.superpages.com/*",
-      "https://superpages.com/*",
-      "https://www.whitepages.com/*",
-      "https://whitepages.com/*"
-    ],
-    "js": ["content.js"],
-    "run_at": "document_idle",
-    "all_frames": false
-  }
-],
-  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://business.google.com/*",
+        "https://sellercentral.amazon.com/*",
+        "https://business.amazon.com/*",
+        "https://www.youtube.com/*",
+        "https://youtube.com/*",
+        "https://business.facebook.com/*",
+        "https://www.facebook.com/pages/*",
+        "https://www.linkedin.com/company/*",
+        "https://linkedin.com/company/*",
+        "https://employers.indeed.com/*",
+        "https://www.tripadvisor.com/Owners/*",
+        "https://tripadvisor.com/Owners/*",
+        "https://www.crunchbase.com/*",
+        "https://crunchbase.com/*",
+        "https://www.bbb.org/*",
+        "https://bbb.org/*",
+        "https://www.alibaba.com/*",
+        "https://alibaba.com/*",
+        "https://www.producthunt.com/*",
+        "https://producthunt.com/*",
+        "https://business.trustpilot.com/*",
+        "https://www.trustpilot.com/*",
+        "https://www.yellowpages.com/*",
+        "https://yellowpages.com/*",
+        "https://listings.yellowpages.com/*",
+        "https://wellfound.com/*",
+        "https://www.wellfound.com/*",
+        "https://www.glassdoor.com/*",
+        "https://glassdoor.com/*",
+        "https://www.bingplaces.com/*",
+        "https://bingplaces.com/*",
+        "https://www.angi.com/*",
+        "https://angi.com/*",
+        "https://www.capterra.com/*",
+        "https://capterra.com/*",
+        "https://www.houzz.com/*",
+        "https://houzz.com/*",
+        "https://www.thumbtack.com/*",
+        "https://thumbtack.com/*",
+        "https://business.yelp.com/*",
+        "https://www.yelp.com/*",
+        "https://yelp.com/*",
+        "https://mapsconnect.apple.com/*",
+        "https://business.foursquare.com/*",
+        "https://www.foursquare.com/*",
+        "https://business.waze.com/*",
+        "https://www.waze.com/*",
+        "https://places.here.com/*",
+        "https://developer.here.com/*",
+        "https://www.g2.com/*",
+        "https://g2.com/*",
+        "https://www.getapp.com/*",
+        "https://getapp.com/*",
+        "https://www.saasworthy.com/*",
+        "https://saasworthy.com/*",
+        "https://stackshare.io/*",
+        "https://www.stackshare.io/*",
+        "https://alternativeto.net/*",
+        "https://www.alternativeto.net/*",
+        "https://betalist.com/*",
+        "https://www.betalist.com/*",
+        "https://www.indiehackers.com/*",
+        "https://indiehackers.com/*",
+        "https://www.startupgrind.com/*",
+        "https://startupgrind.com/*",
+        "https://github.com/sindresorhus/awesome/*",
+        "https://www.sitejabber.com/*",
+        "https://sitejabber.com/*",
+        "https://www.uschamber.com/*",
+        "https://uschamber.com/*",
+        "https://business.nextdoor.com/*",
+        "https://www.nextdoor.com/*",
+        "https://nextdoor.com/*",
+        "https://www.monster.com/*",
+        "https://monster.com/*",
+        "https://www.etsy.com/sell*",
+        "https://etsy.com/sell*",
+        "https://partners.shopify.com/*",
+        "https://www.shopify.com/*",
+        "https://shopify.com/*",
+        "https://www.ebay.com/business/*",
+        "https://ebay.com/business/*",
+        "https://www.ebay.com/sl/*",
+        "https://ebay.com/sl/*",
+        "https://medium.com/*",
+        "https://www.medium.com/*",
+        "https://dev.to/*",
+        "https://www.dev.to/*",
+        "https://news.ycombinator.com/*",
+        "https://www.reddit.com/submit*",
+        "https://reddit.com/submit*",
+        "https://www.prnewswire.com/*",
+        "https://prnewswire.com/*",
+        "https://business.pinterest.com/*",
+        "https://www.pinterest.com/*",
+        "https://pinterest.com/*",
+        "https://artists.spotify.com/*",
+        "https://www.spotify.com/*",
+        "https://podcasters.apple.com/*",
+        "https://podcasts.apple.com/*",
+        "https://business.twitter.com/*",
+        "https://twitter.com/*",
+        "https://business.instagram.com/*",
+        "https://www.instagram.com/*",
+        "https://instagram.com/*",
+        "https://chrome.google.com/webstore/devconsole/*",
+        "https://smallbusiness.yahoo.com/*",
+        "https://www.superpages.com/*",
+        "https://superpages.com/*",
+        "https://www.whitepages.com/*",
+        "https://whitepages.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "type": "module"
+    }
+  ],
   "background": {
     "service_worker": "background-batch.js"
   },
-  
-"web_accessible_resources": [
-  {
-    "resources": [
-      "directories/master-directory-list.json"
-    ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/*.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    },
+    {
+      "resources": [
+        "directories/master-directory-list.json"
+      ],
+      "matches": [
+        "https://directorybolt.com/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://directorybolt.com https://sheets.googleapis.com;"
+  },
+  "minimum_chrome_version": "88",
+  "externally_connectable": {
     "matches": [
       "https://directorybolt.com/*"
     ]
-  }
-],
-  
-  "content_security_policy": {
-  "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://directorybolt.com https://sheets.googleapis.com;"
-},
-  
-  "minimum_chrome_version": "88",
-  
-  
-  "externally_connectable": {
-    "matches": ["https://directorybolt.com/*"]
   },
-  
   "commands": {
     "quick_fill": {
       "suggested_key": {

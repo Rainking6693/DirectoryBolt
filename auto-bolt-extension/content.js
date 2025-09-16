@@ -97,7 +97,19 @@ if (!PackageTierEngine) {
 
 
 class AutoBoltContentScript {
-    constructor() {
+    constructor(helperModules = {}) {
+        const {
+            PackageTierEngine: ProvidedPackageTierEngine,
+            AdvancedFieldMapper: ProvidedAdvancedFieldMapper,
+            DynamicFormDetector: ProvidedDynamicFormDetector,
+            FallbackSelectorEngine: ProvidedFallbackSelectorEngine,
+        } = helperModules;
+
+        const PackageTierEngineClass = ProvidedPackageTierEngine || globalScope.PackageTierEngine;
+        const AdvancedFieldMapperClass = ProvidedAdvancedFieldMapper || globalScope.AdvancedFieldMapper;
+        const DynamicFormDetectorClass = ProvidedDynamicFormDetector || globalScope.DynamicFormDetector;
+        const FallbackSelectorEngineClass = ProvidedFallbackSelectorEngine || globalScope.FallbackSelectorEngine;
+
         this.businessData = null;
         this.isActive = false;
         this.formFields = new Map();
@@ -105,10 +117,10 @@ class AutoBoltContentScript {
         this.startTime = Date.now();
         
         // Enhanced field mapping system
-        this.fieldMappingEngine = new AdvancedFieldMapper();
-        this.formDetectionEngine = new DynamicFormDetector();
-        this.fallbackEngine = new FallbackSelectorEngine();
-        this.packageTierEngine = new PackageTierEngine();
+        this.fieldMappingEngine = new AdvancedFieldMapperClass();
+        this.formDetectionEngine = new DynamicFormDetectorClass();
+        this.fallbackEngine = new FallbackSelectorEngineClass();
+        this.packageTierEngine = new PackageTierEngineClass();
         
         // Directory-specific mappings loaded dynamically
         this.directoryMappings = new Map();
@@ -1459,7 +1471,7 @@ class AutoBoltContentScript {
 
 // ==================== ADVANCED HELPER CLASSES ====================
 // Loaded dynamically from /lib so popup, background, and content share the same implementations.
-const autoBoltModuleLoad = (async () => {
+async function loadHelperModules() {
     try {
         const [pkgModule, mapperModule, detectorModule, fallbackModule] = await Promise.all([
             import(chrome.runtime.getURL('lib/PackageTierEngine.js')),
@@ -1468,44 +1480,52 @@ const autoBoltModuleLoad = (async () => {
             import(chrome.runtime.getURL('lib/FallbackSelectorEngine.js')),
         ]);
 
-        PackageTierEngine = pkgModule.default;
-        AdvancedFieldMapper = mapperModule.default;
-        DynamicFormDetector = detectorModule.default;
-        FallbackSelectorEngine = fallbackModule.default;
-
-        globalScope.PackageTierEngine = PackageTierEngine;
-        globalScope.AdvancedFieldMapper = AdvancedFieldMapper;
-        globalScope.DynamicFormDetector = DynamicFormDetector;
-        globalScope.FallbackSelectorEngine = FallbackSelectorEngine;
+        return {
+            PackageTierEngine: pkgModule.default,
+            AdvancedFieldMapper: mapperModule.default,
+            DynamicFormDetector: detectorModule.default,
+            FallbackSelectorEngine: fallbackModule.default,
+        };
     } catch (error) {
-        console.error('AutoBolt: failed to load helper modules, using safe fallbacks', error);
+        console.error('AutoBolt: failed to load helper modules', error);
+        return null;
     }
-})();
+}
+
 
 // Initialize the production content script
-function bootAutoBolt() {
+async function bootAutoBolt() {
+    const loaders = await loadHelperModules();
+
+    if (!loaders) {
+        console.warn('AutoBolt: helper modules unavailable, aborting content script bootstrap');
+        return;
+    }
+
+    const { PackageTierEngine, AdvancedFieldMapper, DynamicFormDetector, FallbackSelectorEngine } = loaders;
+
     const instantiate = () => {
         try {
-            window.autoBolt = new AutoBoltContentScript();
+            window.autoBolt = new AutoBoltContentScript({
+                PackageTierEngine,
+                AdvancedFieldMapper,
+                DynamicFormDetector,
+                FallbackSelectorEngine,
+            });
         } catch (error) {
             console.error('AutoBolt: failed to start content script', error);
         }
     };
 
-    autoBoltModuleLoad
-        .catch((error) => {
-            console.error('AutoBolt: dependency load rejected', error);
-        })
-        .finally(() => {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', instantiate, { once: true });
-            } else {
-                instantiate();
-            }
-        });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', instantiate, { once: true });
+    } else {
+        instantiate();
+    }
 }
 
 bootAutoBolt();
+
 // Export for testing and module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { 
