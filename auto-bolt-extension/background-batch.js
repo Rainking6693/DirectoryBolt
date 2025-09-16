@@ -391,80 +391,141 @@ async function processBatch(targetTab) {
 }
 
 /**
+ * Tab messaging safety helpers
+ */
+function isValidTabId(tabId) {
+    return Number.isInteger(tabId) && tabId >= 0;
+}
+
+async function assertTabAvailability(tabId) {
+    if (!isValidTabId(tabId)) {
+        throw new Error(`Invalid tab id: ${tabId}`);
+    }
+    try {
+        return await chrome.tabs.get(tabId);
+    } catch (error) {
+        const message = error && error.message ? error.message : 'Unknown error';
+        throw new Error(`Target tab ${tabId} is unavailable: ${message}`);
+    }
+}
+
+function isValidFrameId(frameId) {
+    return Number.isInteger(frameId) && frameId >= 0;
+}
+
+async function safeSendMessage(tabId, message, options = {}) {
+    await assertTabAvailability(tabId);
+
+    const params = [tabId, message];
+    if (isValidFrameId(options.frameId)) {
+        params.splice(1, 0, { frameId: options.frameId });
+    }
+
+    return new Promise((resolve, reject) => {
+        try {
+            chrome.tabs.sendMessage(...params, (response) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                    return;
+                }
+                resolve(response);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+/**
  * Process a single record by injecting content script
  */
 async function processRecord(tabId, record) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
             reject(new Error(`Record processing timeout (${BatchProcessor.config.timeout}ms)`));
         }, BatchProcessor.config.timeout);
-        
-        try {
-            // Inject content script if needed
-            await ensureContentScriptInjected(tabId);
-            
-            // Send fill message to content script
-            chrome.tabs.sendMessage(tabId, {
-                action: 'FILL_SINGLE_RECORD',
-                record: record,
-                timestamp: Date.now()
-            }, (response) => {
+
+        (async () => {
+            try {
+                // Inject content script if needed
+                await ensureContentScriptInjected(tabId);
+
+                // Send fill message to content script
+                const response = await safeSendMessage(tabId, {
+                    action: 'FILL_SINGLE_RECORD',
+                    record,
+                    timestamp: Date.now()
+                });
+
                 clearTimeout(timeout);
-                
-                if (chrome.runtime.lastError) {
-                    reject(new Error(`Content script error: ${chrome.runtime.lastError.message}`));
-                    return;
-                }
-                
+
                 if (!response) {
                     reject(new Error('No response from content script'));
                     return;
                 }
-                
+
                 if (!response.success) {
                     reject(new Error(response.error || 'Content script reported failure'));
                     return;
                 }
-                
+
                 resolve({
                     recordId: record.id,
                     success: true,
                     filledFields: response.filledFields || 0,
                     timestamp: Date.now()
                 });
-            });
-            
-        } catch (error) {
-            clearTimeout(timeout);
-            reject(error);
-        }
+            } catch (error) {
+                clearTimeout(timeout);
+                reject(error);
+            }
+        })();
     });
 }
+
 
 /**
  * Ensure content script is injected in target tab
  */
 async function ensureContentScriptInjected(tabId) {
+    await assertTabAvailability(tabId);
+
     try {
         // Test if content script is already present
-        await chrome.tabs.sendMessage(tabId, { action: 'PING' });
-        console.log('✅ Content script already present in tab:', tabId);
-        
+        await safeSendMessage(tabId, { action: 'PING' });
+        console.log('? Content script already present in tab:', tabId);
+        return;
     } catch (error) {
-        // Content script not present, inject it
-        console.log('💉 Injecting content script into tab:', tabId);
-        
+        const message = error && error.message ? error.message : 'unknown reason';
+        if (message.includes('No tab with id')) {
+            throw error;
+        }
+        console.log('?? Injecting content script into tab:', tabId);
+        console.log('?? Content script ping failed, will inject:', message);
+    }
+
+    try {
         await chrome.scripting.executeScript({
-            target: { tabId: tabId },
+            target: { tabId },
             files: ['content.js']
         });
-        
-        // Wait a moment for initialization
-        await sleep(500);
-        
-        console.log('✅ Content script injected successfully');
+    } catch (scriptError) {
+        const message = scriptError && scriptError.message ? scriptError.message : scriptError;
+        throw new Error(`Failed to inject content script into tab ${tabId}: ${message}`);
+    }
+
+    // Wait a moment for initialization
+    await sleep(500);
+
+    try {
+        await safeSendMessage(tabId, { action: 'PING' });
+        console.log('? Content script injected successfully');
+    } catch (error) {
+        console.warn('Content script ping failed after injection (continuing):', error.message || error);
     }
 }
+
 
 /**
  * Cancel batch processing

@@ -1374,203 +1374,105 @@ class AutoBoltContentScript {
 }
 
 // ==================== ADVANCED HELPER CLASSES ====================
+// Loaded dynamically from /lib so popup, background, and content share the same implementations.
+const autoBoltModuleLoad = (async () => {
+    try {
+        const [pkgModule, mapperModule, detectorModule, fallbackModule] = await Promise.all([
+            import(chrome.runtime.getURL('lib/PackageTierEngine.js')),
+            import(chrome.runtime.getURL('lib/AdvancedFieldMapper.js')),
+            import(chrome.runtime.getURL('lib/DynamicFormDetector.js')),
+            import(chrome.runtime.getURL('lib/FallbackSelectorEngine.js')),
+        ]);
 
-/**
- * Advanced Field Mapping Engine
- */
-class AdvancedFieldMapper {
-    constructor() {
-        this.confidenceThreshold = 0.7;
-        this.mappingCache = new Map();
-        this.learningData = new Map(); // For future ML improvements
-    }
-    
-    analyzeFieldPatterns(field, businessData) {
-        // Placeholder for advanced pattern analysis
-        // This would implement ML-like pattern recognition in production
-        return {
-            semanticScore: 0.8,
-            contextScore: 0.7,
-            positionScore: 0.6
-        };
-    }
-}
+        window.PackageTierEngine = pkgModule.default;
+        window.AdvancedFieldMapper = mapperModule.default;
+        window.DynamicFormDetector = detectorModule.default;
+        window.FallbackSelectorEngine = fallbackModule.default;
+    } catch (error) {
+        console.error('AutoBolt: failed to load helper modules, using safe fallbacks', error);
 
-/**
- * Dynamic Form Detection Engine
- */
-class DynamicFormDetector {
-    constructor() {
-        this.detectionStrategies = ['standard', 'spa', 'shadow-dom', 'iframe'];
-        this.contentScript = null;
-        this.observedElements = new Set();
-    }
-    
-    initialize(contentScript) {
-        this.contentScript = contentScript;
-    }
-    
-    detectAdvancedForms() {
-        const detectedForms = [];
-        
-        // Strategy 1: Standard form detection
-        const standardForms = document.querySelectorAll('form');
-        detectedForms.push(...standardForms);
-        
-        // Strategy 2: SPA form detection (divs acting as forms)
-        const spaForms = this.detectSPAForms();
-        detectedForms.push(...spaForms);
-        
-        // Strategy 3: React/Vue component forms
-        const componentForms = this.detectComponentForms();
-        detectedForms.push(...componentForms);
-        
-        return detectedForms;
-    }
-    
-    detectSPAForms() {
-        const candidates = document.querySelectorAll(
-            'div[role="form"], section[data-form], .form-container, .form-wrapper, ' +
-            '[class*="form"], [id*="form"], [data-testid*="form"]'
-        );
-        
-        return Array.from(candidates).filter(el => {
-            const inputs = el.querySelectorAll('input, select, textarea, [contenteditable]');
-            const buttons = el.querySelectorAll('button, [role="button"], input[type="submit"]');
-            return inputs.length >= 2 && buttons.length >= 1;
-        });
-    }
-    
-    detectComponentForms() {
-        // Detect modern framework component forms
-        const componentSelectors = [
-            '[data-react-form]', '[data-vue-form]', '[data-angular-form]',
-            '[class*="Form"]', '[class*="form-component"]'
-        ];
-        
-        const componentForms = [];
-        componentSelectors.forEach(selector => {
-            try {
-                const elements = document.querySelectorAll(selector);
-                componentForms.push(...elements);
-            } catch (e) {
-                // Invalid selector, skip
-            }
-        });
-        
-        return componentForms;
-    }
-}
+        if (!window.AdvancedFieldMapper) {
+            window.AdvancedFieldMapper = class {
+                analyzeFieldPatterns() {
+                    return {
+                        semanticScore: 0.5,
+                        contextScore: 0.5,
+                        positionScore: 0.5,
+                    };
+                }
+            };
+        }
 
-/**
- * Fallback Selector Engine with Intelligent Retry
- */
-class FallbackSelectorEngine {
-    constructor() {
-        this.fallbackStrategies = [];
-        this.retryAttempts = 3;
-        this.retryDelay = 500; // ms
-    }
-    
-    async findElementWithRetry(selectors, maxAttempts = 3) {
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const element = this.findElementWithFallback(selectors);
-            if (element) return element;
-            
-            // Wait before retry
-            if (attempt < maxAttempts - 1) {
-                await new Promise(resolve => setTimeout(resolve, this.retryDelay));
-            }
-        }
-        return null;
-    }
-    
-    findElementWithFallback(selectors) {
-        for (let selector of selectors) {
-            try {
-                const element = document.querySelector(selector);
-                if (element && this.isElementInteractable(element)) {
-                    return element;
+        if (!window.DynamicFormDetector) {
+            window.DynamicFormDetector = class {
+                initialize() {}
+                detectAdvancedForms() {
+                    return Array.from(document.forms || []);
                 }
-            } catch (e) {
-                console.warn(`Invalid selector: ${selector}`);
-            }
+            };
         }
-        
-        // Try XPath as final fallback
-        return this.findByXPath(selectors);
-    }
-    
-    findByXPath(originalSelectors) {
-        // Convert CSS selectors to XPath as last resort
-        const xpathQueries = originalSelectors.map(this.cssToXPath).filter(Boolean);
-        
-        for (let xpath of xpathQueries) {
-            try {
-                const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-                if (result.singleNodeValue) {
-                    return result.singleNodeValue;
+
+        if (!window.FallbackSelectorEngine) {
+            window.FallbackSelectorEngine = class {
+                async findElementWithRetry(selectors) {
+                    return this.findElementWithFallback(selectors);
                 }
-            } catch (e) {
-                // Invalid XPath
-            }
+                findElementWithFallback(selectors) {
+                    for (const selector of selectors) {
+                        try {
+                            const element = document.querySelector(selector);
+                            if (element) {
+                                return element;
+                            }
+                        } catch (fallbackError) {
+                            console.warn('Fallback selector failed', fallbackError);
+                        }
+                    }
+                    return null;
+                }
+            };
         }
-        
-        return null;
-    }
-    
-    cssToXPath(cssSelector) {
-        // Simplified CSS to XPath conversion
-        try {
-            if (cssSelector.includes('#')) {
-                const id = cssSelector.split('#')[1].split(/[\s\[\.:]/)[0];
-                return `//*[@id='${id}']`;
-            }
-            if (cssSelector.includes('[name=')) {
-                const nameMatch = cssSelector.match(/\[name=['"]([^'"]*)['"]\]/);
-                if (nameMatch) {
-                    return `//*[@name='${nameMatch[1]}']`;
+
+        if (!window.PackageTierEngine) {
+            window.PackageTierEngine = class {
+                async validate(customerId) {
+                    return {
+                        ok: false,
+                        customerId,
+                        package: 'starter',
+                        directoryLimit: 50,
+                        message: 'Validation service unavailable.',
+                    };
                 }
-            }
-            if (cssSelector.includes('input[type=')) {
-                const typeMatch = cssSelector.match(/input\[type=['"]([^'"]*)['"]\]/);
-                if (typeMatch) {
-                    return `//input[@type='${typeMatch[1]}']`;
-                }
-            }
-        } catch (e) {
-            // Fallback failed
+            };
         }
-        return null;
     }
-    
-    isElementInteractable(element) {
-        if (!element) return false;
-        
-        const rect = element.getBoundingClientRect();
-        const style = window.getComputedStyle(element);
-        
-        return (
-            rect.width > 0 &&
-            rect.height > 0 &&
-            style.display !== 'none' &&
-            style.visibility !== 'hidden' &&
-            !element.disabled &&
-            !element.readOnly
-        );
-    }
-}
+})();
 
 // Initialize the production content script
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('🔥 DOM READY - Starting Production Auto-Bolt Content Script!');
-        window.autoBolt = new AutoBoltContentScript();
-    });
-} else {
-    console.log('🔥 DOM ALREADY READY - Starting Production Auto-Bolt Content Script!');
-    window.autoBolt = new AutoBoltContentScript();
+function bootAutoBolt() {
+    const instantiate = () => {
+        try {
+            window.autoBolt = new AutoBoltContentScript();
+        } catch (error) {
+            console.error('AutoBolt: failed to start content script', error);
+        }
+    };
+
+    autoBoltModuleLoad
+        .catch((error) => {
+            console.error('AutoBolt: dependency load rejected', error);
+        })
+        .finally(() => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', instantiate, { once: true });
+            } else {
+                instantiate();
+            }
+        });
 }
+
+bootAutoBolt();
 
 // Add global error handler for content script
 window.addEventListener('error', (event) => {

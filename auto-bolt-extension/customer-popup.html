@@ -1,132 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang=\"en\">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DirectoryBolt Extension</title>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>DirectoryBolt Customer Validation</title>
     <style>
+        :root {
+            color-scheme: light dark;
+        }
         body {
-            width: 350px;
-            padding: 20px;
+            width: 360px;
+            margin: 0;
+            padding: 16px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #0b132b;
+            color: #f8faff;
+        }
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px 0;
+            color: #ccff0a;
+        }
+        p {
             margin: 0;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ccff0a;
-            margin-bottom: 5px;
-        }
-        .tagline {
+        .subtitle {
             font-size: 12px;
-            opacity: 0.8;
+            opacity: 0.75;
+            margin-bottom: 16px;
         }
-        .auth-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-        .form-group {
-            margin-bottom: 15px;
+        form {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         label {
-            display: block;
             font-size: 12px;
-            margin-bottom: 5px;
-            opacity: 0.9;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
         }
-        input {
-            width: 100%;
+        input[type="text"] {
             padding: 10px;
-            border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(11, 19, 43, 0.6);
+            color: inherit;
             font-size: 14px;
-            box-sizing: border-box;
         }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #ccff0a;
-            color: #333;
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ccff0a;
+            box-shadow: 0 0 0 2px rgba(204, 255, 10, 0.25);
+        }
+        button {
+            padding: 10px;
+            border-radius: 6px;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            background: linear-gradient(135deg, #ccff0a, #9cff00);
+            color: #151a2f;
+            font-weight: 700;
             cursor: pointer;
+            transition: filter 0.2s ease;
             font-size: 14px;
         }
-        .btn:hover {
-            background: #b8e600;
+        button:hover:not([disabled]) {
+            filter: brightness(1.05);
         }
-        .btn:disabled {
-            background: #666;
-            cursor: not-allowed;
+        button:disabled {
+            cursor: progress;
+            opacity: 0.6;
         }
         .status {
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
             font-size: 12px;
-            text-align: center;
+            margin-bottom: 12px;
+            border: 1px solid transparent;
         }
-        .success {
-            background: rgba(76, 175, 80, 0.3);
-            border: 1px solid #4caf50;
+        .status--hidden {
+            display: none;
         }
-        .error {
-            background: rgba(244, 67, 54, 0.3);
-            border: 1px solid #f44336;
+        .status--info {
+            background: rgba(51, 102, 204, 0.2);
+            border-color: rgba(51, 102, 204, 0.5);
         }
-        .customer-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            margin-bottom: 15px;
+        .status--error {
+            background: rgba(228, 57, 63, 0.2);
+            border-color: rgba(228, 57, 63, 0.5);
         }
-        .actions {
+        .status--success {
+            background: rgba(0, 180, 115, 0.2);
+            border-color: rgba(0, 180, 115, 0.5);
+        }
+        .result {
+            padding: 14px;
+            border-radius: 8px;
+            background: rgba(17, 26, 45, 0.85);
+            border: 1px solid rgba(204, 255, 10, 0.3);
+            display: none;
+        }
+        .result__heading {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .result__item {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
         }
-        .btn-small {
-            flex: 1;
-            padding: 8px;
-            font-size: 12px;
+        .result__item span {
+            font-weight: 600;
+        }
+        .helper-text {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 12px;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">DirectoryBolt</div>
-        <div class="tagline">Automated Directory Submissions</div>
-    </div>
+    <header>
+        <h1>DirectoryBolt</h1>
+        <p class="subtitle">Verify your customer access from Google Sheets records.</p>
+    </header>
 
-    <div id="auth-section" class="auth-section">
-        <div class="form-group">
-            <label for="customer-id">Customer ID:</label>
-            <input type="text" id="customer-id" placeholder="Enter your Customer ID (DIR-XXX...)" />
-        </div>
-        <button id="validate-btn" class="btn">Validate Customer</button>
-        <div id="status" class="status" style="display: none;"></div>
-    </div>
+    <main>
+        <form id="customer-form">
+            <label for="customer-id">Customer ID</label>
+            <input type="text" id="customer-id" name="customer-id" autocomplete="off" placeholder="DIR-2025..." required>
+            <button type="submit" id="validate-btn">Check Package</button>
+        </form>
 
-    <div id="customer-section" style="display: none;">
-        <div id="customer-info" class="customer-info"></div>
-        
-        <div class="actions">
-            <button id="auto-fill-btn" class="btn btn-small">Auto Fill</button>
-            <button id="queue-btn" class="btn btn-small">Add to Queue</button>
-        </div>
-        
-        <button id="logout-btn" class="btn" style="margin-top: 10px; background: #666;">Logout</button>
-    </div>
+        <div id="status" class="status status--hidden" role="alert"></div>
 
-    <script src="customer-popup.js"></script>
+        <section id="customer-result" class="result" aria-live="polite">
+            <div class="result__heading">Current Subscription</div>
+            <div class="result__item">
+                <span>Package</span>
+                <span id="result-package">-</span>
+            </div>
+            <div class="result__item">
+                <span>Directory limit</span>
+                <span id="result-limit">-</span>
+            </div>
+        </section>
+
+        <p class="helper-text" id="helper-text">
+            Need help? Confirm your Customer ID from the onboarding email. For access issues contact support@directorybolt.com.
+        </p>
+    </main>
+
+    <script type="module" src="customer-popup.js"></script>
 </body>
 </html>
