@@ -84,7 +84,10 @@
       "WebFetch(domain:business.yelp.com)",
       "WebFetch(domain:www.yellowpages.com)",
       "WebFetch(domain:directorybolt.netlify.app)",
-      "Bash(npx html-validate:*)"
+      "Bash(npx html-validate:*)",
+      "Bash(if exist .next rmdir /s /q .next)",
+      "Bash(if exist .nextcache rmdir /s /q .nextcache)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
