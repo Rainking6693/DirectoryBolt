@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Force rebuild with timestamp
+  env: {
+    BUILD_TIME: new Date().toISOString(),
+    FORCE_REBUILD: 'true'
+  },
   // Enhanced configuration for SEO and performance
   
   reactStrictMode: false,

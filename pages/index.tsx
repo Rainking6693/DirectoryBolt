@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { directoryBoltSchema } from '../lib/seo/enhanced-schema'
 
-const LandingPage = dynamic(() => import('../components/LandingPage'), {
+const LandingPage = dynamic(() => import('../components/LandingPage').then(mod => ({ default: mod.default })), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="text-center">
@@ -17,6 +17,7 @@ const LandingPage = dynamic(() => import('../components/LandingPage'), {
 
 
 export default function Home() {
+  // Force deployment rebuild - Build timestamp: 2025-09-17T13:15:00Z
   return (
     <>
       <Head>
@@ -166,4 +167,14 @@ export default function Home() {
       <LandingPage />
     </>
   )
+}
+
+// Force static generation
+export async function getStaticProps() {
+  return {
+    props: {
+      buildTime: new Date().toISOString()
+    },
+    revalidate: false // Static generation
+  }
 }
