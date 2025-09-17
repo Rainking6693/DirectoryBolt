@@ -38,7 +38,7 @@ export default async function handler(
             try {
               const fs = require('fs')
               const path = require('path')
-              return fs.existsSync(path.join(process.cwd(), 'config', 'google-service-account.json'))
+              return fs.existsSync(path.join(process.cwd(), 'config', 'directorybolt-Googlesheetskey.json'))
             } catch {
               return false
             }
@@ -102,7 +102,7 @@ export default async function handler(
       // EMILY FIX: Check for service account file or environment variables
       const fs = require('fs')
       const path = require('path')
-      const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json')
+      const serviceAccountPath = path.join(process.cwd(), 'config', 'directorybolt-Googlesheetskey.json')
       
       let hasValidConfig = false
       let configMethod = 'none'

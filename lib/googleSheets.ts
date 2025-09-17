@@ -4,9 +4,9 @@ import path from 'path';
 
 // Enhanced Google Sheets service with read/write capabilities
 export async function getSheets() {
-  const saPath = path.join(process.cwd(), 'config', 'google-service-account.json');
+  const saPath = path.join(process.cwd(), 'config', 'directorybolt-Googlesheetskey.json');
   if (!fs.existsSync(saPath)) {
-    throw new Error('Service account JSON not found at config/google-service-account.json');
+    throw new Error('Service account JSON not found at config/directorybolt-Googlesheetskey.json');
   }
   const raw = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 
