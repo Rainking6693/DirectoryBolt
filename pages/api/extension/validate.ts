@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const sheets = await getSheets();
-    const range = 'Customers!A1:Z';
+    const range = 'Sheet1!A1:Z';
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range,
@@ -105,14 +105,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const packageTypeRaw = (match[COLS.packagetype] || '').toString().trim().toLowerCase();
-    const directoryLimit = LIMITS[packageTypeRaw] ?? LIMITS.starter;
+    // Map "pro" to "professional"
+    const normalizedPackage = packageTypeRaw === 'pro' ? 'professional' : packageTypeRaw;
+    const directoryLimit = LIMITS[normalizedPackage] ?? LIMITS.starter;
 
     return res.status(200).json({
       ok: true,
       customerId: cleanedId,
       firstName: COLS.firstname !== -1 ? (match[COLS.firstname] || '').toString().trim() : '',
       lastName: COLS.lastname !== -1 ? (match[COLS.lastname] || '').toString().trim() : '',
-      package: packageTypeRaw || 'starter',
+      package: normalizedPackage || 'starter',
       directoryLimit,
       businessName: COLS.businessname !== -1 ? (match[COLS.businessname] || '').toString().trim() : '',
       email: COLS.email !== -1 ? (match[COLS.email] || '').toString().trim() : '',

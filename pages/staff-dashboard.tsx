@@ -8,8 +8,10 @@ import ManualIntervention from '../components/staff-dashboard/ManualIntervention
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useQueueData } from '../hooks/useQueueData'
 import { AlertProvider } from '../contexts/AlertContext'
+import { useRouter } from 'next/router'
 
 export default function StaffDashboard() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'queue' | 'processing' | 'analytics' | 'alerts'>('queue')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
@@ -20,28 +22,41 @@ export default function StaffDashboard() {
   useEffect(() => {
     const checkStaffAuth = async () => {
       try {
+        // Get stored auth from localStorage
+        const storedAuth = localStorage.getItem('staffAuth')
+        
+        if (!storedAuth) {
+          router.push('/staff-login')
+          setIsAuthLoading(false)
+          return
+        }
+
         const response = await fetch('/api/staff/auth-check', {
           method: 'GET',
-          credentials: 'include'
+          headers: {
+            'Authorization': `Bearer ${storedAuth}`
+          }
         })
 
         if (response.ok) {
           setIsAuthenticated(true)
         } else {
           console.warn('Staff authentication failed')
-          setIsAuthenticated(false)
+          // Clear invalid auth and redirect to login
+          localStorage.removeItem('staffAuth')
+          router.push('/staff-login')
         }
       } catch (error) {
         console.error('Staff auth check failed:', error)
         // Always require proper authentication - NO BYPASSES
-        setIsAuthenticated(false)
+        router.push('/staff-login')
       } finally {
         setIsAuthLoading(false)
       }
     }
 
     checkStaffAuth()
-  }, [])
+  }, [router])
 
   // Auto-refresh every 10 seconds (as specified in requirements)
   useEffect(() => {

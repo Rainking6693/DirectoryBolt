@@ -13,7 +13,9 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://directorybolt.com/*"
+    "https://directorybolt.com/*",
+    "http://localhost:3000/*",
+    "http://localhost:3003/*"
   ],
   "action": {
     "default_popup": "customer-popup.html",
@@ -174,7 +176,7 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://directorybolt.com https://sheets.googleapis.com;"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://directorybolt.com https://sheets.googleapis.com http://localhost:3000 http://localhost:3003;"
   },
   "minimum_chrome_version": "88",
   "externally_connectable": {

@@ -12,22 +12,40 @@ export default function AdminDashboardPage() {
     // Simple admin authentication check
     const checkAdminAuth = async () => {
       try {
+        // Get stored auth from localStorage
+        const storedAuth = localStorage.getItem('adminAuth')
+        const authMethod = localStorage.getItem('adminAuthMethod')
+        
+        if (!storedAuth) {
+          router.push('/admin-login')
+          return
+        }
+
         // Check if user has admin access
+        let headers: any = {}
+        if (authMethod === 'bearer') {
+          headers['Authorization'] = `Bearer ${storedAuth}`
+        } else {
+          headers['Authorization'] = `Basic ${storedAuth}`
+        }
+        
         const response = await fetch('/api/admin/auth-check', {
           method: 'GET',
-          credentials: 'include'
+          headers
         })
 
         if (response.ok) {
           setIsAuthenticated(true)
         } else {
-          // Redirect to login or show access denied
-          router.push('/customer-login?redirect=/admin-dashboard')
+          // Clear invalid auth and redirect to login
+          localStorage.removeItem('adminAuth')
+          localStorage.removeItem('adminAuthMethod')
+          router.push('/admin-login')
         }
       } catch (error) {
         console.error('Admin auth check failed:', error)
         // Always require proper authentication - NO BYPASSES
-        router.push('/customer-login?redirect=/admin-dashboard')
+        router.push('/admin-login')
       } finally {
         setIsLoading(false)
       }

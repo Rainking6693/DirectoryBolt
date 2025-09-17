@@ -12,17 +12,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Mock customer stats for now
-    const stats = {
-      totalCustomers: Math.floor(Math.random() * 500) + 100, // 100-600 customers
-      activeMonitoring: Math.floor(Math.random() * 50) + 20, // 20-70 active
-      alertsGenerated: Math.floor(Math.random() * 20) + 5, // 5-25 alerts
-      complianceRequests: Math.floor(Math.random() * 10) + 2 // 2-12 compliance requests
-    }
+    // Import Google Sheets service
+    const { createGoogleSheetsService } = require('../../../../lib/services/google-sheets.js')
+    
+    // Initialize the service
+    const googleSheetsService = createGoogleSheetsService()
+    await googleSheetsService.initialize()
 
-    res.status(200).json(stats)
+    // Get all customers from Google Sheets
+    const result = await googleSheetsService.getAllCustomers(1000)
+    
+    if (result.success) {
+      const customers = result.customers
+      
+      // Calculate real stats from actual data
+      const totalCustomers = customers.length
+      const activeCustomers = customers.filter(c => c.status === 'active').length
+      const monitoringCustomers = customers.filter(c => c.packageType && c.packageType !== 'starter').length
+      
+      const stats = {
+        totalCustomers,
+        activeMonitoring: monitoringCustomers,
+        alertsGenerated: 0, // TODO: Add alerts tracking
+        complianceRequests: 0 // TODO: Add compliance tracking
+      }
+
+      res.status(200).json(stats)
+    } else {
+      console.error('Failed to fetch customers from Google Sheets:', result.error)
+      
+      // Fallback to mock data if Google Sheets fails
+      const stats = {
+        totalCustomers: 0,
+        activeMonitoring: 0,
+        alertsGenerated: 0,
+        complianceRequests: 0,
+        error: 'Google Sheets connection failed'
+      }
+
+      res.status(200).json(stats)
+    }
   } catch (error) {
     console.error('Failed to get customer stats:', error)
-    res.status(500).json({ error: 'Failed to get customer stats' })
+    
+    // Return error response with details
+    res.status(500).json({ 
+      error: 'Failed to get customer stats',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
   }
 }

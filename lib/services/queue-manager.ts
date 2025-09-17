@@ -119,16 +119,19 @@ export class QueueManager {
    */
   async getPendingQueue(): Promise<QueueItem[]> {
     try {
-      // FIXED: Better Google Sheets connection handling
-      const hasValidConfig = process.env.GOOGLE_SHEET_ID && 
-                             process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-                             process.env.GOOGLE_PRIVATE_KEY
+      // FIXED: Use JSON credentials file instead of environment variables
+      const fs = require('fs')
+      const path = require('path')
+      const credentialsPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
+      
+      if (!fs.existsSync(credentialsPath)) {
+        console.warn('⚠️ Google Sheets credentials file not found, using mock queue data for development')
+        console.log('Debug: Looking for credentials at:', credentialsPath)
+        return this.getMockPendingQueue()
+      }
 
-      if (!hasValidConfig) {
-        console.warn('⚠️ Google Sheets not properly configured, using mock queue data for development')
-        console.log('Debug: SHEET_ID:', process.env.GOOGLE_SHEET_ID ? 'PRESENT' : 'MISSING')
-        console.log('Debug: SERVICE_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? 'PRESENT' : 'MISSING') 
-        console.log('Debug: PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? 'PRESENT' : 'MISSING')
+      if (!process.env.GOOGLE_SHEET_ID) {
+        console.warn('⚠️ GOOGLE_SHEET_ID environment variable not set, using mock queue data for development')
         return this.getMockPendingQueue()
       }
 
@@ -535,12 +538,12 @@ export class QueueManager {
    */
   async getQueueStats(): Promise<QueueStats> {
     try {
-      // Check if Google Sheets is configured
-      const hasValidConfig = process.env.GOOGLE_SHEET_ID && 
-                             process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-                             process.env.GOOGLE_PRIVATE_KEY
-
-      if (!hasValidConfig) {
+      // FIXED: Use JSON credentials file instead of environment variables
+      const fs = require('fs')
+      const path = require('path')
+      const credentialsPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
+      
+      if (!fs.existsSync(credentialsPath) || !process.env.GOOGLE_SHEET_ID) {
         console.warn('⚠️ Google Sheets not configured, using mock data for development')
         return this.getMockQueueStats()
       }

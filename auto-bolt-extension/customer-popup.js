@@ -20,7 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     result.textContent = 'Validating...';
 
-    const engine = new PackageTierEngine(rawValue);
+    // Use development config if available
+    const options = {};
+    if (window.DevConfig) {
+      options.apiBase = window.DevConfig.API_BASE;
+      options.endpoint = window.DevConfig.ENDPOINT;
+      if (window.DevConfig.DEBUG) {
+        console.log('🔧 Using dev config:', options);
+      }
+    }
+
+    const engine = new PackageTierEngine(rawValue, options);
     await engine.init();
 
     const tier = engine.getPackageTier();

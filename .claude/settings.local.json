@@ -87,7 +87,13 @@
       "Bash(npx html-validate:*)",
       "Bash(if exist .next rmdir /s /q .next)",
       "Bash(if exist .nextcache rmdir /s /q .nextcache)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(if [ -n \"$GOOGLE_PRIVATE_KEY\" ])",
+      "Bash(then echo \"YES\")",
+      "Bash(else echo \"NO\")",
+      "Bash(fi)",
+      "Bash(start http://localhost:3000/test-extension-validation.html)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []
