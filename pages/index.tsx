@@ -20,8 +20,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Directory Submission Service | AI-Powered Business Listings | DirectoryBolt</title>
-        <meta name="description" content="Professional directory submission service that submits your business to 200+ directories automatically. AI-powered optimization ensures maximum approval rates. Starting at $49." />
+        <title>AI Business Intelligence Platform - Save 93% vs. Consultant Projects | DirectoryBolt</title>
+        <meta name="description" content="AI-Powered Business Intelligence Platform that replaces expensive consultant projects. Get $4,300 worth of business intelligence for $299 ONE-TIME. Save 93% vs. consultant project fees." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/" />
