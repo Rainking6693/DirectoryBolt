@@ -154,7 +154,7 @@ async function testServiceAccountFile(): Promise<HealthCheckResult> {
     const fs = require('fs');
     const path = require('path');
     
-    const saPath = path.join(process.cwd(), 'config', 'directorybolt-Googlesheetskey.json');
+    const saPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json');
     
     if (!fs.existsSync(saPath)) {
       return {

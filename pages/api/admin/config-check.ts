@@ -110,7 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Check critical files
-    configChecks.push(checkFileExists('config/directorybolt-Googlesheetskey.json', 'Google Service Account'));
+    configChecks.push(checkFileExists('config/directoryboltGoogleKey9.17.json', 'Google Service Account'));
     configChecks.push(checkFileExists('pages/api/extension/validate.ts', 'Extension Validation API'));
     configChecks.push(checkFileExists('pages/api/health/google-sheets.ts', 'Google Sheets Health Check'));
 

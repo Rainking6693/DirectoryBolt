@@ -38,6 +38,14 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Google Service Account Keys - CRITICAL: NEVER commit these
+config/*google*.json
+config/*Google*.json
+config/google-service-account.json
+config/directorybolt*.json
+config/*key*.json
+config/*Key*.json
+
 
 # Vercel
 .vercel

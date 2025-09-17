@@ -92,7 +92,7 @@ export default async function handler(
     // EMILY FIX: Verify service account file or environment variables are properly configured
     const fs = require('fs')
     const path = require('path')
-    const serviceAccountPath = path.join(process.cwd(), 'config', 'directorybolt-Googlesheetskey.json')
+    const serviceAccountPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
     
     let hasValidConfig = false
     let configMethod = 'unknown'
