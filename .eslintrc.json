@@ -1,13 +1,17 @@
 {
-  "extends": ["next/core-web-vitals"],
-  "rules": {
-    "no-unused-vars": "off",
-    "no-console": "off",
-    "@next/next/no-img-element": "error",
-    "prefer-const": "off",
-    "react-hooks/exhaustive-deps": "warn",
-    "react/no-unescaped-entities": "off",
-    "react/jsx-no-comment-textnodes": "off",
-    "react/no-children-prop": "off"
-  }
+  "extends": [],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "."
+  },
+  "plugins": [],
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["**/*.{js,jsx,ts,tsx}"]
+    }
+  ]
 }
+
+

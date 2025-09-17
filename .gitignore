@@ -45,6 +45,8 @@ config/google-service-account.json
 config/directorybolt*.json
 config/*key*.json
 config/*Key*.json
+config/directoryboltGoogleKey9.17.json
+config/directorybolt-Googlesheetskey.json
 
 
 # Vercel
