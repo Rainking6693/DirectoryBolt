@@ -176,9 +176,4 @@ export default function CookieConsent() {
   )
 }
 
-// Extend Window interface for TypeScript
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void
-  }
-}
+// Type declaration moved to types/gtag.d.ts to avoid conflicts
