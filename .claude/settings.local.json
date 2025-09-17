@@ -82,7 +82,8 @@
       "Bash(npx lighthouse:*)",
       "WebFetch(domain:business.google.com)",
       "WebFetch(domain:business.yelp.com)",
-      "WebFetch(domain:www.yellowpages.com)"
+      "WebFetch(domain:www.yellowpages.com)",
+      "WebFetch(domain:directorybolt.netlify.app)"
     ],
     "deny": [],
     "ask": []

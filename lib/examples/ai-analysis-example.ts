@@ -4,6 +4,7 @@
 import { 
   BusinessIntelligence,
   AnalysisRequest,
+  AnalysisProgress,
   createBusinessIntelligenceEngine
 } from '../services/ai-business-intelligence-engine'
 
@@ -92,7 +93,7 @@ export const advancedAnalysisExample = async () => {
   }
 
   // Set up progress tracking
-  engine.onProgress((progress: AnalysisProgress) => {
+  engine.onProgress((progress) => {
     console.log(`📊 Progress: ${progress.progress}% - ${progress.stage}`)
     console.log(`⏱️ ETA: ${progress.estimatedTimeRemaining} seconds`)
   })

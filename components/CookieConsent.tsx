@@ -179,6 +179,6 @@ export default function CookieConsent() {
 // Extend Window interface for TypeScript
 declare global {
   interface Window {
-    gtag: any
+    gtag: (...args: any[]) => void
   }
 }

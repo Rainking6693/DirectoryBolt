@@ -189,10 +189,10 @@ export function authMiddleware(config: AuthMiddlewareConfig = {}) {
           success: false,
           error: {
             message: error.message,
-            code: error.errorCode,
+            code: 'RATE_LIMIT_EXCEEDED',
             statusCode: 429,
             details: {
-              resetTime: error.resetTime,
+              retryAfter: error.retryAfter,
               remaining: error.remaining
             }
           },

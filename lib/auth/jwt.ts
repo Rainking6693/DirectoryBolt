@@ -97,11 +97,14 @@ export class JWTManager {
 
     const options = {
       expiresIn: customExpiry || JWT_CONFIG.ACCESS_TOKEN_EXPIRES,
-      algorithm: JWT_CONFIG.ALGORITHM
+      algorithm: JWT_CONFIG.ALGORITHM as 'HS256'
     }
 
     try {
-      const token = jwt.sign(payload, this.accessTokenSecret, options)
+      const token = jwt.sign(payload, this.accessTokenSecret, {
+        expiresIn: customExpiry || JWT_CONFIG.ACCESS_TOKEN_EXPIRES,
+        algorithm: 'HS256'
+      } as jwt.SignOptions)
       
       logger.info('Access token generated', {
         metadata: { 

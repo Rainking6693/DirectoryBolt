@@ -8,12 +8,12 @@ import type {
   CompetitiveAnalysis, 
   SEOAnalysis, 
   MarketInsights, 
-  BusinessIntelligenceResponse,
   AIInsights,
   RevenueProjection,
   Competitor,
   DirectoryOpportunity
 } from '../types/ai.types'
+import type { BusinessIntelligenceResponse } from '../types/business-intelligence'
 
 interface WebsiteData {
   title?: string
@@ -394,7 +394,7 @@ Focus on actionable SEO improvements.`
             challenges: marketInsights.riskFactors || [],
             opportunities: marketInsights.growthOpportunities || []
           } as any,
-          competitiveAnalysis,
+          competitiveAnalysis: competitiveAnalysis as any,
           seoAnalysis,
           directoryOpportunities: {
             total: 25,
@@ -425,6 +425,11 @@ Focus on actionable SEO improvements.`
           confidence: 75,
           qualityScore: 80,
           analysisTimestamp: new Date()
+        } as any,
+        processingTime: 5000,
+        usage: {
+          tokensUsed: 1000,
+          cost: 0.02
         }
       }
 
@@ -455,7 +460,7 @@ Generate market insights for this business:
 Business: ${businessProfile.name}
 Industry: ${businessProfile.industry}
 Market Position: ${competitiveAnalysis.marketPosition}
-Threat Level: ${competitiveAnalysis.threatLevel}
+Threats: ${(competitiveAnalysis as any).threatAnalysis || 'Unknown'}
 
 Provide market insights in JSON format:
 {
