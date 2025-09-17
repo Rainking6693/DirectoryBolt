@@ -10,8 +10,8 @@ const path = require('path');
 
 console.log('🔍 Verifying build components...');
 
-// Check if LandingPage component exists and has correct content
-const landingPagePath = path.join(process.cwd(), 'components', 'LandingPage.tsx');
+// Check if NewLandingPage component exists and has correct content
+const landingPagePath = path.join(process.cwd(), 'components', 'NewLandingPage.tsx');
 
 if (!fs.existsSync(landingPagePath)) {
   console.error('❌ LandingPage.tsx not found!');

@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { directoryBoltSchema } from '../lib/seo/enhanced-schema'
 
-const LandingPage = dynamic(() => import('../components/LandingPage').then(mod => ({ default: mod.default })), {
+const LandingPage = dynamic(() => import('../components/NewLandingPage').then(mod => ({ default: mod.default })), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="text-center">

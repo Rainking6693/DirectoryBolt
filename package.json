@@ -1,6 +1,6 @@
 {
   "name": "directorybolt",
-  "version": "2.0.0",
+  "version": "2.0.1-emergency-fix",
   "private": true,
   "scripts": {
     "build": "node scripts/verify-build.js && cross-env NEXT_TELEMETRY_DISABLED=1 next build",
