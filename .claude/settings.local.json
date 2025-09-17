@@ -83,7 +83,8 @@
       "WebFetch(domain:business.google.com)",
       "WebFetch(domain:business.yelp.com)",
       "WebFetch(domain:www.yellowpages.com)",
-      "WebFetch(domain:directorybolt.netlify.app)"
+      "WebFetch(domain:directorybolt.netlify.app)",
+      "Bash(npx html-validate:*)"
     ],
     "deny": [],
     "ask": []
