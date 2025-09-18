@@ -140,15 +140,19 @@ async function handleGetCustomers(req: NextApiRequest, res: NextApiResponse) {
 
     // Get all customers with limit
     const limitNum = parseInt(limit.toString(), 10);
-    const customers = await supabaseService.getAllCustomers(limitNum);
+    const result = await supabaseService.getAllCustomers(limitNum);
+
+    if (!result.success) {
+      throw new Error(result.error);
+    }
 
     return res.status(200).json({
       ok: true,
-      customers: customers.map(customer => ({
+      customers: result.customers.map(customer => ({
         ...customer,
         directoryLimit: getPackageLimit(customer.packageType)
       })),
-      total: customers.length
+      total: result.customers.length
     });
 
   } catch (error: unknown) {
