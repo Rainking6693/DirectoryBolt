@@ -93,7 +93,8 @@
       "Bash(else echo \"NO\")",
       "Bash(fi)",
       "Bash(start http://localhost:3000/test-extension-validation.html)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(killall:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,24 +1,26 @@
 #!/usr/bin/env node
 
 /**
- * CLIVE - Quick API Endpoint Test
- * Test DirectoryBolt customer validation endpoints
+ * API Endpoints Integration Test
+ * Tests critical API endpoints to ensure they work with Supabase
  */
 
-const https = require('https');
+require('dotenv').config({ path: '.env.local' });
+const http = require('http');
 
-async function testEndpoint(hostname, path, method = 'POST', body = null) {
+async function testLocalEndpoint(path, method = 'GET', body = null, headers = {}) {
     return new Promise((resolve) => {
         const postData = body ? JSON.stringify(body) : null;
         
         const options = {
-            hostname: hostname,
-            port: 443,
+            hostname: 'localhost',
+            port: 3000,
             path: path,
             method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': 'CLIVE-Quick-Test/1.0'
+                'User-Agent': 'DirectoryBolt-Test/1.0',
+                ...headers
             }
         };
 
@@ -26,9 +28,9 @@ async function testEndpoint(hostname, path, method = 'POST', body = null) {
             options.headers['Content-Length'] = Buffer.byteLength(postData);
         }
 
-        console.log(`🔍 Testing: ${method} https://${hostname}${path}`);
+        console.log(`🔍 Testing: ${method} http://localhost:3000${path}`);
 
-        const req = https.request(options, (res) => {
+        const req = http.request(options, (res) => {
             let data = '';
             
             res.on('data', (chunk) => {
@@ -70,25 +72,137 @@ async function testEndpoint(hostname, path, method = 'POST', body = null) {
     });
 }
 
-async function runQuickTest() {
-    console.log('🔍 CLIVE - Quick API Endpoint Test');
-    console.log('=' .repeat(50));
+async function runAPITests() {
+    console.log('🔍 DirectoryBolt API Endpoints Integration Test');
+    console.log('=' .repeat(60));
     
-    const testPayload = { customerId: 'TEST-123' };
+    let testResults = [];
     
-    // Test the main endpoint the extension calls
-    console.log('📋 Testing Customer Validation Endpoint (Extension calls this):');
-    await testEndpoint('directorybolt.com', '/api/customer/validate', 'POST', testPayload);
+    // Test 1: Extension Validation API
+    console.log('\n📋 Testing Extension Validation API:');
+    try {
+        const result = await testLocalEndpoint('/api/extension/validate?customerId=DIR-20250918-123456');
+        console.log(`   Status: ${result.status}`);
+        if (result.body) {
+            try {
+                const parsed = JSON.parse(result.body);
+                console.log(`   Response: ${JSON.stringify(parsed, null, 2)}`);
+                testResults.push({ test: 'Extension Validation', status: result.status, response: parsed });
+            } catch (e) {
+                console.log(`   Response: ${result.body.substring(0, 200)}...`);
+                testResults.push({ test: 'Extension Validation', status: result.status, rawResponse: true });
+            }
+        }
+    } catch (error) {
+        console.log(`   Error: ${error.message}`);
+        testResults.push({ test: 'Extension Validation', error: error.message });
+    }
     
-    // Test Netlify Function directly
-    console.log('⚡ Testing Netlify Function Directly:');
-    await testEndpoint('directorybolt.com', '/.netlify/functions/customer-validate', 'POST', testPayload);
+    // Test 2: Admin Customer Stats (with auth)
+    console.log('\n📊 Testing Admin Customer Stats API:');
+    try {
+        const result = await testLocalEndpoint('/api/admin/customers/stats', 'GET', null, {
+            'Authorization': `Bearer ${process.env.ADMIN_API_KEY}`
+        });
+        console.log(`   Status: ${result.status}`);
+        if (result.body) {
+            try {
+                const parsed = JSON.parse(result.body);
+                console.log(`   Response: ${JSON.stringify(parsed, null, 2)}`);
+                testResults.push({ test: 'Admin Customer Stats', status: result.status, response: parsed });
+            } catch (e) {
+                console.log(`   Response: ${result.body.substring(0, 200)}...`);
+                testResults.push({ test: 'Admin Customer Stats', status: result.status, rawResponse: true });
+            }
+        }
+    } catch (error) {
+        console.log(`   Error: ${error.message}`);
+        testResults.push({ test: 'Admin Customer Stats', error: error.message });
+    }
     
-    // Test health endpoint
-    console.log('🏥 Testing Health Endpoint:');
-    await testEndpoint('directorybolt.com', '/api/health/google-sheets', 'GET');
+    // Test 3: AutoBolt Queue Status
+    console.log('\n🔄 Testing AutoBolt Queue Status API:');
+    try {
+        const result = await testLocalEndpoint('/api/autobolt/queue-status');
+        console.log(`   Status: ${result.status}`);
+        if (result.body) {
+            try {
+                const parsed = JSON.parse(result.body);
+                console.log(`   Response: ${JSON.stringify(parsed, null, 2)}`);
+                testResults.push({ test: 'AutoBolt Queue Status', status: result.status, response: parsed });
+            } catch (e) {
+                console.log(`   Response: ${result.body.substring(0, 200)}...`);
+                testResults.push({ test: 'AutoBolt Queue Status', status: result.status, rawResponse: true });
+            }
+        }
+    } catch (error) {
+        console.log(`   Error: ${error.message}`);
+        testResults.push({ test: 'AutoBolt Queue Status', error: error.message });
+    }
     
-    console.log('🎯 Quick test complete. Check results above.');
+    // Test 4: Health Check
+    console.log('\n💚 Testing Health Check API:');
+    try {
+        const result = await testLocalEndpoint('/api/health');
+        console.log(`   Status: ${result.status}`);
+        if (result.body) {
+            try {
+                const parsed = JSON.parse(result.body);
+                console.log(`   Response: ${JSON.stringify(parsed, null, 2)}`);
+                testResults.push({ test: 'Health Check', status: result.status, response: parsed });
+            } catch (e) {
+                console.log(`   Response: ${result.body.substring(0, 200)}...`);
+                testResults.push({ test: 'Health Check', status: result.status, rawResponse: true });
+            }
+        }
+    } catch (error) {
+        console.log(`   Error: ${error.message}`);
+        testResults.push({ test: 'Health Check', error: error.message });
+    }
+    
+    // Generate Summary
+    console.log('\n' + '='.repeat(60));
+    console.log('📋 API ENDPOINTS TEST SUMMARY');
+    console.log('='.repeat(60));
+    
+    const working = testResults.filter(r => r.status === 200).length;
+    const errors = testResults.filter(r => r.error).length;
+    const otherStatus = testResults.filter(r => r.status && r.status !== 200).length;
+    
+    console.log(`Total Tests: ${testResults.length}`);
+    console.log(`Working (200): ${working}`);
+    console.log(`Errors: ${errors}`);
+    console.log(`Other Status: ${otherStatus}`);
+    
+    testResults.forEach(result => {
+        const status = result.status === 200 ? '✅' : result.error ? '❌' : '⚠️';
+        console.log(`${status} ${result.test}: ${result.status || 'ERROR'}`);
+    });
+    
+    const overallStatus = errors === 0 ? 'PASSED' : 'FAILED';
+    console.log(`\nOverall Status: ${overallStatus}`);
+    
+    // Write results to file
+    const fs = require('fs');
+    fs.writeFileSync('api-endpoints-test-results.json', JSON.stringify({
+        timestamp: new Date().toISOString(),
+        summary: { total: testResults.length, working, errors, otherStatus, overallStatus },
+        results: testResults
+    }, null, 2));
+    
+    console.log('Results saved to: api-endpoints-test-results.json');
+    console.log('='.repeat(60) + '\n');
+    
+    return overallStatus === 'PASSED';
 }
 
-runQuickTest().catch(console.error);
+if (require.main === module) {
+    runAPITests()
+        .then(success => {
+            process.exit(success ? 0 : 1);
+        })
+        .catch(error => {
+            console.error('💥 Test suite failed:', error);
+            process.exit(1);
+        });
+}
