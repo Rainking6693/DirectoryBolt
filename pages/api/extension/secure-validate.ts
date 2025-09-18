@@ -1,11 +1,11 @@
 /**
  * SECURE Extension Customer Validation API
- * Server-side proxy that handles all Google Sheets communication
+ * Server-side proxy that handles all Supabase communication
  * NO CREDENTIALS EXPOSED TO CLIENT
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
+import { createSupabaseService } from '../../../lib/services/supabase'
 
 interface SecureValidationRequest {
   customerId: string
@@ -86,39 +86,11 @@ export default async function handler(
 
     console.log('🔒 SECURE: Validating customer via server-side proxy:', customerId)
 
-    // Use secure server-side Google Sheets service
-    const googleSheetsService = createGoogleSheetsService()
+    // Use secure server-side Supabase service
+    const supabaseService = createSupabaseService()
     
-    // EMILY FIX: Verify service account file or environment variables are properly configured
-    const fs = require('fs')
-    const path = require('path')
-    const serviceAccountPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
-    
-    let hasValidConfig = false
-    let configMethod = 'unknown'
-    
-    if (fs.existsSync(serviceAccountPath)) {
-      hasValidConfig = true
-      configMethod = 'service-account-file'
-      console.log('✅ SECURE: Using service account file for validation')
-    } else if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-      hasValidConfig = true
-      configMethod = 'environment-variables'
-      console.log('✅ SECURE: Using environment variables for validation')
-    }
-    
-    if (!hasValidConfig) {
-      console.error('❌ SECURITY ERROR: Google Sheets credentials missing - no service account file or environment variables')
-      return createResponse(500, {
-        valid: false,
-        error: 'Server configuration error'
-      })
-    }
-    
-    console.log(`🔒 SECURE: Using ${configMethod} for Google Sheets authentication`)
-
     // Health check
-    const healthCheck = await googleSheetsService.healthCheck()
+    const healthCheck = await supabaseService.healthCheck()
     if (!healthCheck) {
       return createResponse(500, {
         valid: false,
@@ -127,7 +99,7 @@ export default async function handler(
     }
 
     // Find customer using secure server-side service
-    const customer = await googleSheetsService.findByCustomerId(customerId.trim())
+    const customer = await supabaseService.findByCustomerId(customerId.trim())
 
     if (!customer) {
       console.log(`❌ SECURE: Customer not found: ${customerId}`)

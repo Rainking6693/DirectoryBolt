@@ -1,0 +1,45 @@
+{
+  "startTime": "2025-09-18T14:46:56.913Z",
+  "sourceCustomers": 5,
+  "migratedCustomers": 0,
+  "skippedCustomers": 0,
+  "errors": [
+    {
+      "customerIndex": 1,
+      "businessName": "Unknown Business",
+      "email": "Test@test.com",
+      "error": "Could not find the table 'public.customers' in the schema cache",
+      "customerId": "DIR-20250918-909404"
+    },
+    {
+      "customerIndex": 2,
+      "businessName": "Unknown Business",
+      "email": "rainking6693@gmail.com",
+      "error": "Could not find the table 'public.customers' in the schema cache",
+      "customerId": "DIR-20250918-510820"
+    },
+    {
+      "customerIndex": 3,
+      "businessName": "Unknown Business",
+      "email": "https://techstart.com",
+      "error": "Could not find the table 'public.customers' in the schema cache",
+      "customerId": "DIR-20250918-583549"
+    },
+    {
+      "customerIndex": 4,
+      "businessName": "Unknown Business",
+      "email": "https://localcafe.com",
+      "error": "Could not find the table 'public.customers' in the schema cache",
+      "customerId": "DIR-20250918-872764"
+    },
+    {
+      "customerIndex": 5,
+      "businessName": "Unknown Business",
+      "email": "https://testbusiness.com",
+      "error": "Could not find the table 'public.customers' in the schema cache",
+      "customerId": "DIR-20250918-258035"
+    }
+  ],
+  "customerMapping": [],
+  "endTime": "2025-09-18T14:46:59.385Z"
+}

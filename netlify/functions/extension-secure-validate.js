@@ -1,9 +1,10 @@
 /**
  * Netlify Function: Secure Extension Customer Validation
  * Mirrors /api/extension/secure-validate as a serverless function with CORS
+ * Updated to use Supabase instead of Google Sheets
  */
 
-const { createGoogleSheetsService } = require('../../lib/services/google-sheets.js');
+const { createSupabaseService } = require('../../lib/services/supabase');
 
 exports.handler = async (event, context) => {
   const corsHeaders = {
@@ -58,53 +59,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // EMILY FIX: Verify service account file or environment variables
-    const fs = require('fs');
-    const path = require('path');
-    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json');
-    
-    let hasValidConfig = false;
-    let configMethod = 'none';
-    
-    if (fs.existsSync(serviceAccountPath)) {
-      hasValidConfig = true;
-      configMethod = 'service-account-file';
-    } else {
-      const envChecks = {
-        GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
-        GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
-      };
-      
-      if (envChecks.GOOGLE_SHEET_ID && envChecks.GOOGLE_SERVICE_ACCOUNT_EMAIL && envChecks.GOOGLE_PRIVATE_KEY) {
-        hasValidConfig = true;
-        configMethod = 'environment-variables';
-      }
-    }
-
-    if (!hasValidConfig) {
-      return {
-        statusCode: 500,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          valid: false,
-          error: 'Server configuration error',
-          diagnostic: { 
-            configMethod,
-            serviceAccountFileExists: fs.existsSync(serviceAccountPath),
-            environmentVarsAvailable: {
-              GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
-              GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-              GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY
-            }
-          }
-        })
-      };
-    }
-
     // Create service and health check
-    const googleSheetsService = createGoogleSheetsService();
-    const healthy = await googleSheetsService.healthCheck();
+    const supabaseService = createSupabaseService();
+    const healthy = await supabaseService.healthCheck();
     if (!healthy) {
       return {
         statusCode: 500,
@@ -114,7 +71,7 @@ exports.handler = async (event, context) => {
     }
 
     // Lookup customer
-    let customer = await googleSheetsService.findByCustomerId(normalizedId);
+    let customer = await supabaseService.findByCustomerId(normalizedId);
 
     if (!customer) {
       // Try variations similar to other endpoints
@@ -130,7 +87,7 @@ exports.handler = async (event, context) => {
       }
 
       for (const alt of variations) {
-        customer = await googleSheetsService.findByCustomerId(alt);
+        customer = await supabaseService.findByCustomerId(alt);
         if (customer) break;
       }
     }

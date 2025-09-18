@@ -1,0 +1,179 @@
+{
+  "startTime": "2025-09-18T15:16:39.706Z",
+  "sourceCustomers": 5,
+  "migratedCustomers": 5,
+  "errors": [],
+  "customerMappings": [
+    {
+      "businessName": "Unknown Business",
+      "email": "Test@test.com",
+      "newCustomerId": "DIR-20250918-415572",
+      "supabaseData": [
+        {
+          "id": "c9fc404a-0cd3-41ab-a2e7-9976c17765a3",
+          "customer_id": "DIR-20250918-415572",
+          "first_name": "",
+          "last_name": "",
+          "business_name": "Unknown Business",
+          "email": "Test@test.com",
+          "phone": "555-555-5555",
+          "website": "",
+          "address": "123 Main St",
+          "city": "Lehi",
+          "state": "UT",
+          "zip": "84043",
+          "country": "USA",
+          "package_type": "starter",
+          "status": "active",
+          "directories_submitted": 0,
+          "failed_directories": 0,
+          "processing_metadata": {},
+          "created_at": "2025-09-18T15:16:40.514+00:00",
+          "updated_at": "2025-09-18T15:16:41.00805+00:00",
+          "metadata": {
+            "migration_date": "2025-09-18T15:16:40.514Z",
+            "original_row_index": 2,
+            "migrated_from_google_sheets": true
+          }
+        }
+      ]
+    },
+    {
+      "businessName": "Unknown Business",
+      "email": "rainking6693@gmail.com",
+      "newCustomerId": "DIR-20250918-774121",
+      "supabaseData": [
+        {
+          "id": "2e1b38b4-7c3d-46f3-979a-a0aa8ce5f128",
+          "customer_id": "DIR-20250918-774121",
+          "first_name": "",
+          "last_name": "",
+          "business_name": "Unknown Business",
+          "email": "rainking6693@gmail.com",
+          "phone": "385-225-1199",
+          "website": "",
+          "address": "4026 W Harper Lane",
+          "city": "Lehi",
+          "state": "UT",
+          "zip": "84043",
+          "country": "USA",
+          "package_type": "starter",
+          "status": "active",
+          "directories_submitted": 0,
+          "failed_directories": 0,
+          "processing_metadata": {},
+          "created_at": "2025-09-18T15:16:40.514+00:00",
+          "updated_at": "2025-09-18T15:16:41.624558+00:00",
+          "metadata": {
+            "migration_date": "2025-09-18T15:16:40.514Z",
+            "original_row_index": 3,
+            "migrated_from_google_sheets": true
+          }
+        }
+      ]
+    },
+    {
+      "businessName": "Unknown Business",
+      "email": "https://techstart.com",
+      "newCustomerId": "DIR-20250918-297295",
+      "supabaseData": [
+        {
+          "id": "360da8ac-25e5-4c74-8b6e-ae09b3427f52",
+          "customer_id": "DIR-20250918-297295",
+          "first_name": "",
+          "last_name": "",
+          "business_name": "Unknown Business",
+          "email": "https://techstart.com",
+          "phone": "123 Tech Street",
+          "website": "",
+          "address": "San Francisco",
+          "city": "CA",
+          "state": "94105",
+          "zip": "pro",
+          "country": "USA",
+          "package_type": "starter",
+          "status": "active",
+          "directories_submitted": 0,
+          "failed_directories": 0,
+          "processing_metadata": {},
+          "created_at": "2025-09-18T15:16:40.514+00:00",
+          "updated_at": "2025-09-18T15:16:42.2491+00:00",
+          "metadata": {
+            "migration_date": "2025-09-18T15:16:40.514Z",
+            "original_row_index": 4,
+            "migrated_from_google_sheets": true
+          }
+        }
+      ]
+    },
+    {
+      "businessName": "Unknown Business",
+      "email": "https://localcafe.com",
+      "newCustomerId": "DIR-20250918-281960",
+      "supabaseData": [
+        {
+          "id": "565bf0ce-31bb-4ee7-9e64-406c2dfbe165",
+          "customer_id": "DIR-20250918-281960",
+          "first_name": "",
+          "last_name": "",
+          "business_name": "Unknown Business",
+          "email": "https://localcafe.com",
+          "phone": "456 Main Street",
+          "website": "",
+          "address": "Portland",
+          "city": "OR",
+          "state": "97201",
+          "zip": "growth",
+          "country": "USA",
+          "package_type": "starter",
+          "status": "active",
+          "directories_submitted": 0,
+          "failed_directories": 0,
+          "processing_metadata": {},
+          "created_at": "2025-09-18T15:16:40.514+00:00",
+          "updated_at": "2025-09-18T15:16:42.854664+00:00",
+          "metadata": {
+            "migration_date": "2025-09-18T15:16:40.514Z",
+            "original_row_index": 5,
+            "migrated_from_google_sheets": true
+          }
+        }
+      ]
+    },
+    {
+      "businessName": "Unknown Business",
+      "email": "https://testbusiness.com",
+      "newCustomerId": "DIR-20250918-880843",
+      "supabaseData": [
+        {
+          "id": "986f1310-29fe-4d46-8988-6c53c6b98286",
+          "customer_id": "DIR-20250918-880843",
+          "first_name": "",
+          "last_name": "",
+          "business_name": "Unknown Business",
+          "email": "https://testbusiness.com",
+          "phone": "123 Test Street",
+          "website": "",
+          "address": "Test City",
+          "city": "TS",
+          "state": "12345",
+          "zip": "growth",
+          "country": "USA",
+          "package_type": "starter",
+          "status": "active",
+          "directories_submitted": 0,
+          "failed_directories": 0,
+          "processing_metadata": {},
+          "created_at": "2025-09-18T15:16:40.514+00:00",
+          "updated_at": "2025-09-18T15:16:43.475522+00:00",
+          "metadata": {
+            "migration_date": "2025-09-18T15:16:40.514Z",
+            "original_row_index": 6,
+            "migrated_from_google_sheets": true
+          }
+        }
+      ]
+    }
+  ],
+  "endTime": "2025-09-18T15:16:43.895Z"
+}

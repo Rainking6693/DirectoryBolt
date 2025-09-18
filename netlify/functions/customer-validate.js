@@ -1,12 +1,13 @@
 /**
  * Netlify Function: Customer Validation
  * Direct replacement for /api/customer/validate
+ * Updated to use Supabase instead of Google Sheets
  */
 
-const { createGoogleSheetsService } = require('../../lib/services/google-sheets.js');
+const { createSupabaseService } = require('../../lib/services/supabase');
 
 exports.handler = async (event, context) => {
-  console.log('🔍 Customer validation initiated via Netlify Function');
+  console.log('🔍 Customer validation initiated via Netlify Function (Supabase)');
   
   // CORS headers
   const headers = {
@@ -57,28 +58,14 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log('🔍 Validating customer with Google Sheets:', customerId);
+    console.log('🔍 Validating customer with Supabase:', customerId);
     
-    // EMILY FIX: Check for service account file or environment variables
-    const fs = require('fs');
-    const path = require('path');
-    const serviceAccountPath = path.join(process.cwd(), 'config', 'google-service-account.json');
-    
-    let configMethod = 'none';
-    if (fs.existsSync(serviceAccountPath)) {
-      configMethod = 'service-account-file';
-    } else if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-      configMethod = 'environment-variables';
-    }
-    
+    // Environment check
     console.log('🔍 Environment check:', {
       NODE_ENV: process.env.NODE_ENV,
       NETLIFY: !!process.env.NETLIFY,
-      configMethod,
-      serviceAccountFileExists: fs.existsSync(serviceAccountPath),
-      GOOGLE_SHEET_ID: !!process.env.GOOGLE_SHEET_ID,
-      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      GOOGLE_PRIVATE_KEY_LENGTH: (process.env.GOOGLE_PRIVATE_KEY || '').length
+      SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      SUPABASE_SERVICE_KEY: !!process.env.SUPABASE_SERVICE_KEY
     });
 
     // Handle test customers first
@@ -102,9 +89,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Real customer lookup using Google Sheets service
-    const googleSheetsService = createGoogleSheetsService();
-    let customer = await googleSheetsService.findByCustomerId(customerId);
+    // Real customer lookup using Supabase service
+    const supabaseService = createSupabaseService();
+    let customer = await supabaseService.findByCustomerId(customerId);
     
     if (!customer) {
       // Try alternative ID formats
@@ -112,7 +99,7 @@ exports.handler = async (event, context) => {
       
       for (const altId of alternatives) {
         console.log('🔄 Trying alternative ID:', altId);
-        customer = await googleSheetsService.findByCustomerId(altId);
+        customer = await supabaseService.findByCustomerId(altId);
         if (customer) {
           console.log('✅ Found customer with alternative ID:', altId);
           break;
@@ -121,14 +108,14 @@ exports.handler = async (event, context) => {
     }
 
     if (customer) {
-      console.log('✅ Customer found:', customer.customerId || customer.customerID);
+      console.log('✅ Customer found:', customer.customerId);
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
           customer: {
-            customerId: customer.customerID || customer.customerId,
+            customerId: customer.customerId,
             businessName: customer.businessName || 'Unknown Business',
             email: customer.email || '',
             packageType: customer.packageType || 'starter',

@@ -1,16 +1,30 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSheets } from '../../../lib/googleSheets';
+import { createSupabaseService } from '../../../lib/services/supabase';
 
+// Legacy endpoint - now redirects to Supabase
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    if (!spreadsheetId) {
-      throw new Error('GOOGLE_SHEET_ID missing');
+    console.log('⚠️ Legacy Google Sheets health check called - redirecting to Supabase');
+    
+    const supabaseService = createSupabaseService();
+    const healthCheck = await supabaseService.healthCheck();
+    
+    if (!healthCheck) {
+      throw new Error('Supabase health check failed');
     }
-    const sheets = await getSheets();
-    await sheets.spreadsheets.get({ spreadsheetId });
-    return res.status(200).json({ ok: true });
+    
+    return res.status(200).json({ 
+      ok: true, 
+      database: 'supabase',
+      legacy: true,
+      message: 'This endpoint now uses Supabase instead of Google Sheets'
+    });
   } catch (err: any) {
-    return res.status(500).json({ ok: false, reason: err?.message || 'unknown' });
+    return res.status(500).json({ 
+      ok: false, 
+      reason: err?.message || 'unknown',
+      legacy: true,
+      message: 'This endpoint now uses Supabase instead of Google Sheets'
+    });
   }
 }

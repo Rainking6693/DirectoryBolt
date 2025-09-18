@@ -94,7 +94,11 @@
       "Bash(fi)",
       "Bash(start http://localhost:3000/test-extension-validation.html)",
       "Bash(copy:*)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(netlify env:set:*)",
+      "Bash(netlify deploy:*)",
+      "Bash(if exist node_modules rmdir /s /q node_modules)",
+      "Bash(netlify env:list:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,44 @@
+{
+  "startTime": "2025-09-18T14:56:13.113Z",
+  "sourceCustomers": 5,
+  "migratedCustomers": 0,
+  "errors": [
+    {
+      "customerIndex": 1,
+      "businessName": "Unknown Business",
+      "email": "Test@test.com",
+      "customerId": "DIR-20250918-874482",
+      "error": "HTTP 404: {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.customers' in the schema cache\"}"
+    },
+    {
+      "customerIndex": 2,
+      "businessName": "Unknown Business",
+      "email": "rainking6693@gmail.com",
+      "customerId": "DIR-20250918-277728",
+      "error": "HTTP 404: {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.customers' in the schema cache\"}"
+    },
+    {
+      "customerIndex": 3,
+      "businessName": "Unknown Business",
+      "email": "https://techstart.com",
+      "customerId": "DIR-20250918-568957",
+      "error": "HTTP 404: {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.customers' in the schema cache\"}"
+    },
+    {
+      "customerIndex": 4,
+      "businessName": "Unknown Business",
+      "email": "https://localcafe.com",
+      "customerId": "DIR-20250918-570125",
+      "error": "HTTP 404: {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.customers' in the schema cache\"}"
+    },
+    {
+      "customerIndex": 5,
+      "businessName": "Unknown Business",
+      "email": "https://testbusiness.com",
+      "customerId": "DIR-20250918-276104",
+      "error": "HTTP 404: {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.customers' in the schema cache\"}"
+    }
+  ],
+  "customerMappings": [],
+  "endTime": "2025-09-18T14:56:17.165Z"
+}

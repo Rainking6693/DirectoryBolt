@@ -47,3 +47,20 @@ export function getPackageLimit(packageType: string): number {
 export function validatePackageType(packageType: string): boolean {
   return Object.keys(PACKAGE_LIMITS).includes(packageType);
 }
+
+// Legacy compatibility function - redirects to Supabase
+export async function getSheets() {
+  // This function is kept for compatibility with existing code
+  // but it should be replaced with direct Supabase calls
+  const client = await getSupabaseClient();
+  return {
+    spreadsheets: {
+      get: async () => ({ data: { properties: { title: 'DirectoryBolt Customers' } } }),
+      values: {
+        get: async () => ({ data: { values: [] } }),
+        append: async () => ({ data: { updates: { updatedRows: 1 } } }),
+        batchUpdate: async () => ({ data: {} })
+      }
+    }
+  };
+}

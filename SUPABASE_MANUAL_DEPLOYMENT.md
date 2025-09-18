@@ -274,18 +274,6 @@ CREATE TRIGGER log_customer_status_changes
     FOR EACH ROW
     EXECUTE FUNCTION log_customer_status_change();
 
--- Insert some sample data for testing (optional)
--- Uncomment the following section if you want to populate with sample data
-
-/*
-INSERT INTO customers (customer_id, first_name, last_name, business_name, email, phone, website, package_type, status) VALUES
-('DIR-20250918-123456', 'John', 'Doe', 'Acme Corp', 'john@acme.com', '555-0101', 'https://acme.com', 'professional', 'active'),
-('DIR-20250918-123457', 'Jane', 'Smith', 'TechStart Inc', 'jane@techstart.com', '555-0102', 'https://techstart.com', 'growth', 'pending'),
-('DIR-20250918-123458', 'Bob', 'Johnson', 'Local Cafe', 'bob@localcafe.com', '555-0103', 'https://localcafe.com', 'starter', 'completed'),
-('DIR-20250918-123459', 'Alice', 'Brown', 'Fitness First', 'alice@fitnessfirst.com', '555-0104', 'https://fitnessfirst.com', 'enterprise', 'in-progress'),
-('DIR-20250918-123460', 'Charlie', 'Wilson', 'Auto Repair Pro', 'charlie@autorepair.com', '555-0105', 'https://autorepair.com', 'professional', 'failed');
-*/
-
 -- Grant necessary permissions to authenticated and anon roles (adjust as needed)
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
