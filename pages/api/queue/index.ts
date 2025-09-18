@@ -1,45 +1,23 @@
 /**
  * Queue API Endpoints - Main Queue Management
  * GET /api/queue - Fetch queue items with filtering and pagination
- * Phase 2.2 Implementation
+ * Now using REAL Supabase data instead of mock data
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
+import { supabaseQueueManager } from '../../../lib/services/supabase-queue-manager'
+import type { QueueItem } from '../../../lib/types/queue.types'
 
-// Mock types for queue functionality
-interface QueueItem {
-  recordId: string
-  customerId: string
-  businessName: string
-  packageType: string
-  directoryLimit: number
-  submissionStatus: string
-  priority: number
-  createdAt: string
-  updatedAt: string
-  businessData?: any
-}
+// Import the real QueueItem type from the queue manager
+type ApiQueueItem = QueueItem
 
-interface QueueStats {
-  totalPending: number
-  totalInProgress: number
-  totalCompleted: number
-  totalFailed: number
-  totalPaused: number
-  averageProcessingTime: number
-  averageWaitTime: number
-  queueDepth: number
-  todaysProcessed: number
-  todaysGoal: number
-  successRate: number
-  currentThroughput: number
-  peakHours: { hour: number; count: number }[]
-}
+// Import types from the queue manager
+import type { QueueStats } from '../../../lib/services/supabase-queue-manager'
 
 interface GetQueueResponse {
   success: boolean
   data: {
-    items: QueueItem[]
+    items: ApiQueueItem[]
     pagination: {
       total: number
       offset: number
@@ -58,73 +36,8 @@ const logger = {
   error: (msg: string, error?: any) => console.error(`[ERROR] ${msg}`, error || '')
 }
 
-// Mock queue manager
-const mockQueueManager = {
-  async getPendingQueue(): Promise<QueueItem[]> {
-    // Return mock queue items
-    const mockItems: QueueItem[] = [
-      {
-        recordId: 'rec123',
-        customerId: 'cust_001',
-        businessName: 'Sample Business 1',
-        packageType: 'growth',
-        directoryLimit: 100,
-        submissionStatus: 'pending',
-        priority: 75,
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        businessData: { email: 'test@example.com' }
-      },
-      {
-        recordId: 'rec124', 
-        customerId: 'cust_002',
-        businessName: 'Sample Business 2',
-        packageType: 'starter',
-        directoryLimit: 50,
-        submissionStatus: 'in-progress',
-        priority: 50,
-        createdAt: new Date(Date.now() - 172800000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        businessData: { email: 'test2@example.com' }
-      },
-      {
-        recordId: 'rec125',
-        customerId: 'cust_003',
-        businessName: 'Sample Business 3', 
-        packageType: 'pro',
-        directoryLimit: 200,
-        submissionStatus: 'completed',
-        priority: 100,
-        createdAt: new Date(Date.now() - 259200000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        businessData: { email: 'test3@example.com' }
-      }
-    ]
-    return mockItems
-  },
-
-  async getQueueStats(): Promise<QueueStats> {
-    return {
-      totalPending: 25,
-      totalInProgress: 5,
-      totalCompleted: 120,
-      totalFailed: 3,
-      totalPaused: 0,
-      averageProcessingTime: 3600, // 1 hour in seconds
-      averageWaitTime: 7200, // 2 hours in seconds
-      queueDepth: 30,
-      todaysProcessed: 15,
-      todaysGoal: 50,
-      successRate: 0.97,
-      currentThroughput: 12,
-      peakHours: [
-        { hour: 9, count: 15 },
-        { hour: 14, count: 18 },
-        { hour: 16, count: 12 }
-      ]
-    }
-  }
-}
+// Use the real Supabase queue manager instead of mock data
+const queueManager = supabaseQueueManager()
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Add timeout to prevent hanging
@@ -174,21 +87,23 @@ async function handleGetQueue(req: NextApiRequest, res: NextApiResponse<GetQueue
     const sortBy = (req.query.sortBy as string) || 'priority'
     const sortOrder = (req.query.sortOrder as string) || 'desc'
 
-    // Get queue data with timeout protection
+    // Get REAL queue data from Supabase with timeout protection
     const [queueItems, stats] = await Promise.all([
       Promise.race([
-        mockQueueManager.getPendingQueue(),
-        new Promise<QueueItem[]>((_, reject) => 
+        queueManager.getPendingQueue(),
+        new Promise<ApiQueueItem[]>((_, reject) => 
           setTimeout(() => reject(new Error('Queue fetch timeout')), 5000)
         )
       ]),
       Promise.race([
-        mockQueueManager.getQueueStats(),
+        queueManager.getQueueStats(),
         new Promise<QueueStats>((_, reject) => 
           setTimeout(() => reject(new Error('Stats fetch timeout')), 5000)
         )
       ])
     ])
+
+    logger.info(`Successfully fetched ${queueItems.length} real queue items from Supabase`)
 
     // Apply filtering
     let filteredItems = queueItems

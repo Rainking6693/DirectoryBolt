@@ -1,0 +1,148 @@
+{
+  "name": "DirectoryBolt Enhanced Code Review Configuration",
+  "version": "1.0.0",
+  "description": "Advanced code review configuration based on industry best practices from Google, Meta, and Microsoft",
+  
+  "security": {
+    "enabled": true,
+    "thresholds": {
+      "maxCritical": 0,
+      "maxHigh": 2,
+      "maxMedium": 10,
+      "maxLow": 20
+    },
+    "scanTimeout": 300000,
+    "rules": {
+      "noEval": true,
+      "noInnerHTML": true,
+      "validateInputs": true,
+      "checkCookies": true,
+      "auditDependencies": true
+    },
+    "exclusions": [
+      "test/**/*",
+      "*.test.js",
+      "*.spec.js"
+    ]
+  },
+  
+  "performance": {
+    "enabled": true,
+    "thresholds": {
+      "maxBundleSize": 1000000,
+      "maxComplexity": 10,
+      "maxFunctionLength": 50,
+      "minTestCoverage": 80,
+      "maxDuplication": 5
+    },
+    "monitoring": {
+      "trackBuildTime": true,
+      "trackBundleSize": true,
+      "trackComplexity": true
+    }
+  },
+  
+  "quality": {
+    "enabled": true,
+    "standards": {
+      "enforceTypeScript": true,
+      "requireDocumentation": true,
+      "minMaintainability": 70,
+      "maxTechnicalDebt": 30
+    },
+    "linting": {
+      "eslint": true,
+      "prettier": true,
+      "typescript": true
+    }
+  },
+  
+  "policies": {
+    "enabled": true,
+    "rules": {
+      "requireTests": true,
+      "requireDocumentation": true,
+      "enforceTypeScript": true,
+      "requireSecurityReview": true,
+      "noHardcodedSecrets": true,
+      "requireChangeLog": false
+    },
+    "exemptions": {
+      "legacy": ["archive/**/*"],
+      "external": ["node_modules/**/*", ".next/**/*"],
+      "config": ["*.config.js", "*.config.ts"]
+    }
+  },
+  
+  "ai": {
+    "enabled": true,
+    "features": {
+      "codeAnalysis": true,
+      "securityScanning": true,
+      "performanceOptimization": true,
+      "bugDetection": true,
+      "codeCompletion": false
+    },
+    "models": {
+      "primary": "claude-3-5-sonnet",
+      "fallback": "gpt-4"
+    }
+  },
+  
+  "reporting": {
+    "formats": ["json", "html", "console"],
+    "destinations": {
+      "local": "./reports/",
+      "dashboard": false,
+      "slack": false
+    },
+    "retention": {
+      "days": 30,
+      "maxReports": 100
+    }
+  },
+  
+  "integrations": {
+    "github": {
+      "enabled": true,
+      "createComments": true,
+      "blockMerge": true,
+      "statusChecks": true
+    },
+    "ci": {
+      "enabled": true,
+      "failOnCritical": true,
+      "failOnHigh": false,
+      "generateArtifacts": true
+    },
+    "ide": {
+      "vscode": true,
+      "realTimeAnalysis": true,
+      "inlineComments": true
+    }
+  },
+  
+  "customRules": [
+    {
+      "name": "no-console-production",
+      "pattern": "console\\.(log|warn|error)",
+      "severity": "medium",
+      "message": "Remove console statements in production code",
+      "filePattern": "!(**/*.test.* | **/*.spec.*)"
+    },
+    {
+      "name": "env-validation",
+      "pattern": "process\\.env\\.[A-Z_]+",
+      "severity": "low",
+      "message": "Ensure environment variables are validated",
+      "context": "production"
+    },
+    {
+      "name": "api-key-exposure",
+      "pattern": "(api[_-]?key|secret|token)\\s*[=:]\\s*['\"][^'\"]+['\"]",
+      "severity": "critical",
+      "message": "Potential API key or secret hardcoded",
+      "action": "block"
+    }
+  ]
+}

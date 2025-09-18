@@ -1,0 +1,179 @@
+{
+  "timestamp": "2025-09-18T21:49:09.892Z",
+  "environment": "development",
+  "platform": "local",
+  "buildId": "local",
+  "deployUrl": "localhost",
+  "tests": [
+    {
+      "name": "Environment Variables",
+      "critical": true,
+      "status": "failed",
+      "startTime": "2025-09-18T21:49:09.895Z",
+      "duration": 0.44950000000000045,
+      "result": null,
+      "error": "Critical environment variable missing: OPENAI_API_KEY",
+      "metadata": {},
+      "endTime": "2025-09-18T21:49:09.896Z"
+    },
+    {
+      "name": "API Connectivity",
+      "critical": true,
+      "status": "failed",
+      "startTime": "2025-09-18T21:49:09.896Z",
+      "duration": 0.32649999999999935,
+      "result": null,
+      "error": "No API services configured for testing",
+      "metadata": {},
+      "endTime": "2025-09-18T21:49:09.896Z"
+    },
+    {
+      "name": "Build Artifacts",
+      "critical": false,
+      "status": "passed",
+      "startTime": "2025-09-18T21:49:09.896Z",
+      "duration": 13.4665,
+      "result": {
+        "present": [
+          "nextBuild",
+          "publicAssets",
+          "serverFunctions",
+          "packageJson",
+          "nextConfig"
+        ],
+        "missing": [],
+        "sizes": {
+          "nextBuild": 252882358,
+          "publicAssets": 87157,
+          "serverFunctions": 46431,
+          "packageJson": 5437,
+          "nextConfig": 6794
+        },
+        "integrity": {
+          "packageJson": {
+            "hasScripts": true,
+            "hasDependencies": true,
+            "version": "2.0.1-emergency-fix"
+          }
+        }
+      },
+      "error": null,
+      "metadata": {},
+      "endTime": "2025-09-18T21:49:09.909Z"
+    },
+    {
+      "name": "Performance Metrics",
+      "critical": false,
+      "status": "passed",
+      "startTime": "2025-09-18T21:49:09.909Z",
+      "duration": 108.7039,
+      "result": {
+        "memoryUsage": {
+          "heapUsed": 5320064,
+          "heapTotal": 7176192,
+          "external": 2007639,
+          "rss": 47730688,
+          "heapUtilization": 74.13491723744292
+        },
+        "timing": {
+          "applicationStartup": 107.118,
+          "nodeVersion": "v22.19.0",
+          "platform": "win32",
+          "arch": "x64"
+        },
+        "limits": {
+          "maxOldSpaceSize": 4345298944,
+          "memoryLimitApproaching": false
+        }
+      },
+      "error": null,
+      "metadata": {},
+      "endTime": "2025-09-18T21:49:10.018Z"
+    },
+    {
+      "name": "Security Configuration",
+      "critical": false,
+      "status": "passed",
+      "startTime": "2025-09-18T21:49:10.018Z",
+      "duration": 0.15629999999998745,
+      "result": {
+        "headers": {},
+        "environment": {
+          "telemetryDisabled": false,
+          "productionMode": false
+        },
+        "dependencies": {},
+        "score": 0
+      },
+      "error": null,
+      "metadata": {},
+      "endTime": "2025-09-18T21:49:10.018Z"
+    }
+  ],
+  "performance": {
+    "memoryUsage": {
+      "heapUsed": 5320064,
+      "heapTotal": 7176192,
+      "external": 2007639,
+      "rss": 47730688,
+      "heapUtilization": 74.13491723744292
+    },
+    "timing": {
+      "applicationStartup": 107.118,
+      "nodeVersion": "v22.19.0",
+      "platform": "win32",
+      "arch": "x64"
+    },
+    "limits": {
+      "maxOldSpaceSize": 4345298944,
+      "memoryLimitApproaching": false
+    }
+  },
+  "security": {
+    "headers": {},
+    "environment": {
+      "telemetryDisabled": false,
+      "productionMode": false
+    },
+    "dependencies": {},
+    "score": 0
+  },
+  "dependencies": {},
+  "overall": {
+    "healthy": false,
+    "score": 60,
+    "criticalIssues": [
+      {
+        "test": "Environment Variables",
+        "error": "Critical environment variable missing: OPENAI_API_KEY",
+        "impact": "high"
+      },
+      {
+        "test": "API Connectivity",
+        "error": "No API services configured for testing",
+        "impact": "high"
+      }
+    ],
+    "warnings": [
+      {
+        "test": "Security Configuration",
+        "error": "Low security score: 0/100",
+        "impact": "high"
+      }
+    ],
+    "recommendations": [
+      {
+        "category": "Performance",
+        "priority": "medium",
+        "recommendation": "Consider optimizing memory usage or increasing heap size",
+        "implementation": "Add NODE_OPTIONS=\"--max-old-space-size=4096\" to environment"
+      },
+      {
+        "category": "Security",
+        "priority": "high",
+        "recommendation": "Improve security configuration",
+        "implementation": "Ensure NODE_ENV=production, disable telemetry, use production API keys"
+      }
+    ]
+  }
+}

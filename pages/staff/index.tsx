@@ -64,39 +64,62 @@ export default function StaffDashboard() {
     }
   };
 
-  const loadDashboardData = () => {
-    // Mock queue data for demonstration
-    const mockQueue: QueueItem[] = [
-      {
-        id: 'q1',
-        customerId: 'DIR-20250916-000002',
-        businessName: 'Doe Enterprises',
-        packageType: 'professional',
-        status: 'pending',
-        priority: 'high',
-        created: '2025-01-08T10:00:00Z'
-      },
-      {
-        id: 'q2',
-        customerId: 'DIR-20250916-000003',
-        businessName: 'Smith Solutions',
-        packageType: 'starter',
-        status: 'processing',
-        priority: 'medium',
-        created: '2025-01-08T11:30:00Z',
-        assignedTo: 'staff'
-      },
-      {
-        id: 'q3',
-        customerId: 'DIR-20250916-000004',
-        businessName: 'Tech Innovations LLC',
-        packageType: 'enterprise',
-        status: 'completed',
-        priority: 'high',
-        created: '2025-01-08T09:15:00Z'
+  const loadDashboardData = async () => {
+    try {
+      // Fetch real queue data from API
+      const response = await fetch('/api/queue', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('staff_api_key')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data.items) {
+          // Map Supabase queue data to dashboard format
+          const queueItems: QueueItem[] = data.data.items.map((item: any) => ({
+            id: item.recordId || `queue-${Date.now()}-${Math.random()}`,
+            customerId: item.customerId,
+            businessName: item.businessName || 'Unknown Business',
+            packageType: item.packageType || 'starter',
+            status: mapQueueStatus(item.submissionStatus) as 'pending' | 'processing' | 'completed' | 'failed',
+            priority: mapPriority(item.priority) as 'low' | 'medium' | 'high',
+            created: item.createdAt || new Date().toISOString(),
+            assignedTo: item.assignedTo
+          }));
+          setQueueItems(queueItems);
+        } else {
+          console.warn('No queue items found in API response');
+          setQueueItems([]);
+        }
+      } else {
+        throw new Error(`Failed to fetch queue data: ${response.status}`);
       }
-    ];
-    setQueueItems(mockQueue);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      // Fallback to empty state rather than fake data
+      setQueueItems([]);
+    }
+  };
+
+  // Helper function to map queue status from API to dashboard format
+  const mapQueueStatus = (apiStatus: string): string => {
+    const statusMap: { [key: string]: string } = {
+      'pending': 'pending',
+      'in-progress': 'processing',
+      'completed': 'completed',
+      'failed': 'failed'
+    };
+    return statusMap[apiStatus] || 'pending';
+  };
+
+  // Helper function to map numerical priority to text
+  const mapPriority = (priority: number): string => {
+    if (priority >= 90) return 'high';
+    if (priority >= 60) return 'medium';
+    return 'low';
   };
 
   const handleLogout = () => {

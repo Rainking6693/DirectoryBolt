@@ -1,0 +1,208 @@
+{
+  "summary": {
+    "totalOptimizations": 2,
+    "totalRecommendations": 2,
+    "buildScore": 70,
+    "overallHealth": "good"
+  },
+  "details": {
+    "optimizations": [
+      {
+        "name": "Dependency Analysis",
+        "startTime": 29.3956,
+        "results": {
+          "totalDependencies": 75,
+          "heavyPackages": [
+            "puppeteer",
+            "playwright",
+            "@sparticuz/chromium",
+            "typescript",
+            "eslint"
+          ],
+          "duplicates": [],
+          "outdated": []
+        },
+        "duration": 0.025399999999997647
+      },
+      {
+        "name": "Next.js Config Optimization",
+        "startTime": 29.7463,
+        "applied": [
+          "SWC Minification",
+          "Experimental Features",
+          "CSS Optimization",
+          "Bundle Splitting"
+        ],
+        "duration": 0.13599999999999923
+      }
+    ],
+    "recommendations": [
+      {
+        "category": "Bundle Size",
+        "priority": "high",
+        "recommendation": "Consider using only @sparticuz/chromium in production to reduce bundle size",
+        "potentialSavings": "~50MB"
+      },
+      {
+        "category": "Performance",
+        "priority": "medium",
+        "recommendation": "High memory utilization detected",
+        "implementation": "Consider increasing NODE_OPTIONS=\"--max-old-space-size=4096\""
+      }
+    ],
+    "performance": {
+      "buildDuration": 10.4043,
+      "memoryUsage": {
+        "rss": 47239168,
+        "heapTotal": 6127616,
+        "heapUsed": 5468312,
+        "external": 2530036,
+        "arrayBuffers": 698256
+      },
+      "nodeVersion": "v22.19.0",
+      "platform": "win32",
+      "cpuUsage": {
+        "user": 15000,
+        "system": 31000
+      }
+    },
+    "bundleAnalysis": {
+      "name": "Bundle Analysis",
+      "startTime": 30.0362,
+      "results": {
+        "totalSize": 113076,
+        "files": [
+          {
+            "path": "chunks\\polyfills.js",
+            "size": 112594,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_buildManifest.js",
+            "size": 406,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_ssgManifest.js",
+            "size": 76,
+            "type": "javascript"
+          }
+        ],
+        "chunks": [],
+        "assets": [
+          {
+            "path": "chunks\\polyfills.js",
+            "size": 112594,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_buildManifest.js",
+            "size": 406,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_ssgManifest.js",
+            "size": 76,
+            "type": "javascript"
+          }
+        ],
+        "largestFiles": [
+          {
+            "path": "chunks\\polyfills.js",
+            "size": 112594,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_buildManifest.js",
+            "size": 406,
+            "type": "javascript"
+          },
+          {
+            "path": "development\\_ssgManifest.js",
+            "size": 76,
+            "type": "javascript"
+          }
+        ],
+        "scripts": [
+          "build",
+          "build:fast",
+          "build:minimal",
+          "build:analyze",
+          "build:netlify",
+          "dev",
+          "lint",
+          "start",
+          "analyze",
+          "type-check",
+          "postbuild",
+          "test:ai",
+          "test:puppeteer",
+          "test:phase2",
+          "test:phase2-ux",
+          "test:seo",
+          "security-test",
+          "security-dev",
+          "review",
+          "review:enhanced",
+          "review:all",
+          "review:pre-commit",
+          "test:comprehensive",
+          "test:ai-accuracy",
+          "test:performance",
+          "test:cost-optimization",
+          "test:e2e",
+          "test:e2e-headed",
+          "test:mobile",
+          "test:pricing-tiers",
+          "test:conversion-funnel",
+          "test:user-journey",
+          "test:ci",
+          "test:ai-integration",
+          "test:stripe-integration",
+          "test:e2e-integration",
+          "test:protocol",
+          "test:quick",
+          "test:final",
+          "validate:guides",
+          "prebuild",
+          "debug:env",
+          "debug:env-production",
+          "optimize:build",
+          "optimize:pre-build",
+          "build:optimized"
+        ],
+        "hasAnalyzeScript": true
+      },
+      "duration": 1.8005999999999993
+    },
+    "cacheStats": {
+      "name": "Build Cache Optimization",
+      "startTime": 32.2608,
+      "strategy": "intelligent-fingerprinting",
+      "results": {
+        "manifestCreated": true,
+        "fingerprintedFiles": 5,
+        "cacheDirectory": "C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt\\.build-cache"
+      },
+      "duration": 3.1814999999999998
+    }
+  },
+  "nextSteps": [
+    {
+      "priority": "immediate",
+      "action": "Address high-priority recommendations",
+      "items": [
+        "Consider using only @sparticuz/chromium in production to reduce bundle size"
+      ]
+    },
+    {
+      "priority": "ongoing",
+      "action": "Monitor and maintain",
+      "items": [
+        "Run optimization checks regularly",
+        "Review build metrics trends",
+        "Update dependencies quarterly"
+      ]
+    }
+  ]
+}

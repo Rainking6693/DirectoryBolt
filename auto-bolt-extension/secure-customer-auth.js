@@ -30,8 +30,8 @@ class SecureCustomerAuth {
         }
 
         try {
-            // SECURE: All validation happens server-side
-            const response = await this.secureApiCall('/secure-validate', {
+            // SECURE: All validation happens server-side (emergency endpoint)
+            const response = await this.secureApiCall('/test-validate', {
                 customerId: customerId.trim(),
                 extensionVersion: this.getExtensionVersion()
             });

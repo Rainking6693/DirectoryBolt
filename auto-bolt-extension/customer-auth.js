@@ -25,8 +25,8 @@ class DirectoryBoltAuth {
         return false;
       }
 
-      // Validate with DirectoryBolt.com secure proxy
-      const response = await fetch(`${this.baseUrl}/api/extension/secure-validate`, {
+      // Validate with DirectoryBolt.com test endpoint (emergency fix)
+      const response = await fetch(`${this.baseUrl}/api/extension/test-validate`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

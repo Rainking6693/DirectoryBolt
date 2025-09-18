@@ -1,0 +1,310 @@
+{
+  "auditTimestamp": "2025-09-18T21:50:46.538Z",
+  "summary": {
+    "totalIssuesFound": 12,
+    "criticalIssues": 12,
+    "customersRecommendedForDeletion": 12,
+    "customersCleaned": 12
+  },
+  "issueBreakdown": {
+    "fakeBusinessNames": 9,
+    "invalidEmailUrls": 0,
+    "scrambledData": 0,
+    "testData": 5,
+    "missingIdentity": 9
+  },
+  "detailedIssues": [
+    {
+      "customerId": "DIR-20250918-750417",
+      "customerData": {
+        "businessName": "Test E2E Business",
+        "email": "e2e@test.com",
+        "firstName": "End",
+        "lastName": "ToEnd",
+        "phone": "555-0123"
+      },
+      "issues": [
+        {
+          "type": "TEST_DATA",
+          "severity": "CRITICAL",
+          "description": "Test/fake email detected: e2e@test.com"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-049703",
+      "customerData": {
+        "businessName": "Test Business",
+        "email": "test@testbusiness.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "TEST_DATA",
+          "severity": "CRITICAL",
+          "description": "Test/fake email detected: test@testbusiness.com"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-666337",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "rainking6693@gmail.com",
+        "firstName": "",
+        "lastName": "",
+        "phone": "385-225-1199"
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-035663",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "Test@test.com",
+        "firstName": "",
+        "lastName": "",
+        "phone": "555-555-5555"
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        },
+        {
+          "type": "TEST_DATA",
+          "severity": "CRITICAL",
+          "description": "Test/fake email detected: Test@test.com"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-208696",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-094981",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-473817",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-415572",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "Test@test.com",
+        "firstName": "",
+        "lastName": "",
+        "phone": "555-555-5555"
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        },
+        {
+          "type": "TEST_DATA",
+          "severity": "CRITICAL",
+          "description": "Test/fake email detected: Test@test.com"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-297295",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-880843",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": ""
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250918-774121",
+      "customerData": {
+        "businessName": "Unknown Business",
+        "email": "rainking6693@gmail.com",
+        "firstName": "",
+        "lastName": "",
+        "phone": "385-225-1199"
+      },
+      "issues": [
+        {
+          "type": "FAKE_BUSINESS_NAME",
+          "severity": "HIGH",
+          "description": "Generic \"Unknown Business\" name indicates migration corruption"
+        },
+        {
+          "type": "MISSING_IDENTITY_DATA",
+          "severity": "CRITICAL",
+          "description": "No first name, last name, or valid business name"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    },
+    {
+      "customerId": "DIR-20250917-000002",
+      "customerData": {
+        "businessName": "Sample Business 2",
+        "email": "jane@samplebusiness2.com",
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "phone": null
+      },
+      "issues": [
+        {
+          "type": "TEST_DATA",
+          "severity": "CRITICAL",
+          "description": "Test/fake email detected: jane@samplebusiness2.com"
+        }
+      ],
+      "recommendedAction": "DELETE_IMMEDIATELY"
+    }
+  ],
+  "cleanedCustomers": [
+    "DIR-20250918-750417",
+    "DIR-20250918-049703",
+    "DIR-20250918-666337",
+    "DIR-20250918-035663",
+    "DIR-20250918-208696",
+    "DIR-20250918-094981",
+    "DIR-20250918-473817",
+    "DIR-20250918-415572",
+    "DIR-20250918-297295",
+    "DIR-20250918-880843",
+    "DIR-20250918-774121",
+    "DIR-20250917-000002"
+  ],
+  "recommendations": [
+    "CORA was correct - fake data exists in the database",
+    "Migration from Google Sheets introduced corrupted data",
+    "All \"Unknown Business\" entries should be investigated",
+    "Email validation must be enforced at API level",
+    "Database schema needs constraints to prevent data corruption"
+  ]
+}

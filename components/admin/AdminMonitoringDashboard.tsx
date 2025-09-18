@@ -12,12 +12,14 @@
  * Author: Cora (QA Auditor) + Riley (Frontend Engineer)
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { 
     Activity, Users, Database, AlertTriangle, CheckCircle, 
     XCircle, Clock, Settings, BarChart3, TrendingUp, 
-    Server, Cpu, HardDrive, Network, RefreshCw 
+    Server, Cpu, HardDrive, Network, RefreshCw, Zap 
 } from 'lucide-react'
+import SmartInsightsBanner from './SmartInsightsBanner'
+import StreamingDataVisualization from './StreamingDataVisualization'
 
 interface SystemMetrics {
     cpu: number
@@ -50,6 +52,97 @@ interface SystemAlert {
     message: string
     timestamp: string
     resolved: boolean
+}
+
+// Premium Loading Components
+const MetricCardSkeleton = () => (
+    <div className="bg-white overflow-hidden shadow rounded-lg animate-pulse">
+        <div className="p-5">
+            <div className="flex items-center">
+                <div className="flex-shrink-0">
+                    <div className="h-6 w-6 bg-gray-300 rounded"></div>
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                    <div className="space-y-2">
+                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div className="h-5 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+)
+
+const StreamingMetricCard = ({ 
+    icon: Icon, 
+    title, 
+    value, 
+    color, 
+    threshold 
+}: { 
+    icon: any; 
+    title: string; 
+    value: number; 
+    color: string; 
+    threshold?: { warning: number; critical: number } 
+}) => {
+    const [displayValue, setDisplayValue] = useState(0)
+    const [isStreaming, setIsStreaming] = useState(true)
+
+    useEffect(() => {
+        setIsStreaming(true)
+        const timer = setTimeout(() => {
+            setDisplayValue(value)
+            setIsStreaming(false)
+        }, Math.random() * 500 + 200)
+
+        return () => clearTimeout(timer)
+    }, [value])
+
+    const getStatusColor = (val: number) => {
+        if (threshold) {
+            if (val >= threshold.critical) return 'text-red-600'
+            if (val >= threshold.warning) return 'text-yellow-600'
+        }
+        return color || 'text-green-600'
+    }
+
+    return (
+        <div className="bg-white overflow-hidden shadow rounded-lg relative">
+            {isStreaming && (
+                <div className="absolute top-2 right-2">
+                    <div className="flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-blue-500 animate-pulse" />
+                        <span className="text-xs text-blue-500">Live</span>
+                    </div>
+                </div>
+            )}
+            <div className="p-5">
+                <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                        <Icon className={`h-6 w-6 ${color || 'text-blue-400'}`} />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">{title}</dt>
+                            <dd className={`text-lg font-medium transition-all duration-300 ${getStatusColor(displayValue)}`}>
+                                {isStreaming ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-4 bg-gray-300 rounded animate-pulse"></div>
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
+                                    </div>
+                                ) : (
+                                    typeof value === 'number' && value < 1 ? 
+                                        `${(displayValue * 100).toFixed(1)}%` : 
+                                        `${displayValue.toFixed(0)}${title.includes('Time') ? 'ms' : ''}`
+                                )}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default function AdminMonitoringDashboard() {
@@ -248,83 +341,70 @@ export default function AdminMonitoringDashboard() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {selectedTab === 'overview' && (
                     <div className="space-y-6">
-                        {/* System Health Cards */}
+                        {/* Smart AI Insights Banner */}
+                        <SmartInsightsBanner
+                            systemMetrics={systemMetrics}
+                            directoryStats={directoryStats}
+                            customerStats={customerStats}
+                            className="mb-8"
+                        />
+
+                        {/* System Health Cards with Streaming */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {systemMetrics && (
-                                <>
-                                    <div className="bg-white overflow-hidden shadow rounded-lg">
-                                        <div className="p-5">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0">
-                                                    <Cpu className="h-6 w-6 text-blue-400" />
-                                                </div>
-                                                <div className="ml-5 w-0 flex-1">
-                                                    <dl>
-                                                        <dt className="text-sm font-medium text-gray-500 truncate">CPU Usage</dt>
-                                                        <dd className={`text-lg font-medium ${getStatusColor(systemMetrics.cpu, { warning: 0.7, critical: 0.85 })}`}>
-                                                            {(systemMetrics.cpu * 100).toFixed(1)}%
-                                                        </dd>
-                                                    </dl>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <Suspense fallback={<MetricCardSkeleton />}>
+                                {systemMetrics ? (
+                                    <StreamingMetricCard
+                                        icon={Cpu}
+                                        title="CPU Usage"
+                                        value={systemMetrics.cpu}
+                                        color="text-blue-400"
+                                        threshold={{ warning: 0.7, critical: 0.85 }}
+                                    />
+                                ) : (
+                                    <MetricCardSkeleton />
+                                )}
+                            </Suspense>
 
-                                    <div className="bg-white overflow-hidden shadow rounded-lg">
-                                        <div className="p-5">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0">
-                                                    <HardDrive className="h-6 w-6 text-green-400" />
-                                                </div>
-                                                <div className="ml-5 w-0 flex-1">
-                                                    <dl>
-                                                        <dt className="text-sm font-medium text-gray-500 truncate">Memory Usage</dt>
-                                                        <dd className={`text-lg font-medium ${getStatusColor(systemMetrics.memory, { warning: 0.75, critical: 0.9 })}`}>
-                                                            {(systemMetrics.memory * 100).toFixed(1)}%
-                                                        </dd>
-                                                    </dl>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <Suspense fallback={<MetricCardSkeleton />}>
+                                {systemMetrics ? (
+                                    <StreamingMetricCard
+                                        icon={HardDrive}
+                                        title="Memory Usage"
+                                        value={systemMetrics.memory}
+                                        color="text-green-400"
+                                        threshold={{ warning: 0.75, critical: 0.9 }}
+                                    />
+                                ) : (
+                                    <MetricCardSkeleton />
+                                )}
+                            </Suspense>
 
-                                    <div className="bg-white overflow-hidden shadow rounded-lg">
-                                        <div className="p-5">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0">
-                                                    <Network className="h-6 w-6 text-purple-400" />
-                                                </div>
-                                                <div className="ml-5 w-0 flex-1">
-                                                    <dl>
-                                                        <dt className="text-sm font-medium text-gray-500 truncate">Active Connections</dt>
-                                                        <dd className="text-lg font-medium text-gray-900">
-                                                            {systemMetrics.activeConnections}
-                                                        </dd>
-                                                    </dl>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <Suspense fallback={<MetricCardSkeleton />}>
+                                {systemMetrics ? (
+                                    <StreamingMetricCard
+                                        icon={Network}
+                                        title="Active Connections"
+                                        value={systemMetrics.activeConnections}
+                                        color="text-purple-400"
+                                    />
+                                ) : (
+                                    <MetricCardSkeleton />
+                                )}
+                            </Suspense>
 
-                                    <div className="bg-white overflow-hidden shadow rounded-lg">
-                                        <div className="p-5">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0">
-                                                    <Clock className="h-6 w-6 text-yellow-400" />
-                                                </div>
-                                                <div className="ml-5 w-0 flex-1">
-                                                    <dl>
-                                                        <dt className="text-sm font-medium text-gray-500 truncate">Avg Response Time</dt>
-                                                        <dd className={`text-lg font-medium ${getStatusColor(systemMetrics.responseTime, { warning: 3000, critical: 5000 })}`}>
-                                                            {systemMetrics.responseTime.toFixed(0)}ms
-                                                        </dd>
-                                                    </dl>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+                            <Suspense fallback={<MetricCardSkeleton />}>
+                                {systemMetrics ? (
+                                    <StreamingMetricCard
+                                        icon={Clock}
+                                        title="Avg Response Time"
+                                        value={systemMetrics.responseTime}
+                                        color="text-yellow-400"
+                                        threshold={{ warning: 3000, critical: 5000 }}
+                                    />
+                                ) : (
+                                    <MetricCardSkeleton />
+                                )}
+                            </Suspense>
                         </div>
 
                         {/* Quick Stats */}
@@ -521,6 +601,13 @@ export default function AdminMonitoringDashboard() {
 
                 {selectedTab === 'performance' && systemMetrics && (
                     <div className="space-y-6">
+                        {/* Streaming Data Visualization */}
+                        <StreamingDataVisualization
+                            endpoint="/api/admin/system/metrics"
+                            refreshInterval={3000}
+                            className="mb-8"
+                        />
+                        
                         <div className="bg-white shadow rounded-lg">
                             <div className="px-4 py-5 sm:p-6">
                                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Performance Metrics</h3>

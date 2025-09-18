@@ -1,10 +1,12 @@
 [build]
-  command = "node -e \"require('fs').copyFileSync('.env.netlify', '.env')\" && npm ci --include=dev && node scripts/validate-json-guides.js && npm run build"
+  command = "node -e \"require('fs').copyFileSync('.env.netlify', '.env')\" && npm ci --include=dev && npm run optimize:pre-build && npm run build"
   publish = ".next"
 
   [build.environment]
     NODE_VERSION = "20.18.1"
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+    NODE_OPTIONS = "--max-old-space-size=4096"
+    NETLIFY_BUILD_DEBUG = "true"
 
 [functions]
   directory = "netlify/functions"

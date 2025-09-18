@@ -18,7 +18,7 @@ interface RegisterRequest {
   email: string
   password: string
   full_name: string
-  company_name?: string
+  business_name?: string  // FIXED: Changed from company_name to business_name
   agree_to_terms: boolean
 }
 
@@ -103,12 +103,12 @@ async function handleRegister(
     throw new ValidationError('Full name must be less than 100 characters', 'full_name', 'TOO_LONG')
   }
   
-  // Company name validation (optional)
-  let companyName: string | undefined = undefined
-  if (data.company_name) {
-    companyName = data.company_name.trim()
-    if (companyName.length > 200) {
-      throw new ValidationError('Company name must be less than 200 characters', 'company_name', 'TOO_LONG')
+  // Business name validation (optional)
+  let businessName: string | undefined = undefined
+  if (data.business_name) {
+    businessName = data.business_name.trim()
+    if (businessName.length > 200) {
+      throw new ValidationError('Business name must be less than 200 characters', 'business_name', 'TOO_LONG')
     }
   }
   
@@ -130,7 +130,7 @@ async function handleRegister(
     email: emailValidation.sanitizedData!,
     password_hash: passwordHash,
     full_name: fullName,
-    company_name: companyName,
+    business_name: businessName,  // FIXED: Changed from company_name to business_name
     subscription_tier: 'free',
     credits_remaining: 10, // Free tier starter credits
     is_verified: false,

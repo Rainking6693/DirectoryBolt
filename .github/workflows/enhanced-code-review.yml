@@ -1,0 +1,283 @@
+name: Enhanced Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+  statuses: write
+
+jobs:
+  enhanced-review:
+    name: Enhanced Code Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm install -g husky
+      
+      - name: Cache Review Tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/enhanced-review
+            node_modules/.cache
+          key: review-tools-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            review-tools-${{ runner.os }}-
+      
+      - name: Run Enhanced Code Review
+        id: code-review
+        run: |
+          echo "🚀 Running Enhanced Code Review System..."
+          node scripts/enhanced-code-review-system.js --all > review-output.txt 2>&1
+          REVIEW_EXIT_CODE=$?
+          
+          # Capture review results
+          if [ -f "code-review-report-*.json" ]; then
+            REPORT_FILE=$(ls code-review-report-*.json | head -1)
+            echo "report-file=$REPORT_FILE" >> $GITHUB_OUTPUT
+            
+            # Extract key metrics
+            OVERALL_SCORE=$(node -p "JSON.parse(require('fs').readFileSync('$REPORT_FILE')).metrics.overallScore")
+            CRITICAL_ISSUES=$(node -p "JSON.parse(require('fs').readFileSync('$REPORT_FILE')).summary.criticalIssues")
+            TOTAL_ISSUES=$(node -p "JSON.parse(require('fs').readFileSync('$REPORT_FILE')).summary.totalIssues")
+            GRADE=$(node -p "JSON.parse(require('fs').readFileSync('$REPORT_FILE')).summary.grade")
+            
+            echo "overall-score=$OVERALL_SCORE" >> $GITHUB_OUTPUT
+            echo "critical-issues=$CRITICAL_ISSUES" >> $GITHUB_OUTPUT
+            echo "total-issues=$TOTAL_ISSUES" >> $GITHUB_OUTPUT
+            echo "grade=$GRADE" >> $GITHUB_OUTPUT
+          fi
+          
+          # Output for debugging
+          cat review-output.txt
+          
+          exit $REVIEW_EXIT_CODE
+        continue-on-error: true
+      
+      - name: Security Scan with CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: +security-and-quality
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+      
+      - name: Run ESLint Security Rules
+        run: |
+          npx eslint --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-results.json . || true
+        continue-on-error: true
+      
+      - name: Upload Review Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-review-results
+          path: |
+            code-review-report-*.json
+            eslint-results.json
+            review-output.txt
+          retention-days: 30
+      
+      - name: Comment PR with Review Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read review results
+            let reviewData = null;
+            const reportFiles = fs.readdirSync('.').filter(f => f.startsWith('code-review-report-'));
+            
+            if (reportFiles.length > 0) {
+              reviewData = JSON.parse(fs.readFileSync(reportFiles[0], 'utf8'));
+            }
+            
+            if (!reviewData) {
+              console.log('No review data found');
+              return;
+            }
+            
+            const { summary, metrics, results, recommendations } = reviewData;
+            
+            // Generate emoji based on grade
+            const gradeEmojis = {
+              'A+': '🏆', 'A': '🥇', 'B': '🥈', 'C': '🥉', 'D': '⚠️', 'F': '❌'
+            };
+            
+            const gradeEmoji = gradeEmojis[summary.grade] || '❓';
+            const statusEmoji = summary.status === 'PASSED' ? '✅' : '❌';
+            
+            // Create comment body
+            const comment = `## ${statusEmoji} Enhanced Code Review Results
+            
+### ${gradeEmoji} Overall Grade: ${summary.grade} (${metrics.overallScore}/100)
+
+#### 📊 Scores
+- 🔒 **Security**: ${Math.round(metrics.securityScore)}/100
+- ⚡ **Performance**: ${Math.round(metrics.performanceScore)}/100  
+- 📊 **Quality**: ${Math.round(metrics.qualityScore)}/100
+
+#### 🔍 Issue Summary
+- **Total Issues**: ${summary.totalIssues}
+- **Critical Issues**: ${summary.criticalIssues}
+- **Security Issues**: ${results.security.length}
+- **Performance Issues**: ${results.performance.length}
+- **Quality Issues**: ${results.quality.length}
+- **Policy Violations**: ${results.policies.length}
+
+${recommendations.length > 0 ? `#### 🤖 Top Recommendations
+${recommendations.slice(0, 3).map((rec, i) => 
+  `${i + 1}. **[${rec.priority.toUpperCase()}]** ${rec.title}\n   ${rec.description}`
+).join('\n\n')}` : ''}
+
+#### 📄 Details
+View the complete report in the workflow artifacts for detailed findings and recommendations.
+
+---
+*Generated by Enhanced Code Review System v1.0*`;
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Set Status Check
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const state = '${{ steps.code-review.outcome }}' === 'success' ? 'success' : 'failure';
+            const criticalIssues = '${{ steps.code-review.outputs.critical-issues }}' || '0';
+            const grade = '${{ steps.code-review.outputs.grade }}' || 'Unknown';
+            
+            const description = state === 'success' 
+              ? `Review passed with grade ${grade}` 
+              : `Review failed - ${criticalIssues} critical issues found`;
+            
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: state,
+              target_url: `${context.payload.repository.html_url}/actions/runs/${context.runId}`,
+              description: description,
+              context: 'Enhanced Code Review'
+            });
+      
+      - name: Fail on Critical Issues
+        if: steps.code-review.outputs.critical-issues > 0
+        run: |
+          echo "❌ Build failed due to ${{ steps.code-review.outputs.critical-issues }} critical issues"
+          exit 1
+
+  dependency-review:
+    name: Dependency Security Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause
+          deny-licenses: GPL-2.0, GPL-3.0
+
+  performance-impact:
+    name: Performance Impact Analysis  
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: Build and Analyze Bundle
+        run: |
+          npm run build:analyze
+          echo "📦 Bundle analysis complete"
+          
+          # Extract bundle sizes
+          if [ -f ".next/analyze/bundle-analyzer-report.json" ]; then
+            echo "Bundle report found"
+          fi
+      
+      - name: Performance Test
+        run: |
+          # Start the app in background
+          npm run build
+          npm start &
+          APP_PID=$!
+          
+          # Wait for app to start
+          sleep 10
+          
+          # Run Lighthouse CI
+          npx lighthouse-ci autorun --config=.lighthouserc.js || true
+          
+          # Clean up
+          kill $APP_PID || true
+        continue-on-error: true
+
+  security-scan:
+    name: Advanced Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'

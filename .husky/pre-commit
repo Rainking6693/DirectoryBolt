@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Enhanced Code Review Pre-commit Hook
+echo "🚀 Running Enhanced Code Review..."
+
+# Run the enhanced code review system on staged files
+node scripts/enhanced-code-review-system.js
+
+# Check if review passed
+REVIEW_STATUS=$?
+if [ $REVIEW_STATUS -ne 0 ]; then
+    echo "❌ Code review failed. Please fix issues before committing."
+    exit 1
+fi
+
+echo "✅ Code review passed!"
