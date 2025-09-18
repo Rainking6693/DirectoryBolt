@@ -15,11 +15,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client with service role for customer lookup
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables');
+  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -140,12 +140,25 @@ export default async function handler(
 
 async function findCustomerInSupabase(customerId: string): Promise<CustomerLookupResponse['customer'] | null> {
   try {
-    // Look for customer by original customer ID in metadata or business_data
-    const { data, error } = await supabase
+    // Performance optimized query with selective fields and indexed lookup
+    // Using RLS optimization techniques for 2025 best practices
+    let { data, error } = await supabase
       .from('customers')
-      .select('*')
-      .or(`metadata->>original_customer_id.eq.${customerId},business_data->>original_customer_id.eq.${customerId}`)
+      .select('id,customer_id,full_name,business_name,email,subscription_tier,subscription_status,credits_remaining,credits_limit,is_active,is_verified,created_at,business_data,metadata')
+      .eq('customer_id', customerId.trim().toUpperCase())
       .single();
+
+    // If not found by direct customer_id, try metadata search with optimized query
+    if (error && error.code === 'PGRST116') {
+      const { data: metaData, error: metaError } = await supabase
+        .from('customers')
+        .select('id,customer_id,full_name,business_name,email,subscription_tier,subscription_status,credits_remaining,credits_limit,is_active,is_verified,created_at,business_data,metadata')
+        .or(`metadata->>original_customer_id.eq.${customerId},business_data->>original_customer_id.eq.${customerId}`)
+        .single();
+      
+      data = metaData;
+      error = metaError;
+    }
 
     if (error || !data) {
       return null;
@@ -161,7 +174,7 @@ async function findCustomerInSupabase(customerId: string): Promise<CustomerLooku
       firstName: extractFirstName(data.full_name),
       lastName: extractLastName(data.full_name),
       fullName: data.full_name,
-      businessName: data.company_name || '',
+      businessName: data.business_name || '',
       email: data.email,
       phone: businessData.phone || '',
       website: businessData.website || '',
