@@ -38,8 +38,18 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const credentials = Buffer.from(authHeader.slice(6), 'base64').toString()
     const [username, password] = credentials.split(':')
     
-    const validUsername = process.env.ADMIN_USERNAME || 'admin'
-    const validPassword = process.env.ADMIN_PASSWORD || 'DirectoryBolt2025!'
+    // SECURITY: Both environment variables MUST be set - no fallbacks
+    const validUsername = process.env.ADMIN_USERNAME
+    const validPassword = process.env.ADMIN_PASSWORD
+    
+    // Reject if environment variables are not properly configured
+    if (!validUsername || !validPassword) {
+      console.error('❌ Admin auth misconfigured - missing environment variables')
+      return res.status(500).json({ 
+        error: 'Server Configuration Error',
+        message: 'Admin authentication is not properly configured'
+      })
+    }
     
     if (username === validUsername && password === validPassword) {
       console.log('✅ Admin authenticated via basic auth')

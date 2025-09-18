@@ -6,6 +6,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createSupabaseService } from '../../../lib/services/supabase'
+import { withRateLimit, rateLimiters } from '../../../lib/middleware/rate-limiter'
 
 interface SecureValidationRequest {
   customerId: string
@@ -19,7 +20,7 @@ interface SecureValidationResponse {
   error?: string
 }
 
-export default async function handler(
+async function validateHandler(
   req: NextApiRequest,
   res: NextApiResponse<SecureValidationResponse>
 ) {
@@ -126,3 +127,6 @@ export default async function handler(
     })
   }
 }
+
+// Export with rate limiting applied
+export default withRateLimit(validateHandler, rateLimiters.extensionValidation);

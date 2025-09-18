@@ -1,0 +1,133 @@
+{
+  "summary": {
+    "timestamp": "2025-09-18T17:56:40.105Z",
+    "target": "https://directorybolt.netlify.app",
+    "totalTests": 17,
+    "passed": 7,
+    "failed": 10,
+    "critical": 3,
+    "warnings": 0,
+    "successRate": "41.2%"
+  },
+  "details": [
+    {
+      "test": "Health Check",
+      "status": "PASS",
+      "message": "General health endpoint responsive",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:37.357Z"
+    },
+    {
+      "test": "Supabase Health",
+      "status": "FAIL",
+      "message": "Supabase health failed: Request failed with status code 500",
+      "level": "critical",
+      "timestamp": "2025-09-18T17:56:37.518Z"
+    },
+    {
+      "test": "System Status",
+      "status": "FAIL",
+      "message": "System status failed: Request failed with status code 503",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:37.850Z"
+    },
+    {
+      "test": "Customer API Auth",
+      "status": "FAIL",
+      "message": "ADMIN_API_KEY not configured",
+      "level": "critical",
+      "timestamp": "2025-09-18T17:56:37.850Z"
+    },
+    {
+      "test": "Extension Invalid Customer",
+      "status": "FAIL",
+      "message": "Should have rejected invalid customer ID",
+      "level": "critical",
+      "timestamp": "2025-09-18T17:56:38.028Z"
+    },
+    {
+      "test": "Extension Non-existent Customer",
+      "status": "FAIL",
+      "message": "Should have rejected non-existent customer",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:38.206Z"
+    },
+    {
+      "test": "Extension CORS",
+      "status": "PASS",
+      "message": "Extension CORS headers configured",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:38.330Z"
+    },
+    {
+      "test": "Unauthenticated Access Block",
+      "status": "PASS",
+      "message": "Correctly blocked unauthenticated access",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:38.468Z"
+    },
+    {
+      "test": "Invalid Token Block",
+      "status": "PASS",
+      "message": "Correctly blocked invalid auth token",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:38.606Z"
+    },
+    {
+      "test": "Method Not Allowed",
+      "status": "FAIL",
+      "message": "Should block unsupported HTTP methods",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:38.738Z"
+    },
+    {
+      "test": "Concurrent Load",
+      "status": "PASS",
+      "message": "Handled 5 concurrent requests in 404ms",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.142Z"
+    },
+    {
+      "test": "/api/health Response Time",
+      "status": "PASS",
+      "message": "Responded in 149ms",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.291Z"
+    },
+    {
+      "test": "/api/health/supabase Response Time",
+      "status": "FAIL",
+      "message": "Failed to respond: Request failed with status code 500",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.450Z"
+    },
+    {
+      "test": "/api/extension/secure-validate Response Time",
+      "status": "FAIL",
+      "message": "Failed to respond: Request failed with status code 500",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.643Z"
+    },
+    {
+      "test": "Malformed JSON Handling",
+      "status": "PASS",
+      "message": "Correctly handled malformed JSON",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.779Z"
+    },
+    {
+      "test": "Missing Fields Validation",
+      "status": "FAIL",
+      "message": "Should validate required fields",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:39.913Z"
+    },
+    {
+      "test": "Email Validation",
+      "status": "FAIL",
+      "message": "Should validate email format",
+      "level": "info",
+      "timestamp": "2025-09-18T17:56:40.104Z"
+    }
+  ]
+}

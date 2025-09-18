@@ -98,7 +98,9 @@
       "Bash(netlify env:set:*)",
       "Bash(netlify deploy:*)",
       "Bash(if exist node_modules rmdir /s /q node_modules)",
-      "Bash(netlify env:list:*)"
+      "Bash(netlify env:list:*)",
+      "Bash(set ADMIN_API_KEY=DirectoryBolt-Admin-2025-SecureKey)",
+      "Bash(set STAFF_API_KEY=DirectoryBolt-Staff-2025-SecureKey)"
     ],
     "deny": [],
     "ask": []

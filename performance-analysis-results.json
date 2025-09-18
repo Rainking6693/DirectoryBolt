@@ -1,0 +1,58 @@
+{
+  "queryPerformance": {
+    "Simple SELECT": {
+      "average": 159,
+      "maximum": 251,
+      "samples": [
+        251,
+        90,
+        136
+      ]
+    },
+    "COUNT operation": {
+      "average": 138,
+      "maximum": 160,
+      "samples": [
+        95,
+        160,
+        159
+      ]
+    },
+    "Filtered query": {
+      "average": 148,
+      "maximum": 199,
+      "samples": [
+        199,
+        138,
+        107
+      ]
+    },
+    "Ordered query": {
+      "average": 110,
+      "maximum": 133,
+      "samples": [
+        92,
+        133,
+        106
+      ]
+    },
+    "Complex aggregation": {
+      "average": 102,
+      "maximum": 106,
+      "samples": [
+        106,
+        99,
+        100
+      ]
+    },
+    "Concurrent (5 queries)": {
+      "total": 286,
+      "perQuery": 57
+    }
+  },
+  "bottlenecks": [],
+  "recommendations": [
+    "Continue monitoring performance metrics",
+    "Consider setting up query performance alerts"
+  ]
+}

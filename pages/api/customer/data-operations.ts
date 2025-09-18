@@ -33,9 +33,36 @@ function authenticateRequest(req: NextApiRequest): boolean {
 }
 
 function applyCors(res: NextApiResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // SECURITY: Restrict CORS to specific allowed origins
+  const allowedOrigins = [
+    'https://directorybolt.com',
+    'https://www.directorybolt.com',
+    'https://directorybolt.netlify.app',
+    'http://localhost:3000', // Development only
+    'http://localhost:3001'  // Development only
+  ];
+  
+  const origin = res.req?.headers.origin;
+  
+  // Only allow specific origins in production
+  if (process.env.NODE_ENV === 'production') {
+    const prodOrigins = allowedOrigins.filter(o => o.startsWith('https://'));
+    if (origin && prodOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      // Don't set CORS header for unauthorized origins
+      return;
+    }
+  } else {
+    // Development: Allow configured origins
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -250,11 +277,70 @@ async function handleUpdateCustomer(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  return res.status(200).json({
-    ok: true,
-    message: 'Customer update functionality coming soon',
-    customerId: customerId.toString()
-  });
+  // Validate email format if provided
+  if (updateData.email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updateData.email)) {
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_EMAIL',
+        message: 'Invalid email format'
+      });
+    }
+  }
+
+  try {
+    const supabaseService = createSupabaseService();
+    
+    // Check if customer exists
+    const existingCustomer = await supabaseService.findByCustomerId(customerId.toString());
+    
+    if (!existingCustomer) {
+      return res.status(404).json({
+        ok: false,
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Customer not found'
+      });
+    }
+
+    // Prepare update object with only allowed fields
+    const allowedFields = ['firstName', 'lastName', 'businessName', 'email', 'phone', 
+                          'website', 'address', 'city', 'state', 'zip', 'packageType', 'status'];
+    
+    const filteredUpdate: any = {};
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        filteredUpdate[field] = updateData[field];
+      }
+    }
+
+    // Perform update
+    const result = await supabaseService.updateCustomer(customerId.toString(), filteredUpdate);
+
+    if (!result || !result.success) {
+      throw new Error(result?.error || 'Update failed');
+    }
+
+    // Get updated customer data
+    const updatedCustomer = await supabaseService.findByCustomerId(customerId.toString());
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Customer updated successfully',
+      customer: {
+        ...updatedCustomer,
+        directoryLimit: getPackageLimit(updatedCustomer.packageType)
+      }
+    });
+
+  } catch (error: unknown) {
+    const err = error as { message?: string };
+    return res.status(500).json({
+      ok: false,
+      code: 'UPDATE_ERROR',
+      message: `Failed to update customer: ${err.message}`
+    });
+  }
 }
 
 async function handleDeleteCustomer(req: NextApiRequest, res: NextApiResponse) {
@@ -268,9 +354,52 @@ async function handleDeleteCustomer(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  return res.status(200).json({
-    ok: true,
-    message: 'Customer deletion functionality coming soon',
-    customerId: customerId.toString()
-  });
+  if (!validateCustomerId(customerId.toString())) {
+    return res.status(400).json({
+      ok: false,
+      code: 'INVALID_CUSTOMER_ID',
+      message: 'Invalid customer ID format'
+    });
+  }
+
+  try {
+    const supabaseService = createSupabaseService();
+    
+    // Check if customer exists
+    const existingCustomer = await supabaseService.findByCustomerId(customerId.toString());
+    
+    if (!existingCustomer) {
+      return res.status(404).json({
+        ok: false,
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Customer not found'
+      });
+    }
+
+    // Perform soft delete by updating status to 'deleted'
+    // This preserves data for audit trails while marking it as deleted
+    const result = await supabaseService.updateCustomer(customerId.toString(), {
+      status: 'deleted',
+      deletedAt: new Date().toISOString()
+    });
+
+    if (!result || !result.success) {
+      throw new Error(result?.error || 'Deletion failed');
+    }
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Customer deleted successfully',
+      customerId: customerId.toString(),
+      deletedAt: new Date().toISOString()
+    });
+
+  } catch (error: unknown) {
+    const err = error as { message?: string };
+    return res.status(500).json({
+      ok: false,
+      code: 'DELETE_ERROR',
+      message: `Failed to delete customer: ${err.message}`
+    });
+  }
 }
