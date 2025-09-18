@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-const { createGoogleSheetsService } = require('../../../lib/services/google-sheets.js')
+const { createSupabaseService } = require('../../../lib/services/supabase.js')
 
 /**
  * CLIVE - Customer Validation API for Extension
@@ -52,16 +52,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.warn('Customer-validate function unreachable, falling back:', fnErr?.message)
     }
 
-    // 2) Fallback path: Attempt direct Google Sheets lookup (may fail if env not available)
+    // 2) Fallback path: Attempt direct Supabase lookup (may fail if env not available)
     try {
-      const googleSheetsService = createGoogleSheetsService()
-      let customer = await googleSheetsService.findByCustomerId(customerId)
+      const supabaseService = createSupabaseService()
+      let customer = await supabaseService.findByCustomerId(customerId)
 
       if (!customer) {
         // Try alternative ID formats
         const alternatives = generateAlternativeIds(customerId)
         for (const alt of alternatives) {
-          customer = await googleSheetsService.findByCustomerId(alt)
+          customer = await supabaseService.findByCustomerId(alt)
           if (customer) break
         }
       }
@@ -70,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({
           success: true,
           customer: {
-            customerId: customer.customerID || customer.customerId,
+            customerId: customer.customerId,
             businessName: customer.businessName || 'Unknown Business',
             email: customer.email || '',
             packageType: customer.packageType || 'starter',
@@ -79,9 +79,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         })
       }
-    } catch (gsErr: any) {
+    } catch (dbErr: any) {
       // Intentional no-throw: proceed to emergency fallback for test IDs
-      console.warn('Direct Google Sheets lookup failed:', gsErr?.message)
+      console.warn('Direct Supabase lookup failed:', dbErr?.message)
     }
 
     // 3) Emergency fallback for known test IDs and safe pattern during incidents

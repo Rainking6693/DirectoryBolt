@@ -1,26 +1,15 @@
-import { google } from 'googleapis';
-import fs from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-// Enhanced Google Sheets service with read/write capabilities
-export async function getSheets() {
-  const saPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json');
-  if (!fs.existsSync(saPath)) {
-    throw new Error('Service account JSON not found at config/directoryboltGoogleKey9.17.json');
+// Supabase client for database operations
+export async function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase configuration. Please check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables.');
   }
-  const raw = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 
-  const auth = new google.auth.JWT({
-    email: raw.client_email,
-    key: raw.private_key,
-    scopes: [
-      'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/drive.readonly'
-    ],
-  });
-
-  await auth.authorize();
-  return google.sheets({ version: 'v4', auth });
+  return createClient(supabaseUrl, supabaseServiceKey);
 }
 
 // Customer ID validation

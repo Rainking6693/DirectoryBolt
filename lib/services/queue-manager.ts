@@ -12,7 +12,7 @@
  * - 3.1.5: Error handling and retry logic
  */
 
-const { createGoogleSheetsService } = require('./google-sheets.js')
+const { createSupabaseService } = require('./supabase.js')
 
 // Temporary types for build compatibility
 interface AutoBoltProcessingResult {
@@ -92,7 +92,7 @@ export interface QueueStats {
 }
 
 export class QueueManager {
-  private googleSheetsService: ReturnType<typeof createGoogleSheetsService> | null = null
+  private supabaseService: ReturnType<typeof createSupabaseService> | null = null
   private isProcessing: boolean = false
   private processingQueue: QueueItem[] = []
   private maxConcurrentProcessing: number = 3
@@ -105,47 +105,31 @@ export class QueueManager {
   }
 
   /**
-   * Get or create Google Sheets service instance (lazy-loaded)
+   * Get or create Supabase service instance (lazy-loaded)
    */
-  private getGoogleSheetsService(): ReturnType<typeof createGoogleSheetsService> {
-    if (!this.googleSheetsService) {
-      this.googleSheetsService = createGoogleSheetsService()
+  private getSupabaseService(): ReturnType<typeof createSupabaseService> {
+    if (!this.supabaseService) {
+      this.supabaseService = createSupabaseService()
     }
-    return this.googleSheetsService
+    return this.supabaseService
   }
 
   /**
-   * 3.1.1: Read "pending" records from Google Sheets
+   * 3.1.1: Read "pending" records from Supabase
    */
   async getPendingQueue(): Promise<QueueItem[]> {
     try {
-      // FIXED: Use JSON credentials file instead of environment variables
-      const fs = require('fs')
-      const path = require('path')
-      const credentialsPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
+      console.log('🔄 Fetching pending submissions from Supabase...')
       
-      if (!fs.existsSync(credentialsPath)) {
-        console.warn('⚠️ Google Sheets credentials file not found, using mock queue data for development')
-        console.log('Debug: Looking for credentials at:', credentialsPath)
-        return this.getMockPendingQueue()
-      }
-
-      if (!process.env.GOOGLE_SHEET_ID) {
-        console.warn('⚠️ GOOGLE_SHEET_ID environment variable not set, using mock queue data for development')
-        return this.getMockPendingQueue()
-      }
-
-      console.log('🔄 Fetching pending submissions from Google Sheets...')
-      
-      // Test Google Sheets connection first
-      const googleSheetsService = this.getGoogleSheetsService()
-      const healthCheck = await googleSheetsService.healthCheck()
+      // Test Supabase connection first
+      const supabaseService = this.getSupabaseService()
+      const healthCheck = await supabaseService.healthCheck()
       
       if (!healthCheck) {
-        throw new Error('Google Sheets health check failed - connection not working')
+        throw new Error('Supabase health check failed - connection not working')
       }
       
-      const pendingRecords = await googleSheetsService.findByStatus('pending')
+      const pendingRecords = await supabaseService.findByStatus('pending')
       
       const queueItems: QueueItem[] = pendingRecords.map(record => {
         const packageType = record.packageType || 'starter'
@@ -173,11 +157,11 @@ export class QueueManager {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       })
 
-      console.log(`✅ Found ${queueItems.length} pending submissions from Google Sheets`)
+      console.log(`✅ Found ${queueItems.length} pending submissions from Supabase`)
       return queueItems
 
     } catch (error) {
-      console.error('❌ Failed to fetch pending queue from Google Sheets, using mock data:', error)
+      console.error('❌ Failed to fetch pending queue from Supabase, using mock data:', error)
       return this.getMockPendingQueue()
     }
   }
@@ -292,7 +276,7 @@ export class QueueManager {
     try {
       console.log(`🔄 Updating status for ${customerId} to ${status}`)
       
-      await this.getGoogleSheetsService().updateSubmissionStatus(
+      await this.getSupabaseService().updateSubmissionStatus(
         customerId,
         status,
         directoriesSubmitted,
@@ -538,21 +522,19 @@ export class QueueManager {
    */
   async getQueueStats(): Promise<QueueStats> {
     try {
-      // FIXED: Use JSON credentials file instead of environment variables
-      const fs = require('fs')
-      const path = require('path')
-      const credentialsPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
+      const supabaseService = this.getSupabaseService()
+      const healthCheck = await supabaseService.healthCheck()
       
-      if (!fs.existsSync(credentialsPath) || !process.env.GOOGLE_SHEET_ID) {
-        console.warn('⚠️ Google Sheets not configured, using mock data for development')
+      if (!healthCheck) {
+        console.warn('⚠️ Supabase not configured, using mock data for development')
         return this.getMockQueueStats()
       }
 
       const [pending, inProgress, completed, failed] = await Promise.all([
-        this.getGoogleSheetsService().findByStatus('pending'),
-        this.getGoogleSheetsService().findByStatus('in-progress'),
-        this.getGoogleSheetsService().findByStatus('completed'),
-        this.getGoogleSheetsService().findByStatus('failed')
+        supabaseService.findByStatus('pending'),
+        supabaseService.findByStatus('in-progress'),
+        supabaseService.findByStatus('completed'),
+        supabaseService.findByStatus('failed')
       ])
 
       return {
@@ -571,7 +553,7 @@ export class QueueManager {
         peakHours: []
       }
     } catch (error) {
-      console.error('❌ Failed to get queue stats, falling back to mock data:', error)
+      console.error('❌ Failed to get queue stats from Supabase, falling back to mock data:', error)
       return this.getMockQueueStats()
     }
   }
@@ -619,7 +601,7 @@ export class QueueManager {
    */
   async processSpecificCustomer(customerId: string): Promise<QueueProcessingResult> {
     try {
-      const record = await this.getGoogleSheetsService().findByCustomerId(customerId)
+      const record = await this.getSupabaseService().findByCustomerId(customerId)
       
       if (!record) {
         throw new Error(`Customer ${customerId} not found`)

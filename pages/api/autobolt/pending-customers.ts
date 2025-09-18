@@ -6,7 +6,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { queueManager } from '../../../lib/services/queue-manager'
+import { supabaseQueueManager } from '../../../lib/services/supabase-queue-manager'
 import { rateLimit } from '../../../lib/utils/rate-limit'
 
 // Rate limiting for pending customers API
@@ -39,7 +39,7 @@ export default async function handler(
   const { limit, offset } = req.query
 
   try {
-    const pendingQueue = await queueManager().getPendingQueue()
+    const pendingQueue = await supabaseQueueManager().getPendingQueue()
     
     // Apply pagination if requested
     const limitNum = limit ? parseInt(limit as string, 10) : undefined

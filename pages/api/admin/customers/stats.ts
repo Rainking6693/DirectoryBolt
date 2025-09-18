@@ -12,15 +12,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Import Google Sheets service
-    const { createGoogleSheetsService } = require('../../../../lib/services/google-sheets.js')
+    // Import Supabase service
+    const { createSupabaseService } = require('../../../../lib/services/supabase.js')
     
     // Initialize the service
-    const googleSheetsService = createGoogleSheetsService()
-    await googleSheetsService.initialize()
+    const supabaseService = createSupabaseService()
+    await supabaseService.initialize()
 
-    // Get all customers from Google Sheets
-    const result = await googleSheetsService.getAllCustomers(1000)
+    // Get all customers from Supabase
+    const result = await supabaseService.getAllCustomers(1000)
     
     if (result.success) {
       const customers = result.customers
@@ -39,15 +39,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       res.status(200).json(stats)
     } else {
-      console.error('Failed to fetch customers from Google Sheets:', result.error)
+      console.error('Failed to fetch customers from Supabase:', result.error)
       
-      // Fallback to mock data if Google Sheets fails
+      // Fallback to mock data if Supabase fails
       const stats = {
         totalCustomers: 0,
         activeMonitoring: 0,
         alertsGenerated: 0,
         complianceRequests: 0,
-        error: 'Google Sheets connection failed'
+        error: 'Supabase connection failed'
       }
 
       res.status(200).json(stats)

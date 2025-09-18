@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSheets } from '../../../lib/googleSheets';
+import { createSupabaseService } from '../../../lib/services/supabase';
 
 interface BusinessInfo {
   firstName: string;
@@ -81,47 +81,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    if (!spreadsheetId) {
-      return res.status(500).json({
-        ok: false,
-        code: 'MISSING_SHEET_ID',
-        message: 'Google Sheets configuration missing'
-      });
-    }
-
     // Generate customer ID
     const customerId = generateCustomerId();
 
-    // Prepare data for Google Sheets
-    const timestamp = new Date().toISOString();
-    const rowData = [
-      customerId,
-      businessInfo.firstName,
-      businessInfo.lastName,
-      businessInfo.businessName,
-      businessInfo.email,
-      businessInfo.phone || '',
-      businessInfo.website || '',
-      businessInfo.address || '',
-      businessInfo.city || '',
-      businessInfo.state || '',
-      businessInfo.zip || '',
-      businessInfo.packageType.toLowerCase(),
-      timestamp,
-      'active'
-    ];
+    // Initialize Supabase service
+    const supabaseService = createSupabaseService();
+    await supabaseService.initialize();
 
-    // Add to Google Sheets
-    const sheets = await getSheets();
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: 'Customers!A:N',
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [rowData]
-      }
-    });
+    // Prepare customer data for Supabase
+    const customerData = {
+      customerId,
+      firstName: businessInfo.firstName,
+      lastName: businessInfo.lastName,
+      businessName: businessInfo.businessName,
+      email: businessInfo.email,
+      phone: businessInfo.phone || '',
+      website: businessInfo.website || '',
+      address: businessInfo.address || '',
+      city: businessInfo.city || '',
+      state: businessInfo.state || '',
+      zip: businessInfo.zip || '',
+      packageType: businessInfo.packageType.toLowerCase(),
+      status: 'active'
+    };
+
+    // Add to Supabase
+    const result = await supabaseService.addCustomer(customerData);
+    
+    if (!result.success) {
+      throw new Error(result.error);
+    }
 
     return res.status(201).json({
       ok: true,

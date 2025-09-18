@@ -42,15 +42,15 @@ async function main() {
     log('🚀 Starting Supabase Migration...', colors.cyan);
     
     // Check environment variables
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase configuration. Please check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local');
     }
 
     // Initialize Supabase client
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     log('✅ Connected to Supabase', colors.green);
 

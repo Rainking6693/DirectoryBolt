@@ -6,7 +6,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { queueManager } from '../../../lib/services/queue-manager'
+import { supabaseQueueManager } from '../../../lib/services/supabase-queue-manager'
 import { rateLimit } from '../../../lib/utils/rate-limit'
 
 // Rate limiting for queue status API
@@ -43,9 +43,9 @@ export default async function handler(
   }
 
   try {
-    const stats = await queueManager().getQueueStats()
-    const isProcessing = queueManager().isQueueProcessing()
-    const nextCustomer = await queueManager().getNextCustomer()
+    const stats = await supabaseQueueManager().getQueueStats()
+    const isProcessing = supabaseQueueManager().isQueueProcessing()
+    const nextCustomer = await supabaseQueueManager().getNextCustomer()
 
     return res.status(200).json({
       success: true,
