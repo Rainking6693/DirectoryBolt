@@ -209,19 +209,24 @@ function generateAlerts(customers: any[]): any[] {
   const now = new Date()
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
 
-  // Check for stuck customers (no activity in the last hour)
+  // Check for stuck customers (no activity in the last 4 hours for active customers)
+  const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000)
   const stuckCustomers = customers.filter(customer => {
-    if (customer.status === 'completed' || customer.status === 'failed') return false
+    // Only check customers that are actively being processed
+    if (customer.status !== 'in-progress' && customer.status !== 'active') return false
+    
+    // Don't flag customers who haven't started processing yet
+    if (customer.directories_submitted === 0) return false
     
     const lastActivity = new Date(customer.updated_at)
-    return lastActivity < oneHourAgo
+    return lastActivity < fourHoursAgo
   })
 
   stuckCustomers.forEach(customer => {
     alerts.push({
       type: 'warning',
       title: 'Stuck Customer',
-      message: `${customer.business_name} has no activity in the last hour`,
+      message: `${customer.business_name} has no activity in the last 4 hours`,
       customer_id: customer.customer_id,
       priority: 'medium'
     })

@@ -184,11 +184,22 @@ export default function AdminMonitoringDashboard() {
 
     const loadDashboardData = async () => {
         try {
+            // Get stored admin auth from localStorage
+            const storedAuth = localStorage.getItem('adminAuth')
+            
+            const headers: HeadersInit = {}
+            if (storedAuth) {
+                headers['Authorization'] = `Bearer ${storedAuth}`
+            } else {
+                // Fallback to API key if no stored auth
+                headers['x-admin-key'] = 'DirectoryBolt-Admin-2025-SecureKey'
+            }
+
             const [metricsResponse, directoriesResponse, customersResponse, alertsResponse] = await Promise.all([
-                fetch('/api/admin/system/metrics'),
-                fetch('/api/admin/directories/stats'),
-                fetch('/api/admin/customers/stats'),
-                fetch('/api/admin/alerts')
+                fetch('/api/admin/system/metrics', { headers }),
+                fetch('/api/admin/directories/stats', { headers }),
+                fetch('/api/admin/customers/stats', { headers }),
+                fetch('/api/admin/alerts', { headers })
             ])
 
             if (metricsResponse.ok) {

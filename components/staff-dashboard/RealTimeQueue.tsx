@@ -240,7 +240,28 @@ export default function RealTimeQueue() {
       {/* Customer Queue */}
       <div className="bg-secondary-800 rounded-xl border border-secondary-700">
         <div className="p-6 border-b border-secondary-700">
-          <h3 className="text-xl font-bold text-white">Customer Processing Queue</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-white">Customer Processing Queue</h3>
+            <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                <span className="text-secondary-300">P1 (Enterprise/Pro)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+                <span className="text-secondary-300">P2 (Professional)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span className="text-secondary-300">P3 (Growth)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-gray-500"></span>
+                <span className="text-secondary-300">P4 (Starter)</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-secondary-400 text-sm mt-2">Click on any customer row to view detailed information</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -271,7 +292,11 @@ export default function RealTimeQueue() {
             </thead>
             <tbody className="divide-y divide-secondary-700">
               {queueData.queue.map((customer) => (
-                <tr key={customer.id} className="hover:bg-secondary-700/50">
+                <tr 
+                  key={customer.id} 
+                  className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
+                  onClick={() => setSelectedCustomer(customer)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-white">{customer.business_name}</div>
