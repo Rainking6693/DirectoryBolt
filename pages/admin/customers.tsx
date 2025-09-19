@@ -45,45 +45,49 @@ export default function AdminCustomers() {
 
   const loadCustomers = async (adminKey: string) => {
     try {
-      // For now, we'll show a placeholder since the Google Sheets integration
-      // would require the actual service account credentials
-      const mockCustomers: Customer[] = [
-        {
-          customerId: 'DIR-20250916-000002',
-          firstName: 'John',
-          lastName: 'Doe',
-          businessName: 'Doe Enterprises',
-          email: 'john@doeenterprises.com',
-          phone: '(555) 123-4567',
-          website: 'https://doeenterprises.com',
-          address: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zip: '10001',
-          packageType: 'professional',
-          status: 'active',
-          created: '2025-01-08T10:00:00Z'
-        },
-        {
-          customerId: 'DIR-20250916-000003',
-          firstName: 'Jane',
-          lastName: 'Smith',
-          businessName: 'Smith Solutions',
-          email: 'jane@smithsolutions.com',
-          phone: '(555) 987-6543',
-          website: 'https://smithsolutions.com',
-          address: '456 Oak Ave',
-          city: 'Los Angeles',
-          state: 'CA',
-          zip: '90210',
-          packageType: 'starter',
-          status: 'active',
-          created: '2025-01-08T11:30:00Z'
+      // Fetch real customer data from Supabase API
+      const response = await fetch('/api/customer/data-operations?limit=100', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${adminKey}`,
+          'Content-Type': 'application/json'
         }
-      ];
-      setCustomers(mockCustomers);
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && data.data.customers) {
+          // Map Supabase customer data to dashboard format
+          const supabaseCustomers: Customer[] = data.data.customers.map((customer: any) => ({
+            customerId: customer.customer_id || customer.customerId,
+            firstName: customer.first_name || customer.firstName || 'Unknown',
+            lastName: customer.last_name || customer.lastName || 'Customer',
+            businessName: customer.business_name || customer.businessName || 'Unknown Business',
+            email: customer.email || 'no-email@example.com',
+            phone: customer.phone || 'No phone provided',
+            website: customer.website || '',
+            address: customer.address || 'No address provided',
+            city: customer.city || 'Unknown',
+            state: customer.state || 'Unknown',
+            zip: customer.zip || customer.postal_code || '00000',
+            packageType: customer.package_type || customer.packageType || 'starter',
+            status: customer.status || 'active',
+            created: customer.created_at || customer.created || new Date().toISOString()
+          }));
+          
+          console.log(`Loaded ${supabaseCustomers.length} customers from Supabase`);
+          setCustomers(supabaseCustomers);
+        } else {
+          console.warn('No customers found in Supabase response');
+          setCustomers([]);
+        }
+      } else {
+        throw new Error(`Failed to fetch customers: ${response.status} ${response.statusText}`);
+      }
     } catch (error) {
-      console.error('Failed to load customers:', error);
+      console.error('Failed to load customers from Supabase:', error);
+      // Don't fall back to mock data - show empty state
+      setCustomers([]);
     }
   };
 

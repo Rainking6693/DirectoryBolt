@@ -31,189 +31,67 @@ interface CustomerDashboardProps {
   className?: string
 }
 
-// Mock data generator for development/demo purposes
-const generateMockData = (userId: string): DashboardData => {
-  const mockDirectories: DirectoryStatus[] = [
-    {
-      id: '1',
-      name: 'Google My Business',
-      status: 'live',
-      submittedAt: '2024-01-15T10:00:00Z',
-      liveAt: '2024-01-18T14:30:00Z',
-      category: 'Search Engine',
-      tier: 'premium',
-      domainAuthority: 95,
-      estimatedTraffic: 50000,
-      listingUrl: 'https://business.google.com/dashboard'
-    },
-    {
-      id: '2',
-      name: 'Yelp Business',
-      status: 'submitted',
-      submittedAt: '2024-01-20T09:15:00Z',
-      category: 'Review Platform',
-      tier: 'premium',
-      domainAuthority: 89,
-      estimatedTraffic: 25000
-    },
-    {
-      id: '3',
-      name: 'Better Business Bureau',
-      status: 'pending',
-      category: 'Trust & Verification',
-      tier: 'premium',
-      domainAuthority: 82,
-      estimatedTraffic: 15000
-    },
-    {
-      id: '4',
-      name: 'Local Chamber of Commerce',
-      status: 'processing',
-      submittedAt: '2024-01-22T11:45:00Z',
-      category: 'Local Business',
-      tier: 'standard',
-      domainAuthority: 65,
-      estimatedTraffic: 5000
-    },
-    {
-      id: '5',
-      name: 'Industry Directory XYZ',
-      status: 'rejected',
-      submittedAt: '2024-01-18T16:20:00Z',
-      rejectedReason: 'Incomplete business verification. Please provide additional documentation.',
-      category: 'Industry Specific',
-      tier: 'standard',
-      domainAuthority: 58,
-      estimatedTraffic: 3000
+// Fetch real dashboard data from API
+const fetchDashboardData = async (userId: string): Promise<DashboardData> => {
+  try {
+    const response = await fetch(`/api/customer/dashboard-data?customerId=${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CUSTOMER_API_KEY || 'customer-api-key'}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch dashboard data: ${response.status}`);
     }
-  ]
 
-  const liveCount = mockDirectories.filter(d => d.status === 'live').length
-  const submittedCount = mockDirectories.filter(d => d.status === 'submitted' || d.status === 'processing').length
-  const pendingCount = mockDirectories.filter(d => d.status === 'pending').length
+    const result = await response.json();
+    
+    if (!result.ok) {
+      throw new Error(result.message || 'Failed to fetch dashboard data');
+    }
 
+    return result.data;
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    // Return fallback data on error
+    return getFallbackData(userId);
+  }
+};
+
+// Fallback data in case API fails
+const getFallbackData = (userId: string): DashboardData => {
   return {
     dashboard: {
-      totalDirectories: mockDirectories.length,
-      submitted: submittedCount,
-      live: liveCount,
-      pending: pendingCount,
+      totalDirectories: 0,
+      submitted: 0,
+      live: 0,
+      pending: 0,
       lastUpdated: new Date().toISOString(),
       userId,
-      businessName: 'Acme Corp'
+      businessName: 'Loading...'
     },
-    directories: mockDirectories,
+    directories: [],
     businessInfo: {
       id: userId,
-      businessName: 'Acme Corp',
-      description: 'A leading provider of innovative business solutions and services.',
-      website: 'https://acme-corp.com',
-      phone: '(555) 123-4567',
-      email: 'info@acme-corp.com',
+      businessName: 'Loading...',
+      description: '',
+      website: '',
+      phone: '',
+      email: '',
       address: {
-        street: '123 Business Ave',
-        city: 'Enterprise City',
-        state: 'CA',
-        zipCode: '90210',
-        country: 'USA'
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: ''
       },
-      categories: ['Technology', 'Business Services', 'Consulting'],
-      socialMedia: {
-        facebook: 'https://facebook.com/acmecorp',
-        twitter: 'https://twitter.com/acmecorp',
-        linkedin: 'https://linkedin.com/company/acmecorp'
-      }
+      categories: [],
+      socialMedia: {}
     },
-    notifications: [
-      {
-        id: '1',
-        type: 'success',
-        title: 'Google My Business Approved',
-        message: 'Your Google My Business listing is now live and receiving traffic.',
-        timestamp: '2024-01-18T14:30:00Z',
-        read: false,
-        actionUrl: '/dashboard/directories/1',
-        actionText: 'View Listing'
-      },
-      {
-        id: '2',
-        type: 'warning',
-        title: 'Verification Required',
-        message: 'Industry Directory XYZ requires additional documentation for approval.',
-        timestamp: '2024-01-19T09:15:00Z',
-        read: false,
-        actionUrl: '/dashboard/actions/verify-business',
-        actionText: 'Complete Verification'
-      },
-      {
-        id: '3',
-        type: 'info',
-        title: 'Processing Update',
-        message: 'Local Chamber of Commerce submission is currently being reviewed.',
-        timestamp: '2024-01-22T11:45:00Z',
-        read: true
-      }
-    ],
-    actions: [
-      {
-        id: '1',
-        title: 'Complete SMS Verification',
-        description: 'Verify your business phone number via SMS code for Industry Directory XYZ.',
-        type: 'verification',
-        priority: 'high',
-        dueDate: '2024-01-25T23:59:59Z',
-        actionUrl: '/dashboard/actions',
-        actionText: 'Verify Now',
-        status: 'pending',
-        directoryName: 'Industry Directory XYZ'
-      },
-      {
-        id: '2',
-        title: 'Upload Business Documents',
-        description: 'Submit required business license and tax documentation for Better Business Bureau verification.',
-        type: 'verification',
-        priority: 'high',
-        dueDate: '2024-01-28T23:59:59Z',
-        actionUrl: '/dashboard/actions',
-        actionText: 'Upload Files',
-        status: 'pending',
-        directoryName: 'Better Business Bureau'
-      },
-      {
-        id: '3',
-        title: 'Verify Business Email',
-        description: 'Check your inbox and click the verification link for Local Chamber of Commerce.',
-        type: 'verification',
-        priority: 'medium',
-        actionUrl: '/dashboard/actions',
-        actionText: 'Verify Email',
-        status: 'pending',
-        directoryName: 'Local Chamber of Commerce'
-      },
-      {
-        id: '4',
-        title: 'Schedule Verification Call',
-        description: 'Book a phone call with Regional Business Network to verify your business details.',
-        type: 'verification',
-        priority: 'medium',
-        actionUrl: '/dashboard/actions',
-        actionText: 'Schedule Call',
-        status: 'pending',
-        directoryName: 'Regional Business Network'
-      },
-      {
-        id: '5',
-        title: 'Review Yelp Submission',
-        description: 'Your Yelp Business listing is pending review. Monitor for approval updates.',
-        type: 'approval',
-        priority: 'medium',
-        actionUrl: '/dashboard/directories/2',
-        actionText: 'View Status',
-        status: 'pending',
-        directoryName: 'Yelp Business'
-      }
-    ]
-  }
+    notifications: [],
+    actions: []
+  };
 }
 
 export function CustomerDashboard({ 
@@ -222,8 +100,8 @@ export function CustomerDashboard({
   onDataUpdate, 
   className = '' 
 }: CustomerDashboardProps) {
-  const [data, setData] = useState<DashboardData>(initialData || generateMockData(userId))
-  const [isLoading, setIsLoading] = useState(false)
+  const [data, setData] = useState<DashboardData>(initialData || getFallbackData(userId))
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [error, setError] = useState<string | null>(null)
   const [activeView, setActiveView] = useState<'overview' | 'directories' | 'profile'>('overview')
   const [showBusinessEditor, setShowBusinessEditor] = useState(false)
@@ -262,22 +140,35 @@ export function CustomerDashboard({
     }
   }, [data.directories])
 
+  // Load dashboard data on mount
+  useEffect(() => {
+    if (!initialData) {
+      loadDashboardData();
+    }
+  }, [userId, initialData]);
+
   // Auto-refresh data every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // In a real app, this would fetch fresh data from API
-      console.log('Auto-refreshing dashboard data...')
-      setData(prev => ({
-        ...prev,
-        dashboard: {
-          ...prev.dashboard,
-          lastUpdated: new Date().toISOString()
-        }
-      }))
-    }, 30000)
+      loadDashboardData();
+    }, 30000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  const loadDashboardData = async () => {
+    try {
+      setError(null);
+      const freshData = await fetchDashboardData(userId);
+      setData(freshData);
+      onDataUpdate?.(freshData);
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+      setError('Failed to load dashboard data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleBusinessInfoSave = async (updatedInfo: BusinessInfo) => {
     setIsLoading(true)
