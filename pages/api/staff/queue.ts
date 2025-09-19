@@ -36,67 +36,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email,
         package_type,
         status,
-        total_directories_allocated,
         directories_submitted,
         failed_directories,
-        priority_level,
         created_at,
         updated_at,
         processing_metadata
       `)
-      .order('priority_level', { ascending: true })
       .order('created_at', { ascending: true })
 
     if (customerError) {
       console.error('❌ Failed to get customers:', customerError)
       return res.status(500).json({
         error: 'Database Error',
-        message: 'Failed to retrieve customer data'
+        message: 'Failed to retrieve customer data',
+        details: customerError.message
       })
     }
 
-    // Get recent queue history
-    const { data: queueHistory, error: queueError } = await supabase
-      .from('queue_history')
-      .select(`
-        id,
-        customer_id,
-        status_from,
-        status_to,
-        directories_processed,
-        directories_failed,
-        processing_time_seconds,
-        error_message,
-        created_at
-      `)
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    if (queueError) {
-      console.error('❌ Failed to get queue history:', queueError)
-    }
-
-    // Get current directory submissions
-    const { data: submissions, error: submissionError } = await supabase
-      .from('directory_submissions')
-      .select(`
-        id,
-        customer_id,
-        directory_name,
-        submission_status,
-        submitted_at,
-        approved_at,
-        created_at
-      `)
-      .order('created_at', { ascending: false })
-      .limit(100)
-
-    if (submissionError) {
-      console.error('❌ Failed to get submissions:', submissionError)
-    }
+    console.log(`✅ Retrieved ${customers?.length || 0} customers`)
 
     // Process queue data
-    const queueData = processQueueData(customers || [], queueHistory || [], submissions || [])
+    const queueData = processQueueData(customers || [])
 
     console.log('✅ Staff queue data retrieved successfully')
 
@@ -110,12 +70,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('❌ Staff queue error:', error)
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to retrieve queue data'
+      message: 'Failed to retrieve queue data',
+      details: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
 
-function processQueueData(customers: any[], queueHistory: any[], submissions: any[]) {
+function processQueueData(customers: any[]) {
   const now = new Date()
   
   // Categorize customers by status
@@ -139,14 +100,13 @@ function processQueueData(customers: any[], queueHistory: any[], submissions: an
 
   // Process customer queue with additional data
   const customerQueue = customers.map(customer => {
-    const customerSubmissions = submissions.filter(s => s.customer_id === customer.customer_id)
-    const recentHistory = queueHistory.filter(h => h.customer_id === customer.customer_id).slice(0, 5)
-    
-    const progressPercentage = customer.total_directories_allocated > 0 
-      ? Math.round((customer.directories_submitted / customer.total_directories_allocated) * 100)
+    // Get directory limits based on package type
+    const directoryLimits = getDirectoryLimits(customer.package_type)
+    const progressPercentage = directoryLimits > 0 
+      ? Math.round((customer.directories_submitted / directoryLimits) * 100)
       : 0
 
-    const estimatedCompletion = calculateEstimatedCompletion(customer, customerSubmissions)
+    const estimatedCompletion = calculateEstimatedCompletion(customer, directoryLimits)
     
     return {
       id: customer.id,
@@ -155,54 +115,64 @@ function processQueueData(customers: any[], queueHistory: any[], submissions: an
       email: customer.email,
       package_type: customer.package_type,
       status: customer.status,
-      priority_level: customer.priority_level,
-      directories_allocated: customer.total_directories_allocated,
+      priority_level: getPriorityLevel(customer.package_type),
+      directories_allocated: directoryLimits,
       directories_submitted: customer.directories_submitted,
       directories_failed: customer.failed_directories,
       progress_percentage: progressPercentage,
       estimated_completion: estimatedCompletion,
       created_at: customer.created_at,
       updated_at: customer.updated_at,
-      recent_activity: recentHistory,
-      current_submissions: customerSubmissions.slice(0, 5)
+      recent_activity: [],
+      current_submissions: []
     }
   })
 
   // Get processing alerts
-  const alerts = generateAlerts(customers, queueHistory, submissions)
-
-  // Get recent activity
-  const recentActivity = queueHistory.slice(0, 20).map(activity => ({
-    id: activity.id,
-    customer_id: activity.customer_id,
-    action: `${activity.status_from} → ${activity.status_to}`,
-    directories_processed: activity.directories_processed,
-    directories_failed: activity.directories_failed,
-    processing_time: activity.processing_time_seconds,
-    error_message: activity.error_message,
-    timestamp: activity.created_at
-  }))
+  const alerts = generateAlerts(customers)
 
   return {
     stats,
     queue: customerQueue,
     alerts,
-    recent_activity: recentActivity,
+    recent_activity: [],
     processing_summary: {
-      total_directories_allocated: customers.reduce((sum, c) => sum + c.total_directories_allocated, 0),
-      total_directories_submitted: customers.reduce((sum, c) => sum + c.directories_submitted, 0),
-      total_directories_failed: customers.reduce((sum, c) => sum + c.failed_directories, 0),
+      total_directories_allocated: customers.reduce((sum, c) => sum + getDirectoryLimits(c.package_type), 0),
+      total_directories_submitted: customers.reduce((sum, c) => sum + (c.directories_submitted || 0), 0),
+      total_directories_failed: customers.reduce((sum, c) => sum + (c.failed_directories || 0), 0),
       overall_completion_rate: calculateOverallCompletionRate(customers)
     }
   }
 }
 
-function calculateEstimatedCompletion(customer: any, submissions: any[]): string | null {
+function getDirectoryLimits(packageType: string): number {
+  const limits: Record<string, number> = {
+    starter: 50,
+    growth: 150,
+    professional: 300,
+    pro: 500,
+    enterprise: 1000
+  }
+  return limits[packageType] || 50
+}
+
+function getPriorityLevel(packageType: string): number {
+  const priorities: Record<string, number> = {
+    starter: 4,
+    growth: 3,
+    professional: 2,
+    pro: 1,
+    enterprise: 1
+  }
+  return priorities[packageType] || 4
+}
+
+function calculateEstimatedCompletion(customer: any, directoryLimits: number): string | null {
   if (customer.status === 'completed') {
     return customer.updated_at
   }
 
-  const remainingDirectories = customer.total_directories_allocated - customer.directories_submitted
+  const remainingDirectories = directoryLimits - customer.directories_submitted
   if (remainingDirectories <= 0) {
     return null
   }
@@ -228,13 +198,13 @@ function getAverageTimePerDirectory(packageType: string): number {
 }
 
 function calculateOverallCompletionRate(customers: any[]): number {
-  const totalAllocated = customers.reduce((sum, c) => sum + c.total_directories_allocated, 0)
-  const totalSubmitted = customers.reduce((sum, c) => sum + c.directories_submitted, 0)
+  const totalAllocated = customers.reduce((sum, c) => sum + getDirectoryLimits(c.package_type), 0)
+  const totalSubmitted = customers.reduce((sum, c) => sum + (c.directories_submitted || 0), 0)
   
   return totalAllocated > 0 ? Math.round((totalSubmitted / totalAllocated) * 10000) / 100 : 0
 }
 
-function generateAlerts(customers: any[], queueHistory: any[], submissions: any[]): any[] {
+function generateAlerts(customers: any[]): any[] {
   const alerts = []
   const now = new Date()
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
@@ -243,14 +213,8 @@ function generateAlerts(customers: any[], queueHistory: any[], submissions: any[
   const stuckCustomers = customers.filter(customer => {
     if (customer.status === 'completed' || customer.status === 'failed') return false
     
-    const lastActivity = queueHistory
-      .filter(h => h.customer_id === customer.customer_id)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
-    
-    if (!lastActivity) return true
-    
-    const lastActivityTime = new Date(lastActivity.created_at)
-    return lastActivityTime < oneHourAgo
+    const lastActivity = new Date(customer.updated_at)
+    return lastActivity < oneHourAgo
   })
 
   stuckCustomers.forEach(customer => {
@@ -265,51 +229,21 @@ function generateAlerts(customers: any[], queueHistory: any[], submissions: any[
 
   // Check for high failure rates
   const highFailureCustomers = customers.filter(customer => {
-    const failureRate = customer.total_directories_allocated > 0 
-      ? (customer.failed_directories / customer.total_directories_allocated) * 100
+    const directoryLimits = getDirectoryLimits(customer.package_type)
+    const failureRate = directoryLimits > 0 
+      ? (customer.failed_directories / directoryLimits) * 100
       : 0
     
     return failureRate > 20 // More than 20% failure rate
   })
 
   highFailureCustomers.forEach(customer => {
-    const failureRate = Math.round((customer.failed_directories / customer.total_directories_allocated) * 100)
+    const directoryLimits = getDirectoryLimits(customer.package_type)
+    const failureRate = Math.round((customer.failed_directories / directoryLimits) * 100)
     alerts.push({
       type: 'error',
       title: 'High Failure Rate',
       message: `${customer.business_name} has ${failureRate}% failure rate`,
-      customer_id: customer.customer_id,
-      priority: 'high'
-    })
-  })
-
-  // Check for overdue customers
-  const overdueCustomers = customers.filter(customer => {
-    if (customer.status === 'completed') return false
-    
-    const createdDate = new Date(customer.created_at)
-    const daysSinceCreated = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24)
-    
-    // Different thresholds based on package type
-    const thresholds: Record<string, number> = {
-      starter: 3,      // 3 days
-      growth: 2,       // 2 days
-      professional: 1, // 1 day
-      pro: 0.5,        // 12 hours
-      enterprise: 0.25 // 6 hours
-    }
-    
-    return daysSinceCreated > (thresholds[customer.package_type] || 2)
-  })
-
-  overdueCustomers.forEach(customer => {
-    const createdDate = new Date(customer.created_at)
-    const daysSinceCreated = Math.round((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24))
-    
-    alerts.push({
-      type: 'error',
-      title: 'Overdue Customer',
-      message: `${customer.business_name} is ${daysSinceCreated} days overdue`,
       customer_id: customer.customer_id,
       priority: 'high'
     })

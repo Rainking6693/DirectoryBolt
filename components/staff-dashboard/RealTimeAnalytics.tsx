@@ -71,7 +71,20 @@ export default function RealTimeAnalytics() {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('/api/staff/analytics')
+      // Get stored staff auth from localStorage
+      const storedAuth = localStorage.getItem('staffAuth')
+      
+      const headers: HeadersInit = {}
+      if (storedAuth) {
+        headers['Authorization'] = `Bearer ${storedAuth}`
+      } else {
+        // Fallback to API key if no stored auth
+        headers['x-staff-key'] = 'DirectoryBolt-Staff-2025-SecureKey'
+      }
+
+      const response = await fetch('/api/staff/analytics', {
+        headers
+      })
       if (!response.ok) {
         throw new Error('Failed to fetch analytics')
       }
