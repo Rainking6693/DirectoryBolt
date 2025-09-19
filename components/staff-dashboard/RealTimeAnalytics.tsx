@@ -74,12 +74,12 @@ export default function RealTimeAnalytics() {
       // Get stored staff auth from localStorage
       const storedAuth = localStorage.getItem('staffAuth')
       
-      const headers: HeadersInit = {}
-      if (storedAuth) {
-        headers['Authorization'] = `Bearer ${storedAuth}`
-      } else {
-        // Fallback to API key if no stored auth
-        headers['x-staff-key'] = 'DirectoryBolt-Staff-2025-SecureKey'
+      if (!storedAuth) {
+        throw new Error('Staff authentication required')
+      }
+      
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${storedAuth}`
       }
 
       const response = await fetch('/api/staff/analytics', {

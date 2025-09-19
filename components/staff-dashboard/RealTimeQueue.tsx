@@ -84,12 +84,12 @@ export default function RealTimeQueue() {
       // Get stored staff auth from localStorage
       const storedAuth = localStorage.getItem('staffAuth')
       
-      const headers: HeadersInit = {}
-      if (storedAuth) {
-        headers['Authorization'] = `Bearer ${storedAuth}`
-      } else {
-        // Fallback to API key if no stored auth
-        headers['x-staff-key'] = 'DirectoryBolt-Staff-2025-SecureKey'
+      if (!storedAuth) {
+        throw new Error('Staff authentication required')
+      }
+      
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${storedAuth}`
       }
 
       const response = await fetch('/api/staff/queue', {
@@ -112,6 +112,43 @@ export default function RealTimeQueue() {
       console.error('Queue fetch error:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const pushToAutoBolt = async (customerId: string) => {
+    try {
+      const storedAuth = localStorage.getItem('staffAuth')
+      
+      if (!storedAuth) {
+        throw new Error('Staff authentication required')
+      }
+      
+      const response = await fetch('/api/staff/push-to-autobolt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storedAuth}`
+        },
+        body: JSON.stringify({ customer_id: customerId })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to push to AutoBolt')
+      }
+
+      const result = await response.json()
+      console.log('✅ Customer pushed to AutoBolt:', result)
+      
+      // Refresh queue data to show updated status
+      await fetchQueueData()
+      
+      // Show success message (you could add a toast notification here)
+      alert(`Customer ${customerId} successfully pushed to AutoBolt processing queue!`)
+      
+    } catch (err) {
+      console.error('Push to AutoBolt error:', err)
+      alert(`Failed to push customer to AutoBolt: ${err instanceof Error ? err.message : 'Unknown error'}`)
     }
   }
 
@@ -339,12 +376,22 @@ export default function RealTimeQueue() {
                     }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => setSelectedCustomer(customer)}
-                      className="text-volt-400 hover:text-volt-300"
-                    >
-                      View Details
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => setSelectedCustomer(customer)}
+                        className="text-volt-400 hover:text-volt-300"
+                      >
+                        View Details
+                      </button>
+                      {customer.status === 'active' && customer.directories_submitted === 0 && (
+                        <button
+                          onClick={() => pushToAutoBolt(customer.customer_id)}
+                          className="text-green-400 hover:text-green-300"
+                        >
+                          Push to AutoBolt
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

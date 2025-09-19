@@ -187,12 +187,12 @@ export default function AdminMonitoringDashboard() {
             // Get stored admin auth from localStorage
             const storedAuth = localStorage.getItem('adminAuth')
             
-            const headers: HeadersInit = {}
-            if (storedAuth) {
-                headers['Authorization'] = `Bearer ${storedAuth}`
-            } else {
-                // Fallback to API key if no stored auth
-                headers['x-admin-key'] = 'DirectoryBolt-Admin-2025-SecureKey'
+            if (!storedAuth) {
+                throw new Error('Admin authentication required')
+            }
+            
+            const headers: HeadersInit = {
+                'Authorization': `Bearer ${storedAuth}`
             }
 
             const [metricsResponse, directoriesResponse, customersResponse, alertsResponse] = await Promise.all([
