@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../components/layout/Layout'
 import RealTimeQueue from '../components/staff-dashboard/RealTimeQueue'
 import RealTimeAnalytics from '../components/staff-dashboard/RealTimeAnalytics'
+import AutoBoltQueueMonitor from '../components/staff-dashboard/AutoBoltQueueMonitor'
 import { useRouter } from 'next/router'
 
 export default function StaffDashboard() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'queue' | 'analytics'>('queue')
+  const [activeTab, setActiveTab] = useState<'queue' | 'analytics' | 'autobolt'>('queue')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
 
@@ -107,12 +108,13 @@ export default function StaffDashboard() {
                 </div>
               </div>
 
-              {/* Navigation Tabs */}
-              <nav className="flex space-x-2 sm:space-x-8 -mb-px overflow-x-auto">
-                {[
-                  { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue', icon: '📋' },
-                  { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics', icon: '📈' }
-                ].map((tab) => (
+                  {/* Navigation Tabs */}
+                  <nav className="flex space-x-2 sm:space-x-8 -mb-px overflow-x-auto">
+                    {[
+                      { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue', icon: '📋' },
+                      { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics', icon: '📈' },
+                      { key: 'autobolt', label: 'AutoBolt', fullLabel: 'AutoBolt Monitor', icon: '🤖' }
+                    ].map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key as any)}
@@ -132,11 +134,12 @@ export default function StaffDashboard() {
           </div>
         </header>
 
-        {/* Dashboard Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {activeTab === 'queue' && <RealTimeQueue />}
-          {activeTab === 'analytics' && <RealTimeAnalytics />}
-        </main>
+            {/* Dashboard Content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              {activeTab === 'queue' && <RealTimeQueue />}
+              {activeTab === 'analytics' && <RealTimeAnalytics />}
+              {activeTab === 'autobolt' && <AutoBoltQueueMonitor />}
+            </main>
       </div>
     </Layout>
   )

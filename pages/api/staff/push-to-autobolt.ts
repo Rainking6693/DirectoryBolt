@@ -86,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       created_by: 'staff_dashboard'
     }
 
-    // Insert into processing queue (we'll create this table)
+    // Insert into processing queue
     const { data: queueRecord, error: queueError } = await supabase
       .from('autobolt_processing_queue')
       .insert([processingData])
@@ -95,25 +95,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (queueError) {
       console.error('❌ Failed to add to processing queue:', queueError)
-      // If table doesn't exist, create a simple processing record
-      console.log('📝 Creating processing record in customers table instead')
-      
-      // Update customer status to in-progress
-      const { error: updateError } = await supabase
-        .from('customers')
-        .update({ 
-          status: 'in-progress',
-          updated_at: new Date().toISOString()
-        })
-        .eq('customer_id', customer_id)
+      return res.status(500).json({
+        error: 'Database Error',
+        message: 'Failed to add customer to AutoBolt processing queue',
+        details: queueError.message
+      })
+    }
 
-      if (updateError) {
-        console.error('❌ Failed to update customer status:', updateError)
-        return res.status(500).json({
-          error: 'Database Error',
-          message: 'Failed to update customer status'
-        })
-      }
+    // Update customer status to in-progress
+    const { error: updateError } = await supabase
+      .from('customers')
+      .update({ 
+        status: 'in-progress',
+        updated_at: new Date().toISOString()
+      })
+      .eq('customer_id', customer_id)
+
+    if (updateError) {
+      console.error('❌ Failed to update customer status:', updateError)
+      // Don't fail the request, just log the error
     }
 
     // Log the action
