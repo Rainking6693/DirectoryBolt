@@ -50,8 +50,6 @@ export default function StaffDashboard() {
     checkStaffAuth()
   }, [router])
 
-  // Auto-refresh is handled by individual components
-
   // SECURITY: Show authentication loading or access denied
   if (isAuthLoading) {
     return (
@@ -131,15 +129,15 @@ export default function StaffDashboard() {
                 ))}
               </nav>
             </div>
-          </header>
+          </div>
+        </header>
 
-          {/* Dashboard Content */}
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {activeTab === 'queue' && <RealTimeQueue />}
-            {activeTab === 'analytics' && <RealTimeAnalytics />}
-          </main>
-        </div>
-      </Layout>
-    )
-  }
+        {/* Dashboard Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'queue' && <RealTimeQueue />}
+          {activeTab === 'analytics' && <RealTimeAnalytics />}
+        </main>
+      </div>
+    </Layout>
+  )
 }
