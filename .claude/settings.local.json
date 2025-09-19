@@ -103,7 +103,9 @@
       "Bash(set STAFF_API_KEY=DirectoryBolt-Staff-2025-SecureKey)",
       "Bash(npx dotenv-cli:*)",
       "Bash(del:*)",
-      "Bash(time curl:*)"
+      "Bash(time curl:*)",
+      "WebFetch(domain:uxpilot.ai)",
+      "Bash(npx @biomejs/biome check:*)"
     ],
     "deny": [],
     "ask": []
