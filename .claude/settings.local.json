@@ -105,7 +105,8 @@
       "Bash(del:*)",
       "Bash(time curl:*)",
       "WebFetch(domain:uxpilot.ai)",
-      "Bash(npx @biomejs/biome check:*)"
+      "Bash(npx @biomejs/biome check:*)",
+      "Bash(Ctrl+C)"
     ],
     "deny": [],
     "ask": []

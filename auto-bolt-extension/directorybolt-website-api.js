@@ -5,15 +5,117 @@
 
 class DirectoryBoltWebsiteAPI {
     constructor() {
-        this.baseUrl = 'https://directorybolt.com/api/extension';
+        this.baseUrl = 'https://directorybolt.com/api';
         this.endpoints = {
-            validate: '/secure-validate',
-            startProcessing: '/start-processing',
-            getProgress: '/get-progress',
-            stopProcessing: '/stop-processing',
-            getDirectories: '/get-directories',
-            trackEvent: '/track-event'
+            customerData: '/autobolt/customer-data',
+            updateSubmission: '/autobolt/update-submission',
+            processingQueue: '/autobolt/processing-queue',
+            validate: '/extension/secure-validate',
+            startProcessing: '/extension/start-processing',
+            getProgress: '/extension/get-progress',
+            stopProcessing: '/extension/stop-processing',
+            getDirectories: '/extension/get-directories',
+            trackEvent: '/extension/track-event'
         };
+    }
+
+    /**
+     * GET CUSTOMER DATA FROM SUPABASE
+     */
+    async getCustomerData(customerId) {
+        try {
+            console.log('🔍 Getting customer data from Supabase...');
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.customerData}?customer_id=${encodeURIComponent(customerId)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get customer data: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Customer data retrieved successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to get customer data:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * UPDATE DIRECTORY SUBMISSION STATUS
+     */
+    async updateSubmissionStatus(submissionId, status, metadata = {}) {
+        try {
+            console.log(`🔄 Updating submission ${submissionId} to ${status}...`);
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.updateSubmission}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                },
+                body: JSON.stringify({
+                    submission_id: submissionId,
+                    status: status,
+                    metadata: {
+                        ...metadata,
+                        extension_version: '3.0.1',
+                        timestamp: new Date().toISOString()
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update submission: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Submission status updated successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to update submission status:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * GET PROCESSING QUEUE
+     */
+    async getProcessingQueue() {
+        try {
+            console.log('📋 Getting processing queue...');
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.processingQueue}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get processing queue: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Processing queue retrieved successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to get processing queue:', error.message);
+            throw error;
+        }
     }
 
     /**

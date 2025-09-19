@@ -26,3 +26,5 @@ For DirectoryBolt specifically:
 
 tools = ["filesystem", "git", "shell"]
 execution_strategy = "act"
+
+
