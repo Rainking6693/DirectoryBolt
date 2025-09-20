@@ -12,39 +12,59 @@ export default function AdminDashboardPage() {
     // Simple admin authentication check
     const checkAdminAuth = async () => {
       try {
+        // Check for admin session cookie first
+        const adminSession = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('admin-session='))
+          ?.split('=')[1]
+
         // Get stored auth from localStorage
         const storedAuth = localStorage.getItem('adminAuth')
         const authMethod = localStorage.getItem('adminAuthMethod')
         
-        if (!storedAuth) {
+        // If no authentication found, redirect to login
+        if (!adminSession && !storedAuth) {
+          console.log('No admin authentication found, redirecting to login')
           router.push('/admin-login')
           return
         }
 
         // Check if user has admin access
         let headers: any = {}
-        if (authMethod === 'bearer') {
-          headers['Authorization'] = `Bearer ${storedAuth}`
-        } else {
-          headers['Authorization'] = `Basic ${storedAuth}`
+        if (storedAuth) {
+          if (authMethod === 'bearer') {
+            headers['Authorization'] = `Bearer ${storedAuth}`
+          } else {
+            headers['Authorization'] = `Basic ${storedAuth}`
+          }
+        }
+        if (adminSession) {
+          headers['Cookie'] = `admin-session=${adminSession}`
         }
         
         const response = await fetch('/api/admin/auth-check', {
           method: 'GET',
-          headers
+          headers,
+          credentials: 'include'
         })
 
         if (response.ok) {
+          const authData = await response.json()
+          console.log('✅ Admin authenticated:', authData.user?.username)
           setIsAuthenticated(true)
         } else {
+          console.warn('❌ Admin authentication failed')
           // Clear invalid auth and redirect to login
           localStorage.removeItem('adminAuth')
           localStorage.removeItem('adminAuthMethod')
+          document.cookie = 'admin-session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
           router.push('/admin-login')
         }
       } catch (error) {
-        console.error('Admin auth check failed:', error)
-        // Always require proper authentication - NO BYPASSES
+        console.error('❌ Admin auth check failed:', error)
+        localStorage.removeItem('adminAuth')
+        localStorage.removeItem('adminAuthMethod')
+        document.cookie = 'admin-session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
         router.push('/admin-login')
       } finally {
         setIsLoading(false)

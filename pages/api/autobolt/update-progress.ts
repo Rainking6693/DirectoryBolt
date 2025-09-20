@@ -46,10 +46,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Create or update directory submission record
+    // Create or update AutoBolt submission record
     const submissionData = {
-      customer_id: customer_id,
-      queue_id: queue_id,
+      customer_id: customer_id, // Use string customer_id directly
       directory_name: directory_name,
       directory_url: directory_url || null,
       submission_status: submission_status,
@@ -62,14 +61,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       updated_at: new Date().toISOString()
     }
 
-    const { data: submission, error: submissionError } = await supabase
-      .from('directory_submissions')
-      .upsert(submissionData, { 
-        onConflict: 'customer_id,directory_name',
-        ignoreDuplicates: false 
-      })
-      .select()
+    // First, try to find existing submission
+    const { data: existingSubmission, error: findError } = await supabase
+      .from('autobolt_submissions')
+      .select('id')
+      .eq('customer_id', customer_id)
+      .eq('directory_name', directory_name)
       .single()
+
+    let submission, submissionError
+
+    if (existingSubmission) {
+      // Update existing submission
+      const { data: updatedSubmission, error: updateError } = await supabase
+        .from('autobolt_submissions')
+        .update(submissionData)
+        .eq('id', existingSubmission.id)
+        .select()
+        .single()
+      
+      submission = updatedSubmission
+      submissionError = updateError
+    } else {
+      // Insert new submission
+      const { data: newSubmission, error: insertError } = await supabase
+        .from('autobolt_submissions')
+        .insert(submissionData)
+        .select()
+        .single()
+      
+      submission = newSubmission
+      submissionError = insertError
+    }
 
     if (submissionError) {
       console.error('❌ Failed to update directory submission:', submissionError)
@@ -112,13 +135,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-async function updateCustomerProgress(customerId: string) {
+async function updateCustomerProgress(customerIdString: string) {
   try {
     // Get submission counts for this customer
     const { data: submissions, error: submissionsError } = await supabase
-      .from('directory_submissions')
+      .from('autobolt_submissions')
       .select('submission_status')
-      .eq('customer_id', customerId)
+      .eq('customer_id', customerIdString)
 
     if (submissionsError) {
       console.error('❌ Failed to get submission counts:', submissionsError)
@@ -136,7 +159,7 @@ async function updateCustomerProgress(customerId: string) {
         failed_directories: failedCount,
         updated_at: new Date().toISOString()
       })
-      .eq('customer_id', customerId)
+      .eq('customer_id', customerIdString)
 
     if (updateError) {
       console.error('❌ Failed to update customer progress:', updateError)
@@ -146,13 +169,13 @@ async function updateCustomerProgress(customerId: string) {
   }
 }
 
-async function updateProcessingHistory(queueId: string, customerId: string) {
+async function updateProcessingHistory(queueId: string, customerIdString: string) {
   try {
     // Get current submission counts
     const { data: submissions, error: submissionsError } = await supabase
-      .from('directory_submissions')
+      .from('autobolt_submissions')
       .select('submission_status')
-      .eq('customer_id', customerId)
+      .eq('customer_id', customerIdString)
 
     if (submissionsError) {
       console.error('❌ Failed to get submissions for history:', submissionsError)
@@ -204,13 +227,13 @@ async function updateProcessingHistory(queueId: string, customerId: string) {
   }
 }
 
-async function updateExtensionStatus(extensionId: string, customerId: string, queueId: string) {
+async function updateExtensionStatus(extensionId: string, customerIdString: string, queueId: string) {
   try {
     // Get current submission counts
     const { data: submissions, error: submissionsError } = await supabase
-      .from('directory_submissions')
+      .from('autobolt_submissions')
       .select('submission_status')
-      .eq('customer_id', customerId)
+      .eq('customer_id', customerIdString)
 
     if (submissionsError) {
       console.error('❌ Failed to get submissions for extension status:', submissionsError)

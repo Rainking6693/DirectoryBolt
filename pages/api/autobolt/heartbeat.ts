@@ -44,19 +44,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Update extension status
-    const { error: updateError } = await supabase
+    const updateData = {
+      extension_id: extension_id,
+      status: status || 'online',
+      last_heartbeat: new Date().toISOString(),
+      current_customer_id: current_customer_id || null,
+      current_queue_id: current_queue_id || null,
+      directories_processed: directories_processed || 0,
+      directories_failed: directories_failed || 0,
+      error_message: error_message || null,
+      updated_at: new Date().toISOString()
+    }
+
+    // First, try to find existing extension status
+    const { data: existingStatuses, error: findError } = await supabase
       .from('autobolt_extension_status')
-      .upsert({
-        extension_id: extension_id,
-        status: status || 'online',
-        last_heartbeat: new Date().toISOString(),
-        current_customer_id: current_customer_id || null,
-        current_queue_id: current_queue_id || null,
-        directories_processed: directories_processed || 0,
-        directories_failed: directories_failed || 0,
-        error_message: error_message || null,
-        updated_at: new Date().toISOString()
-      })
+      .select('id')
+      .eq('extension_id', extension_id)
+      .limit(1)
+
+    const existingStatus = existingStatuses && existingStatuses.length > 0 ? existingStatuses[0] : null
+
+    let updateError
+
+    if (existingStatus) {
+      // Update existing status
+      const { error } = await supabase
+        .from('autobolt_extension_status')
+        .update(updateData)
+        .eq('id', existingStatus.id)
+      
+      updateError = error
+    } else {
+      // Insert new status
+      const { error } = await supabase
+        .from('autobolt_extension_status')
+        .insert(updateData)
+      
+      updateError = error
+    }
 
     if (updateError) {
       console.error('❌ Failed to update extension heartbeat:', updateError)

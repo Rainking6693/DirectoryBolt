@@ -7,6 +7,9 @@ class DirectoryBoltWebsiteAPI {
     constructor() {
         this.baseUrl = 'https://directorybolt.com/api';
         this.endpoints = {
+            getNextCustomer: '/autobolt/get-next-customer',
+            updateProgress: '/autobolt/update-progress',
+            heartbeat: '/autobolt/heartbeat',
             customerData: '/autobolt/customer-data',
             updateSubmission: '/autobolt/update-submission',
             processingQueue: '/autobolt/processing-queue',
@@ -17,6 +20,108 @@ class DirectoryBoltWebsiteAPI {
             getDirectories: '/extension/get-directories',
             trackEvent: '/extension/track-event'
         };
+    }
+
+    /**
+     * GET NEXT CUSTOMER FROM PROCESSING QUEUE
+     */
+    async getNextCustomer() {
+        try {
+            console.log('🔍 Getting next customer from processing queue...');
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.getNextCustomer}?extension_id=${this.getExtensionId()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get next customer: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Next customer retrieved successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to get next customer:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * UPDATE DIRECTORY SUBMISSION PROGRESS
+     */
+    async updateProgress(data) {
+        try {
+            console.log('📊 Updating directory submission progress...');
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.updateProgress}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                },
+                body: JSON.stringify({
+                    extension_id: this.getExtensionId(),
+                    ...data
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update progress: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Progress updated successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to update progress:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * SEND HEARTBEAT TO SERVER
+     */
+    async sendHeartbeat(status = 'online', currentCustomerId = null, currentQueueId = null) {
+        try {
+            console.log('💓 Sending heartbeat to server...');
+            
+            const response = await fetch(`${this.baseUrl}${this.endpoints.heartbeat}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Extension-ID': this.getExtensionId(),
+                    'User-Agent': 'DirectoryBolt-Extension/3.0.1'
+                },
+                body: JSON.stringify({
+                    extension_id: this.getExtensionId(),
+                    status: status,
+                    current_customer_id: currentCustomerId,
+                    current_queue_id: currentQueueId,
+                    directories_processed: this.getDirectoriesProcessed(),
+                    directories_failed: this.getDirectoriesFailed()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to send heartbeat: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('✅ Heartbeat sent successfully');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Failed to send heartbeat:', error.message);
+            throw error;
+        }
     }
 
     /**
@@ -489,6 +594,38 @@ class FunctionalityValidator {
         } catch {
             return 'unknown';
         }
+    }
+
+    /**
+     * GET DIRECTORIES PROCESSED COUNT
+     */
+    getDirectoriesProcessed() {
+        // This would be tracked by the extension
+        return parseInt(localStorage.getItem('directoriesProcessed') || '0');
+    }
+
+    /**
+     * GET DIRECTORIES FAILED COUNT
+     */
+    getDirectoriesFailed() {
+        // This would be tracked by the extension
+        return parseInt(localStorage.getItem('directoriesFailed') || '0');
+    }
+
+    /**
+     * INCREMENT DIRECTORIES PROCESSED
+     */
+    incrementDirectoriesProcessed() {
+        const current = this.getDirectoriesProcessed();
+        localStorage.setItem('directoriesProcessed', (current + 1).toString());
+    }
+
+    /**
+     * INCREMENT DIRECTORIES FAILED
+     */
+    incrementDirectoriesFailed() {
+        const current = this.getDirectoriesFailed();
+        localStorage.setItem('directoriesFailed', (current + 1).toString());
     }
 
     validateErrorHandling() {

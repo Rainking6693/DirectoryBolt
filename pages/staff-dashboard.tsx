@@ -15,33 +15,53 @@ export default function StaffDashboard() {
   useEffect(() => {
     const checkStaffAuth = async () => {
       try {
-        // Get stored auth from localStorage
+        // Check for staff session cookie first
+        const staffSession = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('staff-session='))
+          ?.split('=')[1]
+
+        // Check for stored auth from localStorage
         const storedAuth = localStorage.getItem('staffAuth')
         
-        if (!storedAuth) {
+        // If no authentication found, redirect to login
+        if (!staffSession && !storedAuth) {
+          console.log('No staff authentication found, redirecting to login')
           router.push('/staff-login')
           setIsAuthLoading(false)
           return
         }
 
+        // Try to authenticate with available credentials
+        const headers: HeadersInit = {}
+        if (storedAuth) {
+          headers['Authorization'] = `Bearer ${storedAuth}`
+        }
+        if (staffSession) {
+          headers['Cookie'] = `staff-session=${staffSession}`
+        }
+
         const response = await fetch('/api/staff/auth-check', {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${storedAuth}`
-          }
+          headers,
+          credentials: 'include'
         })
 
         if (response.ok) {
+          const authData = await response.json()
+          console.log('✅ Staff authenticated:', authData.user?.username)
           setIsAuthenticated(true)
         } else {
-          console.warn('Staff authentication failed')
+          console.warn('❌ Staff authentication failed')
           // Clear invalid auth and redirect to login
           localStorage.removeItem('staffAuth')
+          document.cookie = 'staff-session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
           router.push('/staff-login')
         }
       } catch (error) {
-        console.error('Staff auth check failed:', error)
-        // Always require proper authentication - NO BYPASSES
+        console.error('❌ Staff auth check failed:', error)
+        localStorage.removeItem('staffAuth')
+        document.cookie = 'staff-session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
         router.push('/staff-login')
       } finally {
         setIsAuthLoading(false)
