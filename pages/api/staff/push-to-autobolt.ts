@@ -3,6 +3,9 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { withStaffAuth } from '../../../lib/middleware/staff-auth'
+import { withRateLimit, rateLimitConfigs } from '../../../lib/middleware/rate-limit'
+import { withCSRFProtection } from '../../../lib/middleware/csrf-protection'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -18,7 +21,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -183,3 +186,6 @@ function getAverageTimePerDirectory(packageType: string): number {
   }
   return timeMap[packageType] || 2
 }
+
+// Export with authentication, rate limiting, and CSRF protection middleware
+export default withCSRFProtection()(withRateLimit(rateLimitConfigs.staff)(withStaffAuth(handler)))

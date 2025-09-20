@@ -3,6 +3,8 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { withStaffAuth } from '../../../lib/middleware/staff-auth'
+import { withRateLimit, rateLimitConfigs } from '../../../lib/middleware/rate-limit'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -18,7 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -208,3 +210,6 @@ function calculatePackagePerformance(customers: any[]) {
   
   return packageStats
 }
+
+// Export with authentication and rate limiting middleware
+export default withRateLimit(rateLimitConfigs.staff)(withStaffAuth(handler))

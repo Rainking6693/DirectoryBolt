@@ -79,7 +79,8 @@ export default function RealTimeAnalytics() {
       }
       
       const headers: HeadersInit = {
-        'Authorization': `Bearer ${storedAuth}`
+        'Authorization': `Bearer ${storedAuth}`,
+        'Origin': window.location.origin
       }
 
       const response = await fetch('/api/staff/analytics', {

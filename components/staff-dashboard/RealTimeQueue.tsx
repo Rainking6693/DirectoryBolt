@@ -89,7 +89,8 @@ export default function RealTimeQueue() {
       }
       
       const headers: HeadersInit = {
-        'Authorization': `Bearer ${storedAuth}`
+        'Authorization': `Bearer ${storedAuth}`,
+        'Origin': window.location.origin
       }
 
       const response = await fetch('/api/staff/queue', {
@@ -122,12 +123,22 @@ export default function RealTimeQueue() {
       if (!storedAuth) {
         throw new Error('Staff authentication required')
       }
+
+      // Get CSRF token
+      const csrfResponse = await fetch('/api/csrf-token')
+      const csrfData = await csrfResponse.json()
+      
+      if (!csrfData.success) {
+        throw new Error('Failed to get CSRF token')
+      }
       
       const response = await fetch('/api/staff/push-to-autobolt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedAuth}`
+          'Authorization': `Bearer ${storedAuth}`,
+          'X-CSRF-Token': csrfData.csrfToken,
+          'Origin': window.location.origin
         },
         body: JSON.stringify({ customer_id: customerId })
       })
