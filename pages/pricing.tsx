@@ -15,14 +15,14 @@ export default function Pricing() {
   return (
     <>
       <Head>
-        <title>AI Directory Submissions to 500+ Sites | DirectoryBolt</title>
-        <meta name="description" content="Get listed on 500+ high-authority directories in days, not months. 14-day free trial. Consistent NAP, AI-optimized profiles, real-time tracking." />
+        <title>Directory Submission Service Pricing | AI-Powered Business Listings</title>
+        <meta name="description" content="Directory submission service pricing plans from $149-$799. Get listed on 500+ high-authority directories with AI-powered automation. 14-day free trial available." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/pricing" />
         
         {/* Additional SEO Meta Tags */}
-        <meta name="keywords" content="directory submission pricing, local SEO plans, business listing service cost, $49 directory service, DirectoryBolt pricing, directory marketing plans, automated directory submission cost" />
+        <meta name="keywords" content="directory submission pricing, directory submission service cost, business listing service pricing, local seo directory pricing, automated directory submission cost, directory marketing plans, DirectoryBolt pricing" />
         <meta name="author" content="DirectoryBolt" />
         <meta name="publisher" content="DirectoryBolt" />
         <meta name="copyright" content="DirectoryBolt" />
@@ -32,8 +32,8 @@ export default function Pricing() {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta property="og:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
+        <meta property="og:title" content="Directory Submission Service Pricing | AI-Powered Business Listings" />
+        <meta property="og:description" content="Directory submission service pricing plans from $149-$799. Get listed on 500+ high-authority directories with AI-powered automation. 14-day free trial available." />
         <meta property="og:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -43,8 +43,8 @@ export default function Pricing() {
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="AI Directory Submissions to 500+ Sites" />
-        <meta name="twitter:description" content="Automate listings on 480+ directories. 14-day free trial. Money-back guarantee." />
+        <meta name="twitter:title" content="Directory Submission Service Pricing | AI-Powered Business Listings" />
+        <meta name="twitter:description" content="Directory submission service pricing plans from $149-$799. Get listed on 500+ high-authority directories with AI-powered automation. 14-day free trial available." />
         <meta name="twitter:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />
@@ -84,7 +84,7 @@ export default function Pricing() {
                   "@type": "Offer",
                   "name": "Starter Plan",
                   "description": "Perfect for small businesses getting started with directory marketing",
-                  "price": "49.00",
+                  "price": "149.00",
                   "priceCurrency": "USD",
                   "billingPeriod": "P1M",
                   "priceValidUntil": "2025-12-31",
@@ -106,7 +106,7 @@ export default function Pricing() {
                   "@type": "Offer",
                   "name": "Growth Plan", 
                   "description": "Most popular plan for growing businesses",
-                  "price": "79.00",
+                  "price": "299.00",
                   "priceCurrency": "USD",
                   "billingPeriod": "P1M",
                   "priceValidUntil": "2025-12-31",
@@ -128,7 +128,7 @@ export default function Pricing() {
                   "@type": "Offer",
                   "name": "Professional Plan",
                   "description": "Advanced features for established businesses",
-                  "price": "129.00",
+                  "price": "499.00",
                   "priceCurrency": "USD",
                   "billingPeriod": "P1M", 
                   "priceValidUntil": "2025-12-31",
@@ -150,7 +150,7 @@ export default function Pricing() {
                   "@type": "Offer",
                   "name": "Enterprise Plan",
                   "description": "Full-scale solution for large organizations",
-                  "price": "299.00",
+                  "price": "799.00",
                   "priceCurrency": "USD",
                   "billingPeriod": "P1M",
                   "priceValidUntil": "2025-12-31",

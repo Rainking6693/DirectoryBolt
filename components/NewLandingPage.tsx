@@ -87,31 +87,34 @@ export default function NewLandingPage() {
                 Get $4,300 Worth of Business Intelligence for $299 ONE-TIME
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent leading-tight animate-slide-up">
-                AI-Powered Business Intelligence That Replaces Your Entire Marketing Stack
+                AI-Powered Directory Submission Service
               </h1>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl mb-6 text-secondary-300 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                Get Listed on 500+ High-Authority Directories in Days, Not Months
+              </h2>
               <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-secondary-300 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                Stop paying consultants $3,000+ for basic market analysis projects. Own your business intelligence forever with one strategic investment. Get enterprise-level AI insights and lifetime access to growth strategies. <span className="text-volt-400 font-bold">Save 93% vs. consultant project fees.</span>
+                Stop spending 100+ hours manually submitting to directories. Our AI-powered service automates directory submissions to 500+ high-authority sites with consistent NAP data, real-time tracking, and 85%+ approval rates. <span className="text-volt-400 font-bold">Save 95% of your time and boost local SEO rankings.</span>
               </p>
               
               {/* Value Breakdown */}
               <div className="bg-secondary-800/50 border border-volt-500/20 rounded-xl p-6 mb-8 backdrop-blur-sm animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                <h3 className="text-volt-400 font-bold mb-4 text-center">What You Get (Worth $4,300+):</h3>
+                <h3 className="text-volt-400 font-bold mb-4 text-center">What You Get:</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
-                    <div className="text-volt-400 font-bold text-lg mb-2">$2,000</div>
-                    <div className="text-secondary-300">AI Market Analysis & Competitive Intelligence</div>
+                    <div className="text-volt-400 font-bold text-lg mb-2">500+</div>
+                    <div className="text-secondary-300">High-Authority Directory Submissions</div>
                   </div>
                   <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
-                    <div className="text-volt-400 font-bold text-lg mb-2">$1,500</div>
-                    <div className="text-secondary-300">500+ Premium Directory Submissions</div>
+                    <div className="text-volt-400 font-bold text-lg mb-2">95%</div>
+                    <div className="text-secondary-300">Time Savings vs Manual Submission</div>
                   </div>
                   <div className="text-center p-4 bg-secondary-700/50 rounded-lg">
-                    <div className="text-volt-400 font-bold text-lg mb-2">$800</div>
-                    <div className="text-secondary-300">Ongoing Optimization & Monitoring</div>
+                    <div className="text-volt-400 font-bold text-lg mb-2">85%+</div>
+                    <div className="text-secondary-300">Directory Approval Rate</div>
                   </div>
                 </div>
                 <div className="text-center mt-4 text-success-400 font-bold">
-                  <span className="text-xl">→ Your Price: $299 ONE-TIME (Save 93%)</span>
+                  <span className="text-xl">→ Starting at $149 (Save 100+ hours of work)</span>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -120,7 +123,7 @@ export default function NewLandingPage() {
                   className="animate-zoom-in bg-gradient-to-r from-volt-500 to-volt-600 text-secondary-900 font-bold px-8 py-4 rounded-xl shadow-2xl hover:shadow-volt-500/50 hover:from-volt-400 hover:to-volt-500 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:ring-offset-2 focus:ring-offset-secondary-900 inline-flex items-center justify-center text-lg"
                   style={{ animationDelay: '0.4s' }}
                 >
-                  Start Free Analysis
+                  Get My Free Directory Analysis
                   <span className="ml-2">🚀</span>
                 </button>
                 <button
@@ -132,12 +135,12 @@ export default function NewLandingPage() {
                   <span className="ml-2">🔍</span>
                 </button>
               </div>
-              <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>One-time purchase | Results in 48 hours | 30-day money-back guarantee</p>
+              <p className="mt-4 text-sm sm:text-base text-secondary-400 animate-fade-in" style={{ animationDelay: '0.6s' }}>14-day free trial | Results in 2-3 days | 30-day money-back guarantee</p>
             </div>
             <div className="relative">
               <Image
                 src="/hero.svg"
-                alt="DirectoryBolt AI Business Intelligence Dashboard showing market analysis, competitor insights, and automated growth strategies"
+                alt="DirectoryBolt AI Directory Submission Service Dashboard showing automated directory submissions, real-time tracking, and local SEO optimization"
                 width={1600}
                 height={900}
                 priority

@@ -152,7 +152,10 @@ export interface TierUpgradeEvent {
   created_at: Date
 }
 
-// Subscription tiers with analysis features
+// Import centralized pricing configuration
+import { PRICING_TIERS, canAccessFeature as checkFeatureAccess } from '../config/pricing'
+
+// Use centralized pricing for analysis tiers
 export const ANALYSIS_TIERS = {
   free: {
     name: 'Free',
@@ -163,7 +166,9 @@ export const ANALYSIS_TIERS = {
       advancedInsights: false,
       priorityProcessing: false,
       exportFormats: ['json'],
-      supportLevel: 'community'
+      supportLevel: 'community',
+      seoTools: false,
+      competitorAnalysis: false
     },
     costLimits: {
       monthlyAiCostLimit: 500, // $5.00 in cents
@@ -171,7 +176,7 @@ export const ANALYSIS_TIERS = {
     }
   },
   starter: {
-    name: 'Starter - $149/month',
+    name: `Starter - $149 one-time`,
     monthlyAnalysisLimit: 25,
     features: {
       basicExtraction: true,
@@ -179,7 +184,9 @@ export const ANALYSIS_TIERS = {
       advancedInsights: false,
       priorityProcessing: false,
       exportFormats: ['json', 'csv'],
-      supportLevel: 'email'
+      supportLevel: 'email',
+      seoTools: false,
+      competitorAnalysis: false
     },
     costLimits: {
       monthlyAiCostLimit: 5000, // $50.00 in cents
@@ -187,15 +194,17 @@ export const ANALYSIS_TIERS = {
     }
   },
   growth: {
-    name: 'Growth - $299/month',
-    monthlyAnalysisLimit: 100,
+    name: `Growth - $299 one-time`,
+    monthlyAnalysisLimit: 75,
     features: {
       basicExtraction: true,
       aiCompetitorAnalysis: true,
       advancedInsights: true,
       priorityProcessing: false,
       exportFormats: ['json', 'csv', 'pdf'],
-      supportLevel: 'priority'
+      supportLevel: 'priority',
+      seoTools: true,
+      competitorAnalysis: true
     },
     costLimits: {
       monthlyAiCostLimit: 15000, // $150.00 in cents
@@ -299,7 +308,7 @@ export function getNextTier(currentTier: SubscriptionTier): SubscriptionTier | n
     return null
   }
   
-  return tiers[currentIndex + 1]
+  return tiers[currentIndex + 1] || null
 }
 
 // Validation schemas

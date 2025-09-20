@@ -2,141 +2,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import FeatureTooltip from './ui/FeatureTooltip'
+// @ts-ignore - CheckoutButton is a .jsx file
 import CheckoutButton from './CheckoutButton'
+import { PRICING_TIERS, getAllTiers, type PricingTier } from '../lib/config/pricing'
 
-interface PricingTier {
-  id: string
-  name: string
-  price: number
-  annualPrice: number
-  description: string
-  features: string[]
-  highlighted?: boolean
-  popular?: boolean
-  badge?: string
-  buttonText: string
-  buttonStyle: string
-  roi: {
-    timesSaved: string
-    visibilityIncrease: string
-    newCustomers: string
-    roiPercentage?: string
-  }
-  directories: number
-  support: string
-}
-
-const pricingTiers: PricingTier[] = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 149,
-    annualPrice: 149, // One-time pricing
-    description: 'AI-powered analysis for small businesses - One-time purchase',
-    directories: 25,
-    support: 'Email support',
-    features: [
-      '🤖 25 AI-optimized directory submissions',
-      '🧠 Basic AI competitive analysis ($800 value)',
-      '📊 AI business insights dashboard',
-      '⚡ AI-powered profile optimization',
-      '✅ 30-day completion guarantee'
-    ],
-    roi: {
-      timesSaved: 'Equivalent to $2,000+ business consultant',
-      visibilityIncrease: '94% savings vs manual consulting',
-      newCustomers: 'AI-driven customer acquisition insights',
-      roiPercentage: '17x ROI (94% savings)'
-    },
-    buttonText: 'Purchase Analysis',
-    buttonStyle: 'bg-secondary-700 hover:bg-secondary-600 text-white'
-  },
-  {
-    id: 'growth',
-    name: 'Growth',
-    price: 299,
-    annualPrice: 299, // One-time pricing
-    description: 'Comprehensive AI business intelligence - One-time purchase',
-    directories: 75,
-    support: 'Priority support',
-    highlighted: true,
-    popular: true,
-    badge: 'MOST POPULAR - BEST VALUE',
-    features: [
-      '🤖 75 AI-optimized directory submissions',
-      '🧠 Advanced AI competitive analysis ($1,200 value)',
-      '📈 AI market research & insights ($800 value)',
-      '💰 AI revenue projections ($400 value)',
-      '🎯 AI business strategy recommendations',
-      '📊 Advanced AI analytics dashboard'
-    ],
-    roi: {
-      timesSaved: 'Equivalent to $3,800+ consulting package',
-      visibilityIncrease: '92% savings vs manual research',
-      newCustomers: 'AI-powered growth strategy development',
-      roiPercentage: '13x ROI (92% savings)'
-    },
-    buttonText: 'Buy Intelligence Package',
-    buttonStyle: 'bg-gradient-to-r from-volt-500 to-volt-600 hover:from-volt-400 hover:to-volt-500 text-secondary-900 font-black'
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    price: 499,
-    annualPrice: 499, // One-time pricing
-    description: 'Enterprise AI with custom research - One-time purchase',
-    directories: 150,
-    support: 'Phone & priority support',
-    features: [
-      '🤖 150 AI-optimized directory submissions',
-      '🔍 SEO Content Gap Analysis tool',
-      '📝 AI-generated blog post ideas',
-      '📋 Custom AI market research ($1,500 value)',
-      '🏷️ White-label AI reports ($800 value)',
-      '📞 Quarterly AI strategy sessions',
-      '🔧 API access for integrations',
-      '🎯 Custom AI business modeling'
-    ],
-    roi: {
-      timesSaved: 'Equivalent to $4,500+ enterprise consulting',
-      visibilityIncrease: '89% savings vs consultant fees',
-      newCustomers: 'Custom AI-powered market expansion',
-      roiPercentage: '9x ROI (89% savings)'
-    },
-    buttonText: 'Purchase Enterprise',
-    buttonStyle: 'bg-secondary-700 hover:bg-secondary-600 text-white'
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 799,
-    annualPrice: 799, // One-time pricing
-    description: 'Full AI-powered business intelligence suite - One-time purchase',
-    directories: 500,
-    support: 'Dedicated account management',
-    badge: 'PREMIUM SUITE',
-    features: [
-      '🤖 500+ AI-optimized directory submissions',
-      '🔍 Advanced SEO Content Gap Analysis',
-      '📊 Competitor content intelligence',
-      '🔑 Keyword cluster generation',
-      '❓ AI-powered FAQ suggestions',
-      '👨‍💼 Dedicated AI business analyst ($1,500 value)',
-      '🧠 Full AI intelligence suite ($2,000 value)',
-      '📈 Real-time AI competitive monitoring',
-      '🎯 AI-powered market expansion planning',
-      '🏷️ White-label AI reports & presentations'
-    ],
-    roi: {
-      timesSaved: 'Equivalent to $6,000+ executive consulting',
-      visibilityIncrease: '87% savings vs dedicated analyst',
-      newCustomers: 'AI-driven enterprise growth strategy',
-      roiPercentage: '7.5x ROI (87% savings)'
-    },
-    buttonText: 'Buy Complete Suite',
-    buttonStyle: 'bg-gradient-to-r from-success-500 to-success-600 hover:from-success-400 hover:to-success-500 text-white font-black'
-  }
-]
+// Use centralized pricing configuration
+const pricingTiers = getAllTiers()
 
 const testimonials = [
   {
@@ -181,7 +52,29 @@ export default function PricingPage() {
     setIsVisible(true)
   }, [])
 
-  // This function now just determines where to route, actual checkout is handled by CheckoutButton
+  // Generate button style based on tier properties
+  const getButtonStyle = (tier: PricingTier): string => {
+    if (tier.highlighted || tier.popular) {
+      return 'bg-gradient-to-r from-volt-500 to-volt-600 hover:from-volt-400 hover:to-volt-500 text-secondary-900 font-black'
+    }
+    if (tier.id === 'enterprise') {
+      return 'bg-gradient-to-r from-success-500 to-success-600 hover:from-success-400 hover:to-success-500 text-white font-black'
+    }
+    return 'bg-secondary-700 hover:bg-secondary-600 text-white'
+  }
+
+  // Generate button text based on tier
+  const getButtonText = (tier: PricingTier): string => {
+    switch (tier.id) {
+      case 'starter': return 'Purchase Analysis'
+      case 'growth': return 'Buy Intelligence Package'
+      case 'professional': return 'Purchase Enterprise'
+      case 'enterprise': return 'Buy Complete Suite'
+      default: return 'Purchase Plan'
+    }
+  }
+
+  // URL functions for checkout
   const getSuccessUrl = (planId: string) => {
     return `${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&billing=one_time`
   }
@@ -192,7 +85,7 @@ export default function PricingPage() {
 
   const calculateROI = (tier: PricingTier) => {
     const oneTimeInvestment = tier.price
-    const estimatedNewCustomers = parseInt(tier.roi.newCustomers.split('-')[0])
+    const estimatedNewCustomers = parseInt(tier.valueProps.newCustomers.split('-')[0] || '2')
     const monthlyReturn = estimatedNewCustomers * newCustomersWorth
     const roiPercentage = ((monthlyReturn - oneTimeInvestment) / oneTimeInvestment) * 100
     
@@ -324,15 +217,11 @@ export default function PricingPage() {
                       <div className="mb-4">
                         <div className="text-5xl font-black mb-2">
                           <span className={tier.highlighted ? 'text-volt-400' : 'text-volt-400'}>
-                            ${isAnnual ? tier.annualPrice : tier.price}
+                            ${tier.price}
                           </span>
                           <span className="text-lg text-secondary-400"> ONE-TIME</span>
                         </div>
-                        {isAnnual && tier.price !== tier.annualPrice && (
-                          <div className="text-sm text-volt-400 font-bold">
-                            Save ${(tier.price - tier.annualPrice) * 12}/year
-                          </div>
-                        )}
+                        {/* No annual pricing - one-time purchase only */}
                       </div>
                       <p className="text-secondary-300 text-sm">{tier.description}</p>
                     </div>
@@ -359,12 +248,10 @@ export default function PricingPage() {
                         💰 ROI Projection:
                       </div>
                       <div className="text-xs text-secondary-300 space-y-1">
-                        <div>• {tier.roi.timesSaved}</div>
-                        <div>• {tier.roi.visibilityIncrease}</div>
-                        <div>• {tier.roi.newCustomers}</div>
-                        {tier.roi.roiPercentage && (
-                          <div className="font-bold text-success-400">• ROI: {tier.roi.roiPercentage}</div>
-                        )}
+                        <div>• {tier.valueProps.timesSaved}</div>
+                        <div>• {tier.valueProps.visibilityIncrease}</div>
+                        <div>• {tier.valueProps.newCustomers}</div>
+                        <div className="font-bold text-success-400">• ROI: {tier.valueProps.roiPercentage}</div>
                       </div>
                     </div>
 
@@ -374,7 +261,7 @@ export default function PricingPage() {
                         plan={tier.id}
                         variant={tier.highlighted ? 'primary' : 'secondary'}
                         size="lg"
-                        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${tier.buttonStyle} min-h-[48px] sm:min-h-[56px] flex items-center justify-center`}
+                        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg group-hover:shadow-2xl ${getButtonStyle(tier)} min-h-[48px] sm:min-h-[56px] flex items-center justify-center`}
                         successUrl={getSuccessUrl(tier.id)}
                         cancelUrl={getCancelUrl(tier.id)}
                         customerEmail=""
@@ -418,7 +305,7 @@ export default function PricingPage() {
                           }
                         }}
                       >
-                        {tier.buttonText}
+                        {getButtonText(tier)}
                       </CheckoutButton>
                       {tier.id !== 'free' && (
                         <div className="text-center text-xs sm:text-sm text-secondary-400 group-hover:text-secondary-300 transition-colors px-2">

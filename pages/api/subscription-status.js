@@ -19,8 +19,13 @@ try {
   console.warn('Failed to initialize Stripe client:', error.message);
 }
 
-// Subscription plan limits and features
-const SUBSCRIPTION_FEATURES = {
+// DEPRECATED: This file is deprecated as DirectoryBolt now uses one-time payments
+// Use the centralized pricing configuration instead
+
+import { PRICING_TIERS } from '../../lib/config/pricing'
+
+// Legacy subscription features (DEPRECATED - for reference only)
+const LEGACY_SUBSCRIPTION_FEATURES = {
   free: {
     name: 'Free',
     directory_limit: 5,
@@ -34,33 +39,41 @@ const SUBSCRIPTION_FEATURES = {
     directory_limit: 25,
     monthly_submissions: 25,
     features: ['25 directory submissions', 'Basic analytics', 'Email support'],
-    price: 4900,
+    price: 14900, // OLD PRICING - DEPRECATED
     support_level: 'email'
   },
   growth: {
     name: 'Growth',
-    directory_limit: 50,
-    monthly_submissions: 50,
-    features: ['50 directory submissions', 'Advanced analytics', 'Priority support', 'Bulk tools'],
-    price: 7900,
+    directory_limit: 75,
+    monthly_submissions: 75,
+    features: ['75 directory submissions', 'Advanced analytics', 'Priority support', 'SEO tools'],
+    price: 29900, // OLD PRICING - DEPRECATED
     support_level: 'priority_email'
   },
   professional: {
     name: 'Professional',
-    directory_limit: 100,
-    monthly_submissions: 100,
-    features: ['100+ submissions', 'Premium analytics', 'Phone & email support', 'API access'],
-    price: 12900,
+    directory_limit: 150,
+    monthly_submissions: 150,
+    features: ['150+ submissions', 'Premium analytics', 'Phone & email support', 'API access', 'SEO Content Gap Analysis'],
+    price: 49900, // OLD PRICING - DEPRECATED
     support_level: 'phone_email'
   },
   enterprise: {
     name: 'Enterprise',
     directory_limit: 500,
     monthly_submissions: 500,
-    features: ['500+ submissions', 'Enterprise analytics', 'Dedicated manager', 'White-label'],
-    price: 29900,
+    features: ['500+ submissions', 'Enterprise analytics', 'Dedicated manager', 'White-label', 'Full AI Suite'],
+    price: 79900, // OLD PRICING - DEPRECATED
     support_level: 'dedicated'
   }
+};
+
+// CURRENT PRICING (use PRICING_TIERS from centralized config instead)
+const CURRENT_ONE_TIME_PRICING = {
+  starter: { price: 149, directories: 25 },
+  growth: { price: 299, directories: 75 },
+  professional: { price: 499, directories: 150 },
+  enterprise: { price: 799, directories: 500 }
 };
 
 export default async function handler(req, res) {
@@ -353,4 +366,46 @@ async function getUserWithSubscription(userId) {
 }
 
 // Export subscription features for use in other parts of the application
-export { SUBSCRIPTION_FEATURES };
+// (Note: This is deprecated - use PRICING_TIERS from centralized config instead)
+export const SUBSCRIPTION_FEATURES = {
+  free: {
+    name: 'Free',
+    directory_limit: 5,
+    monthly_submissions: 5,
+    features: ['Basic directory access', 'Manual submissions only'],
+    price: 0,
+    support_level: 'community'
+  },
+  starter: {
+    name: 'Starter',
+    directory_limit: 25,
+    monthly_submissions: 25,
+    features: ['25 directory submissions', 'Basic analytics', 'Email support'],
+    price: 14900,
+    support_level: 'email'
+  },
+  growth: {
+    name: 'Growth',
+    directory_limit: 75,
+    monthly_submissions: 75,
+    features: ['75 directory submissions', 'Advanced analytics', 'Priority support', 'SEO tools'],
+    price: 29900,
+    support_level: 'priority_email'
+  },
+  professional: {
+    name: 'Professional',
+    directory_limit: 150,
+    monthly_submissions: 150,
+    features: ['150+ submissions', 'Premium analytics', 'Phone & email support', 'API access', 'SEO Content Gap Analysis'],
+    price: 49900,
+    support_level: 'phone_email'
+  },
+  enterprise: {
+    name: 'Enterprise',
+    directory_limit: 500,
+    monthly_submissions: 500,
+    features: ['500+ submissions', 'Enterprise analytics', 'Dedicated manager', 'White-label', 'Full AI Suite'],
+    price: 79900,
+    support_level: 'dedicated'
+  }
+};

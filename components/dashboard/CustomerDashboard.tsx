@@ -7,6 +7,9 @@ import ActionCards from './ActionCards'
 import DirectoryGrid from './DirectoryGrid'
 import NotificationCenter from './NotificationCenter'
 import BusinessInfoEditor from './BusinessInfoEditor'
+import ContentGapAnalyzer from '../seo/ContentGapAnalyzer'
+import CompetitiveBenchmarking from '../analytics/CompetitiveBenchmarking'
+import { getTier, canAccessFeature } from '../../lib/config/pricing'
 import { 
   CustomerDashboard as CustomerDashboardType,
   DirectoryStatus, 
@@ -26,6 +29,7 @@ type DashboardData = {
 
 interface CustomerDashboardProps {
   userId: string
+  userTier?: string // Add user tier prop
   initialData?: DashboardData
   onDataUpdate?: (data: any) => void
   className?: string
@@ -94,8 +98,9 @@ const getFallbackData = (userId: string): DashboardData => {
   };
 }
 
-export function CustomerDashboard({ 
+export default function CustomerDashboard({ 
   userId, 
+  userTier = 'starter', // Default to starter tier
   initialData, 
   onDataUpdate, 
   className = '' 
@@ -103,8 +108,22 @@ export function CustomerDashboard({
   const [data, setData] = useState<DashboardData>(initialData || getFallbackData(userId))
   const [isLoading, setIsLoading] = useState(!initialData)
   const [error, setError] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<'overview' | 'directories' | 'profile'>('overview')
+  const [activeView, setActiveView] = useState<'overview' | 'directories' | 'seo-tools' | 'analytics' | 'profile'>('overview')
   const [showBusinessEditor, setShowBusinessEditor] = useState(false)
+
+  // Check feature access based on user tier
+  const hasContentGapAnalysis = canAccessFeature(userTier, 'seoTools')
+  const hasCompetitiveBenchmarking = canAccessFeature(userTier, 'competitorAnalysis')
+  const tierInfo = getTier(userTier)
+
+  // Generate navigation items based on user tier
+  const navigationItems = [
+    { key: 'overview', label: 'Overview', icon: '📊' },
+    { key: 'directories', label: 'Directories', icon: '📁' },
+    ...(hasContentGapAnalysis || hasCompetitiveBenchmarking ? [{ key: 'seo-tools', label: 'SEO Tools', icon: '🔍' }] : []),
+    ...(hasCompetitiveBenchmarking ? [{ key: 'analytics', label: 'Analytics', icon: '📈' }] : []),
+    { key: 'profile', label: 'Profile', icon: '⚙️' }
+  ]
 
   // Calculate dashboard stats
   const stats: DashboardStats = useMemo(() => {
@@ -252,11 +271,7 @@ export function CustomerDashboard({
 
               {/* Navigation */}
               <nav className="flex gap-2">
-                {[
-                  { key: 'overview', label: 'Overview', icon: '📊' },
-                  { key: 'directories', label: 'Directories', icon: '📁' },
-                  { key: 'profile', label: 'Profile', icon: '⚙️' }
-                ].map((view) => (
+                {navigationItems.map((view) => (
                   <button
                     key={view.key}
                     onClick={() => setActiveView(view.key as typeof activeView)}
@@ -376,6 +391,57 @@ export function CustomerDashboard({
               directories={data.directories}
               showFilters={true}
             />
+          )}
+
+          {activeView === 'seo-tools' && (hasContentGapAnalysis || hasCompetitiveBenchmarking) && (
+            <div className="space-y-8">
+              <div className="bg-secondary-800 rounded-xl border border-secondary-700 p-6">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  🔍 SEO Tools
+                  <span className="text-sm font-normal bg-volt-500/20 text-volt-400 px-2 py-1 rounded">
+                    {tierInfo?.name || userTier}
+                  </span>
+                </h2>
+                <p className="text-secondary-400 mb-6">
+                  Advanced SEO analysis tools to help you outrank competitors and identify content opportunities.
+                </p>
+
+                {hasContentGapAnalysis && (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      📈 Content Gap Analysis
+                    </h3>
+                    <ContentGapAnalyzer userTier={userTier as 'professional' | 'enterprise'} />
+                  </div>
+                )}
+
+                {hasCompetitiveBenchmarking && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      🏆 Competitive Benchmarking
+                    </h3>
+                    <CompetitiveBenchmarking userTier={userTier as 'professional' | 'enterprise'} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeView === 'analytics' && hasCompetitiveBenchmarking && (
+            <div className="space-y-8">
+              <div className="bg-secondary-800 rounded-xl border border-secondary-700 p-6">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  📈 Advanced Analytics
+                  <span className="text-sm font-normal bg-volt-500/20 text-volt-400 px-2 py-1 rounded">
+                    {tierInfo?.name || userTier}
+                  </span>
+                </h2>
+                <p className="text-secondary-400 mb-6">
+                  Deep competitive insights and performance benchmarking against industry leaders.
+                </p>
+                <CompetitiveBenchmarking userTier={userTier as 'professional' | 'enterprise'} />
+              </div>
+            </div>
           )}
 
           {activeView === 'profile' && (
@@ -503,4 +569,3 @@ export function CustomerDashboard({
   )
 }
 
-export default CustomerDashboard

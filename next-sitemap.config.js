@@ -21,6 +21,8 @@ module.exports = {
     paths.push(await config.transform(config, '/local-seo-directories'))
     paths.push(await config.transform(config, '/business-directory-listings'))
     paths.push(await config.transform(config, '/ai-powered-directory-submissions'))
+    paths.push(await config.transform(config, '/directory-submission-vs-manual'))
+    paths.push(await config.transform(config, '/local-seo-directories-guide'))
     
     // City-specific pages
     const cities = [
@@ -61,7 +63,9 @@ module.exports = {
       '/',
       '/pricing',
       '/analyze',
-      '/directory-submission-service'
+      '/directory-submission-service',
+      '/directory-submission-vs-manual',
+      '/local-seo-directories-guide'
     ]
     
     // Medium priority pages

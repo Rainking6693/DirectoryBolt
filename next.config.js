@@ -36,6 +36,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
+    optimizePackageImports: ['@headlessui/react', 'framer-motion', 'lucide-react'],
   },
   
   // Enhanced webpack configuration

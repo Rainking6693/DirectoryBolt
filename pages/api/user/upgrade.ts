@@ -48,12 +48,16 @@ interface UpgradeResponse {
   requestId: string
 }
 
-// Subscription pricing (in cents)
+import { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from '@supabase/supabase-js'
+import { PRICING_TIERS, getTier } from '../../../lib/config/pricing'
+
+// Use centralized pricing
 const TIER_PRICING = {
-  starter: { monthly: 14900, annual: 149000 }, // $149/month, $1490/year (2 months free)
-  growth: { monthly: 29900, annual: 299000 },  // $299/month, $2990/year
-  professional: { monthly: 49900, annual: 499000 }, // $499/month, $4990/year
-  enterprise: { monthly: 79900, annual: 799000 }     // $799/month, $7990/year
+  starter: { monthly: PRICING_TIERS.starter.price * 100, annual: PRICING_TIERS.starter.price * 100 },
+  growth: { monthly: PRICING_TIERS.growth.price * 100, annual: PRICING_TIERS.growth.price * 100 },
+  professional: { monthly: PRICING_TIERS.professional.price * 100, annual: PRICING_TIERS.professional.price * 100 },
+  enterprise: { monthly: PRICING_TIERS.enterprise.price * 100, annual: PRICING_TIERS.enterprise.price * 100 }
 } as const
 
 const STRIPE_PRICE_IDS = {

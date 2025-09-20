@@ -101,27 +101,12 @@ export const DIRECTORYBOLT_ADD_ONS: DirectoryBoltAddOns = {
   }
 }
 
-export const SUBSCRIPTION_SERVICE = {
-  id: 'auto_update',
-  name: 'Auto Update & Resubmission',
-  price: 49,
-  billing: 'one_time',
-  description: 'Automatically monitor and resubmit to directories that remove your listing',
-  features: [
-    'Automatic directory monitoring',
-    'Profile updates when business info changes',
-    'Resubmission to directories that remove listings',
-    'Monthly performance reports',
-    'Priority support',
-    'Cancel anytime'
-  ]
-}
+// No subscription service - DirectoryBolt uses one-time payments only
 
 interface CheckoutState {
-  step: 'package' | 'addons' | 'subscription' | 'summary' | 'processing'
+  step: 'package' | 'addons' | 'summary' | 'processing'
   selectedPackage: PackageId | null
   selectedAddOns: AddOnId[]
-  wantsSubscription: boolean
   customerInfo: {
     email: string
     name: string
@@ -131,9 +116,7 @@ interface CheckoutState {
   pricing: {
     packagePrice: number
     addOnsPrice: number
-    subscriptionPrice: number
     totalOneTime: number
-    monthlyRecurring: number
   }
 }
 
@@ -144,7 +127,6 @@ export default function DirectoryBoltCheckout() {
     step: 'package',
     selectedPackage: null,
     selectedAddOns: [],
-    wantsSubscription: false,
     customerInfo: {
       email: '',
       name: '',
@@ -154,9 +136,7 @@ export default function DirectoryBoltCheckout() {
     pricing: {
       packagePrice: 0,
       addOnsPrice: 0,
-      subscriptionPrice: 0,
-      totalOneTime: 0,
-      monthlyRecurring: 0
+      totalOneTime: 0
     }
   })
 
@@ -174,19 +154,15 @@ export default function DirectoryBoltCheckout() {
       return total + (DIRECTORYBOLT_ADD_ONS[addOnId as AddOnId]?.price || 0)
     }, 0)
 
-    const subscriptionPrice = checkoutState.wantsSubscription ? SUBSCRIPTION_SERVICE.price : 0
-
     setCheckoutState(prev => ({
       ...prev,
       pricing: {
         packagePrice,
         addOnsPrice,
-        subscriptionPrice,
-        totalOneTime: packagePrice + addOnsPrice,
-        monthlyRecurring: subscriptionPrice
+        totalOneTime: packagePrice + addOnsPrice
       }
     }))
-  }, [checkoutState.selectedPackage, checkoutState.selectedAddOns, checkoutState.wantsSubscription])
+  }, [checkoutState.selectedPackage, checkoutState.selectedAddOns])
 
   const handlePackageSelect = (packageId: string) => {
     setCheckoutState(prev => ({
@@ -200,14 +176,6 @@ export default function DirectoryBoltCheckout() {
     setCheckoutState(prev => ({
       ...prev,
       selectedAddOns: selectedAddOns as AddOnId[],
-      step: 'subscription'
-    }))
-  }
-
-  const handleSubscriptionComplete = (wantsSubscription: boolean) => {
-    setCheckoutState(prev => ({
-      ...prev,
-      wantsSubscription,
       step: 'summary'
     }))
   }
@@ -238,8 +206,7 @@ export default function DirectoryBoltCheckout() {
           cancel_url: `${window.location.origin}/checkout?cancelled=true`,
           metadata: {
             business_name: checkoutState.customerInfo.businessName,
-            business_website: checkoutState.customerInfo.businessWebsite,
-            wants_subscription: checkoutState.wantsSubscription.toString()
+            business_website: checkoutState.customerInfo.businessWebsite
           }
         })
       })
@@ -261,7 +228,7 @@ export default function DirectoryBoltCheckout() {
   }
 
   const handleGoBack = () => {
-    const stepOrder = ['package', 'addons', 'subscription', 'summary']
+    const stepOrder = ['package', 'addons', 'summary']
     const currentIndex = stepOrder.indexOf(checkoutState.step)
     if (currentIndex > 0) {
       setCheckoutState(prev => ({
@@ -290,11 +257,10 @@ export default function DirectoryBoltCheckout() {
             {[
               { key: 'package', label: 'Package', icon: '📦' },
               { key: 'addons', label: 'Add-ons', icon: '⚡' },
-              { key: 'subscription', label: 'Subscription', icon: '🔄' },
               { key: 'summary', label: 'Review', icon: '✅' }
             ].map((stepInfo, index) => {
               const isActive = checkoutState.step === stepInfo.key
-              const isCompleted = ['package', 'addons', 'subscription', 'summary'].indexOf(checkoutState.step) > index
+              const isCompleted = ['package', 'addons', 'summary'].indexOf(checkoutState.step) > index
               
               return (
                 <div key={stepInfo.key} className="flex items-center">
@@ -312,7 +278,7 @@ export default function DirectoryBoltCheckout() {
                   }`}>
                     {stepInfo.label}
                   </span>
-                  {index < 3 && (
+                  {index < 2 && (
                     <div className={`ml-4 w-8 h-0.5 ${
                       isCompleted ? 'bg-success-500' : 'bg-secondary-600'
                     }`} />
@@ -347,23 +313,12 @@ export default function DirectoryBoltCheckout() {
             />
           )}
 
-          {/* Step 3: Subscription Option */}
-          {checkoutState.step === 'subscription' && (
-            <SubscriptionOption
-              subscription={SUBSCRIPTION_SERVICE}
-              wantsSubscription={checkoutState.wantsSubscription}
-              onComplete={handleSubscriptionComplete}
-              onGoBack={handleGoBack}
-            />
-          )}
-
-          {/* Step 4: Order Summary & Checkout */}
+          {/* Step 3: Order Summary & Checkout */}
           {checkoutState.step === 'summary' && (
             <OrderSummary
               checkoutState={checkoutState}
               packages={DIRECTORYBOLT_PACKAGES}
               addOns={DIRECTORYBOLT_ADD_ONS}
-              subscription={SUBSCRIPTION_SERVICE}
               onCustomerInfoUpdate={handleCustomerInfoUpdate}
               onCheckout={handleCheckout}
               onGoBack={handleGoBack}
