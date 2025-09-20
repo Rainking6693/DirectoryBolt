@@ -33,7 +33,9 @@ export default function StaffDashboard() {
         }
 
         // Try to authenticate with available credentials
-        const headers: HeadersInit = {}
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json'
+        }
         if (storedAuth) {
           headers['Authorization'] = `Bearer ${storedAuth}`
         }

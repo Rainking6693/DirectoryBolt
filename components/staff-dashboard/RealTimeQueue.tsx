@@ -217,30 +217,48 @@ export default function RealTimeQueue() {
 
       {/* Queue Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-yellow-400/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-yellow-400">{queueData.stats.pending}</p>
           <p className="text-secondary-400 text-sm">Pending</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-blue-400/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-blue-400">{queueData.stats.processing}</p>
           <p className="text-secondary-400 text-sm">Processing</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-green-400/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-green-400">{queueData.stats.completed}</p>
           <p className="text-secondary-400 text-sm">Completed</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-red-400/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-red-400">{queueData.stats.failed}</p>
           <p className="text-secondary-400 text-sm">Failed</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-white/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-white">{queueData.stats.total}</p>
           <p className="text-secondary-400 text-sm">Total</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => setSelectedCustomer(null)}
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-volt-400/50 transition-all cursor-pointer"
+        >
           <p className="text-2xl font-bold text-volt-400">{queueData.stats.completedToday}</p>
           <p className="text-secondary-400 text-sm">Today</p>
-        </div>
+        </button>
       </div>
 
       {/* Alerts */}
@@ -383,10 +401,13 @@ export default function RealTimeQueue() {
                       >
                         View Details
                       </button>
-                      {customer.status === 'active' && customer.directories_submitted === 0 && (
+                      {(customer.status === 'pending' || customer.status === 'active') && customer.directories_submitted === 0 && (
                         <button
-                          onClick={() => pushToAutoBolt(customer.customer_id)}
-                          className="text-green-400 hover:text-green-300"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            pushToAutoBolt(customer.customer_id)
+                          }}
+                          className="text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 px-2 py-1 rounded text-xs font-medium transition-colors"
                         >
                           Push to AutoBolt
                         </button>
