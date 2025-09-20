@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import type { BusinessIntelligenceResponse } from '../../lib/types/ai.types'
+import { createClient } from '@supabase/supabase-js'
+import { v4 as uuidv4 } from 'uuid'
 
 // Simple logger fallback
 const logger = {
@@ -7,6 +9,21 @@ const logger = {
   error: (msg: string, meta?: any, error?: Error) => console.error(`[ERROR] ${msg}`, meta || '', error || ''),
   warn: (msg: string, meta?: any) => console.warn(`[WARN] ${msg}`, meta || '')
 }
+
+// Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing Supabase configuration')
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
 
 interface AnalysisTier {
   name: string
@@ -258,6 +275,67 @@ function generateFreePreview(url: string): any {
   }
 }
 
+// Create customer record from analysis
+async function createCustomerFromAnalysis(url: string, tier: string, analysisData: any) {
+  try {
+    // Generate customer ID
+    const customerId = `DIR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
+    
+    // Extract business name from URL
+    const businessName = new URL(url).hostname.replace('www.', '').split('.')[0]
+    const businessNameFormatted = businessName.charAt(0).toUpperCase() + businessName.slice(1) + ' Business'
+    
+    // Get package configuration
+    const packageConfigs: Record<string, any> = {
+      free: { directory_limit: 5, priority_level: 4 },
+      starter: { directory_limit: 50, priority_level: 4 },
+      growth: { directory_limit: 150, priority_level: 3 },
+      professional: { directory_limit: 300, priority_level: 2 },
+      pro: { directory_limit: 500, priority_level: 1 },
+      enterprise: { directory_limit: 1000, priority_level: 1 }
+    }
+    
+    const packageConfig = packageConfigs[tier] || packageConfigs.free
+    
+    // Create customer record
+    const customerData = {
+      id: uuidv4(),
+      customer_id: customerId,
+      email: `analysis-${Date.now()}@directorybolt.com`, // Temporary email for analysis customers
+      business_name: businessNameFormatted,
+      package_type: tier,
+      status: 'pending',
+      directories_submitted: 0,
+      failed_directories: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    const { data: newCustomer, error: insertError } = await supabase
+      .from('customers')
+      .insert([customerData])
+      .select()
+      .single()
+    
+    if (insertError) {
+      logger.error('Failed to create customer from analysis', { error: insertError })
+      return null
+    }
+    
+    logger.info('Customer created from analysis', { 
+      customerId: newCustomer.customer_id,
+      businessName: businessNameFormatted,
+      tier 
+    })
+    
+    return newCustomer
+    
+  } catch (error) {
+    logger.error('Error creating customer from analysis', { error })
+    return null
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -366,6 +444,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         processingTime: Date.now() - startTime
       }
     })
+
+    // Create customer record from analysis (for non-free tiers)
+    if (tier !== 'free') {
+      try {
+        const newCustomer = await createCustomerFromAnalysis(url, tier, response)
+        if (newCustomer) {
+          response.customerCreated = {
+            customer_id: newCustomer.customer_id,
+            business_name: newCustomer.business_name,
+            package_type: newCustomer.package_type,
+            status: newCustomer.status
+          }
+        }
+      } catch (error) {
+        logger.error('Failed to create customer from analysis', { error })
+        // Don't fail the analysis if customer creation fails
+      }
+    }
 
     return res.status(200).json({success: true, data: response})
 

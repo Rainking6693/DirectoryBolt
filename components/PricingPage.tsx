@@ -89,6 +89,8 @@ const pricingTiers: PricingTier[] = [
     support: 'Phone & priority support',
     features: [
       '🤖 150 AI-optimized directory submissions',
+      '🔍 SEO Content Gap Analysis tool',
+      '📝 AI-generated blog post ideas',
       '📋 Custom AI market research ($1,500 value)',
       '🏷️ White-label AI reports ($800 value)',
       '📞 Quarterly AI strategy sessions',
@@ -115,6 +117,10 @@ const pricingTiers: PricingTier[] = [
     badge: 'PREMIUM SUITE',
     features: [
       '🤖 500+ AI-optimized directory submissions',
+      '🔍 Advanced SEO Content Gap Analysis',
+      '📊 Competitor content intelligence',
+      '🔑 Keyword cluster generation',
+      '❓ AI-powered FAQ suggestions',
       '👨‍💼 Dedicated AI business analyst ($1,500 value)',
       '🧠 Full AI intelligence suite ($2,000 value)',
       '📈 Real-time AI competitive monitoring',

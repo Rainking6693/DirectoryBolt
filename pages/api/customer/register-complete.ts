@@ -5,6 +5,15 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
+import Stripe from 'stripe'
+import { SecurityMiddleware } from '../../../lib/middleware/security'
+import { analytics } from '../../../lib/analytics/comprehensive-tracking'
+import { dbManager } from '../../../lib/database/optimized-queries'
+import { queueManager } from '../../../lib/queue/advanced-queue-manager'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-08-16',
+})
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -23,7 +32,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 interface CustomerRegistrationData {
   email: string
   password: string
-  full_name: string
+  firstName: string
+  lastName: string
   business_name: string
   business_website: string
   business_phone: string
@@ -36,6 +46,7 @@ interface CustomerRegistrationData {
   package_type: 'starter' | 'growth' | 'professional' | 'pro' | 'enterprise'
   payment_method: 'stripe' | 'paypal'
   stripe_customer_id?: string
+  session_id?: string
 }
 
 interface PackageConfig {
@@ -68,25 +79,37 @@ const PACKAGE_CONFIGS: Record<string, PackageConfig> = {
     features: ['Express processing', 'Dedicated support', 'Advanced analytics'],
     price: 499
   },
-  pro: {
+  enterprise: {
     directory_limit: 500,
     priority_level: 1,
     processing_speed: 'express',
-    features: ['White-glove service', 'Custom directories', 'API access'],
-    price: 799
-  },
-  enterprise: {
-    directory_limit: 1000,
-    priority_level: 1,
-    processing_speed: 'express',
     features: ['Custom solutions', 'Dedicated account manager', 'SLA guarantee'],
-    price: 1499
+    price: 799
+  }
+}
+
+// Retrieve customer email from Stripe session
+async function getCustomerEmailFromSession(sessionId: string): Promise<string> {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    return session.customer_details?.email || session.customer_email || ''
+  } catch (error) {
+    console.error('Failed to retrieve Stripe session:', error)
+    throw new Error('Invalid session ID')
   }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  // Apply security middleware
+  const isValid = await SecurityMiddleware.validateRequest(req, res, {
+    rateLimitType: 'registration',
+    allowedMethods: ['POST'],
+    requireHTTPS: true,
+    validateOrigin: true
+  })
+  
+  if (!isValid) {
+    return // Security middleware already sent response
   }
 
   const requestId = `reg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -96,16 +119,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const data: CustomerRegistrationData = req.body
 
-    // Validate required fields
-    const requiredFields = ['email', 'password', 'full_name', 'business_name', 'package_type']
-    for (const field of requiredFields) {
-      if (!data[field as keyof CustomerRegistrationData]) {
+    // If session_id is provided, retrieve customer email from Stripe
+    let customerEmail = data.email
+    if (data.session_id && !customerEmail) {
+      try {
+        customerEmail = await getCustomerEmailFromSession(data.session_id)
+        console.log(`📧 Retrieved customer email from Stripe session: ${customerEmail}`)
+        // Update the data object with the retrieved email
+        data.email = customerEmail
+      } catch (error) {
         return res.status(400).json({
-          error: 'Validation Error',
-          message: `Missing required field: ${field}`,
+          error: 'Invalid session',
+          message: 'Could not retrieve customer information from payment session',
           requestId
         })
       }
+    }
+
+    // Enhanced validation with security checks
+    const validationSchema = {
+      business_name: { required: true, maxLength: 100, pattern: /^[a-zA-Z0-9\s&\-\.,']+$/ },
+      business_website: { required: false, pattern: /^https?:\/\/.+/ },
+      business_phone: { required: false, pattern: /^\+?[\d\s\-\(\)]{10,}$/ },
+      business_email: { required: false, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+      package_type: { required: true }
+    }
+    
+    const { isValid: validationPassed, errors } = SecurityMiddleware.validateInputData(data, validationSchema)
+    if (!validationPassed) {
+      await analytics.trackError({
+        error_type: 'client',
+        error_message: 'Validation failed',
+        additional_context: { errors, requestId }
+      })
+      
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid input data',
+        details: errors,
+        requestId
+      })
+    }
+
+    // Validate email (either provided or retrieved from Stripe)
+    if (!data.email) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email is required',
+        requestId
+      })
     }
 
     // Validate package type
@@ -119,12 +181,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const packageConfig = PACKAGE_CONFIGS[data.package_type]
 
-    // Check if customer already exists
-    const { data: existingCustomer, error: checkError } = await supabase
-      .from('customers')
-      .select('id, email')
-      .eq('email', data.email)
-      .single()
+    // Check if customer already exists using optimized query
+    const { data: existingCustomer, error: checkError } = await dbManager.getCustomerByEmail(data.email)
 
     if (existingCustomer) {
       return res.status(409).json({
@@ -137,38 +195,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Generate customer ID
     const customerId = `DIR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(data.password, 12)
+    // Hash password (use provided password or generate temporary one)
+    const password = data.password || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const passwordHash = await bcrypt.hash(password, 12)
 
-    // Create customer record in Supabase
+    // Create customer record in Supabase (matching actual table schema)
     const customerData = {
       id: uuidv4(),
       customer_id: customerId,
       email: data.email,
-      password_hash: passwordHash,
-      full_name: data.full_name,
       business_name: data.business_name,
-      business_website: data.business_website || '',
-      business_phone: data.business_phone || '',
-      business_address: data.business_address || '',
-      business_city: data.business_city || '',
-      business_state: data.business_state || '',
-      business_zip: data.business_zip || '',
-      business_description: data.business_description || '',
-      business_category: data.business_category || '',
       package_type: data.package_type,
-      subscription_status: 'active',
-      total_directories_allocated: packageConfig.directory_limit,
+      status: 'pending',
       directories_submitted: 0,
       failed_directories: 0,
-      status: 'pending',
-      priority_level: packageConfig.priority_level,
-      stripe_customer_id: data.stripe_customer_id || null,
-      processing_metadata: {
-        package_config: packageConfig,
-        registration_date: new Date().toISOString(),
-        estimated_completion: new Date(Date.now() + (packageConfig.directory_limit * 2 * 60 * 1000)).toISOString() // 2 minutes per directory
-      },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
@@ -190,31 +230,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('✅ Customer created in Supabase:', newCustomer.customer_id)
 
-    // Create queue entry for AutoBolt processing
-    const queueData = {
-      id: uuidv4(),
-      customer_id: newCustomer.customer_id,
-      status: 'pending',
-      package_type: data.package_type,
-      directories_allocated: packageConfig.directory_limit,
-      directories_processed: 0,
-      directories_failed: 0,
-      priority_level: packageConfig.priority_level,
-      processing_speed: packageConfig.processing_speed,
-      estimated_completion: new Date(Date.now() + (packageConfig.directory_limit * 2 * 60 * 1000)).toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
+    // Add to advanced queue management system
+    try {
+      const queueJobId = await queueManager.addToQueue({
+        customer_id: newCustomer.customer_id,
+        package_type: data.package_type,
+        priority_level: packageConfig.priority_level,
+        directories_allocated: packageConfig.directory_limit,
+        directories_processed: 0,
+        created_at: new Date().toISOString(),
+        estimated_completion: new Date(Date.now() + (packageConfig.directory_limit * 2 * 60 * 1000)).toISOString()
+      })
+      
+      console.log(`✅ Customer added to advanced processing queue: ${queueJobId}`)
+    } catch (queueError) {
+      console.error('❌ Advanced queue creation error:', queueError)
+      // Fallback to legacy queue system
+      const queueData = {
+        id: uuidv4(),
+        customer_id: newCustomer.customer_id,
+        status: 'pending',
+        package_type: data.package_type,
+        directories_allocated: packageConfig.directory_limit,
+        directories_processed: 0,
+        directories_failed: 0,
+        priority_level: packageConfig.priority_level,
+        processing_speed: packageConfig.processing_speed,
+        estimated_completion: new Date(Date.now() + (packageConfig.directory_limit * 2 * 60 * 1000)).toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
 
-    const { error: queueError } = await supabase
-      .from('queue_history')
-      .insert([queueData])
-
-    if (queueError) {
-      console.error('❌ Queue creation error:', queueError)
-      // Don't fail the registration, just log the error
-    } else {
-      console.log('✅ Queue entry created for AutoBolt processing')
+      await supabase.from('queue_history').insert([queueData])
     }
 
     // Create customer notification
@@ -249,28 +296,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Don't fail the registration, just log the error
     }
 
-    // Log analytics event
-    const analyticsData = {
-      id: uuidv4(),
+    // Enhanced analytics tracking with conversion data
+    await analytics.trackConversion({
+      conversion_type: 'registration',
+      value: packageConfig.price,
+      package_type: data.package_type,
       customer_id: newCustomer.customer_id,
-      event_type: 'registration',
-      event_name: 'customer_registered',
-      event_data: {
-        package_type: data.package_type,
+      additional_data: {
         directory_limit: packageConfig.directory_limit,
         business_category: data.business_category,
-        registration_source: 'website'
-      },
-      created_at: new Date().toISOString()
-    }
-
-    const { error: analyticsError } = await supabase
-      .from('analytics_events')
-      .insert([analyticsData])
-
-    if (analyticsError) {
-      console.error('❌ Analytics logging error:', analyticsError)
-    }
+        registration_source: 'streamlined_checkout',
+        stripe_session_id: data.session_id,
+        processing_speed: packageConfig.processing_speed,
+        estimated_completion_hours: Math.round(packageConfig.directory_limit * 2 / 60)
+      }
+    })
 
     console.log('🎉 Complete customer registration pipeline successful', { 
       requestId, 
