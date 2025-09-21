@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-09-21T14:10:15.865Z",
+  "phase": "Phase 1 - Setup & Environment Validation",
+  "summary": {
+    "totalTests": 5,
+    "passedTests": 3,
+    "passRate": "60%",
+    "criticalIssues": [
+      "Database connection failure",
+      "Missing critical database tables"
+    ]
+  },
+  "details": {
+    "environmentVariables": {
+      "results": {
+        "NEXT_PUBLIC_SUPABASE_URL": "✅ Configured",
+        "SUPABASE_SERVICE_ROLE_KEY": "✅ Configured",
+        "OPENAI_API_KEY": "✅ Configured",
+        "STRIPE_SECRET_KEY": "✅ Configured",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "✅ Configured"
+      },
+      "configuredCount": 5,
+      "total": 5
+    },
+    "databaseConnectivity": {
+      "status": "failed",
+      "error": "System access failed: Invalid API key"
+    },
+    "tableStructure": {
+      "tableResults": {
+        "customers": "❌ Missing",
+        "queue_history": "❌ Missing",
+        "customer_notifications": "❌ Missing",
+        "autobolt_processing_queue": "❌ Missing",
+        "analytics_events": "❌ Missing"
+      },
+      "existingCount": 0,
+      "total": 5
+    },
+    "fileStructure": {
+      "fileResults": {
+        "pages/test-streamlined-pricing.tsx": "✅ Exists",
+        "components/checkout/StreamlinedCheckout.tsx": "✅ Exists",
+        "pages/api/stripe/create-checkout-session.ts": "✅ Exists",
+        "pages/success.js": "✅ Exists",
+        "pages/business-info.tsx": "✅ Exists",
+        "pages/api/customer/register-complete.ts": "✅ Exists",
+        "pages/staff-dashboard.tsx": "✅ Exists",
+        "lib/config/pricing.ts": "✅ Exists"
+      },
+      "existingCount": 8,
+      "total": 8
+    },
+    "apiEndpoints": {
+      "endpointResults": {
+        "pages/api/analyze.ts": "✅ Exists",
+        "pages/api/stripe/create-checkout-session.ts": "✅ Exists",
+        "pages/api/customer/register-complete.ts": "✅ Exists",
+        "pages/api/staff/queue.ts": "✅ Exists",
+        "pages/api/autobolt/queue-status.ts": "✅ Exists",
+        "pages/api/autobolt/get-next-customer.ts": "✅ Exists",
+        "pages/api/ai/content-gap-analysis.ts": "✅ Exists"
+      },
+      "existingCount": 7,
+      "total": 7
+    }
+  }
+}

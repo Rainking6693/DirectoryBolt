@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-09-21T14:55:39.631Z",
+  "summary": {
+    "total": 19,
+    "passed": 15,
+    "failed": 4,
+    "successRate": "79%"
+  },
+  "tests": [
+    {
+      "name": "Supabase Connection",
+      "status": "FAIL",
+      "error": ""
+    },
+    {
+      "name": "Customers Table CRUD",
+      "status": "FAIL",
+      "error": "Invalid API key"
+    },
+    {
+      "name": "Queue History Table",
+      "status": "FAIL",
+      "error": "Invalid API key"
+    },
+    {
+      "name": "Customer Notifications Table",
+      "status": "FAIL",
+      "error": "Invalid API key"
+    },
+    {
+      "name": "Analyze API Structure",
+      "status": "PASS",
+      "result": "All 4/5 structure checks passed"
+    },
+    {
+      "name": "Stripe Checkout API",
+      "status": "PASS",
+      "result": "Stripe endpoint valid, configured: true"
+    },
+    {
+      "name": "Customer Registration API",
+      "status": "PASS",
+      "result": "Registration API structure valid"
+    },
+    {
+      "name": "Staff Queue API",
+      "status": "PASS",
+      "result": "Staff queue API exists"
+    },
+    {
+      "name": "AutoBolt Integration APIs",
+      "status": "PASS",
+      "result": "3/3 AutoBolt APIs present"
+    },
+    {
+      "name": "AI Content Gap API",
+      "status": "PASS",
+      "result": "Content Gap API structure valid"
+    },
+    {
+      "name": "Analytics APIs",
+      "status": "PASS",
+      "result": "3/3 Analytics APIs present"
+    },
+    {
+      "name": "Pricing Configuration",
+      "status": "PASS",
+      "result": "All 4 tiers and prices configured correctly"
+    },
+    {
+      "name": "Tier Feature Access",
+      "status": "PASS",
+      "result": "Professional/Enterprise features present"
+    },
+    {
+      "name": "Staff Dashboard Components",
+      "status": "PASS",
+      "result": "4/4 staff components present"
+    },
+    {
+      "name": "Staff Authentication",
+      "status": "PASS",
+      "result": "Staff authentication configured"
+    },
+    {
+      "name": "Security Libraries",
+      "status": "PASS",
+      "result": "5/5 security libraries installed: helmet, cors, express-rate-limit, joi, bcrypt"
+    },
+    {
+      "name": "Environment Security",
+      "status": "PASS",
+      "result": "5/5 security secrets configured"
+    },
+    {
+      "name": "Build Configuration",
+      "status": "PASS",
+      "result": "All build files and scripts present"
+    },
+    {
+      "name": "Production Logging",
+      "status": "PASS",
+      "result": "3/3 production files present"
+    }
+  ],
+  "recommendation": "NEEDS ATTENTION"
+}

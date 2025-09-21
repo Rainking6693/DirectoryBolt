@@ -1,0 +1,224 @@
+{
+  "timestamp": "2025-09-21T14:56:54.594Z",
+  "testType": "COMPLETE_LIVE_FUNCTIONAL_TEST",
+  "summary": {
+    "total": 19,
+    "passed": 18,
+    "failed": 1,
+    "successRate": "95%",
+    "criticalFailures": 1
+  },
+  "sections": {
+    "criticalSystems": [
+      {
+        "name": "Database Connection",
+        "status": "PASS",
+        "result": "Connected - 0 customers in database"
+      },
+      {
+        "name": "Customer Table Operations",
+        "status": "FAIL",
+        "error": "new row for relation \"customers\" violates check constraint \"customers_status_check\""
+      },
+      {
+        "name": "Environment Variables",
+        "status": "PASS",
+        "result": "All 5 critical environment variables configured"
+      }
+    ],
+    "apiStructure": [
+      {
+        "name": "Analyze API Structure",
+        "status": "PASS",
+        "result": "5/5 structure checks passed"
+      },
+      {
+        "name": "Stripe Checkout API Structure",
+        "status": "PASS",
+        "result": "5/5 structure checks passed"
+      },
+      {
+        "name": "Customer Registration API Structure",
+        "status": "PASS",
+        "result": "5/5 structure checks passed"
+      },
+      {
+        "name": "Staff Queue API Structure",
+        "status": "PASS",
+        "result": "5/5 structure checks passed"
+      },
+      {
+        "name": "Content Gap API Structure",
+        "status": "PASS",
+        "result": "5/5 structure checks passed"
+      }
+    ],
+    "componentIntegration": [
+      {
+        "name": "Pricing Configuration Integration",
+        "status": "PASS",
+        "result": "All 4 tiers and prices properly configured"
+      },
+      {
+        "name": "Checkout Components Integration",
+        "status": "PASS",
+        "result": "4/4 checkout flow components present"
+      },
+      {
+        "name": "Staff Dashboard Integration",
+        "status": "PASS",
+        "result": "4/4 staff dashboard components present"
+      },
+      {
+        "name": "AutoBolt Integration",
+        "status": "PASS",
+        "result": "3/3 AutoBolt integration APIs present"
+      }
+    ],
+    "advancedFeatures": [
+      {
+        "name": "AI Analysis Features",
+        "status": "PASS",
+        "result": "2/2 AI APIs present, OpenAI configured: true"
+      },
+      {
+        "name": "Analytics & Monitoring",
+        "status": "PASS",
+        "result": "3/3 analytics APIs present"
+      },
+      {
+        "name": "Security Implementation",
+        "status": "PASS",
+        "result": "5/5 security libs, 3/3 secrets configured"
+      }
+    ],
+    "productionReadiness": [
+      {
+        "name": "Build System",
+        "status": "PASS",
+        "result": "3/3 build scripts, 2/2 config files"
+      },
+      {
+        "name": "Error Handling & Logging",
+        "status": "PASS",
+        "result": "3/3 production files present"
+      }
+    ],
+    "liveOperations": [
+      {
+        "name": "Real Customer Data Analysis",
+        "status": "PASS",
+        "result": "6 customers analyzed - Packages: {\"starter\":1,\"growth\":4,\"pro\":1}"
+      },
+      {
+        "name": "Queue System Operations",
+        "status": "PASS",
+        "result": "Queue: 8 records, Notifications: 2 records"
+      }
+    ]
+  },
+  "allTests": [
+    {
+      "name": "Database Connection",
+      "status": "PASS",
+      "result": "Connected - 0 customers in database"
+    },
+    {
+      "name": "Customer Table Operations",
+      "status": "FAIL",
+      "error": "new row for relation \"customers\" violates check constraint \"customers_status_check\""
+    },
+    {
+      "name": "Environment Variables",
+      "status": "PASS",
+      "result": "All 5 critical environment variables configured"
+    },
+    {
+      "name": "Analyze API Structure",
+      "status": "PASS",
+      "result": "5/5 structure checks passed"
+    },
+    {
+      "name": "Stripe Checkout API Structure",
+      "status": "PASS",
+      "result": "5/5 structure checks passed"
+    },
+    {
+      "name": "Customer Registration API Structure",
+      "status": "PASS",
+      "result": "5/5 structure checks passed"
+    },
+    {
+      "name": "Staff Queue API Structure",
+      "status": "PASS",
+      "result": "5/5 structure checks passed"
+    },
+    {
+      "name": "Content Gap API Structure",
+      "status": "PASS",
+      "result": "5/5 structure checks passed"
+    },
+    {
+      "name": "Pricing Configuration Integration",
+      "status": "PASS",
+      "result": "All 4 tiers and prices properly configured"
+    },
+    {
+      "name": "Checkout Components Integration",
+      "status": "PASS",
+      "result": "4/4 checkout flow components present"
+    },
+    {
+      "name": "Staff Dashboard Integration",
+      "status": "PASS",
+      "result": "4/4 staff dashboard components present"
+    },
+    {
+      "name": "AutoBolt Integration",
+      "status": "PASS",
+      "result": "3/3 AutoBolt integration APIs present"
+    },
+    {
+      "name": "AI Analysis Features",
+      "status": "PASS",
+      "result": "2/2 AI APIs present, OpenAI configured: true"
+    },
+    {
+      "name": "Analytics & Monitoring",
+      "status": "PASS",
+      "result": "3/3 analytics APIs present"
+    },
+    {
+      "name": "Security Implementation",
+      "status": "PASS",
+      "result": "5/5 security libs, 3/3 secrets configured"
+    },
+    {
+      "name": "Build System",
+      "status": "PASS",
+      "result": "3/3 build scripts, 2/2 config files"
+    },
+    {
+      "name": "Error Handling & Logging",
+      "status": "PASS",
+      "result": "3/3 production files present"
+    },
+    {
+      "name": "Real Customer Data Analysis",
+      "status": "PASS",
+      "result": "6 customers analyzed - Packages: {\"starter\":1,\"growth\":4,\"pro\":1}"
+    },
+    {
+      "name": "Queue System Operations",
+      "status": "PASS",
+      "result": "Queue: 8 records, Notifications: 2 records"
+    }
+  ],
+  "criticalIssues": [
+    {
+      "name": "Customer Table Operations",
+      "error": "new row for relation \"customers\" violates check constraint \"customers_status_check\""
+    }
+  ],
+  "recommendation": "CRITICAL ISSUES NEED ATTENTION"
+}

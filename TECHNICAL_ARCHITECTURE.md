@@ -36,9 +36,9 @@ DirectoryBolt.com is a sophisticated business directory submission service built
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐              │
-│  │    Supabase     │   │  Google Sheets  │   │   Airtable      │              │
-│  │   Database      │◄──┤   Integration   │◄──┤   Legacy Data   │              │
-│  │   Real-time     │   │   Customer Mgmt │   │   Migration     │              │
+│  │    Supabase     │   │  Real-time      │   │  Customer       │              │
+│  │   Database      │◄──┤  Data Sync      │◄──┤  Management     │              │
+│  │   PostgreSQL    │   │  & Analytics    │   │  System         │              │
 │  └─────────────────┘   └─────────────────┘   └─────────────────┘              │
 │                                                                                 │
 │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐              │
@@ -55,10 +55,10 @@ DirectoryBolt.com is a sophisticated business directory submission service built
 ### 1.1 Stripe Integration Architecture
 
 **Primary Components:**
-- `/pages/api/stripe/webhook.ts` - Main webhook handler
-- `/pages/api/webhooks/stripe-secure.ts` - Enhanced security webhook
-- `/pages/api/payments/webhook.ts` - Payment processing
-- `/pages/api/create-checkout-session.ts` - Session creation
+- `/pages/api/stripe/create-checkout-session.ts` - Stripe checkout session creation
+- `/pages/api/customer/register-complete.ts` - Customer registration with Stripe integration
+- `/pages/success.js` - Payment success page with redirect logic
+- `/pages/business-info.tsx` - Post-payment business information collection
 
 **Data Flow:**
 1. **Customer Checkout Initiation**
@@ -72,20 +72,18 @@ DirectoryBolt.com is a sophisticated business directory submission service built
    ```
 
 **Key Event Handlers:**
-- `checkout.session.completed` - New customer creation, subscription activation
-- `payment_intent.succeeded` - Payment confirmation
-- `customer.subscription.updated` - Plan changes, renewals
-- `invoice.payment_succeeded` - Recurring payment processing
-- `invoice.payment_failed` - Payment failure handling
+- `checkout.session.completed` - Payment confirmation and customer creation
+- `payment_intent.succeeded` - Payment processing completion
+- Customer registration via `/api/customer/register-complete.ts`
+- Business information collection post-payment
 
 **Security Measures:**
-- Webhook signature verification using `stripe.webhooks.constructEvent()`
-- Rate limiting with customizable intervals
-- Timeout protection (25-second webhook timeout)
-- Security monitoring with anomaly detection
-- IP-based access controls
+- Stripe checkout session validation
+- Customer email retrieval from Stripe sessions
+- Secure payment processing via Stripe hosted checkout
+- Business information collection post-payment
 
-### 1.2 Subscription Management
+### 1.2 One-Time Payment Management
 
 **Package Tiers:**
 ```typescript
@@ -102,9 +100,9 @@ const PACKAGE_CONFIGS = {
 2. **Payment** → Stripe checkout session creation and payment processing
 3. **Business Info Collection** → Post-payment detailed information gathering
 4. **Registration** → Customer record creation in Supabase with Stripe session data
-5. **Activation** → Queue entry for directory processing
-6. **Processing** → AutoBolt automation execution
-7. **Completion** → Results delivery and analytics
+5. **Queue Entry** → Customer added to AutoBolt processing queue
+6. **Staff Processing** → Manual "Push to AutoBolt" by staff members
+7. **Completion** → Results delivery and analytics via staff dashboard
 
 ## 2. Streamlined Checkout Architecture
 
@@ -194,35 +192,56 @@ useEffect(() => {
 ### 3.1 Business Intelligence Engine
 
 **Core Components:**
-- `/pages/api/analyze.ts` - Main analysis endpoint
-- `/pages/api/ai/business-analysis.ts` - Detailed business profiling
-- `/pages/api/ai/competitor-analysis.ts` - Market positioning
-- `/pages/api/ai/enhanced-analysis.ts` - Advanced AI features
+- `/pages/api/analyze.ts` - Main analysis endpoint with AI integration
+- AI-powered business intelligence via OpenAI/Anthropic
+- Customer record creation for paid analysis tiers
+- Directory opportunity identification
 
 **Analysis Tiers:**
 ```typescript
 const ANALYSIS_TIERS = {
   free: { maxDirectories: 5, includeAIAnalysis: false },
-  starter: { maxDirectories: 100, includeAIAnalysis: true, includeSEOAnalysis: true },
-  growth: { maxDirectories: 250, includeCompetitiveAnalysis: true, includeMarketInsights: true },
-  professional: { maxDirectories: 400, fullFeatureSet: true },
-  enterprise: { maxDirectories: 500, customAnalysis: true }
+  starter: { maxDirectories: 50, includeAIAnalysis: true, price: 149 },
+  growth: { maxDirectories: 150, includeCompetitiveAnalysis: true, price: 299 },
+  professional: { 
+    maxDirectories: 300, 
+    fullFeatureSet: true, 
+    contentGapAnalyzer: true,
+    price: 499 
+  },
+  enterprise: { 
+    maxDirectories: 500, 
+    customAnalysis: true, 
+    contentGapAnalyzer: true,
+    realTimeWebSocket: true,
+    price: 799 
+  }
 }
 ```
 
 ### 3.2 AI Service Integration
 
 **Supported AI Providers:**
-- **OpenAI GPT-4** - Business analysis, content generation
+- **OpenAI GPT-4** - Business analysis, content generation, content gap analysis
 - **Anthropic Claude** - Competitive analysis, strategic insights
-- **Web Scraping** - Puppeteer-based data collection
+- **Web Scraping** - Puppeteer-based data collection, Cheerio for competitor scraping
+- **Real-time WebSocket** - Live updates for Enterprise tier content analysis
 
 **Analysis Pipeline:**
 1. **URL Validation** → Security checks, domain analysis
 2. **Data Collection** → Web scraping, metadata extraction
 3. **AI Processing** → Business profiling, competitive analysis
 4. **Result Compilation** → Structured response generation
-5. **Caching** → Redis/Supabase storage for 30-day retention
+5. **Customer Creation** → Database record creation for paid tiers
+
+**Content Gap Analysis Pipeline:**
+1. **Website Scraping** → Cheerio-based competitor content extraction
+2. **Competitor Identification** → AI-powered competitor discovery and analysis
+3. **Content Gap Analysis** → AI identification of content opportunities
+4. **Blog Post Generation** → AI-generated blog post ideas with SEO optimization
+5. **FAQ Suggestions** → High-volume FAQ recommendations with search data
+6. **Keyword Clustering** → Thematically organized keyword groups
+7. **Real-time Updates** → WebSocket progress updates (Enterprise tier)
 
 **Business Intelligence Output:**
 ```typescript
@@ -245,14 +264,28 @@ interface BusinessIntelligenceResponse {
   }
   directoryOpportunities: Directory[]
 }
+
+interface ContentGapAnalysisResponse {
+  targetWebsite: string
+  competitors: CompetitorContent[]
+  contentGaps: ContentGap[]
+  blogPostIdeas: BlogPostIdea[]
+  faqSuggestions: FAQSuggestion[]
+  keywordClusters: KeywordCluster[]
+  analysisDate: string
+  confidence: number
+  processingTime: number
+}
 ```
 
 ### 3.3 Caching and Performance
 
-**Caching Strategy:**
-- **Analysis Results** - 30-day retention in Supabase
-- **Directory Listings** - 5-minute TTL with in-memory cache
-- **Business Profiles** - Change detection for re-analysis triggers
+**Data Management Strategy:**
+- **Analysis Results** - Stored in Supabase database
+- **Customer Records** - Real-time updates via Supabase
+- **Business Profiles** - Integrated with customer registration pipeline
+- **Content Gap Analysis** - Cached results with tier-based access control
+- **Real-time Updates** - WebSocket connections for Enterprise tier
 
 ## 4. Queue Management System
 
@@ -325,10 +358,11 @@ analytics_events (
 ### 4.2 AutoBolt Processing Queue
 
 **Queue API Endpoints:**
-- `/pages/api/autobolt/queue.ts` - Queue entry management
-- `/pages/api/autobolt/process-queue.ts` - Queue processing
-- `/pages/api/autobolt/queue-status.ts` - Status monitoring
+- `/pages/api/autobolt/queue-status.ts` - Queue status monitoring
 - `/pages/api/autobolt/customer-status.ts` - Individual customer tracking
+- `/pages/api/autobolt/get-next-customer.ts` - Get next customer for processing
+- `/pages/api/autobolt/update-progress.ts` - Update submission progress
+- `/pages/api/autobolt/heartbeat.ts` - Extension heartbeat monitoring
 
 **Priority System:**
 ```typescript
@@ -348,66 +382,96 @@ const TIER_QUEUE_CONFIGS = {
 - SLA compliance monitoring with violation alerts
 
 **Processing Windows:**
-- Enterprise: 24/7 availability
-- Professional: Business hours extended (7am-9pm)
-- Growth: Standard business hours (9am-6pm)
-- Starter: Off-peak processing (10pm-6am)
+- Enterprise: Priority processing with staff oversight
+- Professional: Standard processing with staff oversight
+- Growth: Standard processing with staff oversight
+- Starter: Standard processing with staff oversight
 
 ## 5. Directory Submission Automation
 
 ### 5.1 Dynamic Form Mapping Engine
 
-**Core Component:** `/lib/services/dynamic-form-mapper.ts`
+**Core Component:** Chrome Extension AutoBolt Integration
 
-**Mapping Strategies:**
-1. **Site-Specific Mappings** - Pre-configured form mappings
-2. **Semantic Auto-Mapping** - AI-powered field detection
-3. **Pattern Fallbacks** - Common form pattern matching
-4. **Manual Mapping Interface** - Human-in-the-loop for complex forms
+**Processing Strategies:**
+1. **Staff-Controlled Processing** - Manual "Push to AutoBolt" functionality
+2. **Real-time Progress Tracking** - Live status updates via extension
+3. **Queue Management** - Staff dashboard for monitoring and control
+4. **Quality Assurance** - Human oversight for all submissions
 
-**Form Mapping Architecture:**
+**AutoBolt Processing Architecture:**
 ```typescript
-interface SiteMapping {
-  siteId: string
-  siteName: string
-  url: string
-  submissionUrl: string
-  formMappings: { [businessField: string]: string[] }
-  submitButton: string
-  successIndicators: string[]
-  skipConditions: string[]
-  difficulty: 'easy' | 'medium' | 'hard'
-  requiresLogin: boolean
-  hasCaptcha: boolean
-  verificationStatus: 'verified' | 'needs-testing' | 'broken'
+interface AutoBoltProcessing {
+  customerId: string
+  directoryName: string
+  submissionStatus: 'pending' | 'processing' | 'completed' | 'failed'
+  progress: number
+  totalDirectories: number
+  processedDirectories: number
+  failedDirectories: number
+  lastUpdated: string
+  extensionId: string
+}
+
+interface AutoBoltQueueItem {
+  id: string
+  customer_id: string
+  business_name: string
+  email: string
+  package_type: string
+  directory_limit: number
+  priority_level: number
+  status: 'queued' | 'processing' | 'completed' | 'failed' | 'paused'
+  action: string
+  created_at: string
+  updated_at: string
+  created_by: string
+  started_at?: string
+  completed_at?: string
+  error_message?: string
+  metadata: Record<string, any>
+}
+
+interface AutoBoltExtensionStatus {
+  extension_id: string
+  status: 'online' | 'offline' | 'processing' | 'error'
+  last_heartbeat: string
+  current_customer_id?: string
+  current_queue_id?: string
+  processing_started_at?: string
+  directories_processed: number
+  directories_failed: number
+  error_message?: string
+  metadata: Record<string, any>
 }
 ```
 
 ### 5.2 Batch Processing Workflows
 
 **Processing Methods:**
-- **Browser Automation** - Puppeteer-based form filling
-- **API Integration** - Direct API submissions where available
-- **Hybrid Approach** - Combination of automation and manual intervention
+- **Chrome Extension** - AutoBolt automated form filling
+- **Staff Control** - Manual triggering via staff dashboard
+- **Real-time Monitoring** - Live progress tracking and status updates
 
 **Success/Failure Tracking:**
 - Real-time status updates via Supabase
-- Success probability scoring per directory
-- Automatic retry logic with exponential backoff
-- Failure categorization and reporting
+- Progress tracking via AutoBolt extension
+- Staff dashboard monitoring and alerts
+- Manual intervention capabilities
 
-### 5.3 Unmappable Site Logic
+### 5.3 Staff Dashboard Management
 
-**Automatic Detection:**
-- CAPTCHA presence detection
-- Login requirement identification
-- Anti-bot protection recognition
-- Rate limiting detection
+**Staff Controls:**
+- Manual "Push to AutoBolt" functionality
+- Real-time queue monitoring
+- Customer progress tracking
+- Analytics and reporting
 
-**Fallback Strategies:**
-- Manual submission queue
-- Alternative directory suggestions
-- Customer notification system
+**Quality Assurance:**
+- Human oversight for all submissions
+- Manual intervention capabilities
+- Error handling and retry logic
+- Customer communication system
 
 ## 6. Data Architecture
 
@@ -415,11 +479,27 @@ interface SiteMapping {
 
 **Primary Database:** Supabase PostgreSQL
 
+**Core Tables:**
+- `customers` - Customer management and business data
+- `queue_history` - Processing queue management
+- `customer_notifications` - Customer notification system
+- `analytics_events` - Analytics and tracking data
+- `batch_operations` - Batch processing management
+
+**AutoBolt Integration Tables:**
+- `autobolt_processing_queue` - AutoBolt processing queue management
+- `directory_submissions` - Individual directory submission tracking
+- `autobolt_extension_status` - Chrome extension status monitoring
+- `autobolt_processing_history` - Processing session history
+
 **Key Relationships:**
 ```sql
 -- Customer → Queue History (1:Many)
 -- Customer → Notifications (1:Many)
 -- Customer → Analytics Events (1:Many)
+-- Customer → AutoBolt Processing Queue (1:Many)
+-- AutoBolt Queue → Directory Submissions (1:Many)
+-- AutoBolt Queue → Processing History (1:Many)
 -- Batch Operations → Customers (Many:Many via customer_ids array)
 ```
 
@@ -435,28 +515,61 @@ CREATE INDEX idx_analytics_events_customer_id ON analytics_events(customer_id);
 
 ### 6.2 External Service Integrations
 
-**Google Sheets Integration:**
-- Customer data synchronization
-- Legacy Airtable data migration
-- Real-time updates via Google Sheets API
+**Stripe Integration:**
+- Payment processing and checkout sessions
+- Customer email retrieval from sessions
+- Webhook handling for payment confirmations
 
-**Airtable Legacy Support:**
-- Backward compatibility layer
-- Data migration utilities
-- Dual-write capability during transition
+**AI Service Integration:**
+- OpenAI API for business analysis and content gap analysis
+- Anthropic API for competitive intelligence
+- Cheerio for competitor website scraping
+- Real-time analysis processing
+- WebSocket for real-time updates (Enterprise tier)
 
 ### 6.3 API Endpoint Mapping
 
-**Authentication APIs:**
-- `/api/auth/login.ts` - User authentication
-- `/api/auth/register.ts` - New user registration
-- `/api/auth/refresh-token.ts` - Token refresh
-
 **Customer Management APIs:**
 - `/api/customer/register-complete.ts` - Complete registration pipeline with Stripe session integration
-- `/api/customer/dashboard-data.ts` - Dashboard information
-- `/api/customer/progress.ts` - Submission progress
-- `/api/customer/notifications.ts` - Notification management
+- `/api/analyze.ts` - Website analysis and customer creation for paid tiers
+
+**AI Content Gap Analysis APIs:**
+- `/api/ai/content-gap-analysis.ts` - REST API endpoint for content gap analysis
+- ContentGapAnalyzer service class with OpenAI integration
+- Rate limiting and tier validation (Professional/Enterprise only)
+- Real-time WebSocket updates (Enterprise tier)
+
+**Staff Dashboard APIs:**
+- `/api/staff/queue.ts` - Queue data for staff monitoring
+- `/api/staff/analytics.ts` - Analytics data for staff dashboard
+- `/api/staff/push-to-autobolt.ts` - Manual AutoBolt processing trigger
+- `/api/staff/auth-check.ts` - Staff authentication verification
+- `/api/staff/autobolt-extensions.ts` - AutoBolt extension management
+- `/api/staff/autobolt-queue.ts` - Staff AutoBolt queue monitoring
+
+**AutoBolt Integration APIs:**
+- `/api/autobolt/queue.ts` - AutoBolt queue management
+- `/api/autobolt/process-queue.ts` - Process AutoBolt queue
+- `/api/autobolt/queue-status.ts` - AutoBolt queue status
+- `/api/autobolt/pending-customers.ts` - Get pending customers for AutoBolt
+- `/api/autobolt/get-next-customer.ts` - Get next customer for processing
+- `/api/autobolt/update-progress.ts` - Update submission progress
+- `/api/autobolt/heartbeat.ts` - Extension heartbeat monitoring
+- `/api/autobolt/customer-data.ts` - Customer data for AutoBolt
+- `/api/autobolt/customer-status.ts` - Customer processing status
+- `/api/autobolt/directories.ts` - Directory data for AutoBolt
+- `/api/autobolt/dynamic-mapping.ts` - Dynamic directory mapping
+- `/api/autobolt/processing-queue.ts` - Processing queue management
+- `/api/autobolt/update-submission.ts` - Update submission status
+
+**Queue Management APIs:**
+- `/api/queue/add.js` - Add customer to processing queue
+- `/api/queue/status.js` - Queue status and statistics
+- `/api/queue/process.ts` - Process queue items
+- `/api/queue/operations.ts` - Queue operations management
+- `/api/queue/[customerId].ts` - Individual customer queue management
+- `/api/queue/pending.js` - Get pending queue items
+- `/api/queue/batch.ts` - Batch queue operations
 
 **Streamlined Checkout APIs:**
 - `/api/stripe/create-checkout-session.ts` - Stripe checkout session creation
@@ -468,108 +581,104 @@ CREATE INDEX idx_analytics_events_customer_id ON analytics_events(customer_id);
 - `/components/pricing/StreamlinedPricing.tsx` - 4-tier pricing display
 - `/pages/test-streamlined-pricing.tsx` - Test page for streamlined flow
 
-**Analysis APIs:**
-- `/api/analyze.ts` - Main analysis endpoint
-- `/api/ai/business-analysis.ts` - Business intelligence
-- `/api/ai/competitor-analysis.ts` - Market analysis
+**AutoBolt APIs:**
+- `/api/autobolt/queue-status.ts` - Queue status monitoring
+- `/api/autobolt/customer-status.ts` - Individual customer tracking
+- `/api/autobolt/get-next-customer.ts` - Get next customer for processing
+- `/api/autobolt/update-progress.ts` - Update submission progress
+- `/api/autobolt/heartbeat.ts` - Extension heartbeat monitoring
 
 **Queue Management APIs:**
-- `/api/queue/index.ts` - Queue operations
-- `/api/queue/status.js` - Status monitoring
-- `/api/queue/process.ts` - Processing triggers
+- `/api/queue/[customerId].ts` - Individual customer queue operations
+- `/api/queue/batch.ts` - Batch queue operations
+- `/api/queue/operations.ts` - Queue operation management
 
 **Directory APIs:**
 - `/api/directories/index.ts` - Directory listing and management
 - `/api/directories/analyze-form.js` - Form analysis
 - `/api/directories/seed.ts` - Directory seeding
 
-## 7. Background Processes
+## 7. Staff Dashboard System
 
-### 7.1 Background Scheduler
+### 7.1 Staff Dashboard Architecture
 
-**Core Component:** `/background-scheduler.js`
+**Core Components:**
+- `/pages/staff-dashboard.tsx` - Main staff dashboard interface
+- `/pages/staff-login.tsx` - Staff authentication
+- `/components/staff-dashboard/RealTimeQueue.tsx` - Queue monitoring
+- `/components/staff-dashboard/RealTimeAnalytics.tsx` - Analytics display
+- `/components/staff-dashboard/AutoBoltQueueMonitor.tsx` - AutoBolt monitoring
 
-**Scheduling Architecture:**
-```typescript
-class BackgroundScheduler {
-  // Package-specific configurations
-  packageScheduling: {
-    Enterprise: { priority: 1, processingWindow: '24/7', slaMinutes: 15 },
-    Professional: { priority: 2, processingWindow: 'business-hours-extended', slaMinutes: 120 },
-    Growth: { priority: 3, processingWindow: 'business-hours', slaMinutes: 480 },
-    Starter: { priority: 4, processingWindow: 'off-peak', slaMinutes: 960 }
-  }
-}
-```
-
-**Job Queue System:**
-- **Urgent Queue** - SLA violations, Enterprise priority
-- **High Queue** - Enterprise and Professional packages
-- **Medium Queue** - Growth packages
-- **Low Queue** - Starter packages
+**Staff Controls:**
+- Manual "Push to AutoBolt" functionality
+- Real-time queue monitoring and management
+- Customer progress tracking and analytics
+- Quality assurance and oversight capabilities
 
 ### 7.2 Monitoring and Performance
 
 **Performance Metrics:**
-- Job processing throughput
-- SLA compliance rates
-- Resource utilization tracking
-- Error rate monitoring
+- Customer queue processing status
+- AutoBolt extension health monitoring
+- Real-time analytics and reporting
+- Staff dashboard performance tracking
 
-**Auto-scaling Logic:**
-- Dynamic resource allocation based on load
-- Automatic scaling up/down based on queue size
-- Performance optimization through load balancing
-
-### 7.3 Webhook Processors
-
-**Stripe Webhook Processing:**
-- Event validation and signature verification
-- Idempotency handling for duplicate events
+**Quality Assurance:**
+- Human oversight for all submissions
+- Manual intervention capabilities
 - Error handling and retry logic
-- Real-time customer status updates
+- Customer communication and support
 
-**Notification Systems:**
-- Email notifications for completion/failures
-- Dashboard real-time updates
-- SMS notifications for premium customers
+### 7.3 Security and Authentication
+
+**Staff Authentication:**
+- `/pages/staff-login.tsx` - Staff login interface
+- `/pages/api/staff/auth-check.ts` - Authentication validation
+- Session management and security controls
+- Role-based access control
+
+**API Security:**
+- Staff authentication middleware
+- Rate limiting and CSRF protection
+- Input validation and sanitization
+- Secure API endpoint access
 
 ## 8. Security and Monitoring
 
 ### 8.1 Security Architecture
 
 **API Security:**
-- Rate limiting on all endpoints
-- JWT token authentication
-- Request validation and sanitization
-- CORS protection
+- Staff authentication middleware (`/lib/middleware/staff-auth.ts`)
+- Rate limiting middleware (`/lib/middleware/rate-limit.ts`)
+- CSRF protection middleware (`/lib/middleware/csrf-protection.ts`)
+- Input validation and sanitization
 
-**Webhook Security:**
-- Stripe signature verification
-- IP whitelisting for known sources
-- Timeout protection
-- Anomaly detection and alerting
+**Authentication Security:**
+- Session-based authentication
+- API key validation
+- Basic authentication support
+- Secure cookie management
 
 ### 8.2 Error Handling
 
 **Error Recovery:**
-- Automatic retry with exponential backoff
-- Dead letter queues for failed jobs
-- Manual intervention workflows
-- Comprehensive error logging
+- Staff dashboard error monitoring
+- Manual intervention capabilities
+- Customer notification system
+- Comprehensive error logging and tracking
 
 ### 8.3 Performance Monitoring
 
 **Metrics Collection:**
 - API response times
 - Database query performance
-- Queue processing rates
-- Resource utilization
+- AutoBolt processing rates
+- Staff dashboard performance
 
 **Health Checks:**
-- `/api/health.ts` - System health endpoint
-- `/api/health/supabase.ts` - Database connectivity
-- `/api/health/google-sheets.ts` - External service health
+- `/api/status/index.ts` - System status endpoint
+- `/api/system-status.ts` - Comprehensive system diagnostics
+- `/api/ai/status.ts` - AI service health monitoring
 
 ## 9. Deployment and Infrastructure
 
@@ -603,9 +712,13 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 OPENAI_API_KEY=sk-your-openai-key
 ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
 
-# External Integrations
-AIRTABLE_API_TOKEN=pat_your_airtable_token
-AIRTABLE_BASE_ID=appYourBaseId
+# Chrome Extension
+AUTOBOLT_EXTENSION_ID=your_extension_id
+AUTOBOLT_API_KEY=your_extension_api_key
+
+# Content Gap Analyzer
+CONTENT_GAP_ANALYZER_ENABLED=true
+WEBSOCKET_ENABLED=true
 ```
 
 ## 10. Data Flow Examples
@@ -639,39 +752,73 @@ AIRTABLE_BASE_ID=appYourBaseId
     ↓
 13. Customer Record Created in Supabase Database
     ↓
-14. Queue Entry Added (autobolt/queue.ts)
+14. Queue Entry Added to AutoBolt Processing Queue
     ↓
-15. Background Scheduler Picks Up Job
+15. Staff Dashboard Shows Customer in Queue
     ↓
-16. AutoBolt Processing Begins
+16. Staff Member Clicks "Push to AutoBolt"
     ↓
-17. Form Mapping Engine Maps Fields
+17. AutoBolt Extension Receives Customer Data
     ↓
-18. Directory Submissions Execute
+18. Chrome Extension Processes Directory Submissions
     ↓
-19. Results Tracked in Database
+19. Real-time Progress Updates via Staff Dashboard
     ↓
 20. Customer Notified of Completion
 ```
 
-### 10.2 Error Recovery Flow
+### 10.2 Content Gap Analysis Flow (Professional/Enterprise)
+
+```
+1. Customer Accesses Content Gap Analyzer
+   ↓
+2. Enters Website URL for Analysis
+   ↓
+3. Clicks "Analyze" Button
+   ↓
+4. API Validates Tier Access (Professional/Enterprise)
+   ↓
+5. ContentGapAnalyzer Service Initialized
+   ↓
+6. Website Scraping with Cheerio
+   ↓
+7. Competitor Identification via AI
+   ↓
+8. Content Gap Analysis Processing
+   ↓
+9. Blog Post Ideas Generation
+   ↓
+10. FAQ Suggestions with Search Volumes
+    ↓
+11. Keyword Clusters Organization
+    ↓
+12. Real-time Updates (Enterprise WebSocket)
+    ↓
+13. Comprehensive Report Generation
+    ↓
+14. Results Displayed to Customer
+```
+
+### 10.3 Error Recovery Flow
 
 ```
 1. Directory Submission Fails
    ↓
-2. Error Categorized and Logged
+2. Error Logged in Staff Dashboard
    ↓
-3. Retry Logic Determines Action
+3. Staff Member Reviews Error Details
    ↓
-4. If Retryable: Add to Retry Queue
+4. Manual Intervention or Retry Decision
    ↓
-5. If Not Retryable: Mark as Failed
+5. If Retryable: Staff Triggers Retry
    ↓
-6. Customer Notification Sent
+6. If Not Retryable: Mark as Failed
    ↓
-7. Alternative Directories Suggested
+7. Customer Notification Sent
    ↓
-8. Manual Review Queue Updated
+8. Alternative Directories Suggested
+   ↓
+9. Staff Dashboard Updated with Status
 ```
 
 ## 11. Performance Characteristics
@@ -680,13 +827,13 @@ AIRTABLE_BASE_ID=appYourBaseId
 
 **Current Capacity:**
 - 1000+ concurrent users
-- 50+ directories processed per minute
+- Staff-controlled processing with quality oversight
 - 99.9% uptime SLA
 - <200ms API response times
 
 **Scaling Thresholds:**
-- Auto-scale at 80% resource utilization
-- Queue size monitoring with alerts
+- Staff dashboard monitoring with alerts
+- Queue size monitoring with staff notifications
 - Database connection pooling
 - CDN caching for static assets
 
@@ -696,6 +843,6 @@ AIRTABLE_BASE_ID=appYourBaseId
 - Multi-region deployment capability
 - Database replication and backups
 - Graceful degradation on service failures
-- Circuit breaker patterns for external services
+- Staff dashboard monitoring and manual intervention capabilities
 
 This technical architecture provides a comprehensive foundation for understanding DirectoryBolt's backend systems, enabling effective collaboration between development teams and supporting future scaling requirements.

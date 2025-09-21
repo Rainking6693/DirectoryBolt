@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-09-21T14:12:52.950Z",
+  "phase": "Phase 2 - Core Customer Journey Testing",
+  "summary": {
+    "totalTests": 6,
+    "passedTests": 4,
+    "warningTests": 2,
+    "failedTests": 0,
+    "passRate": "67%"
+  },
+  "details": {
+    "landingPage": {
+      "status": "warning",
+      "foundPage": "pages/index.tsx",
+      "contentScore": "1/4",
+      "checks": {
+        "hasValueProp": false,
+        "hasAnalysisMetrics": true,
+        "hasPricingInfo": false,
+        "hasCTA": false
+      }
+    },
+    "pricingPage": {
+      "status": "warning",
+      "pricingScore": "0/6",
+      "checks": {
+        "hasStarterTier": false,
+        "hasGrowthTier": false,
+        "hasProfessionalTier": false,
+        "hasEnterpriseTier": false,
+        "hasFeatureList": false,
+        "hasCheckout": false
+      }
+    },
+    "checkoutSystem": {
+      "status": "pass",
+      "foundComponents": [
+        "components/checkout/StreamlinedCheckout.tsx",
+        "pages/api/stripe/create-checkout-session.ts",
+        "pages/success.js"
+      ],
+      "missingComponents": [],
+      "stripeConfigured": true,
+      "componentScore": "3/3"
+    },
+    "businessInfo": {
+      "status": "pass",
+      "foundComponents": [
+        "pages/business-info.tsx",
+        "pages/api/customer/register-complete.ts"
+      ],
+      "componentScore": "2/2"
+    },
+    "queueManagement": {
+      "status": "pass",
+      "foundComponents": [
+        "pages/api/autobolt/queue-status.ts",
+        "pages/api/autobolt/get-next-customer.ts",
+        "pages/api/autobolt/update-progress.ts",
+        "pages/staff-dashboard.tsx",
+        "pages/api/staff/push-to-autobolt.ts"
+      ],
+      "componentScore": "5/5"
+    },
+    "analysisAPI": {
+      "status": "pass",
+      "apiScore": "4/5",
+      "checks": {
+        "hasOpenAIIntegration": false,
+        "hasBusinessAnalysis": true,
+        "hasTierHandling": true,
+        "hasErrorHandling": true,
+        "hasResponseStructure": true
+      }
+    }
+  },
+  "criticalIssues": [],
+  "recommendations": [
+    "Improve landing page content and value proposition"
+  ]
+}

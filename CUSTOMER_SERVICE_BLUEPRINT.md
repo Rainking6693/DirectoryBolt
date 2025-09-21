@@ -16,8 +16,8 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 ### Customer Types
 - **Starter**: Small businesses ($149 one-time, 50 directories)
 - **Growth**: Growing businesses ($299 one-time, 150 directories) 
-- **Professional**: Established businesses ($499 one-time, 300 directories)
-- **Enterprise**: Large organizations ($799 one-time, 500 directories)
+- **Professional**: Established businesses ($499 one-time, 300 directories) + AI Content Gap Analyzer
+- **Enterprise**: Large organizations ($799 one-time, 500 directories) + AI Content Gap Analyzer + Real-time WebSocket updates
 
 ---
 
@@ -63,11 +63,11 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - AI-generated insights and recommendations
 - Directory opportunity identification
 
-**Progress Tracking API** (`/api/analyze/progress`)
-- Real-time status updates
-- Progress percentage tracking
-- Step-by-step analysis phases
-- Error handling and retry mechanisms
+**Analysis API** (`/api/analyze`)
+- Website analysis and business intelligence
+- AI-powered competitive analysis
+- Directory opportunity identification
+- Customer record creation for paid tiers
 
 ### 2.2 PRICING & SELECTION PHASE
 
@@ -88,8 +88,8 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 **Package Options:**
 - **Starter**: 50 directories, basic support ($149)
 - **Growth**: 150 directories, priority processing ($299) - Most Popular
-- **Professional**: 300 directories, express processing ($499)
-- **Enterprise**: 500 directories, white-glove service ($799)
+- **Professional**: 300 directories, express processing + AI Content Gap Analyzer ($499)
+- **Enterprise**: 500 directories, white-glove service + AI Content Gap Analyzer + Real-time WebSocket updates ($799)
 
 ### 2.3 STREAMLINED CHECKOUT PHASE
 
@@ -110,8 +110,8 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 **Package Selection:**
 - **Starter**: $149 (50 directories)
 - **Growth**: $299 (150 directories) - Most Popular
-- **Professional**: $499 (300 directories)
-- **Enterprise**: $799 (500 directories)
+- **Professional**: $499 (300 directories + AI Content Gap Analyzer)
+- **Enterprise**: $799 (500 directories + AI Content Gap Analyzer + Real-time WebSocket updates)
 
 #### **Payment Processing**
 - Stripe checkout session creation
@@ -166,12 +166,18 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - Email notifications for status updates
 - Estimated completion times
 
-**Backend Processing** (`/api/queue/status.js`):
-- Batch submission management
+**Backend Processing** (`/api/autobolt/queue-status.ts`):
+- AutoBolt processing queue management
 - Priority queue based on package level
-- AutoBolt extension integration
+- Chrome extension integration
 - Directory-specific form processing
-- Retry logic for failed submissions
+- Real-time progress tracking
+
+**AutoBolt Database Tables:**
+- `autobolt_processing_queue` - Main processing queue with customer data and status
+- `directory_submissions` - Individual directory submission tracking
+- `autobolt_extension_status` - Chrome extension status and heartbeat monitoring
+- `autobolt_processing_history` - Complete processing session history and analytics
 
 **Status Tracking:**
 - Queued → Processing → Submitted → Live/Rejected
@@ -193,7 +199,40 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - Error handling and retry mechanisms
 - Success rate optimization
 
-### 2.6 CUSTOMER DASHBOARD
+### 2.6 AI CONTENT GAP ANALYZER (Professional/Enterprise)
+
+#### **Content Gap Analysis Interface**
+**Customer Actions:**
+- Enter website URL for analysis
+- Click "Analyze" button to start comprehensive content gap analysis
+- View real-time analysis progress (Enterprise tier)
+- Review detailed analysis results and actionable insights
+
+**Visible Elements:**
+- Clean website URL input box with validation
+- Prominent "Analyze" button with loading states
+- Real-time progress indicators (Enterprise tier)
+- Comprehensive analysis results dashboard
+
+**Analysis Features:**
+- 🕷️ **Competitor Website Scraping**: Automated competitor identification and content analysis using Cheerio
+- 📊 **Content Gap Identification**: AI-powered identification of content opportunities competitors are missing
+- 💡 **Blog Post Ideas Generation**: Specific, actionable blog post suggestions with SEO optimization
+- ❓ **FAQ Suggestions**: High-volume FAQ recommendations with search volume data
+- 🎯 **Keyword Clusters**: Thematically organized keyword groups for content strategy
+- 📈 **Detailed Reporting**: Comprehensive insights with actionable recommendations
+
+**Tier-Specific Features:**
+- **Professional**: Standard analysis with 3-5 competitors, basic reporting
+- **Enterprise**: Comprehensive analysis with 5+ competitors, real-time WebSocket updates, advanced reporting
+
+**API Integration:**
+- `/api/ai/content-gap-analysis` - REST API endpoint for analysis processing
+- ContentGapAnalyzer service class with OpenAI integration
+- Rate limiting and tier validation
+- Real-time WebSocket updates (Enterprise tier)
+
+### 2.7 CUSTOMER DASHBOARD
 
 #### **Main Dashboard (/dashboard)**
 **Customer Actions:**
@@ -266,9 +305,9 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - Stripe session validation and email retrieval
 - Customer record creation in Supabase database
 - Package configuration and feature access
-- Queue initialization for submission processing
+- AutoBolt queue initialization
 - Welcome notification creation
-- AutoBolt processing trigger
+- Manual AutoBolt processing trigger (staff-controlled)
 
 ### 3.2 AI & Analysis Services
 **Website Analysis Engine:**
@@ -277,11 +316,20 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - SEO score calculation and recommendations
 - Directory opportunity identification
 
-**Progress Tracking System:**
-- Real-time status updates via WebSocket-like polling
-- Multi-step analysis workflow tracking
-- Error handling and retry logic
-- Performance monitoring and optimization
+**Analysis Processing System:**
+- AI-powered website analysis via OpenAI/Anthropic
+- Business intelligence and competitive analysis
+- Directory opportunity identification
+- Customer record creation for paid analysis tiers
+
+**AI Content Gap Analyzer:**
+- Advanced competitor website scraping using Cheerio
+- AI-powered content gap identification and analysis
+- Blog post idea generation with SEO optimization
+- FAQ suggestions with search volume data
+- Keyword cluster analysis organized by themes
+- Comprehensive reporting with actionable insights
+- Real-time WebSocket updates for Enterprise tier
 
 ### 3.3 Payment Processing
 **Stripe Integration:**
@@ -291,11 +339,12 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - Refund and chargeback handling
 
 ### 3.4 AutoBolt Extension System
-**Browser Automation:**
-- Headless browser automation for form submissions
-- Dynamic form mapping and completion
-- CAPTCHA solving and human verification
+**Chrome Extension Automation:**
+- Chrome extension for automated form submissions
+- Real-time progress tracking and status updates
+- Staff-controlled processing queue management
 - Success/failure tracking and reporting
+- Manual "Push to AutoBolt" functionality
 
 ---
 
@@ -308,10 +357,12 @@ Discovery → Analysis → Pricing → Payment → Business Info Collection → 
 - **Framer Motion**: Smooth animations and transitions
 
 ### 4.2 Backend Services
-- **Supabase**: Database and authentication
-- **Stripe**: Payment processing
-- **Google Analytics 4**: Enhanced tracking and conversion optimization
-- **Puppeteer**: Browser automation for directory submissions
+- **Supabase**: Database and real-time data management
+- **Stripe**: Payment processing and checkout sessions
+- **OpenAI/Anthropic**: AI-powered business analysis and content gap analysis
+- **Chrome Extension**: AutoBolt automated form submissions
+- **Cheerio**: Web scraping for competitor content analysis
+- **WebSocket**: Real-time updates for Enterprise tier content analysis
 
 ### 4.3 Performance & SEO
 - **Core Web Vitals Tracking**: Performance monitoring
@@ -411,9 +462,9 @@ The frontstage customer experience is designed for simplicity and transparency, 
 1. **Payment-First Approach**: Minimal friction with email-only pre-payment collection
 2. **Streamlined Onboarding**: Business information collected after payment commitment
 3. **Transparent Pricing**: Clear value proposition with one-time pricing ($149-$799)
-4. **Automated Delivery**: Minimal customer effort required post-purchase
-5. **Real-time Tracking**: Complete visibility into service progress
-6. **Quality Assurance**: High success rates and customer satisfaction
-7. **Scalable Infrastructure**: Reliable service delivery at any volume
+4. **Staff-Controlled Processing**: Manual AutoBolt triggering for quality control
+5. **Real-time Tracking**: Complete visibility into service progress via staff dashboard
+6. **Quality Assurance**: High success rates through manual oversight
+7. **Scalable Infrastructure**: Reliable service delivery with human oversight
 
 This blueprint serves as the foundation for ongoing service optimization and customer experience enhancement initiatives.

@@ -1,55 +1,51 @@
-// DirectoryBolt Service Worker for Performance Optimization
-const CACHE_NAME = 'directorybolt-v1.2'
-const STATIC_CACHE = 'directorybolt-static-v1.2'
-const DYNAMIC_CACHE = 'directorybolt-dynamic-v1.2'
+// DirectoryBolt Service Worker
+const CACHE_NAME = 'directorybolt-v1.0.0'
+const STATIC_CACHE = 'directorybolt-static-v1.0.0'
+const DYNAMIC_CACHE = 'directorybolt-dynamic-v1.0.0'
 
-// Assets to cache immediately
+// Assets to cache on install
 const STATIC_ASSETS = [
   '/',
-  '/pricing',
-  '/analyze',
-  '/hero.svg',
+  '/offline',
+  '/manifest.json',
   '/favicon.ico',
-  '/apple-touch-icon.png',
-  '/favicon-32x32.png',
-  '/favicon-16x16.png',
-  '/site.webmanifest',
-  '/robots.txt'
+  '/pwa/icon-192.png',
+  '/pwa/icon-512.png',
+  '/_next/static/css/',
+  '/_next/static/js/'
 ]
 
-// Cache strategies for different content types
-const CACHE_STRATEGIES = {
-  images: 'cache-first',
-  fonts: 'cache-first',
-  css: 'stale-while-revalidate',
-  js: 'stale-while-revalidate',
-  html: 'network-first',
-  api: 'network-first'
-}
+// Routes that should always be cached
+const CACHE_ROUTES = [
+  '/dashboard',
+  '/analytics',
+  '/submit',
+  '/directories',
+  '/pricing'
+]
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...')
+  console.log('[SW] Installing service worker')
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('Service Worker: Caching static assets')
+        console.log('[SW] Caching static assets')
         return cache.addAll(STATIC_ASSETS)
       })
-      .then(() => {
-        console.log('Service Worker: Static assets cached')
-        return self.skipWaiting()
-      })
-      .catch((error) => {
-        console.error('Service Worker: Failed to cache static assets', error)
+      .catch((err) => {
+        console.error('[SW] Failed to cache static assets:', err)
       })
   )
+  
+  // Force activation of new service worker
+  self.skipWaiting()
 })
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...')
+  console.log('[SW] Activating service worker')
   
   event.waitUntil(
     caches.keys()
@@ -57,239 +53,397 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('Service Worker: Deleting old cache', cacheName)
+              console.log('[SW] Deleting old cache:', cacheName)
               return caches.delete(cacheName)
             }
           })
         )
       })
       .then(() => {
-        console.log('Service Worker: Activated')
+        // Take control of all clients
         return self.clients.claim()
       })
   )
 })
 
-// Fetch event - implement caching strategies
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
   
-  // Skip non-GET requests
-  if (request.method !== 'GET') return
+  // Skip cross-origin requests
+  if (url.origin !== location.origin) {
+    return
+  }
   
-  // Skip external requests (except fonts and images)
-  if (url.origin !== location.origin && !isAllowedExternal(url)) return
+  // Handle API requests differently
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(request))
+    return
+  }
   
-  event.respondWith(handleRequest(request))
+  // Handle page requests
+  if (request.mode === 'navigate') {
+    event.respondWith(handlePageRequest(request))
+    return
+  }
+  
+  // Handle static assets
+  event.respondWith(handleStaticRequest(request))
 })
 
-// Handle different types of requests with appropriate strategies
-async function handleRequest(request) {
-  const url = new URL(request.url)
-  const contentType = getContentType(url.pathname)
-  
+// Handle API requests with network-first strategy
+async function handleApiRequest(request) {
   try {
-    switch (contentType) {
-      case 'images':
-        return await cacheFirst(request, STATIC_CACHE)
-      
-      case 'fonts':
-        return await cacheFirst(request, STATIC_CACHE)
-      
-      case 'css':
-      case 'js':
-        return await staleWhileRevalidate(request, STATIC_CACHE)
-      
-      case 'html':
-        return await networkFirst(request, DYNAMIC_CACHE)
-      
-      case 'api':
-        return await networkFirst(request, DYNAMIC_CACHE, 3000) // 3s timeout
-      
-      default:
-        return await networkFirst(request, DYNAMIC_CACHE)
-    }
-  } catch (error) {
-    console.error('Service Worker: Request failed', error)
-    return await handleOffline(request)
-  }
-}
-
-// Cache First Strategy - for static assets
-async function cacheFirst(request, cacheName) {
-  const cache = await caches.open(cacheName)
-  const cachedResponse = await cache.match(request)
-  
-  if (cachedResponse) {
-    // Update cache in background
-    fetch(request).then((response) => {
-      if (response.ok) {
-        cache.put(request, response.clone())
-      }
-    }).catch(() => {}) // Ignore network errors
+    // Always try network first for API requests
+    const networkResponse = await fetch(request)
     
-    return cachedResponse
-  }
-  
-  const networkResponse = await fetch(request)
-  if (networkResponse.ok) {
-    cache.put(request, networkResponse.clone())
-  }
-  
-  return networkResponse
-}
-
-// Network First Strategy - for dynamic content
-async function networkFirst(request, cacheName, timeout = 5000) {
-  const cache = await caches.open(cacheName)
-  
-  try {
-    const networkResponse = await Promise.race([
-      fetch(request),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Network timeout')), timeout)
-      )
-    ])
-    
-    if (networkResponse.ok) {
+    // Cache successful responses for offline fallback
+    if (networkResponse.ok && request.method === 'GET') {
+      const cache = await caches.open(DYNAMIC_CACHE)
       cache.put(request, networkResponse.clone())
     }
     
     return networkResponse
   } catch (error) {
-    console.log('Service Worker: Network failed, trying cache', error.message)
-    const cachedResponse = await cache.match(request)
+    console.log('[SW] API request failed, trying cache:', request.url)
     
+    // Try to serve from cache if available
+    const cachedResponse = await caches.match(request)
     if (cachedResponse) {
       return cachedResponse
+    }
+    
+    // Return offline response for critical endpoints
+    if (request.url.includes('/api/user') || request.url.includes('/api/dashboard')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Offline', 
+          message: 'This feature requires an internet connection' 
+        }),
+        {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
     }
     
     throw error
   }
 }
 
-// Stale While Revalidate Strategy - for CSS/JS
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName)
-  const cachedResponse = await cache.match(request)
-  
-  // Always try to update cache in background
-  const networkResponsePromise = fetch(request).then((response) => {
-    if (response.ok) {
-      cache.put(request, response.clone())
-    }
-    return response
-  }).catch(() => {}) // Ignore network errors
-  
-  // Return cached version immediately if available
-  if (cachedResponse) {
-    return cachedResponse
-  }
-  
-  // Otherwise wait for network
-  return await networkResponsePromise
-}
-
-// Handle offline scenarios
-async function handleOffline(request) {
+// Handle page requests with cache-first strategy for key pages
+async function handlePageRequest(request) {
   const url = new URL(request.url)
   
-  // For HTML pages, return a cached page or offline page
-  if (request.headers.get('accept')?.includes('text/html')) {
-    const cache = await caches.open(DYNAMIC_CACHE)
-    const cachedResponse = await cache.match('/')
+  // Check if this is a key route that should be cached
+  const isKeyRoute = CACHE_ROUTES.some(route => url.pathname.startsWith(route))
+  
+  if (isKeyRoute) {
+    try {
+      // Try cache first for key routes
+      const cachedResponse = await caches.match(request)
+      if (cachedResponse) {
+        // Serve from cache and update in background
+        updateCacheInBackground(request)
+        return cachedResponse
+      }
+    } catch (error) {
+      console.log('[SW] Cache match failed:', error)
+    }
+  }
+  
+  try {
+    // Try network
+    const networkResponse = await fetch(request)
     
+    // Cache successful page responses
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE)
+      cache.put(request, networkResponse.clone())
+    }
+    
+    return networkResponse
+  } catch (error) {
+    console.log('[SW] Page request failed:', request.url)
+    
+    // Try to serve from cache
+    const cachedResponse = await caches.match(request)
     if (cachedResponse) {
       return cachedResponse
     }
     
-    // Return basic offline response
-    return new Response(
-      `<!DOCTYPE html>
-      <html>
-        <head>
-          <title>DirectoryBolt - Offline</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-            .offline { color: #666; }
-          </style>
-        </head>
-        <body>
-          <h1>DirectoryBolt</h1>
-          <p class="offline">You're currently offline. Please check your connection and try again.</p>
-          <button onclick="window.location.reload()">Retry</button>
-        </body>
-      </html>`,
-      {
-        status: 200,
-        headers: { 'Content-Type': 'text/html' }
-      }
-    )
+    // Serve offline page
+    return caches.match('/offline')
   }
-  
-  // For other requests, return a basic error response
-  return new Response('Offline', { status: 503 })
 }
 
-// Utility functions
-function getContentType(pathname) {
-  if (pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) return 'images'
-  if (pathname.match(/\.(woff|woff2|ttf|eot)$/i)) return 'fonts'
-  if (pathname.match(/\.css$/i)) return 'css'
-  if (pathname.match(/\.js$/i)) return 'js'
-  if (pathname.startsWith('/api/')) return 'api'
-  if (pathname.match(/\.(html|htm)$/i) || !pathname.includes('.')) return 'html'
-  return 'other'
-}
-
-function isAllowedExternal(url) {
-  const allowedDomains = [
-    'fonts.googleapis.com',
-    'fonts.gstatic.com',
-    'www.google-analytics.com',
-    'www.googletagmanager.com'
-  ]
-  
-  return allowedDomains.some(domain => url.hostname.includes(domain))
-}
-
-// Background sync for failed requests
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'background-sync') {
-    event.waitUntil(doBackgroundSync())
+// Handle static asset requests
+async function handleStaticRequest(request) {
+  try {
+    // Try cache first for static assets
+    const cachedResponse = await caches.match(request)
+    if (cachedResponse) {
+      return cachedResponse
+    }
+    
+    // Try network
+    const networkResponse = await fetch(request)
+    
+    // Cache successful responses
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE)
+      cache.put(request, networkResponse.clone())
+    }
+    
+    return networkResponse
+  } catch (error) {
+    console.log('[SW] Static request failed:', request.url)
+    
+    // Try cache again as fallback
+    return caches.match(request)
   }
-})
-
-async function doBackgroundSync() {
-  // Implement background sync logic for failed API requests
-  console.log('Service Worker: Background sync triggered')
 }
 
-// Push notifications (for future use)
+// Update cache in background
+async function updateCacheInBackground(request) {
+  try {
+    const response = await fetch(request)
+    if (response.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE)
+      cache.put(request, response)
+    }
+  } catch (error) {
+    console.log('[SW] Background update failed:', error)
+  }
+}
+
+// Handle push notifications
 self.addEventListener('push', (event) => {
-  if (event.data) {
+  if (!event.data) {
+    return
+  }
+  
+  try {
     const data = event.data.json()
+    const { title, body, icon, badge, actions, data: notificationData } = data
+    
+    const options = {
+      body,
+      icon: icon || '/pwa/icon-192.png',
+      badge: badge || '/pwa/badge.png',
+      data: notificationData,
+      requireInteraction: true,
+      actions: actions || [
+        {
+          action: 'view',
+          title: 'View Details'
+        },
+        {
+          action: 'dismiss',
+          title: 'Dismiss'
+        }
+      ]
+    }
     
     event.waitUntil(
-      self.registration.showNotification(data.title, {
-        body: data.body,
-        icon: '/icon-192x192.png',
-        badge: '/favicon-32x32.png',
-        data: data.url
+      self.registration.showNotification(title || 'DirectoryBolt Update', options)
+    )
+  } catch (error) {
+    console.error('[SW] Failed to show notification:', error)
+    
+    // Fallback notification
+    event.waitUntil(
+      self.registration.showNotification('DirectoryBolt Update', {
+        body: 'You have a new update',
+        icon: '/pwa/icon-192.png',
+        badge: '/pwa/badge.png'
       })
     )
   }
 })
 
-// Notification click handler
+// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-  event.notification.close()
+  const { action, notification } = event
+  const data = notification.data || {}
   
-  if (event.notification.data) {
-    event.waitUntil(
-      clients.openWindow(event.notification.data)
-    )
+  notification.close()
+  
+  let targetUrl = '/'
+  
+  // Determine target URL based on action and data
+  switch (action) {
+    case 'view':
+    case 'view_directory':
+      if (data.type === 'directory_update') {
+        targetUrl = '/directories'
+      } else {
+        targetUrl = '/dashboard'
+      }
+      break
+    case 'view_dashboard':
+      targetUrl = '/dashboard'
+      break
+    case 'view_analytics':
+      targetUrl = '/analytics'
+      break
+    case 'take_action':
+      targetUrl = data.actionUrl || '/dashboard'
+      break
+    default:
+      if (data.type === 'directory_update') {
+        targetUrl = '/directories'
+      } else if (data.type === 'analytics') {
+        targetUrl = '/analytics'
+      } else {
+        targetUrl = '/dashboard'
+      }
+  }
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if there's already a window open
+        for (const client of clientList) {
+          if (client.url.includes(targetUrl) && 'focus' in client) {
+            return client.focus()
+          }
+        }
+        
+        // Open new window if none found
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl)
+        }
+      })
+      .catch((error) => {
+        console.error('[SW] Failed to handle notification click:', error)
+      })
+  )
+})
+
+// Handle background sync
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Background sync triggered:', event.tag)
+  
+  switch (event.tag) {
+    case 'sync-analytics':
+      event.waitUntil(syncAnalytics())
+      break
+    case 'sync-submissions':
+      event.waitUntil(syncSubmissions())
+      break
+    case 'sync-preferences':
+      event.waitUntil(syncPreferences())
+      break
+    default:
+      console.log('[SW] Unknown sync tag:', event.tag)
   }
 })
+
+// Sync analytics data
+async function syncAnalytics() {
+  try {
+    // Get pending analytics data from IndexedDB or localStorage
+    const pendingData = await getPendingAnalytics()
+    
+    if (pendingData.length > 0) {
+      const response = await fetch('/api/analytics/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: pendingData })
+      })
+      
+      if (response.ok) {
+        await clearPendingAnalytics()
+        console.log('[SW] Analytics synced successfully')
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Analytics sync failed:', error)
+  }
+}
+
+// Sync form submissions
+async function syncSubmissions() {
+  try {
+    const pendingSubmissions = await getPendingSubmissions()
+    
+    for (const submission of pendingSubmissions) {
+      try {
+        const response = await fetch('/api/directories/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submission)
+        })
+        
+        if (response.ok) {
+          await removePendingSubmission(submission.id)
+        }
+      } catch (error) {
+        console.error('[SW] Submission sync failed:', error)
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Submissions sync failed:', error)
+  }
+}
+
+// Sync user preferences
+async function syncPreferences() {
+  try {
+    const pendingPreferences = await getPendingPreferences()
+    
+    if (pendingPreferences) {
+      const response = await fetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pendingPreferences)
+      })
+      
+      if (response.ok) {
+        await clearPendingPreferences()
+        console.log('[SW] Preferences synced successfully')
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Preferences sync failed:', error)
+  }
+}
+
+// Helper functions for offline data management
+async function getPendingAnalytics() {
+  // Implementation would depend on your offline storage strategy
+  return []
+}
+
+async function clearPendingAnalytics() {
+  // Clear pending analytics data
+}
+
+async function getPendingSubmissions() {
+  // Get pending submissions from offline storage
+  return []
+}
+
+async function removePendingSubmission(id) {
+  // Remove specific submission from offline storage
+}
+
+async function getPendingPreferences() {
+  // Get pending preferences from offline storage
+  return null
+}
+
+async function clearPendingPreferences() {
+  // Clear pending preferences
+}
+
+// Handle skip waiting message
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
+
+console.log('[SW] Service Worker loaded successfully')

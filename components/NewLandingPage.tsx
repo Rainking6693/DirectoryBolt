@@ -87,7 +87,7 @@ export default function NewLandingPage() {
                 Get $4,300 Worth of Business Intelligence for $299 ONE-TIME
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 bg-gradient-to-r from-volt-400 to-volt-600 bg-clip-text text-transparent leading-tight animate-slide-up">
-                AI-Powered Directory Submission Service
+                AI-Powered Business Intelligence Directory Service
               </h1>
               <h2 className="text-xl sm:text-2xl lg:text-3xl mb-6 text-secondary-300 animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 Get Listed on 500+ High-Authority Directories in Days, Not Months
