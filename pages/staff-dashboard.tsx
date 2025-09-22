@@ -3,11 +3,12 @@ import Layout from '../components/layout/Layout'
 import RealTimeQueue from '../components/staff-dashboard/RealTimeQueue'
 import RealTimeAnalytics from '../components/staff-dashboard/RealTimeAnalytics'
 import AutoBoltQueueMonitor from '../components/staff-dashboard/AutoBoltQueueMonitor'
+import JobProgressMonitor from '../components/staff/JobProgressMonitor'
 import { useRouter } from 'next/router'
 
 export default function StaffDashboard() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'queue' | 'analytics' | 'autobolt'>('queue')
+  const [activeTab, setActiveTab] = useState<'queue' | 'analytics' | 'autobolt' | 'jobs'>('queue')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
 
@@ -134,6 +135,7 @@ export default function StaffDashboard() {
                   <nav className="flex space-x-2 sm:space-x-8 -mb-px overflow-x-auto">
                     {[
                       { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue', icon: '📋' },
+                      { key: 'jobs', label: 'Jobs', fullLabel: 'Job Progress Monitor', icon: '⚡' },
                       { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics', icon: '📈' },
                       { key: 'autobolt', label: 'AutoBolt', fullLabel: 'AutoBolt Monitor', icon: '🤖' }
                     ].map((tab) => (
@@ -159,6 +161,7 @@ export default function StaffDashboard() {
             {/* Dashboard Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               {activeTab === 'queue' && <RealTimeQueue />}
+              {activeTab === 'jobs' && <JobProgressMonitor />}
               {activeTab === 'analytics' && <RealTimeAnalytics />}
               {activeTab === 'autobolt' && <AutoBoltQueueMonitor />}
             </main>

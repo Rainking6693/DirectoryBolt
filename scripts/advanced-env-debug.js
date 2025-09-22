@@ -6,6 +6,9 @@
  * Implements cutting-edge deployment practices from Vercel/Netlify 2025
  */
 
+// Load environment variables first
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
@@ -88,8 +91,8 @@ class AdvancedEnvironmentDebugger {
     const requiredVars = [
       { name: 'OPENAI_API_KEY', critical: true, validate: (val) => val && val.startsWith('sk-') },
       { name: 'ANTHROPIC_API_KEY', critical: false, validate: (val) => val && val.startsWith('sk-ant-') },
-      { name: 'SUPABASE_URL', critical: true, validate: (val) => val && val.includes('supabase.co') },
-      { name: 'SUPABASE_ANON_KEY', critical: true, validate: (val) => val && val.length > 100 },
+      { name: 'NEXT_PUBLIC_SUPABASE_URL', critical: true, validate: (val) => val && val.includes('supabase.co') },
+      { name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', critical: true, validate: (val) => val && val.length > 100 },
       { name: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', critical: true, validate: (val) => val && val.startsWith('pk_') },
       { name: 'STRIPE_SECRET_KEY', critical: true, validate: (val) => val && val.startsWith('sk_') }
     ];
@@ -156,12 +159,12 @@ class AdvancedEnvironmentDebugger {
     }
 
     // Test Supabase connectivity
-    if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       try {
         const { createClient } = require('@supabase/supabase-js');
         const supabase = createClient(
-          process.env.SUPABASE_URL, 
-          process.env.SUPABASE_ANON_KEY
+          process.env.NEXT_PUBLIC_SUPABASE_URL, 
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
         );
         const startTime = performance.now();
         const { data, error } = await supabase.from('customers').select('count').limit(1);

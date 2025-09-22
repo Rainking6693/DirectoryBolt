@@ -29,7 +29,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["package-tier-engine.js"],
+      "resources": ["package-tier-engine.js", "directory-bolt-api.js", "autobolt-processor.js"],
       "matches": ["<all_urls>"]
     }
   ]

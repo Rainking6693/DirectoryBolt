@@ -169,24 +169,44 @@ export class EnhancedWebsiteAnalyzer {
 
       // Initialize browser for screenshots if enabled
       if (this.config.enableScreenshots) {
-        // Configure for serverless environment
-        const isServerless = process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
-        
-        if (isServerless) {
-          // Use @sparticuz/chromium for serverless
-          this.browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-            ignoreHTTPSErrors: true,
-          })
-        } else {
-          // Use local Chrome for development
-          this.browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-          })
+        try {
+          // Configure for serverless environment
+          const isServerless = process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+          
+          if (isServerless) {
+            // Use @sparticuz/chromium for serverless
+            this.browser = await puppeteer.launch({
+              args: chromium.args,
+              defaultViewport: chromium.defaultViewport,
+              executablePath: await chromium.executablePath(),
+              headless: chromium.headless,
+              ignoreHTTPSErrors: true,
+            })
+          } else {
+            // Use local Chrome for development with environment path
+            const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
+                                   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' || // macOS
+                                   'google-chrome' // Linux
+            
+            this.browser = await puppeteer.launch({
+              headless: 'new',
+              executablePath: executablePath,
+              args: [
+                '--no-sandbox', 
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--disable-gpu'
+              ]
+            })
+          }
+        } catch (browserError) {
+          logger.warn('Failed to launch browser, continuing without screenshots', { metadata: { error: browserError } })
+          this.browser = null
+          // Disable screenshots for this analysis
+          this.config.enableScreenshots = false
         }
       }
 
@@ -492,10 +512,25 @@ export class EnhancedWebsiteAnalyzer {
     // Extract social links
     const socialLinks = this.extractSocialLinks($)
 
+    // Extract website hostname safely
+    let websiteHostname = undefined
+    try {
+      const canonicalUrl = $('link[rel="canonical"]').attr('href')
+      const ogUrl = $('meta[property="og:url"]').attr('content')
+      const urlCandidate = canonicalUrl || ogUrl
+      
+      if (urlCandidate && urlCandidate.trim()) {
+        websiteHostname = new URL(urlCandidate).hostname
+      }
+    } catch (error) {
+      // If URL parsing fails, leave websiteHostname as undefined
+      logger.warn('Failed to extract website hostname from canonical/og:url', { metadata: { error } })
+    }
+
     return {
       email: emails[0] || undefined,
       phone: phones[0] || undefined,
-      website: new URL($('link[rel="canonical"]').attr('href') || $('meta[property="og:url"]').attr('content') || '').hostname,
+      website: websiteHostname,
       socialLinks: socialLinks
     }
   }

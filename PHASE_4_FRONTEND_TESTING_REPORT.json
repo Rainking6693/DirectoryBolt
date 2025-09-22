@@ -1,0 +1,81 @@
+{
+  "summary": {
+    "totalTests": 8,
+    "passedTests": 3,
+    "failedTests": 5,
+    "successRate": "37.50%",
+    "duration": "9s",
+    "timestamp": "2025-09-22T14:52:15.350Z"
+  },
+  "componentTests": {
+    "Frontend Components": [
+      {
+        "test": "JobProgressMonitor Component Functionality",
+        "status": "FAIL",
+        "details": "this.page.waitForTimeout is not a function",
+        "timestamp": "2025-09-22T14:52:15.171Z"
+      },
+      {
+        "test": "Staff Dashboard Responsive Design",
+        "status": "FAIL",
+        "details": "this.page.waitForTimeout is not a function",
+        "timestamp": "2025-09-22T14:52:15.178Z"
+      },
+      {
+        "test": "Error State Handling & User Feedback",
+        "status": "FAIL",
+        "details": "SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'button:contains(\"Retry\"), button:contains(\"Try Again\"), .retry-button' is not a valid selector.",
+        "timestamp": "2025-09-22T14:52:15.229Z"
+      },
+      {
+        "test": "Cross-Browser Compatibility",
+        "status": "PASS",
+        "details": "100% compatibility score",
+        "timestamp": "2025-09-22T14:52:15.242Z"
+      },
+      {
+        "test": "Mobile Device Responsiveness",
+        "status": "FAIL",
+        "details": "this.page.waitForTimeout is not a function",
+        "timestamp": "2025-09-22T14:52:15.247Z"
+      },
+      {
+        "test": "Accessibility Standards Compliance",
+        "status": "PASS",
+        "details": "Accessibility standards tested - 100% coverage",
+        "timestamp": "2025-09-22T14:52:15.344Z"
+      },
+      {
+        "test": "Real-Time Updates & WebSocket Connections",
+        "status": "FAIL",
+        "details": "SyntaxError: Failed to execute 'querySelectorAll' on 'Document': '.animate-pulse, .live-indicator, *:contains(\"Live\")' is not a valid selector.",
+        "timestamp": "2025-09-22T14:52:15.347Z"
+      },
+      {
+        "test": "Component Performance Metrics",
+        "status": "PASS",
+        "details": "Performance tested - 1 issues noted",
+        "timestamp": "2025-09-22T14:52:15.350Z"
+      }
+    ]
+  },
+  "responsiveTests": {},
+  "performanceTests": {},
+  "accessibilityTests": {},
+  "realTimeTests": {},
+  "criticalIssues": [],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "category": "Performance",
+      "recommendation": "Continue monitoring frontend performance metrics",
+      "impact": "Ensure optimal experience for $149-799 customers"
+    },
+    {
+      "priority": "LOW",
+      "category": "Enhancement",
+      "recommendation": "Consider adding more comprehensive accessibility features",
+      "impact": "Improved accessibility compliance and user experience"
+    }
+  ]
+}

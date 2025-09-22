@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import type { BusinessIntelligenceResponse } from '../../lib/types/ai.types'
 import { createClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
+import { withRateLimit, rateLimiters } from '../../lib/middleware/production-rate-limit'
 
 // Simple logger fallback
 const logger = {
@@ -336,7 +337,7 @@ async function createCustomerFromAnalysis(url: string, tier: string, analysisDat
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -483,3 +484,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   }
 }
+
+// Export with rate limiting applied
+export default withRateLimit(handler, rateLimiters.analyze)

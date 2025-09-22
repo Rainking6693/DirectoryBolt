@@ -4,6 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { handleApiError } from '../../../lib/utils/errors'
 import { logger } from '../../../lib/utils/logger'
+import { withRateLimit, rateLimiters } from '../../../lib/middleware/production-rate-limit'
 
 interface SystemStatus {
   status: 'healthy' | 'degraded' | 'unhealthy'
@@ -79,7 +80,7 @@ const systemMetrics = {
   startTime: Date.now()
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SystemStatus | any>
 ) {
@@ -94,9 +95,25 @@ export default async function handler(
       ))
     }
     
+    // ⚠️ SECURITY: Check for admin authentication
+    const isAuthenticated = await checkAdminAuth(req)
+    
     const startTime = Date.now()
     
-    // Check all services
+    if (!isAuthenticated) {
+      // Return minimal public status only
+      const publicStatus = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+        environment: process.env.NODE_ENV === 'production' ? 'production' : 'development'
+      }
+      
+      res.setHeader('Cache-Control', 'public, max-age=30')
+      return res.status(200).json(publicStatus)
+    }
+    
+    // Full system status only for authenticated admin users
     const services = await checkAllServices()
     const metrics = await collectSystemMetrics()
     const alerts = await getActiveAlerts()
@@ -123,11 +140,12 @@ export default async function handler(
       method: 'GET',
       url: '/api/status',
       status: 200,
-      duration
+      duration,
+      authenticated: true
     })
     
-    // Cache headers for monitoring dashboards
-    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60')
+    // Private cache headers for admin dashboards
+    res.setHeader('Cache-Control', 'private, max-age=10, stale-while-revalidate=30')
     res.setHeader('X-Response-Time', `${duration}ms`)
     
     res.status(200).json(status)
@@ -135,6 +153,29 @@ export default async function handler(
   } catch (error) {
     const errorResponse = handleApiError(error as Error, requestId)
     return res.status(errorResponse.error.statusCode).json(errorResponse)
+  }
+}
+
+// Admin authentication check
+async function checkAdminAuth(req: NextApiRequest): Promise<boolean> {
+  try {
+    // Check for admin API key
+    const apiKey = req.headers['x-admin-key'] || req.headers['authorization']?.replace('Bearer ', '')
+    
+    if (!apiKey) {
+      return false
+    }
+    
+    // Verify admin API key
+    const validAdminKey = process.env.ADMIN_API_KEY
+    if (!validAdminKey || apiKey !== validAdminKey) {
+      return false
+    }
+    
+    return true
+  } catch (error) {
+    logger.error('Admin auth check failed', {}, error as Error)
+    return false
   }
 }
 
@@ -431,3 +472,6 @@ export function updateMetrics(responseTime: number, isError: boolean = false): v
     systemMetrics.errors++
   }
 }
+
+// Export with rate limiting applied
+export default withRateLimit(handler, rateLimiters.status)

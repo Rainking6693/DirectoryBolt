@@ -14,30 +14,30 @@
       "name": "Production Build",
       "critical": true,
       "status": "failed",
-      "startTime": "2025-09-21T20:53:32.953Z",
-      "duration": 2481.2109,
+      "startTime": "2025-09-22T15:00:13.694Z",
+      "duration": 1690.3793,
       "result": null,
       "error": "Production build failed: Command failed: npm run build:optimized 2>&1",
       "metadata": {},
-      "endTime": "2025-09-21T20:53:35.434Z"
+      "endTime": "2025-09-22T15:00:15.385Z"
     },
     {
       "name": "Server Startup",
       "critical": true,
       "status": "failed",
-      "startTime": "2025-09-21T20:53:35.435Z",
-      "duration": 4759.3496,
+      "startTime": "2025-09-22T15:00:15.385Z",
+      "duration": 4080.5897999999997,
       "result": null,
       "error": "Production server test failed: No endpoints responding - server failed to start properly",
       "metadata": {},
-      "endTime": "2025-09-21T20:53:40.194Z"
+      "endTime": "2025-09-22T15:00:19.465Z"
     },
     {
       "name": "Netlify Functions",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-21T20:53:40.194Z",
-      "duration": 487.0027,
+      "startTime": "2025-09-22T15:00:19.465Z",
+      "duration": 243.53629999999976,
       "result": {
         "totalFunctions": 7,
         "healthyFunctions": 5,
@@ -81,14 +81,14 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T20:53:40.681Z"
+      "endTime": "2025-09-22T15:00:19.709Z"
     },
     {
       "name": "Edge Functions",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-21T20:53:40.681Z",
-      "duration": 0.7831999999998516,
+      "startTime": "2025-09-22T15:00:19.709Z",
+      "duration": 0.5917999999992389,
       "result": {
         "totalEdgeFunctions": 1,
         "validEdgeFunctions": 1,
@@ -105,29 +105,29 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T20:53:40.682Z"
+      "endTime": "2025-09-22T15:00:19.710Z"
     },
     {
       "name": "Load Testing",
       "critical": false,
       "status": "failed",
-      "startTime": "2025-09-21T20:53:40.682Z",
-      "duration": 576.3204000000005,
+      "startTime": "2025-09-22T15:00:19.710Z",
+      "duration": 543.9977000000008,
       "result": null,
       "error": "Load testing failed: High failure rate: 50/50 requests failed",
       "metadata": {},
-      "endTime": "2025-09-21T20:53:41.258Z"
+      "endTime": "2025-09-22T15:00:20.254Z"
     },
     {
       "name": "Security Headers",
       "critical": false,
       "status": "failed",
-      "startTime": "2025-09-21T20:53:41.258Z",
-      "duration": 3.3830999999991036,
+      "startTime": "2025-09-22T15:00:20.254Z",
+      "duration": 1.7784999999994398,
       "result": null,
-      "error": "Security validation failed: write EPROTO 7C2C0000:error:0A00010B:SSL routines:ssl3_get_record:wrong version number:c:\\ws\\deps\\openssl\\openssl\\ssl\\record\\ssl3_record.c:355:\n",
+      "error": "Security validation failed: write EPROTO 004B0000:error:0A00010B:SSL routines:ssl3_get_record:wrong version number:c:\\ws\\deps\\openssl\\openssl\\ssl\\record\\ssl3_record.c:355:\n",
       "metadata": {},
-      "endTime": "2025-09-21T20:53:41.261Z"
+      "endTime": "2025-09-22T15:00:20.255Z"
     }
   ],
   "performance": {},
@@ -146,7 +146,7 @@
       "action": "Address performance and security warnings",
       "items": [
         "Load testing failed: High failure rate: 50/50 requests failed",
-        "Security validation failed: write EPROTO 7C2C0000:error:0A00010B:SSL routines:ssl3_get_record:wrong version number:c:\\ws\\deps\\openssl\\openssl\\ssl\\record\\ssl3_record.c:355:\n"
+        "Security validation failed: write EPROTO 004B0000:error:0A00010B:SSL routines:ssl3_get_record:wrong version number:c:\\ws\\deps\\openssl\\openssl\\ssl\\record\\ssl3_record.c:355:\n"
       ]
     },
     {

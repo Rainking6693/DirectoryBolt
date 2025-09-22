@@ -1,38 +1,61 @@
 {
-  "timestamp": "2025-09-21T21:32:20.105Z",
+  "timestamp": "2025-09-22T18:34:08.717Z",
   "environment": "production",
-  "platform": "local",
+  "platform": "netlify",
   "buildId": "local",
   "deployUrl": "localhost",
   "tests": [
     {
       "name": "Environment Variables",
       "critical": true,
-      "status": "failed",
-      "startTime": "2025-09-21T21:32:20.109Z",
-      "duration": 0.5193000000000012,
-      "result": null,
-      "error": "Critical environment variable missing: OPENAI_API_KEY",
+      "status": "passed",
+      "startTime": "2025-09-22T18:34:08.719Z",
+      "duration": 0.6364999999999981,
+      "result": {
+        "configured": 5,
+        "missing": [
+          "ANTHROPIC_API_KEY"
+        ],
+        "invalid": [],
+        "security_issues": []
+      },
+      "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T21:32:20.109Z"
+      "endTime": "2025-09-22T18:34:08.719Z"
     },
     {
       "name": "API Connectivity",
       "critical": true,
-      "status": "failed",
-      "startTime": "2025-09-21T21:32:20.109Z",
-      "duration": 0.3855000000000004,
-      "result": null,
-      "error": "No API services configured for testing",
+      "status": "passed",
+      "startTime": "2025-09-22T18:34:08.719Z",
+      "duration": 898.6456,
+      "result": {
+        "tested": 2,
+        "healthy": 1,
+        "services": [
+          {
+            "service": "OpenAI",
+            "status": "error",
+            "error": "401 Incorrect API key provided: sk-proj-********************************************************************************************************************************************************M4sA. You can find your API key at https://platform.openai.com/account/api-keys."
+          },
+          {
+            "service": "Supabase",
+            "status": "healthy",
+            "latency": 296.88120000000004
+          }
+        ],
+        "averageLatency": 296.88120000000004
+      },
+      "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T21:32:20.110Z"
+      "endTime": "2025-09-22T18:34:09.618Z"
     },
     {
       "name": "Build Artifacts",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-21T21:32:20.110Z",
-      "duration": 47.2216,
+      "startTime": "2025-09-22T18:34:09.618Z",
+      "duration": 22.465100000000007,
       "result": {
         "present": [
           "nextBuild",
@@ -43,10 +66,10 @@
         ],
         "missing": [],
         "sizes": {
-          "nextBuild": 283147369,
-          "publicAssets": 95770,
+          "nextBuild": 311354552,
+          "publicAssets": 163050,
           "serverFunctions": 46431,
-          "packageJson": 7055,
+          "packageJson": 7715,
           "nextConfig": 6879
         },
         "integrity": {
@@ -59,24 +82,24 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T21:32:20.157Z"
+      "endTime": "2025-09-22T18:34:09.641Z"
     },
     {
       "name": "Performance Metrics",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-21T21:32:20.157Z",
-      "duration": 111.68469999999999,
+      "startTime": "2025-09-22T18:34:09.641Z",
+      "duration": 103.93410000000006,
       "result": {
         "memoryUsage": {
-          "heapUsed": 5602064,
-          "heapTotal": 7700480,
-          "external": 2008773,
-          "rss": 41598976,
-          "heapUtilization": 72.74954288563829
+          "heapUsed": 15015360,
+          "heapTotal": 21753856,
+          "external": 3550377,
+          "rss": 75493376,
+          "heapUtilization": 69.02390086612691
         },
         "timing": {
-          "applicationStartup": 109.62859999999999,
+          "applicationStartup": 102.57889999999998,
           "nodeVersion": "v22.19.0",
           "platform": "win32",
           "arch": "x64"
@@ -88,14 +111,14 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T21:32:20.269Z"
+      "endTime": "2025-09-22T18:34:09.744Z"
     },
     {
       "name": "Security Configuration",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-21T21:32:20.269Z",
-      "duration": 0.22229999999998995,
+      "startTime": "2025-09-22T18:34:09.745Z",
+      "duration": 0.17760000000021137,
       "result": {
         "headers": {},
         "environment": {
@@ -104,23 +127,23 @@
           "productionMode": true
         },
         "dependencies": {},
-        "score": 20
+        "score": 40
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-21T21:32:20.269Z"
+      "endTime": "2025-09-22T18:34:09.745Z"
     }
   ],
   "performance": {
     "memoryUsage": {
-      "heapUsed": 5602064,
-      "heapTotal": 7700480,
-      "external": 2008773,
-      "rss": 41598976,
-      "heapUtilization": 72.74954288563829
+      "heapUsed": 15015360,
+      "heapTotal": 21753856,
+      "external": 3550377,
+      "rss": 75493376,
+      "heapUtilization": 69.02390086612691
     },
     "timing": {
-      "applicationStartup": 109.62859999999999,
+      "applicationStartup": 102.57889999999998,
       "nodeVersion": "v22.19.0",
       "platform": "win32",
       "arch": "x64"
@@ -138,28 +161,17 @@
       "productionMode": true
     },
     "dependencies": {},
-    "score": 20
+    "score": 40
   },
   "dependencies": {},
   "overall": {
-    "healthy": false,
-    "score": 60,
-    "criticalIssues": [
-      {
-        "test": "Environment Variables",
-        "error": "Critical environment variable missing: OPENAI_API_KEY",
-        "impact": "high"
-      },
-      {
-        "test": "API Connectivity",
-        "error": "No API services configured for testing",
-        "impact": "high"
-      }
-    ],
+    "healthy": true,
+    "score": 100,
+    "criticalIssues": [],
     "warnings": [
       {
         "test": "Security Configuration",
-        "error": "Low security score: 20/100",
+        "error": "Low security score: 40/100",
         "impact": "high"
       }
     ],
@@ -175,6 +187,12 @@
         "priority": "high",
         "recommendation": "Improve security configuration",
         "implementation": "Ensure NODE_ENV=production, disable telemetry, use production API keys"
+      },
+      {
+        "category": "Platform",
+        "priority": "medium",
+        "recommendation": "Consider implementing Netlify Edge Functions for better performance",
+        "implementation": "Move lightweight API endpoints to edge functions"
       }
     ]
   }

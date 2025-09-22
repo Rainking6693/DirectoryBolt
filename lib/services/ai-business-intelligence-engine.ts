@@ -167,12 +167,12 @@ export class AIBusinessIntelligenceEngine {
         userInput: request.userInput
       }
       
-      let businessIntelligence = await this.aiAnalyzer.analyzeBusinessIntelligence(analysisContext)
+      let businessIntelligence = await this.aiAnalyzer.generateBusinessIntelligence(analysisContext.websiteData)
       await this.updateProgress('business_categorization', 100)
 
       // Stage 3: Directory Intelligence & Matching
       await this.updateProgress('directory_matching', 0)
-      const directoryOpportunities = await this.directoryMatcher.findOptimalDirectories(businessIntelligence)
+      const directoryOpportunities = await this.directoryMatcher.findMatchingDirectories(businessIntelligence.data?.businessProfile || {})
       await this.updateProgress('directory_matching', 100)
 
       // Stage 4: Integration & Final Optimization
@@ -351,18 +351,46 @@ export class AIBusinessIntelligenceEngine {
   }
 
   private performQualityAssurance(intelligence: BusinessIntelligence): void {
-    // Validate required fields
+    // Validate required fields with safety checks
+    if (!intelligence.profile) {
+      logger.warn('Business profile missing - creating default profile')
+      intelligence.profile = {
+        name: 'Unknown Business',
+        domain: '',
+        description: '',
+        primaryCategory: 'Unknown',
+        secondaryCategories: [],
+        industryVertical: 'Unknown',
+        businessModel: 'Unknown' as any,
+        targetMarket: 'Unknown' as any,
+        location: {
+          country: 'Unknown',
+          region: 'Unknown',
+          city: 'Unknown'
+        } as any
+      }
+    }
+
     if (!intelligence.profile.name || intelligence.profile.name === 'Unknown Business') {
       logger.warn('Business name not properly extracted')
     }
 
-    if (intelligence.directoryOpportunities.prioritizedSubmissions.length === 0) {
+    if (!intelligence.directoryOpportunities) {
+      logger.warn('Directory opportunities missing - creating default structure')
+      intelligence.directoryOpportunities = {
+        totalDirectories: 0,
+        prioritizedSubmissions: [],
+        categoryBreakdown: {},
+        estimatedROI: 0,
+        confidence: 0
+      } as any
+    } else if (!intelligence.directoryOpportunities.prioritizedSubmissions || intelligence.directoryOpportunities.prioritizedSubmissions.length === 0) {
       logger.warn('No directory opportunities found')
     }
 
-    if (intelligence.confidence < 40) {
+    if (!intelligence.confidence || intelligence.confidence < 40) {
       logger.warn('Low confidence analysis result', {
-        metadata: { confidence: intelligence.confidence }
+        metadata: { confidence: intelligence.confidence || 0 }
       })
     }
   }
@@ -535,10 +563,7 @@ export class AIBusinessIntelligenceEngine {
     try {
       if (!process.env.OPENAI_API_KEY) return false
       
-      const response = await this.aiAnalyzer.analyzeBusinessIntelligence({
-        websiteData: this.getMockWebsiteData(),
-        url: 'https://example.com'
-      })
+      const response = await this.aiAnalyzer.generateBusinessIntelligence(this.getMockWebsiteData())
       
       return !!response
     } catch {
