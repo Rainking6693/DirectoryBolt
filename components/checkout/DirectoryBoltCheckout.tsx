@@ -21,50 +21,61 @@ import type {
 export const DIRECTORYBOLT_PACKAGES: DirectoryBoltPackages = {
   starter: {
     id: 'starter',
-    name: 'Starter',
-    price: 49,
-    directories: 50,
-    description: 'Perfect for small businesses getting started',
+    name: 'Starter Intelligence',
+    price: 149,
+    directories: 100,
+    description: 'AI Market Analysis + 100 Directory Submissions',
     features: [
-      '50 premium directory submissions',
-      'Business profile optimization',
-      'Email support',
-      '30-day completion guarantee',
-      'Basic analytics dashboard'
+      'AI Market Analysis (Worth $1,500)',
+      '100 Directory Submissions (Worth $400)', 
+      'Competitor Intelligence (Worth $800)',
+      'Basic optimization reports',
+      'Email support'
     ],
     popular: false
   },
   growth: {
     id: 'growth',
-    name: 'Growth',
-    price: 89,
-    directories: 100,
-    description: 'Most popular choice for growing businesses',
+    name: 'Growth Intelligence',
+    price: 299,
+    directories: 250,
+    description: 'Full AI Business Intelligence + 250 Premium Directories',
     features: [
-      '100 premium directory submissions',
-      'Advanced profile optimization',
-      'Priority email support',
-      '30-day completion guarantee',
-      'Detailed analytics dashboard',
-      'Competitor analysis report'
+      'Full AI Business Intelligence (Worth $2,000)',
+      '250 Premium Directory Submissions (Worth $1,000)',
+      'Advanced Competitor Analysis (Worth $1,200)',
+      'Growth Strategy Reports (Worth $800)',
+      'Priority support & optimization'
     ],
     popular: true
   },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    price: 159,
-    directories: 200,
-    description: 'Complete solution for established businesses',
+  professional: {
+    id: 'professional',
+    name: 'Professional Intelligence',
+    price: 499,
+    directories: 400,
+    description: 'Enterprise AI Intelligence + 400 Premium Directories',
     features: [
-      '200 premium directory submissions',
-      'Expert profile optimization',
-      'Phone & email support',
-      '30-day completion guarantee',
-      'Premium analytics dashboard',
-      'Competitor analysis report',
-      'Monthly performance reviews',
-      'API access for integrations'
+      'Enterprise AI Intelligence Suite (Worth $3,000)',
+      '400 Premium Directory Network (Worth $1,500)',
+      'Deep Market Intelligence (Worth $2,000)',
+      'White-label Reports (Worth $1,000)',
+      'Dedicated account manager'
+    ],
+    popular: false
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise Intelligence',
+    price: 799,
+    directories: 500,
+    description: 'Complete AI Intelligence Platform + 500+ Directories',
+    features: [
+      'Complete AI Intelligence Platform (Worth $4,000)',
+      '500+ Premium Directory Network (Worth $2,000)',
+      'Advanced Market Intelligence (Worth $2,500)',
+      'Custom White-label Reports (Worth $1,200)',
+      'Dedicated success manager + SLA'
     ],
     popular: false
   }

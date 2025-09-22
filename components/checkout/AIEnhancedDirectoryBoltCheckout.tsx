@@ -22,8 +22,7 @@ import type {
 // Import existing packages and add-ons
 import { 
   DIRECTORYBOLT_PACKAGES, 
-  DIRECTORYBOLT_ADD_ONS, 
-  SUBSCRIPTION_SERVICE 
+  DIRECTORYBOLT_ADD_ONS 
 } from './DirectoryBoltCheckout'
 
 interface EnhancedCheckoutState {

@@ -58,7 +58,7 @@ const ONBOARDING_FLOWS: OnboardingFlow[] = [
       {
         id: 'welcome',
         title: 'Welcome to DirectoryBolt!',
-        description: 'Let\\'s get you started with automated directory submissions to boost your local SEO.',
+        description: "Let's get you started with automated directory submissions to boost your local SEO.",
         target: '[data-onboarding=\"dashboard-header\"]',
         position: 'bottom'
       },
@@ -144,7 +144,7 @@ const ONBOARDING_FLOWS: OnboardingFlow[] = [
       {
         id: 'white-label',
         title: 'White-Label Branding',
-        description: 'Customize the platform with your company\\'s branding and colors.',
+        description: "Customize the platform with your company's branding and colors.",
         target: '[data-onboarding=\"branding\"]',
         position: 'right',
         tier: 'enterprise'

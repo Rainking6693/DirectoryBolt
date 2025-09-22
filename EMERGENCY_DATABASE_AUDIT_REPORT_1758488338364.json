@@ -1,0 +1,1830 @@
+{
+  "timestamp": "2025-09-21T20:58:45.672Z",
+  "auditId": "EMERGENCY_DB_AUDIT_1758488325673",
+  "tests": [
+    {
+      "testName": "Supabase Real-time Subscriptions Test",
+      "status": "passed",
+      "startTime": 1758488325676,
+      "metrics": {
+        "connectionTime": 348,
+        "realtimeMessagesReceived": 0,
+        "subscriptionWorking": false,
+        "totalTestTime": 5693
+      },
+      "errors": []
+    },
+    {
+      "testName": "Tier-based Access Control Test",
+      "status": "passed",
+      "startTime": 1758488331369,
+      "tierTests": {
+        "starter": {
+          "customerCreated": true,
+          "retrievalTime": 100,
+          "dataIntegrity": true,
+          "accessControlWorking": true
+        },
+        "growth": {
+          "customerCreated": true,
+          "retrievalTime": 186,
+          "dataIntegrity": true,
+          "accessControlWorking": true
+        },
+        "professional": {
+          "customerCreated": true,
+          "retrievalTime": 369,
+          "dataIntegrity": true,
+          "accessControlWorking": true
+        },
+        "enterprise": {
+          "customerCreated": true,
+          "retrievalTime": 143,
+          "dataIntegrity": true,
+          "accessControlWorking": true
+        }
+      },
+      "errors": []
+    },
+    {
+      "testName": "Database Query Performance & Indexing Test",
+      "status": "passed",
+      "startTime": 1758488333324,
+      "queryTests": {
+        "customerLookupById": {
+          "responseTime": 614,
+          "status": "slow"
+        },
+        "customerList": {
+          "responseTime": 180,
+          "status": "acceptable"
+        },
+        "statusFiltering": {
+          "responseTime": 101,
+          "status": "optimal"
+        },
+        "metadataSearch": {
+          "responseTime": 97,
+          "status": "optimal",
+          "recordsFound": 6
+        },
+        "overall": {
+          "averageResponseTime": 248,
+          "status": "acceptable"
+        }
+      },
+      "errors": []
+    },
+    {
+      "testName": "Concurrent User Load Test",
+      "status": "failed",
+      "startTime": 1758488334316,
+      "userCount": 100,
+      "metrics": {
+        "totalRequests": 500,
+        "successfulRequests": 500,
+        "failedRequests": 0,
+        "averageResponseTime": 1785.688,
+        "maxResponseTime": 2999,
+        "minResponseTime": 5,
+        "responseTimes": [
+          2755,
+          2656,
+          2748,
+          2274,
+          12,
+          2838,
+          2234,
+          2851,
+          2352,
+          12,
+          2221,
+          1057,
+          2177,
+          2565,
+          2218,
+          11,
+          2142,
+          2054,
+          2808,
+          2147,
+          1937,
+          2179,
+          2181,
+          11,
+          2010,
+          2131,
+          1932,
+          2351,
+          2276,
+          2655,
+          11,
+          2052,
+          11,
+          2042,
+          2041,
+          2350,
+          2849,
+          11,
+          2605,
+          1965,
+          11,
+          2183,
+          2213,
+          2643,
+          2218,
+          2063,
+          2376,
+          2839,
+          2621,
+          1998,
+          2246,
+          2671,
+          2620,
+          2287,
+          2508,
+          2290,
+          2531,
+          2700,
+          10,
+          10,
+          10,
+          2062,
+          2368,
+          10,
+          2438,
+          2373,
+          2174,
+          10,
+          2036,
+          2871,
+          2686,
+          11,
+          2367,
+          1986,
+          2883,
+          2354,
+          11,
+          11,
+          11,
+          11,
+          11,
+          2201,
+          2400,
+          2178,
+          2616,
+          2356,
+          10,
+          2858,
+          2770,
+          2504,
+          2283,
+          1937,
+          2568,
+          2334,
+          2338,
+          10,
+          2094,
+          2361,
+          10,
+          2094,
+          2230,
+          10,
+          10,
+          2413,
+          2287,
+          10,
+          10,
+          10,
+          2175,
+          2170,
+          2372,
+          2261,
+          10,
+          2371,
+          815,
+          2868,
+          1974,
+          2654,
+          10,
+          2877,
+          2266,
+          2351,
+          2181,
+          2127,
+          2603,
+          2119,
+          2092,
+          9,
+          9,
+          2144,
+          2530,
+          9,
+          2272,
+          2347,
+          2213,
+          2356,
+          2170,
+          2490,
+          2619,
+          9,
+          2340,
+          2189,
+          9,
+          9,
+          2165,
+          2537,
+          2555,
+          2164,
+          2176,
+          9,
+          2626,
+          2504,
+          2078,
+          2416,
+          9,
+          2136,
+          9,
+          2033,
+          9,
+          9,
+          2339,
+          9,
+          9,
+          2658,
+          9,
+          2021,
+          9,
+          2110,
+          2558,
+          2384,
+          9,
+          2359,
+          8,
+          2370,
+          8,
+          2629,
+          2365,
+          2084,
+          2617,
+          9,
+          1976,
+          2439,
+          2186,
+          9,
+          2336,
+          2080,
+          9,
+          2092,
+          2291,
+          9,
+          9,
+          2437,
+          2261,
+          2202,
+          2722,
+          2787,
+          9,
+          9,
+          2339,
+          9,
+          2400,
+          2456,
+          2233,
+          2807,
+          2322,
+          2075,
+          2358,
+          2319,
+          2365,
+          2085,
+          9,
+          2618,
+          9,
+          9,
+          9,
+          2599,
+          2077,
+          9,
+          2042,
+          8,
+          2678,
+          2156,
+          8,
+          2736,
+          2064,
+          2338,
+          2081,
+          2153,
+          8,
+          2261,
+          8,
+          2178,
+          8,
+          1959,
+          2017,
+          2086,
+          2465,
+          2554,
+          2365,
+          2032,
+          2760,
+          8,
+          2327,
+          8,
+          2533,
+          8,
+          8,
+          2327,
+          2690,
+          8,
+          8,
+          2174,
+          8,
+          2557,
+          2617,
+          2689,
+          2127,
+          2436,
+          2742,
+          8,
+          8,
+          2672,
+          2345,
+          2269,
+          2504,
+          2682,
+          2211,
+          2442,
+          2679,
+          2229,
+          8,
+          2350,
+          2401,
+          8,
+          2389,
+          2034,
+          2188,
+          6,
+          2439,
+          2338,
+          2236,
+          1995,
+          6,
+          2144,
+          2491,
+          2502,
+          7,
+          2596,
+          7,
+          2158,
+          2010,
+          2035,
+          2196,
+          7,
+          1981,
+          7,
+          2493,
+          2255,
+          2597,
+          2013,
+          2204,
+          7,
+          2572,
+          7,
+          2614,
+          2801,
+          1963,
+          2114,
+          7,
+          7,
+          1955,
+          2328,
+          2318,
+          2043,
+          2088,
+          2515,
+          6,
+          2150,
+          1961,
+          2146,
+          2030,
+          2478,
+          6,
+          2503,
+          2535,
+          2257,
+          6,
+          2614,
+          2281,
+          2312,
+          2675,
+          2664,
+          2189,
+          2197,
+          2508,
+          6,
+          1971,
+          6,
+          6,
+          2395,
+          6,
+          2634,
+          2205,
+          2676,
+          2409,
+          2909,
+          2278,
+          2099,
+          6,
+          2329,
+          6,
+          2614,
+          2613,
+          1955,
+          6,
+          2517,
+          6,
+          2095,
+          2839,
+          2279,
+          6,
+          2254,
+          6,
+          2738,
+          1974,
+          6,
+          6,
+          1992,
+          2097,
+          2547,
+          1970,
+          6,
+          2565,
+          2561,
+          1956,
+          2333,
+          2138,
+          2735,
+          2194,
+          2945,
+          2595,
+          6,
+          6,
+          2270,
+          2159,
+          6,
+          2722,
+          2558,
+          6,
+          2308,
+          1952,
+          2318,
+          6,
+          2033,
+          2709,
+          2722,
+          2299,
+          2407,
+          2723,
+          2529,
+          6,
+          2967,
+          2168,
+          6,
+          6,
+          2929,
+          2754,
+          2458,
+          1961,
+          2872,
+          2542,
+          2940,
+          6,
+          2562,
+          6,
+          6,
+          2861,
+          2534,
+          2639,
+          2667,
+          6,
+          2940,
+          2663,
+          2179,
+          2309,
+          6,
+          2940,
+          2569,
+          2085,
+          6,
+          2932,
+          2633,
+          2892,
+          2734,
+          2505,
+          2678,
+          2840,
+          2895,
+          2687,
+          2105,
+          2554,
+          2523,
+          2889,
+          2923,
+          2717,
+          2740,
+          2647,
+          2677,
+          2716,
+          2713,
+          2201,
+          2982,
+          2682,
+          2721,
+          2522,
+          2348,
+          2697,
+          5,
+          2612,
+          2661,
+          2593,
+          2779,
+          2628,
+          5,
+          2999,
+          5,
+          2698,
+          2309,
+          5,
+          5,
+          2661,
+          2975,
+          2717,
+          6,
+          2932,
+          2687,
+          2994,
+          2966,
+          2546,
+          6,
+          6,
+          2741,
+          2740,
+          2588,
+          2923,
+          2860,
+          6,
+          6,
+          6,
+          2595,
+          6,
+          2812,
+          2637,
+          6,
+          2687,
+          2811,
+          6,
+          2625,
+          2692,
+          2721
+        ],
+        "successRate": 100,
+        "totalTestTime": 3012
+      },
+      "errors": []
+    },
+    {
+      "testName": "Enterprise Tier Prioritization Test",
+      "status": "warning",
+      "startTime": 1758488337328,
+      "prioritizationTests": {
+        "starter": {
+          "responseTime": 107,
+          "dataRetrieved": true,
+          "customerData": {
+            "customerId": "PRIORITY-TEST-STARTER-1758488337328",
+            "firstName": "Priority",
+            "lastName": "Test",
+            "businessName": "starter Priority Test",
+            "email": "priority-starter-1758488337328@directorybolt.com",
+            "phone": "",
+            "website": "",
+            "address": "",
+            "city": "",
+            "state": "",
+            "zip": "",
+            "packageType": "starter",
+            "status": "active",
+            "created": "2025-09-21T20:58:57.395932+00:00",
+            "directoriesSubmitted": 0,
+            "failedDirectories": 0
+          }
+        },
+        "professional": {
+          "responseTime": 107,
+          "dataRetrieved": true,
+          "customerData": {
+            "customerId": "PRIORITY-TEST-PROFESSIONAL-1758488337446",
+            "firstName": "Priority",
+            "lastName": "Test",
+            "businessName": "professional Priority Test",
+            "email": "priority-professional-1758488337446@directorybolt.com",
+            "phone": "",
+            "website": "",
+            "address": "",
+            "city": "",
+            "state": "",
+            "zip": "",
+            "packageType": "professional",
+            "status": "active",
+            "created": "2025-09-21T20:58:57.51086+00:00",
+            "directoriesSubmitted": 0,
+            "failedDirectories": 0
+          }
+        },
+        "enterprise": {
+          "responseTime": 115,
+          "dataRetrieved": true,
+          "customerData": {
+            "customerId": "PRIORITY-TEST-ENTERPRISE-1758488337545",
+            "firstName": "Priority",
+            "lastName": "Test",
+            "businessName": "enterprise Priority Test",
+            "email": "priority-enterprise-1758488337545@directorybolt.com",
+            "phone": "",
+            "website": "",
+            "address": "",
+            "city": "",
+            "state": "",
+            "zip": "",
+            "packageType": "enterprise",
+            "status": "active",
+            "created": "2025-09-21T20:58:57.737579+00:00",
+            "directoriesSubmitted": 0,
+            "failedDirectories": 0
+          }
+        },
+        "prioritizationWorking": {
+          "enterpriseFastest": false,
+          "enterpriseTime": 115,
+          "professionalTime": 107,
+          "starterTime": 107
+        }
+      },
+      "errors": []
+    }
+  ],
+  "summary": {
+    "totalTests": 5,
+    "passed": 3,
+    "failed": 1,
+    "criticalIssues": [
+      {
+        "test": "Concurrent User Load Test",
+        "errors": []
+      }
+    ],
+    "performanceMetrics": {
+      "queryCount": 149,
+      "errorCount": 142,
+      "avgResponseTime": 2521.429530201343,
+      "connectionAttempts": 1,
+      "cacheHits": 0,
+      "cacheMisses": 149,
+      "preparedStatementUses": 0,
+      "connectionPoolUtilization": 0,
+      "queryTypeDistribution": {
+        "customer_lookup": 149
+      },
+      "performanceTrends": [
+        {
+          "timestamp": 1758488331642,
+          "responseTime": 99,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488332031,
+          "responseTime": 186,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488332589,
+          "responseTime": 368,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488332936,
+          "responseTime": 143,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488333938,
+          "responseTime": 614,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336550,
+          "responseTime": 2230,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336551,
+          "responseTime": 2234,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336581,
+          "responseTime": 2261,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336586,
+          "responseTime": 2266,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336593,
+          "responseTime": 2272,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336645,
+          "responseTime": 2318,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336663,
+          "responseTime": 2338,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336669,
+          "responseTime": 2352,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336688,
+          "responseTime": 2365,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336692,
+          "responseTime": 2373,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336712,
+          "responseTime": 2389,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336722,
+          "responseTime": 2400,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336724,
+          "responseTime": 2401,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336734,
+          "responseTime": 2407,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336735,
+          "responseTime": 2409,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336737,
+          "responseTime": 2416,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336757,
+          "responseTime": 2438,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336759,
+          "responseTime": 2437,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336761,
+          "responseTime": 2439,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336764,
+          "responseTime": 2439,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336765,
+          "responseTime": 2442,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336778,
+          "responseTime": 2456,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336785,
+          "responseTime": 2458,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336804,
+          "responseTime": 2478,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336811,
+          "responseTime": 2490,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336816,
+          "responseTime": 2491,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336818,
+          "responseTime": 2493,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336824,
+          "responseTime": 2504,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336827,
+          "responseTime": 2508,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336827,
+          "responseTime": 2504,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336827,
+          "responseTime": 2502,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336829,
+          "responseTime": 2503,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336841,
+          "responseTime": 2515,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336843,
+          "responseTime": 2517,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336850,
+          "responseTime": 2531,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336851,
+          "responseTime": 2530,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336856,
+          "responseTime": 2533,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336858,
+          "responseTime": 2537,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336873,
+          "responseTime": 2547,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336876,
+          "responseTime": 2555,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336877,
+          "responseTime": 2554,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336879,
+          "responseTime": 2558,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336880,
+          "responseTime": 2557,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336882,
+          "responseTime": 2554,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336882,
+          "responseTime": 2565,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336888,
+          "responseTime": 2568,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336888,
+          "responseTime": 2561,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336889,
+          "responseTime": 2562,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336891,
+          "responseTime": 2565,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336896,
+          "responseTime": 2569,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336897,
+          "responseTime": 2572,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336921,
+          "responseTime": 2599,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336921,
+          "responseTime": 2596,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336921,
+          "responseTime": 2593,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336922,
+          "responseTime": 2597,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336922,
+          "responseTime": 2595,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336923,
+          "responseTime": 2605,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336923,
+          "responseTime": 2603,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336939,
+          "responseTime": 2614,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336939,
+          "responseTime": 2617,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336939,
+          "responseTime": 2620,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336939,
+          "responseTime": 2613,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2619,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2621,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2614,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2614,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2618,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336940,
+          "responseTime": 2617,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336951,
+          "responseTime": 2629,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336960,
+          "responseTime": 2634,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336961,
+          "responseTime": 2643,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336966,
+          "responseTime": 2639,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336973,
+          "responseTime": 2656,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336973,
+          "responseTime": 2655,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336974,
+          "responseTime": 2654,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336979,
+          "responseTime": 2658,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336990,
+          "responseTime": 2664,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336990,
+          "responseTime": 2663,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336990,
+          "responseTime": 2671,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488336995,
+          "responseTime": 2672,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337001,
+          "responseTime": 2678,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337001,
+          "responseTime": 2675,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337002,
+          "responseTime": 2679,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337002,
+          "responseTime": 2676,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337005,
+          "responseTime": 2682,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337005,
+          "responseTime": 2677,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337005,
+          "responseTime": 2677,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337005,
+          "responseTime": 2686,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337012,
+          "responseTime": 2689,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337013,
+          "responseTime": 2690,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337019,
+          "responseTime": 2700,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337036,
+          "responseTime": 2709,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337045,
+          "responseTime": 2717,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337049,
+          "responseTime": 2722,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337050,
+          "responseTime": 2723,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337059,
+          "responseTime": 2736,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337064,
+          "responseTime": 2738,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337065,
+          "responseTime": 2747,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337065,
+          "responseTime": 2742,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337081,
+          "responseTime": 2754,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337083,
+          "responseTime": 2760,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337090,
+          "responseTime": 2770,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337107,
+          "responseTime": 2779,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337109,
+          "responseTime": 2787,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337126,
+          "responseTime": 2801,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337126,
+          "responseTime": 2808,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337129,
+          "responseTime": 2807,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337139,
+          "responseTime": 2811,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337155,
+          "responseTime": 2838,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337157,
+          "responseTime": 2839,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337165,
+          "responseTime": 2839,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337167,
+          "responseTime": 2849,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337168,
+          "responseTime": 2840,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337168,
+          "responseTime": 2851,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337178,
+          "responseTime": 2858,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337188,
+          "responseTime": 2861,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337188,
+          "responseTime": 2860,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337188,
+          "responseTime": 2868,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337190,
+          "responseTime": 2871,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337197,
+          "responseTime": 2877,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337199,
+          "responseTime": 2872,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337202,
+          "responseTime": 2883,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337217,
+          "responseTime": 2889,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337219,
+          "responseTime": 2892,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337223,
+          "responseTime": 2895,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337235,
+          "responseTime": 2909,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337251,
+          "responseTime": 2923,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337251,
+          "responseTime": 2923,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337256,
+          "responseTime": 2929,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337259,
+          "responseTime": 2932,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337260,
+          "responseTime": 2932,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337267,
+          "responseTime": 2940,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337267,
+          "responseTime": 2940,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337267,
+          "responseTime": 2940,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337272,
+          "responseTime": 2945,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337294,
+          "responseTime": 2966,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337294,
+          "responseTime": 2967,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337303,
+          "responseTime": 2975,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337310,
+          "responseTime": 2982,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337322,
+          "responseTime": 2994,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337327,
+          "responseTime": 2999,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337877,
+          "responseTime": 107,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488337984,
+          "responseTime": 107,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        },
+        {
+          "timestamp": 1758488338099,
+          "responseTime": 115,
+          "queryType": "customer_lookup",
+          "cacheHitRatio": "0.00",
+          "connectionAttempts": 1
+        }
+      ],
+      "cacheSize": 7,
+      "cacheHitRatio": "0.00%",
+      "hotQueriesCount": 0,
+      "errorRate": "95.30%",
+      "topQueryTypes": [
+        {
+          "type": "customer_lookup",
+          "count": 149,
+          "percentage": "100.0"
+        }
+      ],
+      "recentPerformanceTrend": "improving",
+      "connectionPoolHealth": {
+        "utilization": "2.5%",
+        "maxConnections": 40,
+        "idleTimeout": 600000,
+        "status": "healthy"
+      },
+      "performancePrediction": [
+        "low_cache_efficiency"
+      ]
+    },
+    "realtimeStatus": {},
+    "tierBasedAccess": {},
+    "concurrentUserTest": {},
+    "emergencyFindings": [
+      "🚨 CRITICAL ISSUES DETECTED - Immediate attention required"
+    ],
+    "auditDuration": 12688,
+    "databaseHealth": {
+      "status": "warning",
+      "lastUpdated": 1758488338363,
+      "performance": {
+        "avgResponseTime": 2521.429530201343,
+        "totalQueries": 149,
+        "queriesPerMinute": 149,
+        "errorRate": "95.30%",
+        "trend": "improving"
+      },
+      "cache": {
+        "hitRatio": "0.00%",
+        "totalSize": 7,
+        "hotQueries": 0,
+        "memoryUsage": "0.01"
+      },
+      "connections": {
+        "utilization": "2.5%",
+        "maxConnections": 40,
+        "idleTimeout": 600000,
+        "status": "healthy"
+      },
+      "queryAnalysis": {
+        "topTypes": [
+          {
+            "type": "customer_lookup",
+            "count": 149,
+            "percentage": "100.0"
+          }
+        ],
+        "distribution": {
+          "customer_lookup": 149
+        },
+        "preparedStatementEfficiency": "0.0"
+      },
+      "alerts": [
+        {
+          "type": "warning",
+          "message": "Low cache hit ratio detected",
+          "suggestion": "Consider increasing cache TTL or optimizing query patterns"
+        },
+        {
+          "type": "warning",
+          "message": "High average response time detected",
+          "suggestion": "Review slow queries and consider database optimization"
+        }
+      ],
+      "recommendations": [
+        {
+          "priority": "high",
+          "action": "Implement prepared statements for frequent queries",
+          "impact": "Can improve performance by 20-40%"
+        }
+      ]
+    }
+  }
+}

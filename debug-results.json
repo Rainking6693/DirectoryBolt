@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-09-18T21:49:09.892Z",
-  "environment": "development",
+  "timestamp": "2025-09-21T21:32:20.105Z",
+  "environment": "production",
   "platform": "local",
   "buildId": "local",
   "deployUrl": "localhost",
@@ -9,30 +9,30 @@
       "name": "Environment Variables",
       "critical": true,
       "status": "failed",
-      "startTime": "2025-09-18T21:49:09.895Z",
-      "duration": 0.44950000000000045,
+      "startTime": "2025-09-21T21:32:20.109Z",
+      "duration": 0.5193000000000012,
       "result": null,
       "error": "Critical environment variable missing: OPENAI_API_KEY",
       "metadata": {},
-      "endTime": "2025-09-18T21:49:09.896Z"
+      "endTime": "2025-09-21T21:32:20.109Z"
     },
     {
       "name": "API Connectivity",
       "critical": true,
       "status": "failed",
-      "startTime": "2025-09-18T21:49:09.896Z",
-      "duration": 0.32649999999999935,
+      "startTime": "2025-09-21T21:32:20.109Z",
+      "duration": 0.3855000000000004,
       "result": null,
       "error": "No API services configured for testing",
       "metadata": {},
-      "endTime": "2025-09-18T21:49:09.896Z"
+      "endTime": "2025-09-21T21:32:20.110Z"
     },
     {
       "name": "Build Artifacts",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-18T21:49:09.896Z",
-      "duration": 13.4665,
+      "startTime": "2025-09-21T21:32:20.110Z",
+      "duration": 47.2216,
       "result": {
         "present": [
           "nextBuild",
@@ -43,11 +43,11 @@
         ],
         "missing": [],
         "sizes": {
-          "nextBuild": 252882358,
-          "publicAssets": 87157,
+          "nextBuild": 283147369,
+          "publicAssets": 95770,
           "serverFunctions": 46431,
-          "packageJson": 5437,
-          "nextConfig": 6794
+          "packageJson": 7055,
+          "nextConfig": 6879
         },
         "integrity": {
           "packageJson": {
@@ -59,24 +59,24 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-18T21:49:09.909Z"
+      "endTime": "2025-09-21T21:32:20.157Z"
     },
     {
       "name": "Performance Metrics",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-18T21:49:09.909Z",
-      "duration": 108.7039,
+      "startTime": "2025-09-21T21:32:20.157Z",
+      "duration": 111.68469999999999,
       "result": {
         "memoryUsage": {
-          "heapUsed": 5320064,
-          "heapTotal": 7176192,
-          "external": 2007639,
-          "rss": 47730688,
-          "heapUtilization": 74.13491723744292
+          "heapUsed": 5602064,
+          "heapTotal": 7700480,
+          "external": 2008773,
+          "rss": 41598976,
+          "heapUtilization": 72.74954288563829
         },
         "timing": {
-          "applicationStartup": 107.118,
+          "applicationStartup": 109.62859999999999,
           "nodeVersion": "v22.19.0",
           "platform": "win32",
           "arch": "x64"
@@ -88,38 +88,39 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-18T21:49:10.018Z"
+      "endTime": "2025-09-21T21:32:20.269Z"
     },
     {
       "name": "Security Configuration",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-18T21:49:10.018Z",
-      "duration": 0.15629999999998745,
+      "startTime": "2025-09-21T21:32:20.269Z",
+      "duration": 0.22229999999998995,
       "result": {
         "headers": {},
         "environment": {
+          "nodeEnv": "production",
           "telemetryDisabled": false,
-          "productionMode": false
+          "productionMode": true
         },
         "dependencies": {},
-        "score": 0
+        "score": 20
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-18T21:49:10.018Z"
+      "endTime": "2025-09-21T21:32:20.269Z"
     }
   ],
   "performance": {
     "memoryUsage": {
-      "heapUsed": 5320064,
-      "heapTotal": 7176192,
-      "external": 2007639,
-      "rss": 47730688,
-      "heapUtilization": 74.13491723744292
+      "heapUsed": 5602064,
+      "heapTotal": 7700480,
+      "external": 2008773,
+      "rss": 41598976,
+      "heapUtilization": 72.74954288563829
     },
     "timing": {
-      "applicationStartup": 107.118,
+      "applicationStartup": 109.62859999999999,
       "nodeVersion": "v22.19.0",
       "platform": "win32",
       "arch": "x64"
@@ -132,11 +133,12 @@
   "security": {
     "headers": {},
     "environment": {
+      "nodeEnv": "production",
       "telemetryDisabled": false,
-      "productionMode": false
+      "productionMode": true
     },
     "dependencies": {},
-    "score": 0
+    "score": 20
   },
   "dependencies": {},
   "overall": {
@@ -157,7 +159,7 @@
     "warnings": [
       {
         "test": "Security Configuration",
-        "error": "Low security score: 0/100",
+        "error": "Low security score: 20/100",
         "impact": "high"
       }
     ],

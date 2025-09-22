@@ -125,9 +125,10 @@ export default function SuccessPage({ sessionId, type, customerId }: SuccessPage
     if (!session?.metadata?.package_id) return null
     
     const packages: SuccessPagePlans = {
-      starter: { name: 'Starter', directories: 50, price: 49 },
-      growth: { name: 'Growth', directories: 100, price: 89 },
-      pro: { name: 'Pro', directories: 200, price: 159 }
+      starter: { name: 'Starter Intelligence', directories: 100, price: 149 },
+      growth: { name: 'Growth Intelligence', directories: 250, price: 299 },
+      professional: { name: 'Professional Intelligence', directories: 400, price: 499 },
+      enterprise: { name: 'Enterprise Intelligence', directories: 500, price: 799 }
     }
     
     return packages[session.metadata.package_id as PackageId]

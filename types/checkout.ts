@@ -28,7 +28,7 @@ export interface SubscriptionService {
 }
 
 // Type-safe package definitions
-export type PackageId = 'starter' | 'growth' | 'pro'
+export type PackageId = 'starter' | 'growth' | 'professional' | 'enterprise'
 export type AddOnId = 'fast_track' | 'premium_directories' | 'manual_qa' | 'csv_export'
 
 // Mapped types for type-safe object access

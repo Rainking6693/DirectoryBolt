@@ -1,0 +1,169 @@
+{
+  "timestamp": "2025-09-21T20:58:47.192Z",
+  "environment": "production",
+  "baseUrl": "https://directorybolt.com",
+  "securityTests": [
+    {
+      "name": "XSS_INPUT_VALIDATION",
+      "description": "Test for Cross-Site Scripting vulnerabilities",
+      "severity": "HIGH",
+      "timestamp": "2025-09-21T20:58:48.681Z",
+      "result": {
+        "vulnerable": false
+      },
+      "passed": true
+    },
+    {
+      "name": "SQL_INJECTION",
+      "description": "Test for SQL injection vulnerabilities",
+      "severity": "CRITICAL",
+      "timestamp": "2025-09-21T20:58:49.975Z",
+      "result": {
+        "vulnerable": false
+      },
+      "passed": true
+    },
+    {
+      "name": "CSRF_PROTECTION",
+      "description": "Test for CSRF protection on sensitive endpoints",
+      "severity": "HIGH",
+      "timestamp": "2025-09-21T20:58:50.361Z",
+      "result": {
+        "vulnerable": false
+      },
+      "passed": true
+    },
+    {
+      "name": "RATE_LIMITING",
+      "description": "Test rate limiting on API endpoints",
+      "severity": "MEDIUM",
+      "timestamp": "2025-09-21T20:58:52.916Z",
+      "result": {
+        "vulnerable": true,
+        "payload": "20 rapid requests",
+        "response": "No rate limiting detected"
+      },
+      "passed": false
+    },
+    {
+      "name": "AUTHENTICATION_BYPASS",
+      "description": "Test for authentication bypass vulnerabilities",
+      "severity": "CRITICAL",
+      "timestamp": "2025-09-21T20:58:54.822Z",
+      "result": {
+        "vulnerable": false
+      },
+      "passed": true
+    },
+    {
+      "name": "INFORMATION_DISCLOSURE",
+      "description": "Test for sensitive information disclosure",
+      "severity": "MEDIUM",
+      "timestamp": "2025-09-21T20:58:55.713Z",
+      "result": {
+        "vulnerable": true,
+        "payload": "https://directorybolt.com/api/status",
+        "response": "Exposed sensitive data: database, connection, stripe"
+      },
+      "passed": false
+    }
+  ],
+  "performanceTests": [
+    {
+      "name": "HOMEPAGE_LOAD_TEST",
+      "description": "Load test homepage under concurrent traffic",
+      "timestamp": "2025-09-21T20:58:56.131Z",
+      "result": {
+        "totalRequests": 10,
+        "successfulRequests": 10,
+        "failedRequests": 0,
+        "averageResponseTime": 271,
+        "maxResponseTime": 418,
+        "passThreshold": true
+      },
+      "passed": true
+    },
+    {
+      "name": "API_ENDPOINT_STRESS_TEST",
+      "description": "Stress test critical API endpoints",
+      "timestamp": "2025-09-21T20:58:59.450Z",
+      "result": {
+        "/api/analyze": {
+          "totalRequests": 5,
+          "successfulRequests": 5,
+          "averageResponseTime": 264,
+          "passThreshold": true
+        },
+        "/api/create-checkout-session": {
+          "totalRequests": 5,
+          "successfulRequests": 5,
+          "averageResponseTime": 622,
+          "passThreshold": true
+        },
+        "/api/auth/login": {
+          "totalRequests": 5,
+          "successfulRequests": 0,
+          "averageResponseTime": null,
+          "passThreshold": false
+        }
+      },
+      "passed": false
+    },
+    {
+      "name": "PAYMENT_PROCESSING_PERFORMANCE",
+      "description": "Test payment processing performance under load",
+      "timestamp": "2025-09-21T20:58:59.614Z",
+      "result": {
+        "totalRequests": 3,
+        "successfulRequests": 0,
+        "averageResponseTime": null,
+        "allSessionsCreated": true,
+        "passThreshold": false
+      },
+      "passed": false
+    }
+  ],
+  "vulnerabilities": [
+    {
+      "severity": "MEDIUM",
+      "name": "RATE_LIMITING",
+      "description": "Test rate limiting on API endpoints",
+      "payload": "20 rapid requests",
+      "response": "No rate limiting detected"
+    },
+    {
+      "severity": "MEDIUM",
+      "name": "INFORMATION_DISCLOSURE",
+      "description": "Test for sensitive information disclosure",
+      "payload": "https://directorybolt.com/api/status",
+      "response": "Exposed sensitive data: database, connection, stripe"
+    }
+  ],
+  "criticalIssues": [],
+  "summary": {
+    "totalTests": 9,
+    "passedTests": 5,
+    "failedTests": 4,
+    "securityTestResults": {
+      "total": 6,
+      "passed": 4,
+      "failed": 2
+    },
+    "performanceTestResults": {
+      "total": 3,
+      "passed": 1,
+      "failed": 2
+    },
+    "vulnerabilitySummary": {
+      "critical": 0,
+      "high": 0,
+      "medium": 2,
+      "low": 0
+    },
+    "overallSecurityRating": "GOOD",
+    "overallPerformanceRating": "POOR",
+    "recommendations": [
+      "⚡ PERFORMANCE: Optimize slow endpoints"
+    ]
+  }
+}
