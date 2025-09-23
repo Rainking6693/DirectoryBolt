@@ -10,6 +10,24 @@ import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } 
 import { AirtableService, BusinessSubmissionRecord } from './airtable'
 import { createAirtableService } from './airtable'
 
+// SEO-specific cache types
+export interface SEOAnalysisCacheEntry {
+  cacheKey: string
+  data: any
+  cachedAt: Date
+  confidence: number
+  userTier: string
+  analysisType: 'seo_gap' | 'competitor_seo' | 'content_optimization' | 'keyword_gap'
+  expiresAt: Date
+}
+
+export interface SEOCacheValidationResult {
+  isValid: boolean
+  reason?: 'fresh' | 'stale' | 'expired' | 'not_found'
+  daysOld?: number
+  confidence?: number
+}
+
 export interface AnalysisCacheEntry {
   customerId: string
   analysisData: BusinessIntelligence
@@ -40,6 +58,7 @@ export class AIAnalysisCacheService {
   private airtableService: AirtableService
   private cacheExpiryDays: number
   private minConfidenceScore: number
+  private seoCache: Map<string, SEOAnalysisCacheEntry> = new Map()
 
   constructor(
     airtableService?: AirtableService,
@@ -51,6 +70,9 @@ export class AIAnalysisCacheService {
     this.airtableService = airtableService || createAirtableService()
     this.cacheExpiryDays = options.cacheExpiryDays || 30
     this.minConfidenceScore = options.minConfidenceScore || 75
+    
+    // Initialize SEO cache cleanup interval (every hour)
+    setInterval(() => this.cleanupExpiredSEOCache(), 60 * 60 * 1000)
   }
 
   /**
@@ -376,6 +398,255 @@ export class AIAnalysisCacheService {
         newestEntry: null,
         confidenceDistribution: {}
       }
+    }
+  }
+
+  /**
+   * SEO Analysis Cache Methods
+   */
+
+  /**
+   * Get cached SEO analysis result
+   */
+  async getCachedSEOAnalysis(cacheKey: string): Promise<{
+    isValid: boolean
+    data?: any
+    daysOld?: number
+    confidence?: number
+  } | null> {
+    try {
+      const cachedEntry = this.seoCache.get(cacheKey)
+      
+      if (!cachedEntry) {
+        return null
+      }
+
+      // Check if cache has expired
+      if (new Date() > cachedEntry.expiresAt) {
+        this.seoCache.delete(cacheKey)
+        return null
+      }
+
+      const daysOld = Math.floor((Date.now() - cachedEntry.cachedAt.getTime()) / (1000 * 60 * 60 * 24))
+      
+      return {
+        isValid: true,
+        data: cachedEntry.data,
+        daysOld,
+        confidence: cachedEntry.confidence
+      }
+    } catch (error) {
+      console.error('❌ Error getting cached SEO analysis:', error)
+      return null
+    }
+  }
+
+  /**
+   * Store SEO analysis result in cache
+   */
+  async storeSEOAnalysis(
+    cacheKey: string,
+    data: any,
+    confidence: number,
+    analysisType: SEOAnalysisCacheEntry['analysisType'] = 'seo_gap',
+    userTier: string = 'professional'
+  ): Promise<boolean> {
+    try {
+      // Calculate expiry based on analysis type and user tier
+      const expiryHours = this.getSEOCacheExpiryHours(analysisType, userTier)
+      const expiresAt = new Date(Date.now() + expiryHours * 60 * 60 * 1000)
+
+      const cacheEntry: SEOAnalysisCacheEntry = {
+        cacheKey,
+        data,
+        cachedAt: new Date(),
+        confidence,
+        userTier,
+        analysisType,
+        expiresAt
+      }
+
+      this.seoCache.set(cacheKey, cacheEntry)
+      console.log(`✅ SEO analysis cached with ${expiryHours}h expiry:`, cacheKey)
+      return true
+    } catch (error) {
+      console.error('❌ Error storing SEO analysis cache:', error)
+      return false
+    }
+  }
+
+  /**
+   * Get cached competitor SEO research
+   */
+  async getCachedCompetitorSEO(cacheKey: string): Promise<{
+    isValid: boolean
+    data?: any
+    daysOld?: number
+    confidence?: number
+  } | null> {
+    return this.getCachedSEOAnalysis(cacheKey)
+  }
+
+  /**
+   * Store competitor SEO research in cache
+   */
+  async storeCompetitorSEO(cacheKey: string, data: any, confidence: number): Promise<boolean> {
+    return this.storeSEOAnalysis(cacheKey, data, confidence, 'competitor_seo')
+  }
+
+  /**
+   * Get cached content optimization
+   */
+  async getCachedContentOptimization(cacheKey: string): Promise<{
+    isValid: boolean
+    data?: any
+    daysOld?: number
+    confidence?: number
+  } | null> {
+    return this.getCachedSEOAnalysis(cacheKey)
+  }
+
+  /**
+   * Store content optimization in cache
+   */
+  async storeContentOptimization(cacheKey: string, data: any, confidence: number): Promise<boolean> {
+    return this.storeSEOAnalysis(cacheKey, data, confidence, 'content_optimization')
+  }
+
+  /**
+   * Get cached keyword gap analysis
+   */
+  async getCachedKeywordGap(cacheKey: string): Promise<{
+    isValid: boolean
+    data?: any
+    daysOld?: number
+    confidence?: number
+  } | null> {
+    return this.getCachedSEOAnalysis(cacheKey)
+  }
+
+  /**
+   * Store keyword gap analysis in cache
+   */
+  async storeKeywordGap(cacheKey: string, data: any, confidence: number): Promise<boolean> {
+    return this.storeSEOAnalysis(cacheKey, data, confidence, 'keyword_gap')
+  }
+
+  /**
+   * Invalidate specific SEO cache entry
+   */
+  async invalidateSEOCache(cacheKey: string): Promise<boolean> {
+    try {
+      const deleted = this.seoCache.delete(cacheKey)
+      console.log('🗑️ SEO cache invalidated:', cacheKey, deleted ? 'success' : 'not found')
+      return deleted
+    } catch (error) {
+      console.error('❌ Error invalidating SEO cache:', error)
+      return false
+    }
+  }
+
+  /**
+   * Clean up expired SEO cache entries
+   */
+  private cleanupExpiredSEOCache(): void {
+    try {
+      const now = new Date()
+      let cleanedCount = 0
+
+      for (const [key, entry] of this.seoCache.entries()) {
+        if (now > entry.expiresAt) {
+          this.seoCache.delete(key)
+          cleanedCount++
+        }
+      }
+
+      if (cleanedCount > 0) {
+        console.log(`🧹 Cleaned up ${cleanedCount} expired SEO cache entries`)
+      }
+    } catch (error) {
+      console.error('❌ Error cleaning up SEO cache:', error)
+    }
+  }
+
+  /**
+   * Get SEO cache statistics
+   */
+  getSEOCacheStats(): {
+    totalEntries: number
+    entriesByType: Record<string, number>
+    entriesByTier: Record<string, number>
+    averageAge: number
+    oldestEntry?: Date
+    newestEntry?: Date
+  } {
+    const entries = Array.from(this.seoCache.values())
+    
+    if (entries.length === 0) {
+      return {
+        totalEntries: 0,
+        entriesByType: {},
+        entriesByTier: {},
+        averageAge: 0
+      }
+    }
+
+    const entriesByType: Record<string, number> = {}
+    const entriesByTier: Record<string, number> = {}
+    let totalAge = 0
+
+    entries.forEach(entry => {
+      entriesByType[entry.analysisType] = (entriesByType[entry.analysisType] || 0) + 1
+      entriesByTier[entry.userTier] = (entriesByTier[entry.userTier] || 0) + 1
+      totalAge += Date.now() - entry.cachedAt.getTime()
+    })
+
+    const dates = entries.map(e => e.cachedAt)
+    const oldestEntry = new Date(Math.min(...dates.map(d => d.getTime())))
+    const newestEntry = new Date(Math.max(...dates.map(d => d.getTime())))
+
+    return {
+      totalEntries: entries.length,
+      entriesByType,
+      entriesByTier,
+      averageAge: Math.round((totalAge / entries.length) / (1000 * 60 * 60 * 24) * 100) / 100, // days
+      oldestEntry,
+      newestEntry
+    }
+  }
+
+  /**
+   * Get cache expiry hours based on analysis type and user tier
+   */
+  private getSEOCacheExpiryHours(
+    analysisType: SEOAnalysisCacheEntry['analysisType'],
+    userTier: string
+  ): number {
+    // Enterprise users get fresher data with shorter cache times
+    const tierMultiplier = userTier === 'enterprise' ? 0.5 : userTier === 'professional' ? 1 : 2
+
+    const baseHours = {
+      'seo_gap': 48,           // 2 days base
+      'competitor_seo': 72,    // 3 days base  
+      'content_optimization': 24, // 1 day base
+      'keyword_gap': 48        // 2 days base
+    }
+
+    return Math.floor(baseHours[analysisType] * tierMultiplier)
+  }
+
+  /**
+   * Clear all SEO cache entries
+   */
+  async clearSEOCache(): Promise<number> {
+    try {
+      const entryCount = this.seoCache.size
+      this.seoCache.clear()
+      console.log(`🗑️ Cleared all ${entryCount} SEO cache entries`)
+      return entryCount
+    } catch (error) {
+      console.error('❌ Error clearing SEO cache:', error)
+      return 0
     }
   }
 

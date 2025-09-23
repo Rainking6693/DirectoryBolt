@@ -89,9 +89,9 @@ export default async function handler(
       })
     }
 
-    // Verify job exists and can be completed (jobs model)
+    // Verify job exists and can be completed (autobolt_processing_queue)
     const { data: job, error: jobCheckError } = await supabase
-      .from('jobs')
+      .from('autobolt_processing_queue')
       .select('id, customer_id, status, started_at')
       .eq('id', jobId)
       .single()
@@ -103,7 +103,7 @@ export default async function handler(
       })
     }
 
-    if (!['in_progress'].includes(job.status)) {
+    if (!['processing'].includes(job.status)) {
       return res.status(400).json({
         success: false,
         error: `Job status is ${job.status}, cannot complete`
@@ -118,75 +118,56 @@ export default async function handler(
     // Not calculating percentage here for jobs model; staff progress uses job_results
     let finalProgress = 100.0
 
-    // Update job as completed
+    // Update job as completed in autobolt_processing_queue
     const jobUpdateData: any = {
-      status: status === 'completed' ? 'complete' : status,
+      status: status === 'completed' ? 'completed' : status,
       completed_at: completedAt.toISOString(),
       updated_at: completedAt.toISOString()
-    }
-
-    // Add summary data if provided
-    if (summary) {
-      jobUpdateData.directories_to_process = summary.totalDirectories
-      jobUpdateData.directories_completed = summary.successfulSubmissions
-      jobUpdateData.directories_failed = summary.failedSubmissions
-      jobUpdateData.metadata = {
-        ...jobUpdateData.metadata,
-        completion_summary: {
-          total_directories: summary.totalDirectories,
-          successful_submissions: summary.successfulSubmissions,
-          failed_submissions: summary.failedSubmissions,
-          skipped_directories: summary.skippedDirectories,
-          processing_time_minutes: processingTimeMinutes,
-          completed_at: completedAt.toISOString()
-        },
-        final_results: finalResults
-      }
     }
 
     if (errorMessage) {
       jobUpdateData.error_message = errorMessage
     }
 
-    // Update job status in jobs table
+    // Update job status in autobolt_processing_queue
     const { error: directUpdateError } = await supabase
-      .from('jobs')
+      .from('autobolt_processing_queue')
       .update(jobUpdateData)
       .eq('id', jobId)
 
     if (directUpdateError) {
-      console.error('Error updating job directly:', directUpdateError)
+      console.error('Error updating autobolt job:', directUpdateError)
       return res.status(500).json({
         success: false,
         error: 'Failed to complete job'
       })
     }
 
-    // If we have summary data, also store error in jobs.error_message
-    if (summary || errorMessage) {
-      await supabase
-        .from('jobs')
-        .update({
-          error_message: errorMessage
-        })
-        .eq('id', jobId)
+    // Update customer status based on job completion
+    const customerStatus = status === 'completed' ? 'completed' : 'failed'
+    const { error: customerUpdateError } = await supabase
+      .from('customers')
+      .update({
+        status: customerStatus,
+        directories_submitted: summary?.successfulSubmissions || 0,
+        failed_directories: summary?.failedSubmissions || 0,
+        updated_at: completedAt.toISOString()
+      })
+      .eq('customer_id', job.customer_id)
+
+    if (customerUpdateError) {
+      console.error('Error updating customer status:', customerUpdateError)
     }
 
     // Get final job state for response
     const { data: finalJob, error: finalJobError } = await supabase
-      .from('jobs')
+      .from('autobolt_processing_queue')
       .select('customer_id, status, completed_at')
       .eq('id', jobId)
       .single()
       
-    // Get directory submission statistics
-    const { data: submissionStats } = await supabase
-      .from('job_results')
-      .select('status')
-      .eq('job_id', jobId)
-      
-    const directoriesCompleted = submissionStats?.filter(s => s.status === 'submitted').length || 0
-    const directoriesFailed = submissionStats?.filter(s => s.status === 'failed').length || 0
+    const directoriesCompleted = summary?.successfulSubmissions || 0
+    const directoriesFailed = summary?.failedSubmissions || 0
 
     if (finalJobError) {
       console.error('Error getting final job state:', finalJobError)

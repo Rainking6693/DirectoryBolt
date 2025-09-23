@@ -19,12 +19,41 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
+  // Support both GET (for connection testing) and POST (for heartbeat updates)
+  if (!['GET', 'POST'].includes(req.method!)) {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // Authenticate using API key for extension requests
+  const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '')
+  
+  if (req.method === 'GET') {
+    // Simple connection test for extension
+    if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Unauthorized - Invalid API key' 
+      })
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: 'AutoBolt API connection successful',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    })
   }
 
   try {
     console.log('💓 AutoBolt extension heartbeat received')
+
+    // Validate API key for POST requests too
+    if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
+      return res.status(401).json({ 
+        error: 'Unauthorized',
+        message: 'Valid AUTOBOLT_API_KEY required' 
+      })
+    }
 
     const { 
       extension_id,

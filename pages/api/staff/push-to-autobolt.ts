@@ -105,11 +105,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    // Update customer status to in-progress
+    // Update customer status to queued (will change to in-progress when processing starts)
     const { error: updateError } = await supabase
       .from('customers')
       .update({ 
-        status: 'in-progress',
+        status: 'queued',
         updated_at: new Date().toISOString()
       })
       .eq('customer_id', customer_id)

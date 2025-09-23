@@ -27,7 +27,13 @@
       "Bash(kill:*)",
       "Bash(node:*)",
       "Bash(pkill:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "Bash(Use Nuanced on create-checkout-session to analyze payment flow architecture)",
+      "Bash(mcp use:*)",
+      "Bash(npm:*)",
+      "Read(//c/c/Users/Ben/OneDrive/Documents/GitHub/DirectoryBolt/**)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

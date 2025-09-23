@@ -2,6 +2,7 @@
 // Displays real-time AutoBolt processing queue and extension status
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 interface QueueItem {
   id: string
@@ -36,12 +37,14 @@ interface QueueStats {
 }
 
 export default function AutoBoltQueueMonitor() {
+  const router = useRouter()
   const [queueItems, setQueueItems] = useState<QueueItem[]>([])
   const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus[]>([])
   const [queueStats, setQueueStats] = useState<QueueStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [filteredStatus, setFilteredStatus] = useState<string | null>(null)
 
   useEffect(() => {
     fetchQueueData()
@@ -127,6 +130,25 @@ export default function AutoBoltQueueMonitor() {
     return `${diffDays}d ago`
   }
 
+  const handleStatClick = (status: string) => {
+    setFilteredStatus(filteredStatus === status ? null : status)
+  }
+
+  const handleQueueItemClick = (item: QueueItem) => {
+    // Navigate to detailed view of queue item
+    router.push(`/staff-dashboard/queue-item/${item.id}`)
+  }
+
+  const handleExtensionClick = (extensionId: string) => {
+    // Navigate to extension details
+    router.push(`/staff-dashboard/extension/${extensionId}`)
+  }
+
+  const getFilteredQueueItems = () => {
+    if (!filteredStatus) return queueItems
+    return queueItems.filter(item => item.status === filteredStatus)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -166,22 +188,42 @@ export default function AutoBoltQueueMonitor() {
       {/* Queue Statistics */}
       {queueStats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
-            <p className="text-2xl font-bold text-yellow-400">{queueStats.total_queued}</p>
+          <button 
+            onClick={() => handleStatClick('queued')}
+            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+              filteredStatus === 'queued' ? 'ring-2 ring-volt-500 bg-secondary-700' : ''
+            }`}
+          >
+            <p className="text-2xl font-bold text-volt-500">{queueStats.total_queued}</p>
             <p className="text-secondary-400 text-sm">Queued</p>
-          </div>
-          <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+          </button>
+          <button 
+            onClick={() => handleStatClick('processing')}
+            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+              filteredStatus === 'processing' ? 'ring-2 ring-blue-500 bg-secondary-700' : ''
+            }`}
+          >
             <p className="text-2xl font-bold text-blue-400">{queueStats.total_processing}</p>
             <p className="text-secondary-400 text-sm">Processing</p>
-          </div>
-          <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+          </button>
+          <button 
+            onClick={() => handleStatClick('completed')}
+            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+              filteredStatus === 'completed' ? 'ring-2 ring-green-500 bg-secondary-700' : ''
+            }`}
+          >
             <p className="text-2xl font-bold text-green-400">{queueStats.total_completed}</p>
             <p className="text-secondary-400 text-sm">Completed</p>
-          </div>
-          <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+          </button>
+          <button 
+            onClick={() => handleStatClick('failed')}
+            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+              filteredStatus === 'failed' ? 'ring-2 ring-red-500 bg-secondary-700' : ''
+            }`}
+          >
             <p className="text-2xl font-bold text-red-400">{queueStats.total_failed}</p>
             <p className="text-secondary-400 text-sm">Failed</p>
-          </div>
+          </button>
         </div>
       )}
 
@@ -191,7 +233,11 @@ export default function AutoBoltQueueMonitor() {
         {extensionStatus.length > 0 ? (
           <div className="space-y-3">
             {extensionStatus.map((extension) => (
-              <div key={extension.extension_id} className="flex items-center justify-between p-3 bg-secondary-700 rounded-lg">
+              <button 
+                key={extension.extension_id} 
+                onClick={() => handleExtensionClick(extension.extension_id)}
+                className="w-full flex items-center justify-between p-3 bg-secondary-700 rounded-lg hover:bg-secondary-600 transition-colors cursor-pointer"
+              >
                 <div className="flex items-center space-x-3">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getExtensionStatusColor(extension.status)}`}>
                     {extension.status}
@@ -208,7 +254,7 @@ export default function AutoBoltQueueMonitor() {
                   <div>Failed: {extension.directories_failed}</div>
                   <div>Last seen: {formatTimeAgo(extension.last_heartbeat)}</div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         ) : (
@@ -219,7 +265,23 @@ export default function AutoBoltQueueMonitor() {
       {/* Processing Queue */}
       <div className="bg-secondary-800 rounded-xl border border-secondary-700">
         <div className="p-6 border-b border-secondary-700">
-          <h3 className="text-xl font-bold text-white">Processing Queue</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-white">Processing Queue</h3>
+            {filteredStatus && (
+              <div className="flex items-center space-x-2">
+                <span className="text-secondary-300 text-sm">Filtered by:</span>
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(filteredStatus)}`}>
+                  {filteredStatus}
+                </span>
+                <button 
+                  onClick={() => setFilteredStatus(null)}
+                  className="text-secondary-400 hover:text-white text-sm"
+                >
+                  Clear filter
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -246,9 +308,13 @@ export default function AutoBoltQueueMonitor() {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-700">
-              {queueItems.length > 0 ? (
-                queueItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-secondary-700/50">
+              {getFilteredQueueItems().length > 0 ? (
+                getFilteredQueueItems().map((item) => (
+                  <tr 
+                    key={item.id} 
+                    onClick={() => handleQueueItemClick(item)}
+                    className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white">{item.business_name}</div>
@@ -285,7 +351,7 @@ export default function AutoBoltQueueMonitor() {
               ) : (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-secondary-400">
-                    No items in AutoBolt processing queue
+                    {filteredStatus ? `No items with status "${filteredStatus}"` : 'No items in AutoBolt processing queue'}
                   </td>
                 </tr>
               )}

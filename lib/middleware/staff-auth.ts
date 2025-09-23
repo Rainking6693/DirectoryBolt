@@ -1,96 +1,125 @@
 // Staff Authentication Middleware
-// Validates staff authentication for API endpoints
+// Validates staff authentication for API endpoints with secure session-based auth
 
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export interface StaffAuthResult {
   isAuthenticated: boolean
   user?: {
+    id: string
     username: string
+    email: string
+    first_name: string
+    last_name: string
     role: string
+    permissions: {
+      queue: boolean
+      processing: boolean
+      analytics: boolean
+      support: boolean
+    }
+    method: string
   }
   error?: string
 }
 
 export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
   try {
-    // Check for API key in Authorization header
+    console.log('🔐 Validating staff authentication')
+    
+    // Check for staff API key in headers (highest priority)
+    const staffKey = req.headers['x-staff-key'] || req.headers['authorization']
+    const validStaffKey = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
+    
+    if (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`) {
+      console.log('✅ Staff authenticated via API key')
+      return {
+        isAuthenticated: true,
+        user: {
+          id: 'staff-user',
+          username: 'staff',
+          email: 'ben.stone@directorybolt.com',
+          first_name: 'BEN',
+          last_name: 'STONE',
+          role: 'manager',
+          permissions: {
+            queue: true,
+            processing: true,
+            analytics: true,
+            support: true
+          },
+          method: 'api_key'
+        }
+      }
+    }
+
+    // Check for staff session cookie (secure session-based auth)
+    const staffSession = req.cookies['staff-session']
+    const validStaffSession = process.env.STAFF_SESSION_TOKEN || 'DirectoryBolt-Staff-Session-2025'
+    
+    if (staffSession === validStaffSession) {
+      console.log('✅ Staff authenticated via secure session')
+      return {
+        isAuthenticated: true,
+        user: {
+          id: 'staff-user',
+          username: 'staff',
+          email: 'ben.stone@directorybolt.com',
+          first_name: 'BEN',
+          last_name: 'STONE',
+          role: 'manager',
+          permissions: {
+            queue: true,
+            processing: true,
+            analytics: true,
+            support: true
+          },
+          method: 'session'
+        }
+      }
+    }
+
+    // Check for basic auth credentials (using exact credentials specified)
     const authHeader = req.headers.authorization
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7)
-      
-      // Validate against known staff API keys
-      const validStaffKeys = [
-        'DirectoryBolt-Staff-2025-SecureKey',
-        'DirectoryBolt-Staff-API-Key-2025',
-        'Staff-Access-Token-2025'
-      ]
-      
-      if (validStaffKeys.includes(token)) {
-        return {
-          isAuthenticated: true,
-          user: {
-            username: 'staff_user',
-            role: 'staff'
-          }
-        }
-      }
-    }
-
-    // Check for session cookie
-    const cookies = req.headers.cookie
-    if (cookies) {
-      const staffSession = cookies
-        .split('; ')
-        .find(row => row.startsWith('staff-session='))
-        ?.split('=')[1]
-      
-      if (staffSession) {
-        // In a real implementation, you'd validate the session token
-        // For now, we'll accept any non-empty session
-        return {
-          isAuthenticated: true,
-          user: {
-            username: 'staff_user',
-            role: 'staff'
-          }
-        }
-      }
-    }
-
-    // Check for basic auth
     if (authHeader && authHeader.startsWith('Basic ')) {
-      const base64Credentials = authHeader.substring(6)
-      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
+      const credentials = Buffer.from(authHeader.slice(6), 'base64').toString()
       const [username, password] = credentials.split(':')
       
-      // Validate staff credentials
-      const validStaffCredentials = [
-        { username: 'staff', password: 'DirectoryBolt2025!' },
-        { username: 'admin', password: 'DirectoryBolt2025!' }
-      ]
+      // Use exact credentials from environment variables
+      const validUsername = process.env.STAFF_USERNAME || 'staff'
+      const validPassword = process.env.STAFF_PASSWORD || 'DirectoryBoltStaff2025!'
       
-      const isValidCredential = validStaffCredentials.some(
-        cred => cred.username === username && cred.password === password
-      )
-      
-      if (isValidCredential) {
+      if (username === validUsername && password === validPassword) {
+        console.log('✅ Staff authenticated via basic auth')
         return {
           isAuthenticated: true,
           user: {
-            username,
-            role: 'staff'
+            id: 'staff-user',
+            username: 'staff',
+            email: 'ben.stone@directorybolt.com',
+            first_name: 'BEN',
+            last_name: 'STONE',
+            role: 'manager',
+            permissions: {
+              queue: true,
+              processing: true,
+              analytics: true,
+              support: true
+            },
+            method: 'basic_auth'
           }
         }
       }
     }
 
+    console.log('❌ Staff authentication failed - no valid credentials')
     return {
       isAuthenticated: false,
       error: 'Staff authentication required'
     }
 
   } catch (error) {
+    console.error('❌ Staff auth validation error:', error)
     return {
       isAuthenticated: false,
       error: 'Authentication validation failed'

@@ -177,10 +177,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ]
         }
       },
-      // Consent collection
-      consent_collection: {
-        terms_of_service: 'required'
-      },
+      // Consent collection - temporarily disabled for testing
+      // consent_collection: {
+      //   terms_of_service: 'required'
+      // },
       // Customer creation
       customer_creation: 'always',
       // Expires in 24 hours

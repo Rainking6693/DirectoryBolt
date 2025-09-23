@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-22T18:34:08.717Z",
+  "timestamp": "2025-09-23T20:43:20.601Z",
   "environment": "production",
   "platform": "netlify",
   "buildId": "local",
@@ -9,8 +9,8 @@
       "name": "Environment Variables",
       "critical": true,
       "status": "passed",
-      "startTime": "2025-09-22T18:34:08.719Z",
-      "duration": 0.6364999999999981,
+      "startTime": "2025-09-23T20:43:20.603Z",
+      "duration": 0.6687999999999974,
       "result": {
         "configured": 5,
         "missing": [
@@ -21,14 +21,14 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-22T18:34:08.719Z"
+      "endTime": "2025-09-23T20:43:20.603Z"
     },
     {
       "name": "API Connectivity",
       "critical": true,
       "status": "passed",
-      "startTime": "2025-09-22T18:34:08.719Z",
-      "duration": 898.6456,
+      "startTime": "2025-09-23T20:43:20.603Z",
+      "duration": 1337.7521000000002,
       "result": {
         "tested": 2,
         "healthy": 1,
@@ -41,21 +41,21 @@
           {
             "service": "Supabase",
             "status": "healthy",
-            "latency": 296.88120000000004
+            "latency": 767.0652
           }
         ],
-        "averageLatency": 296.88120000000004
+        "averageLatency": 767.0652
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-22T18:34:09.618Z"
+      "endTime": "2025-09-23T20:43:21.941Z"
     },
     {
       "name": "Build Artifacts",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-22T18:34:09.618Z",
-      "duration": 22.465100000000007,
+      "startTime": "2025-09-23T20:43:21.941Z",
+      "duration": 7.558800000000019,
       "result": {
         "present": [
           "nextBuild",
@@ -66,11 +66,11 @@
         ],
         "missing": [],
         "sizes": {
-          "nextBuild": 311354552,
+          "nextBuild": 215720,
           "publicAssets": 163050,
           "serverFunctions": 46431,
           "packageJson": 7715,
-          "nextConfig": 6879
+          "nextConfig": 7086
         },
         "integrity": {
           "packageJson": {
@@ -82,24 +82,24 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-22T18:34:09.641Z"
+      "endTime": "2025-09-23T20:43:21.949Z"
     },
     {
       "name": "Performance Metrics",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-22T18:34:09.641Z",
-      "duration": 103.93410000000006,
+      "startTime": "2025-09-23T20:43:21.949Z",
+      "duration": 109.94410000000016,
       "result": {
         "memoryUsage": {
-          "heapUsed": 15015360,
-          "heapTotal": 21753856,
-          "external": 3550377,
-          "rss": 75493376,
-          "heapUtilization": 69.02390086612691
+          "heapUsed": 14648360,
+          "heapTotal": 21491712,
+          "external": 3550378,
+          "rss": 67133440,
+          "heapUtilization": 68.15818116304555
         },
         "timing": {
-          "applicationStartup": 102.57889999999998,
+          "applicationStartup": 108.55749999999989,
           "nodeVersion": "v22.19.0",
           "platform": "win32",
           "arch": "x64"
@@ -111,14 +111,14 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-22T18:34:09.744Z"
+      "endTime": "2025-09-23T20:43:22.059Z"
     },
     {
       "name": "Security Configuration",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-22T18:34:09.745Z",
-      "duration": 0.17760000000021137,
+      "startTime": "2025-09-23T20:43:22.059Z",
+      "duration": 0.2153000000000702,
       "result": {
         "headers": {},
         "environment": {
@@ -131,19 +131,19 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-22T18:34:09.745Z"
+      "endTime": "2025-09-23T20:43:22.059Z"
     }
   ],
   "performance": {
     "memoryUsage": {
-      "heapUsed": 15015360,
-      "heapTotal": 21753856,
-      "external": 3550377,
-      "rss": 75493376,
-      "heapUtilization": 69.02390086612691
+      "heapUsed": 14648360,
+      "heapTotal": 21491712,
+      "external": 3550378,
+      "rss": 67133440,
+      "heapUtilization": 68.15818116304555
     },
     "timing": {
-      "applicationStartup": 102.57889999999998,
+      "applicationStartup": 108.55749999999989,
       "nodeVersion": "v22.19.0",
       "platform": "win32",
       "arch": "x64"

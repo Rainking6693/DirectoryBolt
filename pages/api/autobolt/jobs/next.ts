@@ -59,50 +59,85 @@ async function handler(
     if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
       return res.status(403).json({ error: 'Unauthorized' })
     }
-    // Get next pending job with highest priority (lower number = higher priority per doc)
+    // Get next pending job from autobolt_processing_queue (highest priority = lower number)
     const { data: job, error: jobErr } = await supabase
-      .from('jobs')
-      .select('id, customer_id, package_size, status, created_at')
-      .eq('status', 'pending')
+      .from('autobolt_processing_queue')
+      .select(`
+        id,
+        customer_id,
+        directory_limit,
+        status,
+        priority_level,
+        created_at,
+        customers!inner(
+          customer_id,
+          business_name,
+          email,
+          business_data
+        )
+      `)
+      .eq('status', 'queued')
       .order('priority_level', { ascending: true })
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle()
 
-    if (jobErr) return res.status(500).json({ error: 'Failed to fetch job' })
-    if (!job) return res.status(200).json({ job: null })
+    if (jobErr) {
+      console.error('❌ Failed to fetch job from queue:', jobErr)
+      return res.status(500).json({ error: 'Failed to fetch job' })
+    }
+    
+    if (!job) {
+      console.log('ℹ️ No jobs in queue')
+      return res.status(200).json({ job: null })
+    }
+
+    console.log(`🎯 Found job for customer ${job.customer_id}`)
 
     // Mark job as in_progress
-    await supabase
-      .from('jobs')
-      .update({ status: 'in_progress', started_at: new Date().toISOString() })
+    const { error: updateError } = await supabase
+      .from('autobolt_processing_queue')
+      .update({ 
+        status: 'processing', 
+        started_at: new Date().toISOString(),
+        processed_by: 'autobolt_extension'
+      })
       .eq('id', job.id)
 
-    // Fetch customer
-    const { data: customer } = await supabase
+    if (updateError) {
+      console.error('❌ Failed to update job status:', updateError)
+      return res.status(500).json({ error: 'Failed to update job status' })
+    }
+
+    // Also update customer status to in-progress
+    await supabase
       .from('customers')
-      .select('id, business_name, email, phone, website, address, city, state, zip')
-      .eq('id', job.customer_id)
-      .single()
+      .update({ 
+        status: 'in-progress',
+        updated_at: new Date().toISOString()
+      })
+      .eq('customer_id', job.customer_id)
+
+    const businessData = job.customers.business_data || {}
 
     return res.status(200).json({
       job: {
         job_id: job.id,
-        package_size: job.package_size,
+        package_size: job.directory_limit,
         customer: {
-          id: customer?.id || job.customer_id,
-          business_name: customer?.business_name || null,
-          email: customer?.email || null,
-          phone: customer?.phone || null,
-          address: customer?.address || null,
-          city: customer?.city || null,
-          state: customer?.state || null,
-          zip: customer?.zip || null,
-          website: customer?.website || null,
-          description: null,
-          facebook: null,
-          instagram: null,
-          linkedin: null
+          id: job.customer_id,
+          business_name: job.customers.business_name || null,
+          email: job.customers.email || null,
+          phone: businessData.phone || null,
+          address: businessData.address || null,
+          city: businessData.city || null,
+          state: businessData.state || null,
+          zip: businessData.zip || null,
+          website: businessData.website || null,
+          description: businessData.description || null,
+          facebook: businessData.facebook || null,
+          instagram: businessData.instagram || null,
+          linkedin: businessData.linkedin || null
         }
       }
     })

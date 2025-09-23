@@ -2,6 +2,7 @@
 // Displays real-time job progress data from the new job queue system
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 interface JobProgressData {
   id: string
@@ -47,11 +48,13 @@ interface JobProgressResponse {
 }
 
 export default function JobProgressMonitor() {
+  const router = useRouter()
   const [jobData, setJobData] = useState<JobProgressResponse['data'] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedJob, setSelectedJob] = useState<JobProgressData | null>(null)
+  const [filteredStatus, setFilteredStatus] = useState<string | null>(null)
 
   useEffect(() => {
     fetchJobProgress()
@@ -182,6 +185,20 @@ export default function JobProgressMonitor() {
     }
   }
 
+  const handleStatClick = (status: string) => {
+    setFilteredStatus(filteredStatus === status ? null : status)
+  }
+
+  const handleJobClick = (job: JobProgressData) => {
+    // Navigate to detailed view of job
+    router.push(`/staff-dashboard/job/${job.id}`)
+  }
+
+  const getFilteredJobs = () => {
+    if (!filteredStatus) return jobData?.jobs || []
+    return jobData?.jobs.filter(job => job.status === filteredStatus) || []
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -228,26 +245,51 @@ export default function JobProgressMonitor() {
 
       {/* Job Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        <button 
+          onClick={() => setFilteredStatus(null)}
+          className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+            filteredStatus === null ? 'ring-2 ring-white bg-secondary-700' : ''
+          }`}
+        >
           <p className="text-2xl font-bold text-white">{jobData.stats.total_jobs}</p>
           <p className="text-secondary-400 text-sm">Total Jobs</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
-          <p className="text-2xl font-bold text-yellow-400">{jobData.stats.pending_jobs}</p>
+        </button>
+        <button 
+          onClick={() => handleStatClick('pending')}
+          className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+            filteredStatus === 'pending' ? 'ring-2 ring-volt-500 bg-secondary-700' : ''
+          }`}
+        >
+          <p className="text-2xl font-bold text-volt-500">{jobData.stats.pending_jobs}</p>
           <p className="text-secondary-400 text-sm">Pending</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => handleStatClick('in_progress')}
+          className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+            filteredStatus === 'in_progress' ? 'ring-2 ring-blue-500 bg-secondary-700' : ''
+          }`}
+        >
           <p className="text-2xl font-bold text-blue-400">{jobData.stats.in_progress_jobs}</p>
           <p className="text-secondary-400 text-sm">In Progress</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => handleStatClick('completed')}
+          className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+            filteredStatus === 'completed' ? 'ring-2 ring-green-500 bg-secondary-700' : ''
+          }`}
+        >
           <p className="text-2xl font-bold text-green-400">{jobData.stats.completed_jobs}</p>
           <p className="text-secondary-400 text-sm">Completed</p>
-        </div>
-        <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
+        </button>
+        <button 
+          onClick={() => handleStatClick('failed')}
+          className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
+            filteredStatus === 'failed' ? 'ring-2 ring-red-500 bg-secondary-700' : ''
+          }`}
+        >
           <p className="text-2xl font-bold text-red-400">{jobData.stats.failed_jobs}</p>
           <p className="text-secondary-400 text-sm">Failed</p>
-        </div>
+        </button>
         <div className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center">
           <p className="text-2xl font-bold text-white">{jobData.stats.total_directories}</p>
           <p className="text-secondary-400 text-sm">Total Dirs</p>
@@ -267,7 +309,23 @@ export default function JobProgressMonitor() {
         <div className="p-6 border-b border-secondary-700">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-white">Active Jobs</h3>
-            <p className="text-secondary-400 text-sm">Click on any job to view detailed progress</p>
+            <div className="flex items-center space-x-4">
+              {filteredStatus && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-secondary-300 text-sm">Filtered by:</span>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(filteredStatus)}`}>
+                    {filteredStatus}
+                  </span>
+                  <button 
+                    onClick={() => setFilteredStatus(null)}
+                    className="text-secondary-400 hover:text-white text-sm"
+                  >
+                    Clear filter
+                  </button>
+                </div>
+              )}
+              <p className="text-secondary-400 text-sm">Click on any job to view detailed progress</p>
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -298,12 +356,13 @@ export default function JobProgressMonitor() {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-700">
-              {jobData.jobs.map((job) => (
-                <tr 
-                  key={job.id} 
-                  className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
-                  onClick={() => setSelectedJob(job)}
-                >
+              {getFilteredJobs().length > 0 ? (
+                getFilteredJobs().map((job) => (
+                  <tr 
+                    key={job.id} 
+                    className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
+                    onClick={() => handleJobClick(job)}
+                  >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-white">{job.business_name}</div>
@@ -387,7 +446,14 @@ export default function JobProgressMonitor() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center text-secondary-400">
+                    {filteredStatus ? `No jobs with status "${filteredStatus}"` : 'No jobs available'}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
