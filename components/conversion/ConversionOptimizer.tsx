@@ -404,7 +404,7 @@ function TrustIndicators({ context }: { context: string }) {
         <div className="text-xs text-secondary-400">Happy Customers</div>
       </div>
       <div className="bg-secondary-800/50 rounded-lg p-4">
-        <Star className="mx-auto text-yellow-400 mb-2" size={24} />
+        <Star className="mx-auto text-volt-400 mb-2" size={24} />
         <div className="text-lg font-bold text-white">4.9/5</div>
         <div className="text-xs text-secondary-400">Customer Rating</div>
       </div>
@@ -490,7 +490,7 @@ function SocialProof({ context, personalizedData }: { context: string; personali
           <div key={index} className="bg-secondary-800/50 rounded-lg p-6">
             <div className="flex items-center mb-3">
               {[...Array(testimonial.rating)].map((_, i) => (
-                <Star key={i} size={16} className="text-yellow-400 fill-current" />
+                <Star key={i} size={16} className="text-volt-400 fill-current" />
               ))}
             </div>
             <p className="text-secondary-300 mb-4">"{testimonial.text}"</p>

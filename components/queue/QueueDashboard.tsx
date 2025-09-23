@@ -256,7 +256,7 @@ const QueueDashboard: React.FC<QueueDashboardProps> = ({
               
               <button
                 onClick={() => handleBatchOperation('retry')}
-                className="px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-sm flex items-center"
+                className="px-3 py-1 bg-volt-600 text-white rounded-md hover:bg-volt-700 transition-colors text-sm flex items-center"
               >
                 <ArrowPathIcon className="h-4 w-4 mr-1" />
                 Retry All

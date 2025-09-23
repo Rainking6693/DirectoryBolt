@@ -242,12 +242,12 @@ export const SupabaseRealTimeDashboard: React.FC<SupabaseRealTimeDashboardProps>
                 connectionStatus === 'connected' 
                   ? 'bg-green-100 text-green-800' 
                   : connectionStatus === 'connecting'
-                  ? 'bg-yellow-100 text-yellow-800'
+                  ? 'bg-volt-100 text-volt-800'
                   : 'bg-red-100 text-red-800'
               }`}>
                 <span className={`w-2 h-2 rounded-full mr-1 ${
                   connectionStatus === 'connected' ? 'bg-green-500' :
-                  connectionStatus === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+                  connectionStatus === 'connecting' ? 'bg-volt-500' : 'bg-red-500'
                 }`}></span>
                 {connectionStatus === 'connected' ? 'Live' : 
                  connectionStatus === 'connecting' ? 'Connecting' : 'Offline'}
@@ -285,7 +285,7 @@ export const SupabaseRealTimeDashboard: React.FC<SupabaseRealTimeDashboardProps>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center">
-            <ClockIcon className="h-8 w-8 text-yellow-500" />
+            <ClockIcon className="h-8 w-8 text-volt-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active/Pending</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -380,10 +380,10 @@ export const SupabaseRealTimeDashboard: React.FC<SupabaseRealTimeDashboardProps>
 
       {/* Error Display */}
       {error && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-volt-50 border border-volt-200 rounded-lg p-4">
           <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mr-2" />
-            <span className="text-yellow-800">{error}</span>
+            <ExclamationTriangleIcon className="h-5 w-5 text-volt-400 mr-2" />
+            <span className="text-volt-800">{error}</span>
           </div>
         </div>
       )}

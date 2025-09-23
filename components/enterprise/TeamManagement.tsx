@@ -208,7 +208,7 @@ export default function TeamManagement({
   const getStatusColor = (status: TeamMember['status']) => {
     const colors = {
       active: 'text-green-400',
-      pending: 'text-yellow-400',
+      pending: 'text-volt-400',
       suspended: 'text-red-400'
     }
     return colors[status] || colors.active
@@ -265,7 +265,7 @@ export default function TeamManagement({
           <div className="text-sm text-secondary-400">Active</div>
         </div>
         <div className="bg-secondary-800 rounded-lg p-4 border border-secondary-700">
-          <div className="text-2xl font-bold text-yellow-400">
+          <div className="text-2xl font-bold text-volt-400">
             {invitations.length}
           </div>
           <div className="text-sm text-secondary-400">Pending Invites</div>
@@ -383,7 +383,7 @@ export default function TeamManagement({
               {invitations.map(invitation => (
                 <div
                   key={invitation.id}
-                  className="flex items-center justify-between p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-volt-500/10 border border-volt-500/30 rounded-lg"
                 >
                   <div>
                     <div className="font-medium text-white">{invitation.email}</div>
@@ -398,7 +398,7 @@ export default function TeamManagement({
                         // Handle resend invitation
                         console.log('Resend invitation:', invitation.id)
                       }}
-                      className="text-yellow-400 hover:text-yellow-300 text-sm"
+                      className="text-volt-400 hover:text-volt-300 text-sm"
                     >
                       Resend
                     </button>

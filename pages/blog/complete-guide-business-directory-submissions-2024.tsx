@@ -324,9 +324,9 @@ export default function CompleteGuideBusinessDirectorySubmissions2024() {
             <h2 className="text-3xl font-bold mb-6">Best Practices for Directory Submissions</h2>
             
             <div className="space-y-6">
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6">
-                <h3 className="font-semibold text-yellow-900 mb-2">NAP Consistency is Critical</h3>
-                <p className="text-yellow-800">
+              <div className="bg-volt-50 border-l-4 border-volt-500 p-6">
+                <h3 className="font-semibold text-volt-900 mb-2">NAP Consistency is Critical</h3>
+                <p className="text-volt-800">
                   Ensure your Name, Address, and Phone number are identical across all directories. Even small variations can hurt your local SEO rankings.
                 </p>
               </div>

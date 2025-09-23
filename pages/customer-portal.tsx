@@ -91,7 +91,7 @@ const CustomerPortal: React.FC = () => {
     switch (status) {
       case 'completed': return 'text-green-600 bg-green-100';
       case 'in-progress': return 'text-blue-600 bg-blue-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'pending': return 'text-volt-600 bg-volt-100';
       case 'failed': return 'text-red-600 bg-red-100';
       default: return 'text-gray-600 bg-gray-100';
     }
@@ -101,7 +101,7 @@ const CustomerPortal: React.FC = () => {
     switch (status) {
       case 'approved': return 'text-green-600 bg-green-100';
       case 'submitted': return 'text-blue-600 bg-blue-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'pending': return 'text-volt-600 bg-volt-100';
       case 'failed': return 'text-red-600 bg-red-100';
       default: return 'text-gray-600 bg-gray-100';
     }
@@ -209,8 +209,8 @@ const CustomerPortal: React.FC = () => {
                     <div className="text-2xl font-bold text-green-600">{customerData.submittedDirectories}</div>
                     <div className="text-sm text-gray-600">Submitted</div>
                   </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <div className="text-2xl font-bold text-yellow-600">{customerData.directoryLimit - customerData.submittedDirectories}</div>
+                  <div className="text-center p-4 bg-volt-50 rounded-lg">
+                    <div className="text-2xl font-bold text-volt-600">{customerData.directoryLimit - customerData.submittedDirectories}</div>
                     <div className="text-sm text-gray-600">Remaining</div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">

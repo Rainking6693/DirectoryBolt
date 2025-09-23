@@ -63,7 +63,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
     switch (status) {
       case 'completed': return 'text-green-600 bg-green-100';
       case 'in-progress': return 'text-blue-600 bg-blue-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'pending': return 'text-volt-600 bg-volt-100';
       default: return 'text-gray-600 bg-gray-100';
     }
   };

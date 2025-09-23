@@ -139,7 +139,7 @@ export function BusinessInfoEditor({
             ✏️ Quick Edit
           </h3>
           {isDirty && (
-            <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded border border-yellow-500/30">
+            <span className="text-xs text-volt-400 bg-volt-500/20 px-2 py-1 rounded border border-volt-500/30">
               Unsaved Changes
             </span>
           )}
@@ -207,7 +207,7 @@ export function BusinessInfoEditor({
             ✏️ Business Information
           </h3>
           {isDirty && (
-            <span className="text-sm text-yellow-400 bg-yellow-500/20 px-3 py-1 rounded border border-yellow-500/30">
+            <span className="text-sm text-volt-400 bg-volt-500/20 px-3 py-1 rounded border border-volt-500/30">
               Unsaved Changes
             </span>
           )}

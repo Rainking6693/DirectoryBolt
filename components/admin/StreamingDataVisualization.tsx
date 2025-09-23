@@ -186,7 +186,7 @@ const StreamingMetricCard = ({
     const getStatusColor = () => {
         switch (metric.status) {
             case 'healthy': return 'border-green-200 bg-green-50'
-            case 'warning': return 'border-yellow-200 bg-yellow-50'
+            case 'warning': return 'border-volt-200 bg-volt-50'
             case 'critical': return 'border-red-200 bg-red-50'
             default: return 'border-gray-200 bg-gray-50'
         }

@@ -36,7 +36,7 @@ export function DirectoryCard({
   // Get DA color coding
   const getDaColor = (da: number) => {
     if (da >= 80) return 'text-green-400 bg-green-900/30 border-green-500/50'
-    if (da >= 60) return 'text-yellow-400 bg-yellow-900/30 border-yellow-500/50'
+    if (da >= 60) return 'text-volt-400 bg-volt-900/30 border-volt-500/50'
     return 'text-orange-400 bg-orange-900/30 border-orange-500/50'
   }
 
@@ -48,7 +48,7 @@ export function DirectoryCard({
       <span
         key={i}
         className={`text-sm ${
-          i < level ? 'text-yellow-400' : 'text-secondary-600'
+          i < level ? 'text-volt-400' : 'text-secondary-600'
         }`}
       >
         ★
@@ -64,7 +64,7 @@ export function DirectoryCard({
     const price = directory.submission_fee / 100 // Convert cents to dollars
     return { 
       text: `$${price.toLocaleString()}`, 
-      color: price > 100 ? 'text-orange-400' : 'text-yellow-400' 
+      color: price > 100 ? 'text-orange-400' : 'text-volt-400' 
     }
   }
 

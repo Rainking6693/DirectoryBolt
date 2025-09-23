@@ -181,11 +181,11 @@ export default function EmergencyDiagnostics() {
 
               {/* Warnings */}
               {status.warnings.length > 0 && (
-                <div className="bg-yellow-900 border border-yellow-700 rounded-lg p-6 mb-8">
-                  <h2 className="text-xl font-bold text-yellow-400 mb-4">⚠️ Warnings</h2>
+                <div className="bg-volt-900 border border-volt-700 rounded-lg p-6 mb-8">
+                  <h2 className="text-xl font-bold text-volt-400 mb-4">⚠️ Warnings</h2>
                   <ul className="space-y-2">
                     {status.warnings.map((warning, index) => (
-                      <li key={index} className="text-yellow-300">⚠️ {warning}</li>
+                      <li key={index} className="text-volt-300">⚠️ {warning}</li>
                     ))}
                   </ul>
                 </div>

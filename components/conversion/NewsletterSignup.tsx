@@ -63,7 +63,7 @@ export function NewsletterSignup({
       description: 'Actionable strategies to increase your local visibility'
     },
     {
-      icon: <Star size={16} className="text-yellow-400" />,
+      icon: <Star size={16} className="text-volt-400" />,
       title: 'Directory Spotlights',
       description: 'Featured directories that could boost your business'
     },

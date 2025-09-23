@@ -354,7 +354,7 @@ export function ABTestConfig({
               </div>
               <span className={`px-2 py-1 rounded text-xs font-medium ${
                 test.status === 'running' ? 'bg-success-500/20 text-success-400' :
-                test.status === 'paused' ? 'bg-yellow-500/20 text-yellow-400' :
+                test.status === 'paused' ? 'bg-volt-500/20 text-volt-400' :
                 test.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-secondary-500/20 text-secondary-300'
               }`}>

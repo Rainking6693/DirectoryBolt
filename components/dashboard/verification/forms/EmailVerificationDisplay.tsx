@@ -45,10 +45,10 @@ export function EmailVerificationDisplay({ action, onResend }: EmailVerification
           icon: '📧',
           title: 'Email Verification Required',
           message: 'Check your email and click the verification link to continue.',
-          bgColor: 'bg-yellow-500/10',
-          borderColor: 'border-yellow-500/30',
-          iconBg: 'bg-yellow-500/20',
-          textColor: 'text-yellow-400'
+          bgColor: 'bg-volt-500/10',
+          borderColor: 'border-volt-500/30',
+          iconBg: 'bg-volt-500/20',
+          textColor: 'text-volt-400'
         }
       case 'in_progress':
         return {

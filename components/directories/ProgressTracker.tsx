@@ -84,7 +84,7 @@ export function ProgressTracker({
 
   const getStatusColor = (status: Submission['status']) => {
     switch (status) {
-      case 'pending': return 'text-yellow-400 bg-yellow-900/20'
+      case 'pending': return 'text-volt-400 bg-volt-900/20'
       case 'in_progress': return 'text-blue-400 bg-blue-900/20'
       case 'submitted': return 'text-purple-400 bg-purple-900/20'
       case 'approved': return 'text-green-400 bg-green-900/20'
@@ -187,7 +187,7 @@ export function ProgressTracker({
           </div>
           
           <div className="text-center p-3 bg-secondary-800/50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-400">{progress.pending}</div>
+            <div className="text-2xl font-bold text-volt-400">{progress.pending}</div>
             <div className="text-xs text-secondary-500">Pending</div>
           </div>
         </div>

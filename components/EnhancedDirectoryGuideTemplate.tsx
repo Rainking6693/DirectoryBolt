@@ -134,7 +134,7 @@ export default function EnhancedDirectoryGuideTemplate({ guide }: DirectoryGuide
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return 'text-success-500 bg-success-500/10'
-      case 'moderate': return 'text-yellow-500 bg-yellow-500/10'
+      case 'moderate': return 'text-volt-500 bg-volt-500/10'
       case 'challenging': return 'text-danger-500 bg-danger-500/10'
       default: return 'text-secondary-400'
     }

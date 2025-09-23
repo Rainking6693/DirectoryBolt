@@ -59,24 +59,11 @@ async function handler(
     if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
       return res.status(403).json({ error: 'Unauthorized' })
     }
-    // Get next pending job from autobolt_processing_queue (highest priority = lower number)
+    // Get next pending job from jobs (highest priority = lower number)
     const { data: job, error: jobErr } = await supabase
-      .from('autobolt_processing_queue')
-      .select(`
-        id,
-        customer_id,
-        directory_limit,
-        status,
-        priority_level,
-        created_at,
-        customers!inner(
-          customer_id,
-          business_name,
-          email,
-          business_data
-        )
-      `)
-      .eq('status', 'queued')
+      .from('jobs')
+      .select('id, customer_id, package_size, status, priority_level, created_at')
+      .eq('status', 'pending')
       .order('priority_level', { ascending: true })
       .order('created_at', { ascending: true })
       .limit(1)
@@ -96,11 +83,11 @@ async function handler(
 
     // Mark job as in_progress
     const { error: updateError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update({ 
-        status: 'processing', 
+        status: 'in_progress', 
         started_at: new Date().toISOString(),
-        processed_by: 'autobolt_extension'
+        updated_at: new Date().toISOString()
       })
       .eq('id', job.id)
 
@@ -109,25 +96,23 @@ async function handler(
       return res.status(500).json({ error: 'Failed to update job status' })
     }
 
-    // Also update customer status to in-progress
-    await supabase
+    // Fetch customer details (best-effort)
+    const { data: customerRow } = await supabase
       .from('customers')
-      .update({ 
-        status: 'in-progress',
-        updated_at: new Date().toISOString()
-      })
-      .eq('customer_id', job.customer_id)
+      .select('id, business_name, email, phone, address, city, state, zip, website, description, facebook, instagram, linkedin, business_data')
+      .eq('id', job.customer_id)
+      .maybeSingle()
 
-    const businessData = job.customers.business_data || {}
+    const businessData = (customerRow && (customerRow as any).business_data) || {}
 
     return res.status(200).json({
       job: {
         job_id: job.id,
-        package_size: job.directory_limit,
+        package_size: job.package_size,
         customer: {
           id: job.customer_id,
-          business_name: job.customers.business_name || null,
-          email: job.customers.email || null,
+          business_name: (customerRow as any)?.business_name || null,
+          email: (customerRow as any)?.email || null,
           phone: businessData.phone || null,
           address: businessData.address || null,
           city: businessData.city || null,

@@ -24,6 +24,11 @@ interface PushJobResponse {
   success: boolean
   data?: {
     jobId: string
+    business_name?: string
+    package_type?: string
+    directory_limit?: number
+    priority_level?: number
+    status?: string
     message: string
   }
   message?: string
@@ -136,6 +141,32 @@ async function handler(
       .eq('id', jobRow.customer_id)
       .single()
 
+    // Get directory limits and priority based on package
+    const getDirectoryLimits = (packageType: string): number => {
+      const limits: Record<string, number> = {
+        starter: 50,
+        growth: 150,
+        professional: 300,
+        pro: 500,
+        enterprise: 1000
+      }
+      return limits[packageType] || 50
+    }
+
+    const getPriorityLevel = (packageType: string): number => {
+      const priorities: Record<string, number> = {
+        starter: 4,
+        growth: 3,
+        professional: 2,
+        pro: 1,
+        enterprise: 1
+      }
+      return priorities[packageType] || 4
+    }
+
+    const directoryLimit = getDirectoryLimits(jobRow.package_size)
+    const priorityLevel = getPriorityLevel(jobRow.package_size)
+
     // Log the staff action for audit trail
     try {
       await supabase
@@ -143,12 +174,12 @@ async function handler(
         .insert({
           action_type: 'push_to_autobolt',
           job_id: job_id,
-          customer_id: jobData.customer_id,
+          customer_id: jobRow.customer_id,
           staff_user: 'staff-dashboard',
           details: {
             job_id: job_id,
-            customer_name: jobData.customer_name,
-            package_type: jobData.package_type,
+            customer_name: customer?.business_name,
+            package_type: jobRow.package_size,
             pushed_at: new Date().toISOString()
           },
           created_at: new Date().toISOString()
@@ -158,11 +189,16 @@ async function handler(
       console.warn('Failed to log staff action:', auditError)
     }
 
-    // Return success response
+    // Return success response with detailed information
     return res.status(200).json({
       success: true,
       data: {
         jobId: job_id,
+        business_name: customer?.business_name,
+        package_type: jobRow.package_size,
+        directory_limit: directoryLimit,
+        priority_level: priorityLevel,
+        status: 'in_progress',
         message: `Job ${job_id} set to in_progress and ready for AutoBolt`
       },
       message: `Customer ${customer?.business_name || ''} (${customer?.email || ''}) has been queued for processing`

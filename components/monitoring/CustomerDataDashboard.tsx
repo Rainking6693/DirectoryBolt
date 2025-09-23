@@ -172,7 +172,7 @@ export default function CustomerDataDashboard() {
     switch (status) {
       case 'active': return 'text-green-600'
       case 'removed': return 'text-red-600'
-      case 'pending': return 'text-yellow-600'
+      case 'pending': return 'text-volt-600'
       case 'error': return 'text-gray-600'
       default: return 'text-gray-600'
     }
@@ -192,7 +192,7 @@ export default function CustomerDataDashboard() {
     switch (severity) {
       case 'critical': return 'bg-red-100 text-red-800 border-red-200'
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200'
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'medium': return 'bg-volt-100 text-volt-800 border-volt-200'
       case 'low': return 'bg-blue-100 text-blue-800 border-blue-200'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -352,7 +352,7 @@ export default function CustomerDataDashboard() {
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <Bell className="h-6 w-6 text-yellow-400" />
+                      <Bell className="h-6 w-6 text-volt-400" />
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
@@ -508,7 +508,7 @@ export default function CustomerDataDashboard() {
                   className={`bg-white shadow rounded-lg border-l-4 ${
                     alert.severity === 'critical' ? 'border-red-500' :
                     alert.severity === 'high' ? 'border-orange-500' :
-                    alert.severity === 'medium' ? 'border-yellow-500' :
+                    alert.severity === 'medium' ? 'border-volt-500' :
                     'border-blue-500'
                   }`}
                 >
@@ -602,14 +602,14 @@ export default function CustomerDataDashboard() {
                 </div>
                 
                 {customerProfile.complianceStatus.pendingRequests > 0 && (
-                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <div className="mt-4 p-4 bg-volt-50 border border-volt-200 rounded-md">
                     <div className="flex">
-                      <Clock className="w-5 h-5 text-yellow-400" />
+                      <Clock className="w-5 h-5 text-volt-400" />
                       <div className="ml-3">
-                        <h4 className="text-sm font-medium text-yellow-800">
+                        <h4 className="text-sm font-medium text-volt-800">
                           Pending Deletion Requests
                         </h4>
-                        <p className="text-sm text-yellow-700 mt-1">
+                        <p className="text-sm text-volt-700 mt-1">
                           You have {customerProfile.complianceStatus.pendingRequests} pending deletion requests. 
                           We're working with directories to fulfill these requests within regulatory timeframes.
                         </p>

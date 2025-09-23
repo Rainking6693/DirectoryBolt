@@ -2,6 +2,7 @@
 // Displays live customer processing data from Supabase
 
 import React, { useState, useEffect } from 'react'
+import { useNotifications, useApiNotifications } from '../ui/NotificationSystem'
 
 interface CustomerQueueData {
   id: string
@@ -72,6 +73,9 @@ export default function RealTimeQueue() {
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerQueueData | null>(null)
+  const [pushingCustomers, setPushingCustomers] = useState<Set<string>>(new Set())
+  const { showSuccess, showError, showInfo } = useNotifications()
+  const { notifyApiProgress, notifyApiSuccess, notifyApiError } = useApiNotifications()
 
   useEffect(() => {
     fetchQueueData()
@@ -117,7 +121,25 @@ export default function RealTimeQueue() {
   }
 
   const pushToAutoBolt = async (customerId: string) => {
+    // Prevent multiple simultaneous pushes for the same customer
+    if (pushingCustomers.has(customerId)) {
+      showInfo('Customer is already being pushed to AutoBolt', {
+        title: 'Already in Progress',
+        autoHide: 3000
+      })
+      return
+    }
+
     try {
+      // Mark customer as being pushed
+      setPushingCustomers(prev => new Set(prev).add(customerId))
+      
+      // Show progress notification
+      const progressId = showInfo('Initiating AutoBolt processing...', {
+        title: 'Pushing to AutoBolt',
+        autoHide: 2000
+      })
+
       const storedAuth = localStorage.getItem('staffAuth')
       
       if (!storedAuth) {
@@ -131,6 +153,12 @@ export default function RealTimeQueue() {
       if (!csrfData.success) {
         throw new Error('Failed to get CSRF token')
       }
+      
+      // Show validation progress
+      showInfo('Validating customer data and preparing for AutoBolt...', {
+        title: 'Processing',
+        autoHide: 1500
+      })
       
       const response = await fetch('/api/staff/push-to-autobolt', {
         method: 'POST',
@@ -151,21 +179,35 @@ export default function RealTimeQueue() {
       const result = await response.json()
       console.log('✅ Customer pushed to AutoBolt:', result)
       
+      // Show success with detailed information
+      notifyApiSuccess('Customer pushed to AutoBolt', [
+        `Customer ID: ${customerId}`,
+        `Business: ${result.data?.business_name || 'Unknown'}`,
+        `Package: ${result.data?.package_type || 'Unknown'}`,
+        `Directories: ${result.data?.directory_limit || 'Unknown'}`,
+        `Priority: P${result.data?.priority_level || 'Unknown'}`,
+        `Status: ${result.data?.status || 'queued'}`
+      ])
+      
       // Refresh queue data to show updated status
       await fetchQueueData()
       
-      // Show success message (you could add a toast notification here)
-      alert(`Customer ${customerId} successfully pushed to AutoBolt processing queue!`)
-      
     } catch (err) {
       console.error('Push to AutoBolt error:', err)
-      alert(`Failed to push customer to AutoBolt: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      notifyApiError('Push to AutoBolt', err instanceof Error ? err.message : 'Unknown error occurred')
+    } finally {
+      // Remove customer from pushing set
+      setPushingCustomers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(customerId)
+        return newSet
+      })
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-400 bg-yellow-400/20'
+      case 'pending': return 'text-volt-400 bg-volt-400/20'
       case 'in-progress': return 'text-blue-400 bg-blue-400/20'
       case 'completed': return 'text-green-400 bg-green-400/20'
       case 'failed': return 'text-red-400 bg-red-400/20'
@@ -177,7 +219,7 @@ export default function RealTimeQueue() {
     switch (priority) {
       case 1: return 'text-red-400 bg-red-400/20'
       case 2: return 'text-orange-400 bg-orange-400/20'
-      case 3: return 'text-yellow-400 bg-yellow-400/20'
+      case 3: return 'text-volt-400 bg-volt-400/20'
       default: return 'text-secondary-400 bg-secondary-400/20'
     }
   }
@@ -230,9 +272,9 @@ export default function RealTimeQueue() {
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <button 
           onClick={() => setSelectedCustomer(null)}
-          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-yellow-400/50 transition-all cursor-pointer"
+          className="bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 hover:border-volt-400/50 transition-all cursor-pointer"
         >
-          <p className="text-2xl font-bold text-yellow-400">{queueData.stats.pending}</p>
+          <p className="text-2xl font-bold text-volt-400">{queueData.stats.pending}</p>
           <p className="text-secondary-400 text-sm">Pending</p>
         </button>
         <button 
@@ -280,7 +322,7 @@ export default function RealTimeQueue() {
             {queueData.alerts.map((alert, index) => (
               <div key={index} className={`p-4 rounded-lg border ${
                 alert.type === 'error' ? 'bg-red-500/10 border-red-500/20' :
-                alert.type === 'warning' ? 'bg-yellow-500/10 border-yellow-500/20' :
+                alert.type === 'warning' ? 'bg-volt-500/10 border-volt-500/20' :
                 'bg-blue-500/10 border-blue-500/20'
               }`}>
                 <div className="flex items-center justify-between">
@@ -291,7 +333,7 @@ export default function RealTimeQueue() {
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     alert.priority === 'high' ? 'bg-red-500/20 text-red-400' :
-                    alert.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                    alert.priority === 'medium' ? 'bg-volt-500/20 text-volt-400' :
                     'bg-blue-500/20 text-blue-400'
                   }`}>
                     {alert.priority}
@@ -318,7 +360,7 @@ export default function RealTimeQueue() {
                 <span className="text-secondary-300">P2 (Professional)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span className="w-3 h-3 rounded-full bg-volt-500"></span>
                 <span className="text-secondary-300">P3 (Growth)</span>
               </div>
               <div className="flex items-center space-x-2">
@@ -418,9 +460,25 @@ export default function RealTimeQueue() {
                             e.stopPropagation()
                             pushToAutoBolt(customer.customer_id)
                           }}
-                          className="text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 px-2 py-1 rounded text-xs font-medium transition-colors"
+                          disabled={pushingCustomers.has(customer.customer_id)}
+                          className={`${pushingCustomers.has(customer.customer_id)
+                            ? 'text-gray-400 bg-gray-500/10 cursor-not-allowed'
+                            : 'text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20'
+                          } px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1`}
                         >
-                          Push to AutoBolt
+                          {pushingCustomers.has(customer.customer_id) ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
+                              <span>Pushing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Push to AutoBolt</span>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                            </>
+                          )}
                         </button>
                       )}
                     </div>

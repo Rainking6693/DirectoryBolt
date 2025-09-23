@@ -324,7 +324,7 @@ export function DocumentUploadInterface({
                     )}
                     
                     {upload.status === 'processing' && (
-                      <p className="text-yellow-400 text-xs">Processing document...</p>
+                      <p className="text-volt-400 text-xs">Processing document...</p>
                     )}
                     
                     {upload.status === 'completed' && (

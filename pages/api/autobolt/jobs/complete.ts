@@ -89,9 +89,9 @@ export default async function handler(
       })
     }
 
-    // Verify job exists and can be completed (autobolt_processing_queue)
+    // Verify job exists and can be completed (jobs)
     const { data: job, error: jobCheckError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select('id, customer_id, status, started_at')
       .eq('id', jobId)
       .single()
@@ -103,7 +103,7 @@ export default async function handler(
       })
     }
 
-    if (!['processing'].includes(job.status)) {
+    if (!['in_progress'].includes(job.status)) {
       return res.status(400).json({
         success: false,
         error: `Job status is ${job.status}, cannot complete`
@@ -115,10 +115,27 @@ export default async function handler(
     const completedAt = new Date()
     const processingTimeMinutes = Math.round((completedAt.getTime() - startedAt.getTime()) / (1000 * 60))
 
-    // Not calculating percentage here for jobs model; staff progress uses job_results
-    let finalProgress = 100.0
+    // Compute final progress from job_results
+    const { data: results } = await supabase
+      .from('job_results')
+      .select('status')
+      .eq('job_id', jobId)
 
-    // Update job as completed in autobolt_processing_queue
+    const completedCount = results?.filter(r => r.status === 'submitted').length || 0
+    const failedCount = results?.filter(r => r.status === 'failed').length || 0
+
+    let finalProgress = 100.0
+    const { data: jobRow } = await supabase
+      .from('jobs')
+      .select('package_size')
+      .eq('id', jobId)
+      .single()
+    if (jobRow?.package_size) {
+      const totalProcessed = (results?.length || 0)
+      finalProgress = Math.min(100, Math.round((totalProcessed / jobRow.package_size) * 100))
+    }
+
+    // Update job as completed in jobs
     const jobUpdateData: any = {
       status: status === 'completed' ? 'completed' : status,
       completed_at: completedAt.toISOString(),
@@ -129,9 +146,9 @@ export default async function handler(
       jobUpdateData.error_message = errorMessage
     }
 
-    // Update job status in autobolt_processing_queue
+    // Update job status in jobs
     const { error: directUpdateError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update(jobUpdateData)
       .eq('id', jobId)
 
@@ -143,17 +160,15 @@ export default async function handler(
       })
     }
 
-    // Update customer status based on job completion
-    const customerStatus = status === 'completed' ? 'completed' : 'failed'
+    // Optional: update customer counters if present
     const { error: customerUpdateError } = await supabase
       .from('customers')
       .update({
-        status: customerStatus,
-        directories_submitted: summary?.successfulSubmissions || 0,
-        failed_directories: summary?.failedSubmissions || 0,
+        directories_submitted: summary?.successfulSubmissions ?? completedCount,
+        failed_directories: summary?.failedSubmissions ?? failedCount,
         updated_at: completedAt.toISOString()
       })
-      .eq('customer_id', job.customer_id)
+      .eq('id', job.customer_id)
 
     if (customerUpdateError) {
       console.error('Error updating customer status:', customerUpdateError)
@@ -161,13 +176,13 @@ export default async function handler(
 
     // Get final job state for response
     const { data: finalJob, error: finalJobError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select('customer_id, status, completed_at')
       .eq('id', jobId)
       .single()
       
-    const directoriesCompleted = summary?.successfulSubmissions || 0
-    const directoriesFailed = summary?.failedSubmissions || 0
+    const directoriesCompleted = summary?.successfulSubmissions ?? completedCount
+    const directoriesFailed = summary?.failedSubmissions ?? failedCount
 
     if (finalJobError) {
       console.error('Error getting final job state:', finalJobError)

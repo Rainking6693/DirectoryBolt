@@ -154,7 +154,7 @@ export default function CompetitiveBenchmarking({
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
-    if (score >= 60) return 'text-yellow-600'
+    if (score >= 60) return 'text-volt-600'
     return 'text-red-600'
   }
 
@@ -162,7 +162,7 @@ export default function CompetitiveBenchmarking({
     switch (position) {
       case 'leader': return 'bg-green-100 text-green-800'
       case 'challenger': return 'bg-blue-100 text-blue-800'
-      case 'follower': return 'bg-yellow-100 text-yellow-800'
+      case 'follower': return 'bg-volt-100 text-volt-800'
       case 'niche': return 'bg-purple-100 text-purple-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -172,7 +172,7 @@ export default function CompetitiveBenchmarking({
     switch (priority) {
       case 'critical': return 'bg-red-100 text-red-800 border-red-200'
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200'
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'medium': return 'bg-volt-100 text-volt-800 border-volt-200'
       case 'low': return 'bg-green-100 text-green-800 border-green-200'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -462,12 +462,12 @@ export default function CompetitiveBenchmarking({
                     </ul>
                   </div>
                   
-                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                    <h4 className="font-semibold text-yellow-800 mb-2">⚡ Threats</h4>
+                  <div className="bg-volt-50 p-4 rounded-lg border border-volt-200">
+                    <h4 className="font-semibold text-volt-800 mb-2">⚡ Threats</h4>
                     <ul className="space-y-1">
                       {results.benchmarkSummary.threats.map((threat, index) => (
-                        <li key={index} className="text-yellow-700 text-sm flex items-start gap-2">
-                          <span className="text-yellow-500 mt-1">•</span>
+                        <li key={index} className="text-volt-700 text-sm flex items-start gap-2">
+                          <span className="text-volt-500 mt-1">•</span>
                           {threat}
                         </li>
                       ))}
@@ -570,7 +570,7 @@ export default function CompetitiveBenchmarking({
                               <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded">
                                 {rec.timeToImplement}
                               </span>
-                              <span className={`text-xs px-2 py-1 rounded ${rec.estimatedImpact === 'high' ? 'bg-green-100 text-green-800' : rec.estimatedImpact === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
+                              <span className={`text-xs px-2 py-1 rounded ${rec.estimatedImpact === 'high' ? 'bg-green-100 text-green-800' : rec.estimatedImpact === 'medium' ? 'bg-volt-100 text-volt-800' : 'bg-blue-100 text-blue-800'}`}>
                                 {rec.estimatedImpact} impact
                               </span>
                             </div>

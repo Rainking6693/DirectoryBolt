@@ -576,7 +576,7 @@ export function BusinessAssessment({
 
     const getTierColor = (tier: string) => {
       switch (tier) {
-        case 'starter': return 'text-yellow-400'
+        case 'starter': return 'text-volt-400'
         case 'professional': return 'text-blue-400'
         case 'enterprise': return 'text-purple-400'
         default: return 'text-secondary-300'
@@ -585,7 +585,7 @@ export function BusinessAssessment({
 
     const getTierBadge = (tier: string) => {
       switch (tier) {
-        case 'starter': return 'bg-yellow-500/20 text-yellow-400'
+        case 'starter': return 'bg-volt-500/20 text-volt-400'
         case 'professional': return 'bg-blue-500/20 text-blue-400'
         case 'enterprise': return 'bg-purple-500/20 text-purple-400'
         default: return 'bg-secondary-500/20 text-secondary-300'
@@ -644,7 +644,7 @@ export function BusinessAssessment({
               >
                 <div className={`p-2 rounded-lg mr-4 ${
                   rec.priority === 'high' ? 'bg-danger-500/20 text-danger-400' :
-                  rec.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                  rec.priority === 'medium' ? 'bg-volt-500/20 text-volt-400' :
                   'bg-secondary-500/20 text-secondary-300'
                 }`}>
                   <Star size={16} />

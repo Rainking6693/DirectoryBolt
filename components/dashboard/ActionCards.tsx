@@ -47,9 +47,9 @@ export function ActionCards({ actions, className = '', maxItems = 6 }: ActionCar
         }
       case 'medium':
         return {
-          border: 'border-yellow-500/30',
-          background: 'bg-yellow-500/5',
-          badge: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+          border: 'border-volt-500/30',
+          background: 'bg-volt-500/5',
+          badge: 'bg-volt-500/20 text-volt-400 border-volt-500/30'
         }
       case 'low':
         return {

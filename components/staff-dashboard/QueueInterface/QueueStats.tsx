@@ -18,8 +18,8 @@ export default function QueueStats({ stats }: QueueStatsProps) {
       label: 'Avg Wait Time',
       value: `${stats.averageWaitTime}h`,
       icon: '⏰',
-      color: 'text-yellow-400',
-      bgColor: 'bg-yellow-600/10'
+      color: 'text-volt-400',
+      bgColor: 'bg-volt-600/10'
     },
     {
       label: 'Success Rate',

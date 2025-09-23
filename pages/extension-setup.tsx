@@ -160,9 +160,9 @@ export default function ExtensionSetup() {
           </div>
 
           {/* Troubleshooting */}
-          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-yellow-800 mb-4">Troubleshooting</h3>
-            <div className="space-y-4 text-sm text-yellow-700">
+          <div className="mt-8 bg-volt-50 border border-volt-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-volt-800 mb-4">Troubleshooting</h3>
+            <div className="space-y-4 text-sm text-volt-700">
               <div>
                 <strong>Authentication Failed:</strong>
                 <ul className="list-disc list-inside mt-1 ml-4 space-y-1">

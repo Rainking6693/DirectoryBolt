@@ -41,7 +41,7 @@ export function BatchOperationsPanel({
           {onBatchRetry && (
             <button
               onClick={() => onBatchRetry(selectedItems)}
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+              className="px-4 py-2 bg-volt-600 text-white rounded hover:bg-volt-700"
             >
               Retry Selected
             </button>

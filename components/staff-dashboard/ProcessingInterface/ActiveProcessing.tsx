@@ -116,7 +116,7 @@ export default function ActiveProcessing({
         </div>
         
         <div className="text-center">
-          <div className="text-2xl font-bold text-yellow-400">
+          <div className="text-2xl font-bold text-volt-400">
             {job.directoriesRemaining}
           </div>
           <div className="text-xs text-secondary-400 uppercase tracking-wide">

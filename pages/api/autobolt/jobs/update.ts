@@ -148,25 +148,24 @@ async function handler(
       }
     }
 
-    // Calculate progress from directory submissions
-    const { data: submissionStats } = await supabase
-      .from('directory_submissions')
-      .select('submission_status')
-      .eq('queue_id', jobId)
+    // Calculate progress from job_results and job package_size
+    const { data: results } = await supabase
+      .from('job_results')
+      .select('status')
+      .eq('job_id', jobId)
 
-    const directoriesCompleted = submissionStats?.filter(s => ['approved', 'submitted'].includes(s.submission_status)).length || 0
-    const directoriesFailed = submissionStats?.filter(s => ['failed', 'rejected'].includes(s.submission_status)).length || 0
-    const totalProcessed = directoriesCompleted + directoriesFailed
-    
-    // Get job directory limit for progress calculation
-    const { data: jobData } = await supabase
-      .from('autobolt_processing_queue')
-      .select('directory_limit')
+    const directoriesCompleted = results?.filter(r => r.status === 'submitted').length || 0
+    const directoriesFailed = results?.filter(r => r.status === 'failed').length || 0
+    const totalProcessed = (results?.length || 0)
+
+    const { data: jobData2 } = await supabase
+      .from('jobs')
+      .select('package_size')
       .eq('id', jobId)
       .single()
-    
-    const progressPercentage = jobData?.directory_limit ? 
-      Math.round((totalProcessed / jobData.directory_limit) * 100) : 0
+
+    const pkg = jobData2?.package_size || 0
+    const progressPercentage = pkg ? Math.min(100, Math.round((totalProcessed / pkg) * 100)) : 0
 
     return res.status(200).json({
       success: true,

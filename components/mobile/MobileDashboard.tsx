@@ -140,7 +140,7 @@ export default function MobileDashboard({
                   
                   <div className="bg-secondary-800 rounded-lg p-4 border border-secondary-700">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-400">{stats.pendingSubmissions}</div>
+                      <div className="text-2xl font-bold text-volt-400">{stats.pendingSubmissions}</div>
                       <div className="text-xs text-secondary-400">Pending</div>
                     </div>
                   </div>
@@ -238,7 +238,7 @@ export default function MobileDashboard({
                         <div className="flex items-center gap-2 mt-2">
                           <span className={`text-xs px-2 py-1 rounded-full ${
                             directory.status === 'live' ? 'bg-success-500/20 text-success-400' :
-                            directory.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                            directory.status === 'pending' ? 'bg-volt-500/20 text-volt-400' :
                             directory.status === 'processing' ? 'bg-blue-500/20 text-blue-400' :
                             'bg-red-500/20 text-red-400'
                           }`}>

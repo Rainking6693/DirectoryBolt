@@ -26,18 +26,18 @@ module.exports = {
           800: "#27324a",   // <– this makes bg-secondary-800 work
           900: "#1a2236",
         },
-        // Map "volt" to the official Volt yellow palette (#FFC107)
+        // Map "volt" to a bright neon yellow-green palette
         volt: {
-          50:  "#fffef7",
-          100: "#fffbeb",
-          200: "#fff4c4",
-          300: "#ffec8b",
-          400: "#ffc107",   // Main Volt yellow
-          500: "#f59e0b",   
-          600: "#d97706",
-          700: "#b45309",
-          800: "#92400e",
-          900: "#78350f",
+          50:  "#fdffe6",
+          100: "#f7ffb3",
+          200: "#eeff66",
+          300: "#e0ff33",
+          400: "#ccff0a",
+          500: "#b3ff00",   // <– this makes ring-volt-500 work
+          600: "#89cc00",
+          700: "#669900",
+          800: "#4d7300",
+          900: "#334d00",
         },
         // Success color palette
         success: {

@@ -96,7 +96,7 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
     switch (status) {
       case 'completed': return 'text-green-600 bg-green-100';
       case 'in-progress': return 'text-blue-600 bg-blue-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'pending': return 'text-volt-600 bg-volt-100';
       case 'manual-review': return 'text-red-600 bg-red-100';
       default: return 'text-gray-600 bg-gray-100';
     }
@@ -280,7 +280,7 @@ const CustomerQueue: React.FC<CustomerQueueProps> = ({
                   {customer.status === 'in-progress' && (
                     <button
                       onClick={() => handleUpdateStatus(customer.id, 'manual-review')}
-                      className="text-yellow-600 hover:text-yellow-900"
+                      className="text-volt-600 hover:text-volt-900"
                     >
                       Review
                     </button>

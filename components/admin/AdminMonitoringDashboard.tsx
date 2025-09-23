@@ -102,7 +102,7 @@ const StreamingMetricCard = ({
     const getStatusColor = (val: number) => {
         if (threshold) {
             if (val >= threshold.critical) return 'text-red-600'
-            if (val >= threshold.warning) return 'text-yellow-600'
+            if (val >= threshold.warning) return 'text-volt-600'
         }
         return color || 'text-green-600'
     }
@@ -258,7 +258,7 @@ export default function AdminMonitoringDashboard() {
 
     const getStatusColor = (value: number, thresholds: { warning: number, critical: number }) => {
         if (value >= thresholds.critical) return 'text-red-600'
-        if (value >= thresholds.warning) return 'text-yellow-600'
+        if (value >= thresholds.warning) return 'text-volt-600'
         return 'text-green-600'
     }
 
@@ -266,7 +266,7 @@ export default function AdminMonitoringDashboard() {
         switch (severity) {
             case 'critical': return 'bg-red-100 text-red-800 border-red-200'
             case 'high': return 'bg-orange-100 text-orange-800 border-orange-200'
-            case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+            case 'medium': return 'bg-volt-100 text-volt-800 border-volt-200'
             case 'low': return 'bg-blue-100 text-blue-800 border-blue-200'
             default: return 'bg-gray-100 text-gray-800 border-gray-200'
         }
@@ -409,7 +409,7 @@ export default function AdminMonitoringDashboard() {
                                         icon={Clock}
                                         title="Avg Response Time"
                                         value={systemMetrics.responseTime}
-                                        color="text-yellow-400"
+                                        color="text-volt-400"
                                         threshold={{ warning: 3000, critical: 5000 }}
                                     />
                                 ) : (
@@ -454,7 +454,7 @@ export default function AdminMonitoringDashboard() {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-sm text-gray-600">Alerts Generated</span>
-                                            <span className="text-sm font-medium text-yellow-600">{customerStats.alertsGenerated}</span>
+                                            <span className="text-sm font-medium text-volt-600">{customerStats.alertsGenerated}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -504,7 +504,7 @@ export default function AdminMonitoringDashboard() {
                                         <div className="text-sm text-gray-600">Active</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-yellow-600">{directoryStats.monitoring}</div>
+                                        <div className="text-2xl font-bold text-volt-600">{directoryStats.monitoring}</div>
                                         <div className="text-sm text-gray-600">Monitoring</div>
                                     </div>
                                     <div className="text-center">
@@ -542,7 +542,7 @@ export default function AdminMonitoringDashboard() {
                                         <div className="text-sm text-gray-600">Active Monitoring</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-yellow-600">{customerStats.alertsGenerated}</div>
+                                        <div className="text-2xl font-bold text-volt-600">{customerStats.alertsGenerated}</div>
                                         <div className="text-sm text-gray-600">Alerts Generated</div>
                                     </div>
                                     <div className="text-center">
@@ -636,7 +636,7 @@ export default function AdminMonitoringDashboard() {
                                                     <div
                                                         className={`h-2 rounded-full ${
                                                             systemMetrics.cpu > 0.85 ? 'bg-red-600' :
-                                                            systemMetrics.cpu > 0.7 ? 'bg-yellow-600' : 'bg-green-600'
+                                                            systemMetrics.cpu > 0.7 ? 'bg-volt-600' : 'bg-green-600'
                                                         }`}
                                                         style={{ width: `${systemMetrics.cpu * 100}%` }}
                                                     ></div>
@@ -652,7 +652,7 @@ export default function AdminMonitoringDashboard() {
                                                     <div
                                                         className={`h-2 rounded-full ${
                                                             systemMetrics.memory > 0.9 ? 'bg-red-600' :
-                                                            systemMetrics.memory > 0.75 ? 'bg-yellow-600' : 'bg-green-600'
+                                                            systemMetrics.memory > 0.75 ? 'bg-volt-600' : 'bg-green-600'
                                                         }`}
                                                         style={{ width: `${systemMetrics.memory * 100}%` }}
                                                     ></div>

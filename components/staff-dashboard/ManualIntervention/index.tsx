@@ -33,7 +33,7 @@ export default function ManualIntervention() {
         {alerts.filter(alert => alert.status === 'active').map((alert) => (
           <div key={alert.id} className={`rounded-xl border p-4 ${
             alert.severity === 'critical' ? 'bg-red-600/10 border-red-500' :
-            alert.severity === 'warning' ? 'bg-yellow-600/10 border-yellow-500' :
+            alert.severity === 'warning' ? 'bg-volt-600/10 border-volt-500' :
             'bg-blue-600/10 border-blue-500'
           }`}>
             <div className="flex items-start justify-between">
@@ -45,7 +45,7 @@ export default function ManualIntervention() {
                   </span>
                   <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
                     alert.severity === 'critical' ? 'bg-red-600 text-white' :
-                    alert.severity === 'warning' ? 'bg-yellow-600 text-white' :
+                    alert.severity === 'warning' ? 'bg-volt-600 text-white' :
                     'bg-blue-600 text-white'
                   }`}>
                     {alert.severity}

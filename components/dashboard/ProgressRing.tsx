@@ -51,7 +51,7 @@ export function ProgressRing({
         return {
           ring: 'stroke-yellow-500',
           background: 'stroke-secondary-700',
-          text: 'text-yellow-400'
+          text: 'text-volt-400'
         }
       case 'danger':
         return {

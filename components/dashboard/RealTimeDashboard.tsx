@@ -209,7 +209,7 @@ export default function RealTimeDashboard({
 
   const getConnectionStatusColor = () => {
     if (isConnected) return 'bg-green-500'
-    if (isConnecting) return 'bg-yellow-500 animate-pulse'
+    if (isConnecting) return 'bg-volt-500 animate-pulse'
     return 'bg-red-500'
   }
 
@@ -257,7 +257,7 @@ export default function RealTimeDashboard({
       case 'error':
         return 'text-red-600 bg-red-50'
       case 'warning':
-        return 'text-yellow-600 bg-yellow-50'
+        return 'text-volt-600 bg-volt-50'
       case 'info':
         return 'text-blue-600 bg-blue-50'
       default:
@@ -321,7 +321,7 @@ export default function RealTimeDashboard({
               <div className="text-sm text-gray-600">Live Listings</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600">{dashboardData.stats.pendingDirectories}</div>
+              <div className="text-3xl font-bold text-volt-600">{dashboardData.stats.pendingDirectories}</div>
               <div className="text-sm text-gray-600">Pending</div>
             </div>
             <div className="text-center">

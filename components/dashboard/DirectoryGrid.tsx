@@ -94,10 +94,10 @@ export function DirectoryGrid({
     switch (status) {
       case 'pending':
         return {
-          bg: 'bg-yellow-500/10',
-          border: 'border-yellow-500/30',
-          text: 'text-yellow-400',
-          badge: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+          bg: 'bg-volt-500/10',
+          border: 'border-volt-500/30',
+          text: 'text-volt-400',
+          badge: 'bg-volt-500/20 text-volt-300 border-volt-500/30'
         }
       case 'processing':
         return {

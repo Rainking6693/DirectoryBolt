@@ -97,7 +97,7 @@ export default function AutoBoltQueueMonitor() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'queued': return 'text-yellow-400 bg-yellow-400/20'
+      case 'queued': return 'text-volt-400 bg-volt-400/20'
       case 'processing': return 'text-blue-400 bg-blue-400/20'
       case 'completed': return 'text-green-400 bg-green-400/20'
       case 'failed': return 'text-red-400 bg-red-400/20'
@@ -367,7 +367,7 @@ function getPriorityColor(priority: number) {
   switch (priority) {
     case 1: return 'text-red-400 bg-red-400/20'
     case 2: return 'text-orange-400 bg-orange-400/20'
-    case 3: return 'text-yellow-400 bg-yellow-400/20'
+    case 3: return 'text-volt-400 bg-volt-400/20'
     case 4: return 'text-gray-400 bg-gray-400/20'
     default: return 'text-gray-400 bg-gray-400/20'
   }

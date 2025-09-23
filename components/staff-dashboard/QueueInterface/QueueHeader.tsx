@@ -17,7 +17,7 @@ export default function QueueHeader({ stats, isConnected }: QueueHeaderProps) {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full ${
-              isConnected ? 'bg-green-500' : 'bg-yellow-500'
+              isConnected ? 'bg-green-500' : 'bg-volt-500'
             }`}></div>
             <span className="text-secondary-300 text-sm">
               {isConnected ? 'Live Updates' : 'Reconnecting...'}

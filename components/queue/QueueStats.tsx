@@ -50,9 +50,9 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
       title: 'Pending',
       value: formatNumber(stats.totalPending),
       icon: ClockIcon,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
+      color: 'text-volt-600',
+      bgColor: 'bg-volt-50',
+      borderColor: 'border-volt-200',
       description: 'Awaiting processing'
     },
     {
@@ -97,7 +97,7 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
     {
       title: 'Success Rate',
       value: formatPercentage(stats.successRate),
-      color: stats.successRate > 0.9 ? 'text-green-600' : stats.successRate > 0.7 ? 'text-yellow-600' : 'text-red-600',
+      color: stats.successRate > 0.9 ? 'text-green-600' : stats.successRate > 0.7 ? 'text-volt-600' : 'text-red-600',
       trend: 'up' // This would come from historical comparison
     },
     {
@@ -109,13 +109,13 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
     {
       title: 'Avg Wait Time',
       value: formatTime(stats.averageWaitTime),
-      color: stats.averageWaitTime > 120 ? 'text-red-600' : stats.averageWaitTime > 60 ? 'text-yellow-600' : 'text-green-600',
+      color: stats.averageWaitTime > 120 ? 'text-red-600' : stats.averageWaitTime > 60 ? 'text-volt-600' : 'text-green-600',
       trend: 'down'
     },
     {
       title: 'Queue Depth',
       value: formatNumber(stats.queueDepth),
-      color: stats.queueDepth > 100 ? 'text-red-600' : stats.queueDepth > 50 ? 'text-yellow-600' : 'text-green-600',
+      color: stats.queueDepth > 100 ? 'text-red-600' : stats.queueDepth > 50 ? 'text-volt-600' : 'text-green-600',
       trend: 'stable'
     }
   ]
@@ -205,7 +205,7 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
                       : getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) >= 75
                       ? 'bg-blue-500'
                       : getProgressPercentage(stats.todaysProcessed, stats.todaysGoal) >= 50
-                      ? 'bg-yellow-500'
+                      ? 'bg-volt-500'
                       : 'bg-red-500'
                   }`}
                   style={{
@@ -251,24 +251,24 @@ const QueueStatsComponent: React.FC<QueueStatsProps> = ({ stats, className = '' 
 
       {/* Alert Conditions */}
       {(stats.queueDepth > 100 || stats.averageWaitTime > 120 || stats.successRate < 0.8) && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-volt-50 border border-volt-200 rounded-lg p-4">
           <div className="flex items-start">
-            <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mt-0.5 mr-3" />
+            <ExclamationTriangleIcon className="h-5 w-5 text-volt-600 mt-0.5 mr-3" />
             <div>
-              <h4 className="text-sm font-semibold text-yellow-800">Performance Alerts</h4>
+              <h4 className="text-sm font-semibold text-volt-800">Performance Alerts</h4>
               <div className="mt-2 space-y-1">
                 {stats.queueDepth > 100 && (
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-volt-700">
                     • High queue depth detected ({stats.queueDepth} items) - consider increasing processing capacity
                   </p>
                 )}
                 {stats.averageWaitTime > 120 && (
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-volt-700">
                     • Extended wait times ({formatTime(stats.averageWaitTime)}) - customers may experience delays
                   </p>
                 )}
                 {stats.successRate < 0.8 && (
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-volt-700">
                     • Low success rate ({formatPercentage(stats.successRate)}) - review failed submissions
                   </p>
                 )}

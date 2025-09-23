@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         return 'text-green-600 bg-green-100';
       case 'warning':
       case 'missing':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-volt-600 bg-volt-100';
       case 'error':
         return 'text-red-600 bg-red-100';
       default:
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full mr-3 ${
                           configStatus.overallStatus === 'healthy' ? 'bg-green-500' :
-                          configStatus.overallStatus === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                          configStatus.overallStatus === 'warning' ? 'bg-volt-500' : 'bg-red-500'
                         }`}></div>
                         <div>
                           <p className="text-sm font-medium text-gray-900">Overall Status</p>
@@ -260,10 +260,10 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-yellow-50 p-4 rounded-lg">
+                    <div className="bg-volt-50 p-4 rounded-lg">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="w-8 h-8 bg-volt-100 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-5 h-5 text-volt-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </div>
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full mr-3 ${
                           check.status === 'ok' ? 'bg-green-500' :
-                          check.status === 'missing' ? 'bg-yellow-500' : 'bg-red-500'
+                          check.status === 'missing' ? 'bg-volt-500' : 'bg-red-500'
                         }`}></div>
                         <div>
                           <p className="font-medium text-gray-900">{check.name}</p>

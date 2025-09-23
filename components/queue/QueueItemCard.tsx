@@ -49,10 +49,10 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
     switch (status) {
       case 'pending':
         return {
-          bg: 'bg-yellow-100',
-          text: 'text-yellow-800',
+          bg: 'bg-volt-100',
+          text: 'text-volt-800',
           icon: ClockIcon,
-          border: 'border-yellow-200'
+          border: 'border-volt-200'
         }
       case 'in-progress':
         return {
@@ -194,7 +194,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
               <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Priority:</span>
-                  <span className={`ml-1 ${item.priority > 75 ? 'text-red-600' : item.priority > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
+                  <span className={`ml-1 ${item.priority > 75 ? 'text-red-600' : item.priority > 50 ? 'text-volt-600' : 'text-green-600'}`}>
                     {item.priority}
                   </span>
                 </div>
@@ -241,7 +241,7 @@ const QueueItemCard: React.FC<QueueItemCardProps & {
                 <button
                   onClick={() => handleAction(() => onPause(item.customerId))}
                   disabled={isProcessing}
-                  className="px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50 transition-colors text-sm flex items-center"
+                  className="px-3 py-1 bg-volt-600 text-white rounded-md hover:bg-volt-700 disabled:opacity-50 transition-colors text-sm flex items-center"
                   title="Pause Processing"
                 >
                   <PauseIcon className="h-4 w-4 mr-1" />

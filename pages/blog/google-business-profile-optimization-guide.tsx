@@ -334,9 +334,9 @@ export default function GoogleBusinessProfileOptimizationGuide() {
                 While you can't stuff keywords into your business name, you can strategically include relevant keywords in your business description and posts.
               </p>
               
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6">
-                <h4 className="font-semibold text-yellow-900 mb-2">Business Description Best Practices:</h4>
-                <ul className="list-disc list-inside text-yellow-800 space-y-1">
+              <div className="bg-volt-50 border-l-4 border-volt-500 p-6 mb-6">
+                <h4 className="font-semibold text-volt-900 mb-2">Business Description Best Practices:</h4>
+                <ul className="list-disc list-inside text-volt-800 space-y-1">
                   <li>Include your primary service keywords naturally</li>
                   <li>Mention your location and service areas</li>
                   <li>Highlight unique selling propositions</li>

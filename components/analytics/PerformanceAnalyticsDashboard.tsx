@@ -257,7 +257,7 @@ export default function PerformanceAnalyticsDashboard() {
   const getHealthStatus = (score: number) => {
     if (score >= 90) return { status: 'Excellent', color: 'text-green-600', bg: 'bg-green-100' }
     if (score >= 70) return { status: 'Good', color: 'text-blue-600', bg: 'bg-blue-100' }
-    if (score >= 50) return { status: 'Needs Improvement', color: 'text-yellow-600', bg: 'bg-yellow-100' }
+    if (score >= 50) return { status: 'Needs Improvement', color: 'text-volt-600', bg: 'bg-volt-100' }
     return { status: 'Poor', color: 'text-red-600', bg: 'bg-red-100' }
   }
 

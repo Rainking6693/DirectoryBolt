@@ -170,14 +170,14 @@ const InsightCard = ({
             case 'opportunity': return <Target className="w-5 h-5 text-green-500" />
             case 'alert': return <AlertTriangle className="w-5 h-5 text-red-500" />
             case 'trend': return <TrendingUp className="w-5 h-5 text-blue-500" />
-            case 'recommendation': return <Lightbulb className="w-5 h-5 text-yellow-500" />
+            case 'recommendation': return <Lightbulb className="w-5 h-5 text-volt-500" />
         }
     }
 
     const getImpactColor = () => {
         switch (insight.impact) {
             case 'high': return 'border-red-200 bg-red-50'
-            case 'medium': return 'border-yellow-200 bg-yellow-50'
+            case 'medium': return 'border-volt-200 bg-volt-50'
             case 'low': return 'border-blue-200 bg-blue-50'
         }
     }

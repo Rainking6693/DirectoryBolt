@@ -109,7 +109,7 @@ export function AnalysisResultsDisplay({ data, onUpgrade }: Props) {
                       issue.type === 'critical' 
                         ? 'bg-danger-900/20 border-danger-500/30' 
                         : issue.type === 'warning'
-                        ? 'bg-yellow-900/20 border-yellow-500/30'
+                        ? 'bg-volt-900/20 border-volt-500/30'
                         : 'bg-secondary-700/30 border-secondary-600'
                     }`}
                   >

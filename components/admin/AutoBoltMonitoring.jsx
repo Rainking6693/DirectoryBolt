@@ -1,13 +1,16 @@
 /**
- * AutoBolt System Monitoring Dashboard
+ * AutoBolt Emergency Monitoring Dashboard
  * Real-time monitoring and analytics for AutoBolt operations
+ * Enhanced with live activity tracking and debugging capabilities
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
   Activity, 
   Users, 
@@ -18,7 +21,17 @@ import {
   AlertTriangle,
   RefreshCw,
   Download,
-  Settings
+  Settings,
+  Eye,
+  Camera,
+  Monitor,
+  Database,
+  Globe,
+  Zap,
+  Play,
+  Pause,
+  Square,
+  Bug
 } from 'lucide-react';
 
 export default function AutoBoltMonitoring({ className = '' }) {

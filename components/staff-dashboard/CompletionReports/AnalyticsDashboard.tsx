@@ -170,7 +170,7 @@ export default function AnalyticsDashboard({
                 </div>
                 <div className={`font-bold ${
                   directory.successRate >= 95 ? 'text-green-400' :
-                  directory.successRate >= 85 ? 'text-yellow-400' :
+                  directory.successRate >= 85 ? 'text-volt-400' :
                   'text-red-400'
                 }`}>
                   {directory.successRate}%

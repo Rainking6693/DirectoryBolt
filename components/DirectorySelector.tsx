@@ -376,7 +376,7 @@ function DirectoryCard({ directory, isSelected, onToggle, animationDelay }: Dire
           <div className="text-sm font-semibold text-white">{directory.timeToApproval}</div>
           <div className={`text-xs ${
             directory.difficulty === 'Easy' ? 'text-success-400' :
-            directory.difficulty === 'Medium' ? 'text-yellow-400' :
+            directory.difficulty === 'Medium' ? 'text-volt-400' :
             'text-danger-400'
           }`}>
             {directory.difficulty}

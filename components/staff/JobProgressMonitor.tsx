@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useNotifications, useApiNotifications } from '../ui/NotificationSystem'
 
 interface JobProgressData {
   id: string
@@ -55,6 +56,9 @@ export default function JobProgressMonitor() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedJob, setSelectedJob] = useState<JobProgressData | null>(null)
   const [filteredStatus, setFilteredStatus] = useState<string | null>(null)
+  const [pushingJobs, setPushingJobs] = useState<Set<string>>(new Set())
+  const { showSuccess, showError, showInfo } = useNotifications()
+  const { notifyApiProgress, notifyApiSuccess, notifyApiError } = useApiNotifications()
 
   useEffect(() => {
     fetchJobProgress()
@@ -103,7 +107,25 @@ export default function JobProgressMonitor() {
   }
 
   const pushToAutoBolt = async (jobId: string) => {
+    // Prevent multiple simultaneous pushes for the same job
+    if (pushingJobs.has(jobId)) {
+      showInfo('Job is already being pushed to AutoBolt', {
+        title: 'Already in Progress',
+        autoHide: 3000
+      })
+      return
+    }
+
     try {
+      // Mark job as being pushed
+      setPushingJobs(prev => new Set(prev).add(jobId))
+      
+      // Show progress notification
+      const progressId = showInfo('Initiating AutoBolt processing...', {
+        title: 'Pushing to AutoBolt',
+        autoHide: 2000
+      })
+
       const storedAuth = localStorage.getItem('staffAuth')
       
       if (!storedAuth) {
@@ -117,6 +139,12 @@ export default function JobProgressMonitor() {
       if (!csrfData.success) {
         throw new Error('Failed to get CSRF token')
       }
+      
+      // Show validation progress
+      showInfo('Validating job data and preparing for AutoBolt...', {
+        title: 'Processing',
+        autoHide: 1500
+      })
       
       const response = await fetch('/api/staff/jobs/push-to-autobolt', {
         method: 'POST',
@@ -137,21 +165,35 @@ export default function JobProgressMonitor() {
       const result = await response.json()
       console.log('✅ Job pushed to AutoBolt:', result)
       
+      // Show success with detailed information
+      notifyApiSuccess('Job pushed to AutoBolt', [
+        `Job ID: ${jobId}`,
+        `Business: ${result.data?.business_name || 'Unknown'}`,
+        `Package: ${result.data?.package_type || 'Unknown'}`,
+        `Directories: ${result.data?.directory_limit || 'Unknown'}`,
+        `Priority: P${result.data?.priority_level || 'Unknown'}`,
+        `Status: ${result.data?.status || 'queued'}`
+      ])
+      
       // Refresh job data to show updated status
       await fetchJobProgress()
       
-      // Show success message
-      alert(`Job ${jobId} successfully pushed to AutoBolt processing queue!`)
-      
     } catch (err) {
       console.error('Push to AutoBolt error:', err)
-      alert(`Failed to push job to AutoBolt: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      notifyApiError('Push to AutoBolt', err instanceof Error ? err.message : 'Unknown error occurred')
+    } finally {
+      // Remove job from pushing set
+      setPushingJobs(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(jobId)
+        return newSet
+      })
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-400 bg-yellow-400/20'
+      case 'pending': return 'text-volt-400 bg-volt-400/20'
       case 'in_progress': return 'text-blue-400 bg-blue-400/20'
       case 'completed': return 'text-green-400 bg-green-400/20'
       case 'failed': return 'text-red-400 bg-red-400/20'
@@ -402,7 +444,7 @@ export default function JobProgressMonitor() {
                           ? (job.directories_completed / job.directories_total) >= 0.8 
                             ? 'text-green-400' 
                             : (job.directories_completed / job.directories_total) >= 0.6 
-                            ? 'text-yellow-400' 
+                            ? 'text-volt-400' 
                             : 'text-red-400'
                           : 'text-secondary-400'
                       }`}>
@@ -438,9 +480,25 @@ export default function JobProgressMonitor() {
                             e.stopPropagation()
                             pushToAutoBolt(job.id)
                           }}
-                          className="text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 px-3 py-1 rounded text-xs font-medium transition-all duration-200"
+                          disabled={pushingJobs.has(job.id)}
+                          className={`${pushingJobs.has(job.id) 
+                            ? 'text-gray-400 bg-gray-500/10 cursor-not-allowed' 
+                            : 'text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20'
+                          } px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex items-center space-x-1`}
                         >
-                          Push to AutoBolt
+                          {pushingJobs.has(job.id) ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
+                              <span>Pushing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Push to AutoBolt</span>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                            </>
+                          )}
                         </button>
                       )}
                     </div>
@@ -569,9 +627,25 @@ export default function JobProgressMonitor() {
                 {selectedJob.status === 'pending' && (
                   <button
                     onClick={() => pushToAutoBolt(selectedJob.id)}
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-400 hover:to-green-500 transition-all duration-200"
+                    disabled={pushingJobs.has(selectedJob.id)}
+                    className={`${pushingJobs.has(selectedJob.id)
+                      ? 'bg-gray-600 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500'
+                    } text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2`}
                   >
-                    Push to AutoBolt
+                    {pushingJobs.has(selectedJob.id) ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Pushing to AutoBolt...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Push to AutoBolt</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </>
+                    )}
                   </button>
                 )}
                 <button

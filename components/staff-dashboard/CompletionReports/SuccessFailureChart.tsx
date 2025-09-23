@@ -28,7 +28,7 @@ export default function SuccessFailureChart({
     switch (trend) {
       case 'increasing': return 'text-red-400' // Bad for failures
       case 'decreasing': return 'text-green-400' // Good for failures
-      case 'stable': return 'text-yellow-400'
+      case 'stable': return 'text-volt-400'
       default: return 'text-secondary-400'
     }
   }

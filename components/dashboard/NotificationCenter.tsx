@@ -62,9 +62,9 @@ export function NotificationCenter({
         }
       case 'warning':
         return {
-          bg: 'bg-yellow-500/10',
-          border: 'border-yellow-500/30',
-          icon: 'text-yellow-400'
+          bg: 'bg-volt-500/10',
+          border: 'border-volt-500/30',
+          icon: 'text-volt-400'
         }
       case 'error':
         return {

@@ -25,13 +25,13 @@ export function VerificationStatsDisplay({
 
   const getCompletionRateColor = (rate: number) => {
     if (rate >= 80) return 'text-success-400'
-    if (rate >= 60) return 'text-yellow-400'
+    if (rate >= 60) return 'text-volt-400'
     return 'text-danger-400'
   }
 
   const getCompletionRateBg = (rate: number) => {
     if (rate >= 80) return 'bg-success-500/10'
-    if (rate >= 60) return 'bg-yellow-500/10'
+    if (rate >= 60) return 'bg-volt-500/10'
     return 'bg-danger-500/10'
   }
 
@@ -63,7 +63,7 @@ export function VerificationStatsDisplay({
               <div 
                 className={`h-2 rounded-full transition-all duration-500 ${
                   stats.completionRate >= 80 ? 'bg-success-500' :
-                  stats.completionRate >= 60 ? 'bg-yellow-500' : 'bg-danger-500'
+                  stats.completionRate >= 60 ? 'bg-volt-500' : 'bg-danger-500'
                 }`}
                 style={{ width: `${Math.min(stats.completionRate, 100)}%` }}
               />

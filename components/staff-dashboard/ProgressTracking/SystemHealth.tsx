@@ -9,7 +9,7 @@ export default function SystemHealth({ health }: SystemHealthProps) {
   const getStatusColor = (status: 'operational' | 'degraded' | 'down') => {
     switch (status) {
       case 'operational': return 'text-green-400'
-      case 'degraded': return 'text-yellow-400'
+      case 'degraded': return 'text-volt-400'
       case 'down': return 'text-red-400'
       default: return 'text-secondary-400'
     }

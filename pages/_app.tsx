@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { useEffect } from 'react'
 import '../styles/globals.css'
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
+import { NotificationProvider } from '../components/ui/NotificationSystem'
 import { enhancedGA4Config } from '../lib/analytics/enhanced-ga4'
 import { inlineCriticalCSS } from '../lib/utils/critical-css'
 import CookieConsent from '../components/CookieConsent'
@@ -162,8 +163,10 @@ export default function App({ Component, pageProps }: AppProps) {
       </Script>
       
       <ErrorBoundary>
-        <Component {...pageProps} />
-        <CookieConsent />
+        <NotificationProvider>
+          <Component {...pageProps} />
+          <CookieConsent />
+        </NotificationProvider>
       </ErrorBoundary>
     </>
   )

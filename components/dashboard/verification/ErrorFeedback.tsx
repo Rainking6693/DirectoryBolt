@@ -45,10 +45,10 @@ export function ErrorFeedback({ error, onDismiss, className = '' }: ErrorFeedbac
       case 'warning':
         return {
           icon: '⚠️',
-          background: 'bg-yellow-500/10',
-          border: 'border-yellow-500/30',
-          text: 'text-yellow-400',
-          titleText: 'text-yellow-300'
+          background: 'bg-volt-500/10',
+          border: 'border-volt-500/30',
+          text: 'text-volt-400',
+          titleText: 'text-volt-300'
         }
       case 'success':
         return {
@@ -114,7 +114,7 @@ export function ErrorFeedback({ error, onDismiss, className = '' }: ErrorFeedbac
                 error.type === 'error'
                   ? 'bg-danger-500/20 hover:bg-danger-500/30 text-danger-300 border-danger-500/40'
                   : error.type === 'warning'
-                  ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border-yellow-500/40'
+                  ? 'bg-volt-500/20 hover:bg-volt-500/30 text-volt-300 border-volt-500/40'
                   : error.type === 'success'
                   ? 'bg-success-500/20 hover:bg-success-500/30 text-success-300 border-success-500/40'
                   : 'bg-volt-500/20 hover:bg-volt-500/30 text-volt-300 border-volt-500/40'

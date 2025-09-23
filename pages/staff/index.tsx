@@ -99,7 +99,7 @@ export default function StaffDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-volt-600 bg-volt-100';
       case 'processing':
         return 'text-blue-600 bg-blue-100';
       case 'completed':
@@ -116,7 +116,7 @@ export default function StaffDashboard() {
       case 'high':
         return 'text-red-600 bg-red-100';
       case 'medium':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-volt-600 bg-volt-100';
       case 'low':
         return 'text-green-600 bg-green-100';
       default:
@@ -212,8 +212,8 @@ export default function StaffDashboard() {
             
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                  <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-8 h-8 bg-volt-100 rounded-full flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5 text-volt-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
                 </div>
