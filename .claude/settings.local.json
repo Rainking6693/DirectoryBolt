@@ -17,7 +17,17 @@
       "Bash(PORT=8081 NODE_ENV=production npm run start)",
       "Bash(PORT=8082 NODE_ENV=production npm run start)",
       "Bash(for i in {1..12})",
-      "Bash(do echo \"Request $i:\")"
+      "Bash(do echo \"Request $i:\")",
+      "Bash(mkdir:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(timeout:*)",
+      "Bash(kill:*)",
+      "Bash(node:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

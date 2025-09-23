@@ -1,0 +1,165 @@
+{
+  "timestamp": "2025-09-23T13:17:41.312Z",
+  "tests": [
+    {
+      "endpoint": "GET /",
+      "description": "Home page",
+      "url": "http://localhost:3000/",
+      "timestamp": "2025-09-23T13:17:41.313Z",
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+          "x-xss-protection": "1; mode=block",
+          "x-dns-prefetch-control": "on",
+          "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+          "x-frame-options": "DENY",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+          "x-nextjs-cache": "MISS",
+          "cache-control": "no-store, must-revalidate",
+          "etag": "\"13o2gfus10iox1\"",
+          "content-type": "text/html; charset=utf-8",
+          "vary": "Accept-Encoding",
+          "date": "Tue, 23 Sep 2025 13:17:41 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataLength": 32293
+      },
+      "success": true
+    },
+    {
+      "endpoint": "GET /api/health",
+      "description": "Health check endpoint",
+      "url": "http://localhost:3000/api/health",
+      "timestamp": "2025-09-23T13:17:41.600Z",
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+          "x-xss-protection": "1; mode=block",
+          "x-dns-prefetch-control": "on",
+          "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+          "x-frame-options": "DENY",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+          "content-type": "application/json; charset=utf-8",
+          "etag": "\"f95kpam0bh3f\"",
+          "content-length": "123",
+          "vary": "Accept-Encoding",
+          "date": "Tue, 23 Sep 2025 13:17:41 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5"
+        },
+        "dataLength": 15
+      },
+      "success": true
+    },
+    {
+      "endpoint": "GET /api/customers",
+      "description": "Customers API",
+      "url": "http://localhost:3000/api/customers",
+      "timestamp": "2025-09-23T13:17:42.042Z",
+      "status": "PASS",
+      "response": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+          "x-xss-protection": "1; mode=block",
+          "x-dns-prefetch-control": "on",
+          "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+          "x-frame-options": "DENY",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+          "cache-control": "no-store, must-revalidate",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Tue, 23 Sep 2025 13:17:48 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataLength": 6764
+      },
+      "success": true
+    },
+    {
+      "endpoint": "GET /pricing",
+      "description": "Pricing page",
+      "url": "http://localhost:3000/pricing",
+      "timestamp": "2025-09-23T13:17:48.909Z",
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+          "x-xss-protection": "1; mode=block",
+          "x-dns-prefetch-control": "on",
+          "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+          "x-frame-options": "DENY",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+          "x-nextjs-cache": "MISS",
+          "cache-control": "no-store, must-revalidate",
+          "etag": "\"16f4k4gkmve1e1a\"",
+          "content-type": "text/html; charset=utf-8",
+          "vary": "Accept-Encoding",
+          "date": "Tue, 23 Sep 2025 13:17:50 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataLength": 64846
+      },
+      "success": true
+    },
+    {
+      "endpoint": "GET /staff",
+      "description": "Staff dashboard",
+      "url": "http://localhost:3000/staff",
+      "timestamp": "2025-09-23T13:17:50.192Z",
+      "status": "PASS",
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+          "x-xss-protection": "1; mode=block",
+          "x-dns-prefetch-control": "on",
+          "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+          "x-frame-options": "DENY",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+          "cache-control": "no-store, must-revalidate",
+          "etag": "\"i72ahzzxd822g\"",
+          "content-type": "text/html; charset=utf-8",
+          "vary": "Accept-Encoding",
+          "date": "Tue, 23 Sep 2025 13:17:50 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataLength": 2680
+      },
+      "success": true
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

@@ -13,10 +13,11 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
 
 // Initialize Supabase client with service role
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 interface PushJobResponse {
@@ -24,7 +25,6 @@ interface PushJobResponse {
   data?: {
     jobId: string
     message: string
-    autoboltQueueId?: string
   }
   message?: string
   error?: string
@@ -65,7 +65,7 @@ const authenticateStaff = (req: NextApiRequest) => {
   return false
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse<PushJobResponse>
 ) {
@@ -109,83 +109,32 @@ export default async function handler(
 
     console.log(`🚀 Staff pushing job ${job_id} to AutoBolt from IP:`, req.headers['x-forwarded-for'] || req.connection.remoteAddress)
 
-    // Get the job details first
-    let jobData = null
-    let jobError = null
-    
-    try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('id, customer_id, customer_name, customer_email, package_type, directory_limit, business_data, status, created_at')
-        .eq('id', job_id)
-        .eq('status', 'pending') // Only allow pushing pending jobs
-        .single()
-      
-      jobData = data
-      jobError = error
-    } catch (queryError) {
-      console.error('Error fetching job details:', queryError)
-      return res.status(500).json({
+    // Get the pending job and mark it in_progress (doc model)
+    const { data: jobRow, error: jobErr } = await supabase
+      .from('jobs')
+      .select('id, customer_id, package_size, status')
+      .eq('id', job_id)
+      .eq('status', 'pending')
+      .single()
+    if (jobErr || !jobRow) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to fetch job details'
+        error: 'Job not found or not in pending status',
+        message: 'Job may already be processing or completed'
       })
     }
 
-    if (jobError || !jobData) {
-      if (jobError?.code === 'PGRST116') {
-        return res.status(404).json({
-          success: false,
-          error: 'Job not found or not in pending status',
-          message: 'Job may already be processing or completed'
-        })
-      }
-      
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to retrieve job data'
-      })
-    }
+    await supabase
+      .from('jobs')
+      .update({ status: 'in_progress', started_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('id', job_id)
 
-    // Mark job as ready for AutoBolt processing
-    let updateError = null
-    
-    try {
-      const { error } = await supabase
-        .from('jobs')
-        .update({
-          status: 'ready_for_autobolt',
-          staff_pushed_at: new Date().toISOString(),
-          staff_pushed_by: 'staff-dashboard',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', job_id)
-        .eq('status', 'pending') // Ensure it's still pending
-      
-      updateError = error
-    } catch (updateQueryError) {
-      console.error('Error updating job status:', updateQueryError)
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to update job status'
-      })
-    }
-
-    if (updateError) {
-      console.error('Database error updating job:', updateError)
-      
-      if (updateError.code === 'PGRST106' || updateError.code === 'PGRST202') {
-        return res.status(503).json({
-          success: false,
-          error: 'Job queue system not initialized',
-          message: 'Database migration required. Apply migrations/020_create_job_queue_tables.sql in Supabase SQL Editor'
-        })
-      }
-      
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to push job to AutoBolt queue'
-      })
-    }
+    // Fetch customer for message context (optional)
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('business_name, email')
+      .eq('id', jobRow.customer_id)
+      .single()
 
     // Log the staff action for audit trail
     try {
@@ -214,10 +163,9 @@ export default async function handler(
       success: true,
       data: {
         jobId: job_id,
-        message: `Job ${job_id} successfully pushed to AutoBolt queue`,
-        autoboltQueueId: `autobolt_${job_id}_${Date.now()}`
+        message: `Job ${job_id} set to in_progress and ready for AutoBolt`
       },
-      message: `Customer ${jobData.customer_name} (${jobData.customer_email}) has been queued for AutoBolt processing`
+      message: `Customer ${customer?.business_name || ''} (${customer?.email || ''}) has been queued for processing`
     })
 
   } catch (error) {
@@ -229,3 +177,5 @@ export default async function handler(
     })
   }
 }
+
+export default withRateLimit(handler, rateLimiters.admin)

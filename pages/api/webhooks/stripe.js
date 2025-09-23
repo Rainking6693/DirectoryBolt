@@ -154,12 +154,22 @@ export default async function handler(req, res) {
   try {
     if (!webhookSecret) {
       logger.error('Stripe webhook secret not configured', { metadata: { requestId } })
-      // Respond 200 to avoid retries but log for investigation
-      const response = { received: true, warning: 'webhook_secret_missing' }
+      // SECURITY FIX: Return 400 instead of 200 for missing webhook secret
+      const response = { error: 'webhook_secret_not_configured' }
       if (isNetlifyFunction) {
-        return { statusCode: 200, body: JSON.stringify(response) }
+        return { statusCode: 400, body: JSON.stringify(response) }
       }
-      return res.status(200).json(response)
+      return res.status(400).json(response)
+    }
+
+    // SECURITY FIX: Validate webhook secret format
+    if (!webhookSecret.startsWith('whsec_')) {
+      logger.error('Invalid webhook secret format', { metadata: { requestId } })
+      const response = { error: 'invalid_webhook_secret_format' }
+      if (isNetlifyFunction) {
+        return { statusCode: 400, body: JSON.stringify(response) }
+      }
+      return res.status(400).json(response)
     }
 
     // Race webhook processing against timeout
@@ -283,6 +293,18 @@ async function processWebhookEvent(req, requestId) {
   if (!signature) {
     logger.error('Missing Stripe signature', { metadata: { requestId } })
     throw new Error('Missing signature')
+  }
+
+  // SECURITY FIX: Validate signature format before processing
+  if (typeof signature !== 'string' || !signature.includes('t=') || !signature.includes('v1=')) {
+    logger.error('Invalid Stripe signature format', { 
+      metadata: { 
+        requestId,
+        signaturePresent: !!signature,
+        signatureType: typeof signature
+      } 
+    })
+    throw new Error('Invalid signature format')
   }
 
   // Verify webhook signature

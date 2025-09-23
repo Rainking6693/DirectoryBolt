@@ -13,16 +13,20 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
 
 // Initialize Supabase client with service role
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 interface UpdateJobRequest {
-  jobId: string
+  job_id?: string
+  jobId?: string
+  directory_name?: string
+  status?: 'pending' | 'processing' | 'submitted' | 'approved' | 'rejected' | 'failed' | 'skipped'
+  response_log?: any
   directoryResults?: DirectoryResult[]
-  status?: 'in_progress' | 'paused' | 'failed'
   errorMessage?: string
 }
 
@@ -30,7 +34,9 @@ interface DirectoryResult {
   directoryName: string
   directoryUrl?: string
   directoryCategory?: string
+  category?: string
   directoryTier?: 'standard' | 'premium' | 'enterprise'
+  tier?: 'standard' | 'premium' | 'enterprise'
   submissionStatus: 'pending' | 'processing' | 'submitted' | 'approved' | 'rejected' | 'failed' | 'skipped'
   listingUrl?: string
   submissionResult?: string
@@ -39,7 +45,6 @@ interface DirectoryResult {
   estimatedTraffic?: number
   submissionScore?: number
   processingTimeSeconds?: number
-  errorMessage?: string
 }
 
 interface UpdateJobResponse {
@@ -55,42 +60,28 @@ interface UpdateJobResponse {
   error?: string
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse<UpdateJobResponse>
 ) {
   // Only allow POST method
-  if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use POST.'
-    })
-  }
+  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed. Use POST.' })
 
   try {
     // Authenticate using API key
     const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '')
     
-    if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
-      return res.status(401).json({
-        success: false,
-        error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.'
-      })
-    }
+    if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) return res.status(401).json({ success: false, error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.' })
 
-    const { jobId, directoryResults, status, errorMessage }: UpdateJobRequest = req.body
+    const { jobId: jobIdAlt, job_id, directory_name, status, response_log, directoryResults, errorMessage }: UpdateJobRequest = req.body
+    const jobId = job_id || jobIdAlt
 
     // Validate required fields
-    if (!jobId) {
-      return res.status(400).json({
-        success: false,
-        error: 'jobId is required'
-      })
-    }
+    if (!jobId) return res.status(400).json({ success: false, error: 'jobId is required' })
 
     // Verify job exists and is in progress
     const { data: job, error: jobCheckError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select('id, customer_id, status')
       .eq('id', jobId)
       .single()
@@ -102,41 +93,24 @@ export default async function handler(
       })
     }
 
-    if (job.status !== 'processing') {
-      return res.status(400).json({
-        success: false,
-        error: `Job status is ${job.status}, expected processing`
-      })
-    }
+    // Allow updates in in_progress per doc
+    if (job.status !== 'in_progress') return res.status(400).json({ success: false, error: `Job status is ${job.status}, expected in_progress` })
 
     let resultsAdded = 0
 
-    // Insert directory results if provided
+    // Insert directory results if provided (align with live schema: uses category/tier, no error_message)
     if (directoryResults && directoryResults.length > 0) {
       const resultsToInsert = directoryResults.map(result => ({
-        queue_id: jobId,
-        customer_id: job.customer_id,
+        job_id: jobId,
         directory_name: result.directoryName,
-        directory_url: result.directoryUrl,
-        directory_category: result.directoryCategory,
-        directory_tier: result.directoryTier || 'standard',
-        submission_status: result.submissionStatus,
-        listing_url: result.listingUrl,
-        rejection_reason: result.rejectionReason,
-        domain_authority: result.domainAuthority,
-        estimated_traffic: result.estimatedTraffic,
-        processing_time_seconds: result.processingTimeSeconds,
-        error_message: result.errorMessage,
-        submitted_at: ['submitted', 'approved'].includes(result.submissionStatus) ? new Date().toISOString() : null,
-        approved_at: result.submissionStatus === 'approved' ? new Date().toISOString() : null,
-        metadata: {
-          submission_result: result.submissionResult,
-          submission_score: result.submissionScore
-        }
+        status: (result.submissionStatus === 'submitted' || result.submissionStatus === 'approved') ? 'submitted' : (result.submissionStatus === 'failed' ? 'failed' : 'pending'),
+        response_log: result.submissionResult ? { submission_result: result.submissionResult } : null,
+        submitted_at: ['submitted','approved'].includes(result.submissionStatus) ? new Date().toISOString() : null,
+        retry_count: 0
       }))
 
       const { error: insertError, count } = await supabase
-        .from('directory_submissions')
+        .from('job_results')
         .insert(resultsToInsert)
 
       if (insertError) {
@@ -156,16 +130,12 @@ export default async function handler(
         updated_at: new Date().toISOString()
       }
 
-      if (status) {
-        updateData.status = status
-      }
+      if (status) updateData.status = status === 'processing' ? 'in_progress' : (status === 'submitted' ? 'in_progress' : status)
 
-      if (errorMessage) {
-        updateData.error_message = errorMessage
-      }
+      if (errorMessage) updateData.error_message = errorMessage
 
       const { error: updateError } = await supabase
-        .from('autobolt_processing_queue')
+        .from('jobs')
         .update(updateData)
         .eq('id', jobId)
 
@@ -219,3 +189,5 @@ export default async function handler(
     })
   }
 }
+
+export default withRateLimit(handler, rateLimiters.general)

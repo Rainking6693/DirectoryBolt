@@ -1,0 +1,86 @@
+[
+  {
+    "column_name": "id",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "customer_id",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "first_name",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "last_name",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "business_name",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "email",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "phone",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "website",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "address",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "city",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "state",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "zip",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "country",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "package_type",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "status",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "directories_submitted",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "failed_directories",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "processing_metadata",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "created_at",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "updated_at",
+    "is_nullable": "YES"
+  },
+  {
+    "column_name": "metadata",
+    "is_nullable": "YES"
+  }
+]

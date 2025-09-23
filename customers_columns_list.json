@@ -1,0 +1,65 @@
+[
+  {
+    "column_name": "id"
+  },
+  {
+    "column_name": "customer_id"
+  },
+  {
+    "column_name": "first_name"
+  },
+  {
+    "column_name": "last_name"
+  },
+  {
+    "column_name": "business_name"
+  },
+  {
+    "column_name": "email"
+  },
+  {
+    "column_name": "phone"
+  },
+  {
+    "column_name": "website"
+  },
+  {
+    "column_name": "address"
+  },
+  {
+    "column_name": "city"
+  },
+  {
+    "column_name": "state"
+  },
+  {
+    "column_name": "zip"
+  },
+  {
+    "column_name": "country"
+  },
+  {
+    "column_name": "package_type"
+  },
+  {
+    "column_name": "status"
+  },
+  {
+    "column_name": "directories_submitted"
+  },
+  {
+    "column_name": "failed_directories"
+  },
+  {
+    "column_name": "processing_metadata"
+  },
+  {
+    "column_name": "created_at"
+  },
+  {
+    "column_name": "updated_at"
+  },
+  {
+    "column_name": "metadata"
+  }
+]

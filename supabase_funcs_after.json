@@ -1,0 +1,22 @@
+[
+  {
+    "type": "function",
+    "name": "complete_autobolt_job"
+  },
+  {
+    "type": "function",
+    "name": "get_job_progress_for_staff"
+  },
+  {
+    "type": "function",
+    "name": "get_next_job_in_queue"
+  },
+  {
+    "type": "function",
+    "name": "mark_job_in_progress"
+  },
+  {
+    "type": "function",
+    "name": "update_job_progress"
+  }
+]

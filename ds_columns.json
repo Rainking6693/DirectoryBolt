@@ -1,0 +1,70 @@
+[
+  {
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "column_name": "customer_id",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "directory_name",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "directory_url",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "submission_status",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "submitted_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "approved_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "listing_url",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "rejection_reason",
+    "data_type": "text"
+  },
+  {
+    "column_name": "domain_authority",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "estimated_traffic",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "category",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "tier",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "metadata",
+    "data_type": "jsonb"
+  },
+  {
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "queue_id",
+    "data_type": "uuid"
+  }
+]

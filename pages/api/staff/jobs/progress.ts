@@ -13,10 +13,11 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
 
 // Initialize Supabase client with service role
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 interface JobProgressData {
@@ -100,7 +101,7 @@ const authenticateStaff = (req: NextApiRequest) => {
   return false
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse<JobProgressResponse>
 ) {
@@ -128,98 +129,50 @@ export default async function handler(
     let jobsData = null
     let jobsError = null
     
-    try {
-      // Try using RPC function for job progress
-      const { data, error } = await supabase
-        .rpc('get_job_progress_for_staff')
-      
-      if (data) {
-        // Extract the job data from the JSON response - it's directly the array
-        jobsData = data
-      }
-      jobsError = error
-    } catch (rpcError) {
-      console.log('RPC function not available, using fallback queries')
-      
-      // Fallback: Direct table queries using autobolt_processing_queue
-      const { data: jobs, error } = await supabase
-        .from('autobolt_processing_queue')
-        .select(`
-          id,
-          customer_id,
-          business_name,
-          email,
-          package_type,
-          status,
-          directory_limit,
-          priority_level,
-          created_at,
-          updated_at,
-          started_at,
-          completed_at,
-          metadata
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50) // Limit to 50 most recent jobs
+    // Use jobs + job_results per architecture doc
+    const { data: jobs, error } = await supabase
+      .from('jobs')
+      .select('id, customer_id, package_size, status, created_at, started_at, completed_at')
+      .order('created_at', { ascending: false })
+      .limit(50)
 
-      if (error) {
-        jobsError = error
-      } else {
-        // Get directory submissions for each job
-        const jobsWithResults = await Promise.all(
-          jobs.map(async (job) => {
-            let results = []
-            let directories_completed = 0
-            let directories_failed = 0
-            
-            try {
-              const { data: directoryResults } = await supabase
-                .from('directory_submissions')
-                .select('id, directory_name, submission_status, listing_url, error_message, created_at')
-                .eq('queue_id', job.id)
-                .order('created_at', { ascending: false })
-              
-              results = directoryResults || []
-              directories_completed = results.filter(r => ['submitted', 'approved'].includes(r.submission_status)).length
-              directories_failed = results.filter(r => r.submission_status === 'failed').length
-            } catch (resultsError) {
-              console.warn('Could not fetch directory results:', resultsError)
-            }
-
-            const progress_percentage = job.directory_limit > 0 
-              ? Math.round((directories_completed / job.directory_limit) * 100)
-              : 0
-
-            return {
-              id: job.id,
-              customer_id: job.customer_id,
-              business_name: job.business_name,
-              email: job.email,
-              package_type: job.package_type,
-              status: job.status,
-              directories_total: job.directory_limit,
-              directories_completed,
-              directories_failed,
-              progress_percentage,
-              created_at: job.created_at,
-              started_at: job.started_at,
-              completed_at: job.completed_at,
-              results: results.map(r => ({
-                id: r.id,
-                directory_name: r.directory_name,
-                submission_status: ['submitted', 'approved'].includes(r.submission_status) ? 'success' : 'failed',
-                response_data: { 
-                  listing_url: r.listing_url, 
-                  error_message: r.error_message 
-                },
-                created_at: r.created_at
-              }))
-            }
-          })
-        )
-
-        jobsData = jobsWithResults
-      }
+    if (error) jobsError = error
+    else {
+      const jobsWithProgress = await Promise.all(
+        (jobs || []).map(async (job) => {
+          const { data: results } = await supabase
+            .from('job_results')
+            .select('id, directory_name, status, submitted_at')
+            .eq('job_id', job.id)
+          const submitted = (results || []).filter(r => r.status === 'submitted').length
+          const failed = (results || []).filter(r => r.status === 'failed').length
+          const pending = job.package_size - (submitted + failed)
+          const progress = job.package_size > 0 ? Math.round((submitted / job.package_size) * 100) : 0
+          return {
+            id: job.id,
+            customer_id: job.customer_id,
+            business_name: undefined,
+            email: undefined,
+            package_type: String(job.package_size),
+            status: job.status,
+            directories_total: job.package_size,
+            directories_completed: submitted,
+            directories_failed: failed,
+            progress_percentage: progress,
+            created_at: job.created_at,
+            started_at: job.started_at,
+            completed_at: job.completed_at,
+            results: (results || []).map(r => ({
+              id: r.id,
+              directory_name: r.directory_name,
+              submission_status: r.status === 'submitted' ? 'success' : 'failed',
+              response_data: undefined,
+              created_at: r.submitted_at
+            }))
+          }
+        })
+      )
+      jobsData = jobsWithProgress
     }
 
     if (jobsError) {
@@ -243,40 +196,21 @@ export default async function handler(
     // Calculate statistics with fallback
     let stats: JobProgressStats
     
-    try {
-      // Try RPC function for stats
-      const { data: statsData, error: statsError } = await supabase
-        .rpc('get_job_progress_stats')
-      
-      if (statsError || !statsData) {
-        throw new Error('Stats RPC not available')
-      }
-      
-      stats = statsData
-    } catch (statsRpcError) {
-      console.log('Stats RPC not available, calculating manually')
-      
-      // Fallback: Calculate stats from jobs data
-      const jobs = Array.isArray(jobsData) ? jobsData : []
-      
-      stats = {
-        total_jobs: jobs.length,
-        pending_jobs: jobs.filter(j => j.status === 'pending').length,
-        in_progress_jobs: jobs.filter(j => j.status === 'in_progress').length,
-        completed_jobs: jobs.filter(j => j.status === 'completed').length,
-        failed_jobs: jobs.filter(j => j.status === 'failed').length,
-        total_directories: jobs.reduce((sum, j) => sum + (j.directories_total || 0), 0),
-        completed_directories: jobs.reduce((sum, j) => sum + (j.directories_completed || 0), 0),
-        failed_directories: jobs.reduce((sum, j) => sum + (j.directories_failed || 0), 0),
-        success_rate: 0
-      }
-      
-      // Calculate success rate
-      const totalProcessed = stats.completed_directories + stats.failed_directories
-      stats.success_rate = totalProcessed > 0 
-        ? Math.round((stats.completed_directories / totalProcessed) * 100)
-        : 0
+    // Calculate stats from jobsData for doc model
+    const js = Array.isArray(jobsData) ? jobsData : []
+    stats = {
+      total_jobs: js.length,
+      pending_jobs: js.filter(j => j.status === 'pending').length,
+      in_progress_jobs: js.filter(j => j.status === 'in_progress').length,
+      completed_jobs: js.filter(j => j.status === 'complete' || j.status === 'completed').length,
+      failed_jobs: js.filter(j => j.status === 'failed').length,
+      total_directories: js.reduce((sum, j) => sum + (j.directories_total || 0), 0),
+      completed_directories: js.reduce((sum, j) => sum + (j.directories_completed || 0), 0),
+      failed_directories: js.reduce((sum, j) => sum + (j.directories_failed || 0), 0),
+      success_rate: 0
     }
+    const totalProcessed = stats.completed_directories + stats.failed_directories
+    stats.success_rate = totalProcessed > 0 ? Math.round((stats.completed_directories / totalProcessed) * 100) : 0
 
     // Ensure we have valid data structure
     const finalJobs = Array.isArray(jobsData) ? jobsData : []
@@ -299,3 +233,5 @@ export default async function handler(
     })
   }
 }
+
+export default withRateLimit(handler, rateLimiters.admin)
