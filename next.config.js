@@ -49,6 +49,13 @@ const nextConfig = {
         path: false,
       }
     }
+
+    // Mark problematic server-only import as external per Netlify guidance
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push('react-dom/server')
+    }
+
     // Production optimizations
     if (!dev) {
       // Bundle splitting for better caching
