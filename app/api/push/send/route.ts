@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import webpush from 'web-push'
 
-// Configure web-push with VAPID keys
-webpush.setVapidDetails(
-  'mailto:support@directorybolt.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-)
+// Configure web-push only when keys are available to avoid build-time failures
+let vapidConfigured = false
+function ensureVapidConfigured(): boolean {
+  if (vapidConfigured) return true
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+  if (publicKey && privateKey) {
+    try {
+      webpush.setVapidDetails('mailto:support@directorybolt.com', publicKey, privateKey)
+      vapidConfigured = true
+      return true
+    } catch (_) {
+      return false
+    }
+  }
+  return false
+}
 
 interface NotificationPayload {
   title: string
@@ -25,6 +36,13 @@ interface NotificationPayload {
 
 export async function POST(request: NextRequest) {
   try {
+    // Guard: if VAPID keys are not configured, return a clear error instead of crashing build/runtime
+    if (!ensureVapidConfigured()) {
+      return NextResponse.json(
+        { error: 'Push notifications not configured: missing VAPID keys' },
+        { status: 503 }
+      )
+    }
     const { userId, payload, subscriptions } = await request.json()
     
     // Validate required fields
@@ -116,6 +134,13 @@ export async function POST(request: NextRequest) {
 // Send notification to specific user
 export async function PUT(request: NextRequest) {
   try {
+    // Guard: ensure VAPID is configured before attempting to send
+    if (!ensureVapidConfigured()) {
+      return NextResponse.json(
+        { error: 'Push notifications not configured: missing VAPID keys' },
+        { status: 503 }
+      )
+    }
     const { userId, type, data } = await request.json()
     
     if (!userId || !type) {
