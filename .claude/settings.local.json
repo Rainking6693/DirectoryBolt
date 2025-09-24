@@ -47,7 +47,9 @@
       "Bash(start http://localhost:3000/staff-login)",
       "Bash(snippingtool)",
       "Bash(powershell:*)",
-      "Bash(start chrome http://localhost:3000/staff-dashboard)"
+      "Bash(start chrome http://localhost:3000/staff-dashboard)",
+      "Bash(for file in ai-vs-human-consulting-research.tsx business-intelligence-roi-calculator.tsx)",
+      "Bash(do mv \"pages/$file\" \"pages/$file.tmp\")"
     ],
     "deny": [],
     "ask": []

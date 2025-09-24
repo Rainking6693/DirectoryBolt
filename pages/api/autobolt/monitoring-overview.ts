@@ -138,7 +138,7 @@ async function handler(
       return isActive && ext.status === 'idle'
     }).length || 0
 
-    const extensionError = extensionData?.filter(ext => {
+    const extensionErrorCount = extensionData?.filter(ext => {
       const lastHeartbeat = new Date(ext.last_heartbeat)
       const isActive = (now.getTime() - lastHeartbeat.getTime()) < 5 * 60 * 1000
       return isActive && ext.status === 'error'
@@ -149,7 +149,7 @@ async function handler(
       return (now.getTime() - lastHeartbeat.getTime()) >= 5 * 60 * 1000
     }).length || 0
 
-    const totalActiveExtensions = extensionHealthy + extensionWarning + extensionError
+    const totalActiveExtensions = extensionHealthy + extensionWarning + extensionErrorCount
 
     // Success rate calculation
     const totalProcessedToday = queueCompletedToday + queueFailedToday
@@ -177,7 +177,7 @@ async function handler(
     let systemStatus: 'operational' | 'degraded' | 'outage' = 'operational'
     if (criticalAlerts > 0 || totalActiveExtensions === 0) {
       systemStatus = 'outage'
-    } else if (extensionError > 0 || successRate24h < 80) {
+    } else if (extensionErrorCount > 0 || successRate24h < 80) {
       systemStatus = 'degraded'
     }
 
@@ -207,7 +207,7 @@ async function handler(
         extensions: {
           healthy: extensionHealthy,
           warning: extensionWarning,
-          error: extensionError,
+          error: extensionErrorCount,
           offline: extensionOffline
         },
         queue: {
