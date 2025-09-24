@@ -1,0 +1,126 @@
+{
+  "timestamp": "2025-09-23T23:42:12.245Z",
+  "mission": "Execute database schema fix for AutoBolt columns",
+  "service_role_key_used": "eyJhbGciOiJIUzI1NiIs...",
+  "execution_results": [
+    {
+      "statement": 1,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 2,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 3,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 4,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 5,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 6,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 7,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 8,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 9,
+      "success": true,
+      "data": null
+    },
+    {
+      "statement": 10,
+      "success": true,
+      "data": null
+    }
+  ],
+  "verification_results": {
+    "directory_submissions": {
+      "directory_category": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "directory_tier": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "processing_time_seconds": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "error_message": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      }
+    },
+    "autobolt_processing_queue": {
+      "error_message": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "started_at": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "completed_at": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      },
+      "processed_by": {
+        "exists": false,
+        "error": "Could not find the table 'public.information_schema.columns' in the schema cache"
+      }
+    }
+  },
+  "test_results": {
+    "directory_submissions": {
+      "success": false,
+      "error": "insert or update on table \"directory_submissions\" violates foreign key constraint \"directory_submissions_customer_id_fkey\""
+    },
+    "autobolt_processing_queue": {
+      "success": true,
+      "data": [
+        {
+          "id": "9f307c9c-cdd5-435d-877e-f7f85de3b370",
+          "customer_id": "TEST-QUEUE-AUDIT-001",
+          "business_name": "Hudson Audit Test Business",
+          "email": "hudson.audit@test.com",
+          "package_type": "growth",
+          "directory_limit": 100,
+          "priority_level": 2,
+          "status": "queued",
+          "action": "start_processing",
+          "created_at": "2025-09-23T23:42:15.697338+00:00",
+          "updated_at": "2025-09-23T23:42:15.697338+00:00",
+          "created_by": "staff_dashboard",
+          "started_at": "2025-09-23T23:42:13.596+00:00",
+          "completed_at": null,
+          "error_message": null,
+          "metadata": {},
+          "processed_by": "audit-test-system"
+        }
+      ]
+    }
+  },
+  "status": "FAILED"
+}

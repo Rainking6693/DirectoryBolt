@@ -1,0 +1,29 @@
+{
+  "auditor": "Hudson - Senior Code Review Specialist",
+  "timestamp": "2025-09-24T12:25:53.727Z",
+  "franksClaimedColumns": [
+    "directory_submissions.directory_category",
+    "directory_submissions.directory_tier",
+    "directory_submissions.processing_time_seconds",
+    "directory_submissions.error_message",
+    "autobolt_processing_queue.started_at",
+    "autobolt_processing_queue.completed_at",
+    "autobolt_processing_queue.processed_by"
+  ],
+  "finalResults": {
+    "columnsVerified": 7,
+    "totalClaimed": 7,
+    "successRate": 100,
+    "testResults": {
+      "autobolt_processing_queue": {
+        "status": "SUCCESS",
+        "columns": 3
+      },
+      "directory_submissions": {
+        "status": "SUCCESS",
+        "columns": 4
+      }
+    },
+    "verdict": "APPROVED"
+  }
+}

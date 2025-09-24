@@ -1,0 +1,1434 @@
+{
+  "timestamp": "2025-09-24T12:27:48.850Z",
+  "auditor": "Hudson",
+  "subject": "Alex API Connectivity Fixes",
+  "tests": [
+    {
+      "test": "Health Endpoint - Basic Functionality",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:49.293Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:48.871Z",
+        "claims": {
+          "returns200Status": true,
+          "noHealthErrors": true,
+          "hasHealthData": "healthy",
+          "respondsQuickly": true,
+          "hasCorsHeaders": true,
+          "hasCorrectVersion": true
+        },
+        "response": {
+          "url": "http://localhost:3000/api/autobolt/health",
+          "method": "GET",
+          "statusCode": 200,
+          "statusMessage": "OK",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, OPTIONS",
+            "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"15e6kpn9froai\"",
+            "content-length": "378",
+            "vary": "Accept-Encoding",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "status": "healthy",
+            "timestamp": "2025-09-24T12:27:48.901Z",
+            "version": "2.0.1-emergency-fix",
+            "services": {
+              "database": {
+                "status": "connected",
+                "response_time_ms": 388
+              },
+              "api": {
+                "status": "operational",
+                "autobolt_key_configured": true
+              },
+              "environment": {
+                "node_env": "development",
+                "port": 3000
+              }
+            },
+            "checks": {
+              "customers_table": true,
+              "autobolt_processing_queue_table": true,
+              "environment_variables": true
+            }
+          },
+          "responseTime": 420,
+          "success": true
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "test": "Health Endpoint - CORS Support",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:49.301Z",
+      "details": {
+        "corsResponse": {
+          "url": "http://localhost:3000/api/autobolt/health",
+          "method": "OPTIONS",
+          "statusCode": 204,
+          "statusMessage": "No Content",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, OPTIONS",
+            "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": "",
+          "responseTime": 8,
+          "success": true
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "test": "Extension Validate - Error Handling",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:49.572Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:49.302Z",
+        "validationClaims": {
+          "returns404ForInvalid": true,
+          "hasProperErrorMessage": true,
+          "hasCorsHeaders": true
+        },
+        "invalidResponse": {
+          "url": "http://localhost:3000/api/extension/validate?customerId=DIR-20240101-123456",
+          "method": "GET",
+          "statusCode": 404,
+          "statusMessage": "Not Found",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, OPTIONS",
+            "access-control-allow-headers": "Content-Type, Authorization",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"s94slj7kti1u\"",
+            "content-length": "66",
+            "vary": "Accept-Encoding",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "ok": false,
+            "code": "NOT_FOUND",
+            "message": "Customer ID not found."
+          },
+          "responseTime": 270,
+          "success": false
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "test": "Extension Validate - CORS Support",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:49.580Z",
+      "details": {
+        "corsResponse": {
+          "url": "http://localhost:3000/api/extension/validate",
+          "method": "OPTIONS",
+          "statusCode": 204,
+          "statusMessage": "No Content",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, OPTIONS",
+            "access-control-allow-headers": "Content-Type, Authorization",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": "",
+          "responseTime": 7,
+          "success": true
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "test": "AutoBolt Test Submissions - Authentication",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:49.940Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:49.581Z",
+        "authClaims": {
+          "blocksUnauthRequests": true,
+          "allowsAuthRequests": true,
+          "hasRateLimit": true,
+          "returnsJsonData": true
+        },
+        "unauthResponse": {
+          "url": "http://localhost:3000/api/autobolt/test-submissions",
+          "method": "GET",
+          "statusCode": 401,
+          "statusMessage": "Unauthorized",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "x-ratelimit-limit": "100",
+            "x-ratelimit-remaining": "99",
+            "x-ratelimit-reset": "1758716930",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"hjp2fedrwt22\"",
+            "content-length": "74",
+            "vary": "Accept-Encoding",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "success": false,
+            "error": "Unauthorized. Valid AUTOBOLT_API_KEY required."
+          },
+          "responseTime": 7,
+          "success": false
+        },
+        "authResponse": {
+          "url": "http://localhost:3000/api/autobolt/test-submissions",
+          "method": "GET",
+          "statusCode": 200,
+          "statusMessage": "OK",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "x-ratelimit-limit": "100",
+            "x-ratelimit-remaining": "98",
+            "x-ratelimit-reset": "1758716930",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"13kq43tpi07k6\"",
+            "content-length": "726",
+            "vary": "Accept-Encoding",
+            "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "success": true,
+            "data": {
+              "active_tests": [
+                {
+                  "test_job_id": "44a6459d-0f0f-4cc0-bd22-c5350e338690",
+                  "test_customer_id": "TEST-72171798-7PEJD5",
+                  "test_name": "Test Business TEST-72171798-7PEJD5",
+                  "status": "queued",
+                  "progress_percentage": 0,
+                  "directories_completed": 0,
+                  "directories_failed": 0,
+                  "created_at": "2025-09-24T00:02:52.02+00:00",
+                  "elapsed_minutes": 745
+                },
+                {
+                  "test_job_id": "a774a900-06d6-4c49-be12-2878896c15e1",
+                  "test_customer_id": "TEST-20250923-000001",
+                  "test_name": "Test Business TEST-20250923-000001",
+                  "status": "processing",
+                  "progress_percentage": 0,
+                  "directories_completed": 0,
+                  "directories_failed": 0,
+                  "created_at": "2025-09-23T22:37:27.607047+00:00",
+                  "elapsed_minutes": 830
+                }
+              ],
+              "completed_tests_today": 0
+            },
+            "message": "Found 2 active test submissions"
+          },
+          "responseTime": 351,
+          "success": true
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.588Z",
+          "category": "AUTH_TEST",
+          "description": "Test submissions without API key",
+          "data": {
+            "statusCode": 401,
+            "body": {
+              "success": false,
+              "error": "Unauthorized. Valid AUTOBOLT_API_KEY required."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.940Z",
+          "category": "AUTH_SUCCESS",
+          "description": "Test submissions with API key",
+          "data": {
+            "statusCode": 200,
+            "body": {
+              "success": true,
+              "data": {
+                "active_tests": [
+                  {
+                    "test_job_id": "44a6459d-0f0f-4cc0-bd22-c5350e338690",
+                    "test_customer_id": "TEST-72171798-7PEJD5",
+                    "test_name": "Test Business TEST-72171798-7PEJD5",
+                    "status": "queued",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-24T00:02:52.02+00:00",
+                    "elapsed_minutes": 745
+                  },
+                  {
+                    "test_job_id": "a774a900-06d6-4c49-be12-2878896c15e1",
+                    "test_customer_id": "TEST-20250923-000001",
+                    "test_name": "Test Business TEST-20250923-000001",
+                    "status": "processing",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-23T22:37:27.607047+00:00",
+                    "elapsed_minutes": 830
+                  }
+                ],
+                "completed_tests_today": 0
+              },
+              "message": "Found 2 active test submissions"
+            },
+            "responseTime": 351
+          }
+        }
+      ]
+    },
+    {
+      "test": "AutoBolt Jobs Next - API Functionality",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:50.044Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:49.940Z",
+        "jobsClaims": {
+          "requiresAuth": true,
+          "returns200WithAuth": true,
+          "hasJobStructure": true,
+          "respondsQuickly": true
+        },
+        "authResponse": {
+          "url": "http://localhost:3000/api/autobolt/jobs/next",
+          "method": "GET",
+          "statusCode": 200,
+          "statusMessage": "OK",
+          "headers": {
+            "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+            "x-xss-protection": "1; mode=block",
+            "x-dns-prefetch-control": "on",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-frame-options": "DENY",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "x-ratelimit-limit": "100",
+            "x-ratelimit-remaining": "98",
+            "x-ratelimit-reset": "1758716930",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"whwyphvf35c\"",
+            "content-length": "12",
+            "vary": "Accept-Encoding",
+            "date": "Wed, 24 Sep 2025 12:27:50 GMT",
+            "connection": "keep-alive",
+            "keep-alive": "timeout=5"
+          },
+          "body": {
+            "job": null
+          },
+          "responseTime": 96,
+          "success": true
+        }
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.588Z",
+          "category": "AUTH_TEST",
+          "description": "Test submissions without API key",
+          "data": {
+            "statusCode": 401,
+            "body": {
+              "success": false,
+              "error": "Unauthorized. Valid AUTOBOLT_API_KEY required."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.940Z",
+          "category": "AUTH_SUCCESS",
+          "description": "Test submissions with API key",
+          "data": {
+            "statusCode": 200,
+            "body": {
+              "success": true,
+              "data": {
+                "active_tests": [
+                  {
+                    "test_job_id": "44a6459d-0f0f-4cc0-bd22-c5350e338690",
+                    "test_customer_id": "TEST-72171798-7PEJD5",
+                    "test_name": "Test Business TEST-72171798-7PEJD5",
+                    "status": "queued",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-24T00:02:52.02+00:00",
+                    "elapsed_minutes": 745
+                  },
+                  {
+                    "test_job_id": "a774a900-06d6-4c49-be12-2878896c15e1",
+                    "test_customer_id": "TEST-20250923-000001",
+                    "test_name": "Test Business TEST-20250923-000001",
+                    "status": "processing",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-23T22:37:27.607047+00:00",
+                    "elapsed_minutes": 830
+                  }
+                ],
+                "completed_tests_today": 0
+              },
+              "message": "Found 2 active test submissions"
+            },
+            "responseTime": 351
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:50.044Z",
+          "category": "JOBS_API",
+          "description": "Jobs next endpoint test",
+          "data": {
+            "unauthStatus": 403,
+            "authStatus": 200,
+            "responseTime": 96,
+            "body": {
+              "job": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "test": "Chrome Extension Connectivity",
+      "result": "WARN",
+      "timestamp": "2025-09-24T12:27:50.798Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:50.045Z",
+        "results": [
+          {
+            "test": "Health Check",
+            "success": true,
+            "statusCode": 200,
+            "hasCors": true,
+            "responseTime": 155
+          },
+          {
+            "test": "Customer Validation",
+            "success": true,
+            "statusCode": 404,
+            "hasCors": true,
+            "responseTime": 268
+          },
+          {
+            "test": "Authenticated API",
+            "success": true,
+            "statusCode": 200,
+            "hasCors": false,
+            "responseTime": 327
+          }
+        ],
+        "issue": "APIs work but some missing CORS headers"
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.588Z",
+          "category": "AUTH_TEST",
+          "description": "Test submissions without API key",
+          "data": {
+            "statusCode": 401,
+            "body": {
+              "success": false,
+              "error": "Unauthorized. Valid AUTOBOLT_API_KEY required."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.940Z",
+          "category": "AUTH_SUCCESS",
+          "description": "Test submissions with API key",
+          "data": {
+            "statusCode": 200,
+            "body": {
+              "success": true,
+              "data": {
+                "active_tests": [
+                  {
+                    "test_job_id": "44a6459d-0f0f-4cc0-bd22-c5350e338690",
+                    "test_customer_id": "TEST-72171798-7PEJD5",
+                    "test_name": "Test Business TEST-72171798-7PEJD5",
+                    "status": "queued",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-24T00:02:52.02+00:00",
+                    "elapsed_minutes": 745
+                  },
+                  {
+                    "test_job_id": "a774a900-06d6-4c49-be12-2878896c15e1",
+                    "test_customer_id": "TEST-20250923-000001",
+                    "test_name": "Test Business TEST-20250923-000001",
+                    "status": "processing",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-23T22:37:27.607047+00:00",
+                    "elapsed_minutes": 830
+                  }
+                ],
+                "completed_tests_today": 0
+              },
+              "message": "Found 2 active test submissions"
+            },
+            "responseTime": 351
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:50.044Z",
+          "category": "JOBS_API",
+          "description": "Jobs next endpoint test",
+          "data": {
+            "unauthStatus": 403,
+            "authStatus": 200,
+            "responseTime": 96,
+            "body": {
+              "job": null
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:50.797Z",
+          "category": "EXTENSION_SIMULATION",
+          "description": "Chrome extension connectivity tests",
+          "data": [
+            {
+              "test": "Health Check",
+              "success": true,
+              "statusCode": 200,
+              "hasCors": true,
+              "responseTime": 155
+            },
+            {
+              "test": "Customer Validation",
+              "success": true,
+              "statusCode": 404,
+              "hasCors": true,
+              "responseTime": 268
+            },
+            {
+              "test": "Authenticated API",
+              "success": true,
+              "statusCode": 200,
+              "hasCors": false,
+              "responseTime": 327
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "503 Error Resolution",
+      "result": "PASS",
+      "timestamp": "2025-09-24T12:27:51.293Z",
+      "details": {
+        "startTime": "2025-09-24T12:27:50.798Z",
+        "results": [
+          {
+            "endpoint": "/api/autobolt/health",
+            "statusCode": 200,
+            "is503": false,
+            "success": true,
+            "responseTime": 164
+          },
+          {
+            "endpoint": "/api/extension/validate?customerId=TEST-123",
+            "statusCode": 400,
+            "is503": false,
+            "success": false,
+            "responseTime": 7
+          },
+          {
+            "endpoint": "/api/autobolt/test-submissions",
+            "statusCode": 200,
+            "is503": false,
+            "success": true,
+            "responseTime": 323
+          }
+        ],
+        "confirmation": "No 503 errors found across tested endpoints"
+      },
+      "evidence": [
+        {
+          "timestamp": "2025-09-24T12:27:49.293Z",
+          "category": "HTTP_RESPONSE",
+          "description": "Health endpoint response",
+          "data": {
+            "statusCode": 200,
+            "responseTime": 420,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "content-type": "application/json; charset=utf-8",
+              "etag": "\"15e6kpn9froai\"",
+              "content-length": "378",
+              "vary": "Accept-Encoding",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            },
+            "body": {
+              "status": "healthy",
+              "timestamp": "2025-09-24T12:27:48.901Z",
+              "version": "2.0.1-emergency-fix",
+              "services": {
+                "database": {
+                  "status": "connected",
+                  "response_time_ms": 388
+                },
+                "api": {
+                  "status": "operational",
+                  "autobolt_key_configured": true
+                },
+                "environment": {
+                  "node_env": "development",
+                  "port": 3000
+                }
+              },
+              "checks": {
+                "customers_table": true,
+                "autobolt_processing_queue_table": true,
+                "environment_variables": true
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.301Z",
+          "category": "CORS_TEST",
+          "description": "Health endpoint CORS preflight",
+          "data": {
+            "statusCode": 204,
+            "headers": {
+              "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://api.stripe.com https://js.stripe.com; worker-src 'self' blob:; manifest-src 'self'",
+              "x-xss-protection": "1; mode=block",
+              "x-dns-prefetch-control": "on",
+              "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+              "x-frame-options": "DENY",
+              "x-content-type-options": "nosniff",
+              "referrer-policy": "strict-origin-when-cross-origin",
+              "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+              "access-control-allow-origin": "*",
+              "access-control-allow-methods": "GET, OPTIONS",
+              "access-control-allow-headers": "Content-Type, Authorization, x-api-key",
+              "date": "Wed, 24 Sep 2025 12:27:49 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.572Z",
+          "category": "VALIDATION_TEST",
+          "description": "Extension validate with invalid customer",
+          "data": {
+            "statusCode": 404,
+            "body": {
+              "ok": false,
+              "code": "NOT_FOUND",
+              "message": "Customer ID not found."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.588Z",
+          "category": "AUTH_TEST",
+          "description": "Test submissions without API key",
+          "data": {
+            "statusCode": 401,
+            "body": {
+              "success": false,
+              "error": "Unauthorized. Valid AUTOBOLT_API_KEY required."
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:49.940Z",
+          "category": "AUTH_SUCCESS",
+          "description": "Test submissions with API key",
+          "data": {
+            "statusCode": 200,
+            "body": {
+              "success": true,
+              "data": {
+                "active_tests": [
+                  {
+                    "test_job_id": "44a6459d-0f0f-4cc0-bd22-c5350e338690",
+                    "test_customer_id": "TEST-72171798-7PEJD5",
+                    "test_name": "Test Business TEST-72171798-7PEJD5",
+                    "status": "queued",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-24T00:02:52.02+00:00",
+                    "elapsed_minutes": 745
+                  },
+                  {
+                    "test_job_id": "a774a900-06d6-4c49-be12-2878896c15e1",
+                    "test_customer_id": "TEST-20250923-000001",
+                    "test_name": "Test Business TEST-20250923-000001",
+                    "status": "processing",
+                    "progress_percentage": 0,
+                    "directories_completed": 0,
+                    "directories_failed": 0,
+                    "created_at": "2025-09-23T22:37:27.607047+00:00",
+                    "elapsed_minutes": 830
+                  }
+                ],
+                "completed_tests_today": 0
+              },
+              "message": "Found 2 active test submissions"
+            },
+            "responseTime": 351
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:50.044Z",
+          "category": "JOBS_API",
+          "description": "Jobs next endpoint test",
+          "data": {
+            "unauthStatus": 403,
+            "authStatus": 200,
+            "responseTime": 96,
+            "body": {
+              "job": null
+            }
+          }
+        },
+        {
+          "timestamp": "2025-09-24T12:27:50.797Z",
+          "category": "EXTENSION_SIMULATION",
+          "description": "Chrome extension connectivity tests",
+          "data": [
+            {
+              "test": "Health Check",
+              "success": true,
+              "statusCode": 200,
+              "hasCors": true,
+              "responseTime": 155
+            },
+            {
+              "test": "Customer Validation",
+              "success": true,
+              "statusCode": 404,
+              "hasCors": true,
+              "responseTime": 268
+            },
+            {
+              "test": "Authenticated API",
+              "success": true,
+              "statusCode": 200,
+              "hasCors": false,
+              "responseTime": 327
+            }
+          ]
+        },
+        {
+          "timestamp": "2025-09-24T12:27:51.293Z",
+          "category": "503_VERIFICATION",
+          "description": "503 error check across endpoints",
+          "data": [
+            {
+              "endpoint": "/api/autobolt/health",
+              "statusCode": 200,
+              "is503": false,
+              "success": true,
+              "responseTime": 164
+            },
+            {
+              "endpoint": "/api/extension/validate?customerId=TEST-123",
+              "statusCode": 400,
+              "is503": false,
+              "success": false,
+              "responseTime": 7
+            },
+            {
+              "endpoint": "/api/autobolt/test-submissions",
+              "statusCode": 200,
+              "is503": false,
+              "success": true,
+              "responseTime": 323
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "passed": 7,
+    "failed": 0,
+    "warnings": 1
+  },
+  "finalAssessment": {
+    "verdict": "CONDITIONAL_APPROVAL",
+    "passRate": "87.5",
+    "claimsVerification": {
+      "503_errors_resolved": true,
+      "apis_return_200": true,
+      "chrome_extension_communication": false,
+      "health_check_working": true
+    },
+    "auditDuration": 2422,
+    "recommendation": "Approve with minor fixes required"
+  }
+}

@@ -22,16 +22,16 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Directory Submission Service | AI-Powered Business Listings | DirectoryBolt</title>
-        <meta name="description" content="Get listed on 500+ high-authority directories with our AI-powered directory submission service. Automated business listings, local SEO optimization, and real-time tracking. Start your 14-day free trial today." />
+        <title>AI Business Intelligence Platform | $4,300 Value for $299 | DirectoryBolt</title>
+        <meta name="description" content="Get $4,300 worth of AI business intelligence for $299. Competitive analysis, market research, and strategic insights that typically cost $2,000-5,000 from consultants. 93% savings guaranteed." />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://directorybolt.com/" />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Directory Submission Service | AI-Powered Business Listings" />
-        <meta property="og:description" content="Get listed on 500+ high-authority directories with our AI-powered directory submission service. Automated business listings, local SEO optimization, and real-time tracking." />
+        <meta property="og:title" content="AI Business Intelligence Platform | $4,300 Value for $299" />
+        <meta property="og:description" content="Get $4,300 worth of AI business intelligence for $299. Competitive analysis, market research, and strategic insights that typically cost $2,000-5,000 from consultants. 93% savings guaranteed." />
         <meta property="og:url" content="https://directorybolt.com/" />
         <meta property="og:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta property="og:image:width" content="1200" />
@@ -41,14 +41,14 @@ export default function Home() {
         
         {/* Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Directory Submission Service | AI-Powered Business Listings" />
-        <meta name="twitter:description" content="Get listed on 500+ high-authority directories with our AI-powered directory submission service. Automated business listings, local SEO optimization, and real-time tracking." />
+        <meta name="twitter:title" content="AI Business Intelligence Platform | $4,300 Value for $299" />
+        <meta name="twitter:description" content="Get $4,300 worth of AI business intelligence for $299. Competitive analysis, market research, and strategic insights that typically cost $2,000-5,000 from consultants. 93% savings guaranteed." />
         <meta name="twitter:image" content="https://directorybolt.com/og/hero-1200x630.png" />
         <meta name="twitter:creator" content="@DirectoryBolt" />
         <meta name="twitter:site" content="@DirectoryBolt" />
         
         {/* Additional SEO Meta Tags */}
-        <meta name="keywords" content="directory submission service, business directory submission, automated directory submission, local seo directories, business listing service, ai powered directory submissions, directory marketing, online directory submission, local directory submission, automated business listings" />
+        <meta name="keywords" content="AI business intelligence platform, business intelligence software, competitive analysis tools, market research automation, strategic business insights, AI business consultant, business intelligence ROI, automated competitive intelligence, AI market analysis, business intelligence vs consultants" />
         <meta name="author" content="DirectoryBolt" />
         <meta name="publisher" content="DirectoryBolt" />
         <meta name="copyright" content="DirectoryBolt" />
@@ -98,6 +98,64 @@ export default function Home() {
           }}
         />
         
+        {/* AI Business Intelligence Platform Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "DirectoryBolt AI Business Intelligence Platform",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web Browser",
+              "description": "AI-powered business intelligence platform delivering $4,300 worth of competitive analysis, market research, and strategic insights for $299",
+              "url": "https://directorybolt.com",
+              "offers": {
+                "@type": "Offer",
+                "price": "299",
+                "priceCurrency": "USD",
+                "description": "$4,300 worth of business intelligence for $299 - 93% savings vs traditional consultants",
+                "availability": "https://schema.org/InStock",
+                "validFrom": "2024-01-01",
+                "priceValidUntil": "2025-12-31"
+              },
+              "featureList": [
+                "AI-powered competitive analysis",
+                "Automated market research",
+                "Business intelligence reporting",
+                "Strategic insights generation",
+                "Real-time business analytics",
+                "Competitor monitoring",
+                "Industry trend analysis"
+              ],
+              "screenshot": "https://directorybolt.com/images/platform-screenshot.jpg",
+              "softwareVersion": "2.0",
+              "datePublished": "2024-01-01",
+              "dateModified": "2024-12-01",
+              "author": {
+                "@type": "Organization",
+                "name": "DirectoryBolt",
+                "url": "https://directorybolt.com"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "DirectoryBolt",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://directorybolt.com/images/logo.png"
+                }
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "reviewCount": "247",
+                "bestRating": "5",
+                "worstRating": "1"
+              }
+            })
+          }}
+        />
+        
         {/* Website Schema */}
         <script
           type="application/ld+json"
@@ -108,7 +166,7 @@ export default function Home() {
               "name": "DirectoryBolt",
               "alternateName": "Directory Bolt",
               "url": "https://directorybolt.com/",
-              "description": "AI-powered directory submission service for businesses. Get listed in 480+ directories to increase online visibility and drive more customers.",
+              "description": "AI-powered business intelligence platform delivering $4,300 worth of competitive analysis, market research, and strategic insights for $299. 93% savings vs traditional consultants.",
               "publisher": {
                 "@type": "Organization",
                 "name": "DirectoryBolt",

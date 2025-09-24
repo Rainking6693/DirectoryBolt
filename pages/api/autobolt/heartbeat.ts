@@ -3,6 +3,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { corsMiddleware } from '../../../lib/utils/cors'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -19,8 +20,14 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Apply CORS headers for Chrome extension support
+  if (!corsMiddleware(req, res, { allowCredentials: true })) {
+    return; // OPTIONS request handled
+  }
+
   // Support both GET (for connection testing) and POST (for heartbeat updates)
   if (!['GET', 'POST'].includes(req.method!)) {
+    res.setHeader('Allow', 'GET, POST, OPTIONS')
     return res.status(405).json({ error: 'Method not allowed' })
   }
 

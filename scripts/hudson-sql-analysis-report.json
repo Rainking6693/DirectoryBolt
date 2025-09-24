@@ -1,0 +1,130 @@
+{
+  "analysis_timestamp": "2025-09-23T23:51:53.694Z",
+  "sql_file_analyzed": "025_import_all_directories.sql",
+  "total_directories": 592,
+  "problematic_entries": {
+    "template_fake_count": 4,
+    "fake_urls_count": 0,
+    "total_to_remove": 4
+  },
+  "form_mappings": {
+    "missing_count": 592,
+    "current_rate": 0,
+    "projected_rate": 29.52380952380953
+  },
+  "premium_directories": {
+    "found_count": 20,
+    "expected_count": 27,
+    "coverage": 74.07407407407408
+  },
+  "template_entries": [
+    {
+      "name": "Thingtesting",
+      "website": "https://thingtesting.com/submit-brand",
+      "reason": "template_text"
+    },
+    {
+      "name": "Real World Beta Testing",
+      "website": "https://betatesting.com/beta-testing",
+      "reason": "template_text"
+    },
+    {
+      "name": "r/betatests",
+      "website": "https://www.reddit.com/r/betatests",
+      "reason": "template_text"
+    },
+    {
+      "name": "r/testmyapp",
+      "website": "https://www.reddit.com/r/TestMyApp",
+      "reason": "template_text"
+    }
+  ],
+  "fake_urls": [],
+  "premium_found": [
+    {
+      "name": "Google Business Profile",
+      "website": "https://www.google.com/business"
+    },
+    {
+      "name": "Dribbble",
+      "website": "https://dribbble.com"
+    },
+    {
+      "name": "SaaS Founders - Build & Scale",
+      "website": "https://www.facebook.com/groups/saasfoundersnetwork"
+    },
+    {
+      "name": "SaaS Growth Hacks",
+      "website": "https://www.facebook.com/groups/SaaSgrowthhacking"
+    },
+    {
+      "name": "SaaS Mantra",
+      "website": "https://www.facebook.com/groups/saasmantra"
+    },
+    {
+      "name": "SaaS Products & Marketing",
+      "website": "https://www.facebook.com/groups/saasproductsandmarketing"
+    },
+    {
+      "name": "Scaling SaaS Founders",
+      "website": "https://www.facebook.com/groups/2044902829088090"
+    },
+    {
+      "name": "The Startup Chat Mastermind Group",
+      "website": "https://www.facebook.com/groups/TheStartupChat"
+    },
+    {
+      "name": "Band of Entrepreneurs",
+      "website": "https://www.linkedin.com/groups/1789386"
+    },
+    {
+      "name": "Entrepreneur''s network",
+      "website": "https://www.linkedin.com/groups/91749"
+    },
+    {
+      "name": "Executive Suite",
+      "website": "https://www.linkedin.com/groups/1426"
+    },
+    {
+      "name": "On Startups",
+      "website": "https://www.linkedin.com/groups/2877"
+    },
+    {
+      "name": "Startup Specialists Group",
+      "website": "https://www.linkedin.com/groups/56766"
+    },
+    {
+      "name": "Glassdoor",
+      "website": "https://www.glassdoor.com"
+    },
+    {
+      "name": "Glassdoor",
+      "website": "https://www.glassdoor.com"
+    },
+    {
+      "name": "TechTarget",
+      "website": "https://www.techtarget.com"
+    },
+    {
+      "name": "Thumbtack",
+      "website": "https://www.thumbtack.com"
+    },
+    {
+      "name": "TripAdvisor",
+      "website": "https://www.tripadvisor.com"
+    },
+    {
+      "name": "Booking.com",
+      "website": "https://www.booking.com"
+    },
+    {
+      "name": "Expedia",
+      "website": "https://www.expedia.com"
+    }
+  ],
+  "projected_clean_data": {
+    "directory_count": 588,
+    "mapping_rate": 29.52380952380953,
+    "meets_hudson_requirements": false
+  }
+}

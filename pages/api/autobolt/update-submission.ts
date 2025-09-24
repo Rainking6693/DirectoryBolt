@@ -3,9 +3,16 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { AutoBoltIntegrationService } from '../../../lib/services/autobolt-integration-service'
+import { corsMiddleware } from '../../../lib/utils/cors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Apply CORS headers for Chrome extension support
+  if (!corsMiddleware(req, res, { allowCredentials: true })) {
+    return; // OPTIONS request handled
+  }
+
   if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST, OPTIONS')
     return res.status(405).json({ error: 'Method not allowed' })
   }
 

@@ -1,5 +1,5 @@
 /**
- * AutoBolt Test Submissions API
+ * AutoBolt Test Submissions API - FIXED VERSION
  * 
  * POST /api/autobolt/test-submissions - Create a test job to verify directory submissions
  * GET /api/autobolt/test-submissions - Get status of test submissions
@@ -123,24 +123,30 @@ async function handleCreateTestSubmission(
   const testJobName = test_name || `AutoBolt Test ${test_type} - ${new Date().toLocaleString()}`
 
   try {
-    // Create test customer record
+    // Create test customer record - using actual customers table schema
     const testCustomerData = {
       customer_id: testCustomerId,
+      first_name: 'Test',
+      last_name: 'Business',
       business_name: `Test Business ${testCustomerId}`,
       email: `test-${timestamp}@directorybolt-testing.com`,
+      phone: '555-0123',
+      address: '123 Test Street',
+      city: 'Test City',
+      state: 'CA',
+      zip: '90210',
+      website: 'https://test-business.example.com',
       package_type: 'starter',
-      status: 'registered',
-      business_data: {
-        phone: '555-0123',
-        address: '123 Test Street',
-        city: 'Test City',
-        state: 'CA',
-        zip: '90210',
-        website: 'https://test-business.example.com',
+      status: 'active',
+      directories_submitted: 0,
+      failed_directories: 0,
+      metadata: {
         description: `Test business created for AutoBolt submission testing - ${testJobName}`,
         facebook: 'https://facebook.com/testbusiness',
         instagram: 'https://instagram.com/testbusiness',
-        linkedin: 'https://linkedin.com/company/testbusiness'
+        linkedin: 'https://linkedin.com/company/testbusiness',
+        test_type: test_type,
+        created_for_testing: true
       },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -163,6 +169,9 @@ async function handleCreateTestSubmission(
     // Create test job in AutoBolt processing queue
     const testJobData = {
       customer_id: testCustomerId,
+      business_name: `Test Business ${testCustomerId}`,
+      email: `test-${timestamp}@directorybolt-testing.com`,
+      package_type: 'starter',
       directory_limit: dirCount,
       status: 'queued',
       priority_level: 1, // High priority for tests
@@ -202,13 +211,14 @@ async function handleCreateTestSubmission(
       created_at: new Date().toISOString()
     }
 
-    await supabase
-      .from('autobolt_test_logs')
-      .insert(testLogData)
-      .catchError((error) => {
-        console.warn('⚠️ Failed to create test log entry:', error)
-        // Don't fail the entire request for logging issues
-      })
+    try {
+      await supabase
+        .from('autobolt_test_logs')
+        .insert(testLogData)
+    } catch (error) {
+      console.warn('⚠️ Failed to create test log entry:', error)
+      // Don't fail the entire request for logging issues
+    }
 
     // Calculate expected completion time (estimate 30 seconds per directory + 2 minutes overhead)
     const expectedCompletionMinutes = Math.ceil((dirCount * 0.5) + 2)
@@ -247,7 +257,7 @@ async function handleGetTestStatus(
   res: NextApiResponse<TestSubmissionResponse>
 ) {
   try {
-    // Get active test jobs
+    // Get active test jobs - remove the problematic inner join
     const { data: activeTests, error: activeError } = await supabase
       .from('autobolt_processing_queue')
       .select(`
@@ -256,11 +266,7 @@ async function handleGetTestStatus(
         directory_limit,
         status,
         created_at,
-        started_at,
-        customers!inner(
-          customer_id,
-          business_name
-        )
+        started_at
       `)
       .like('customer_id', 'TEST-%')
       .in('status', ['queued', 'processing'])
@@ -312,7 +318,7 @@ async function handleGetTestStatus(
       testsWithProgress.push({
         test_job_id: test.id,
         test_customer_id: test.customer_id,
-        test_name: test.customers.business_name,
+        test_name: `Test Business ${test.customer_id}`,
         status: test.status,
         progress_percentage: progressPercentage,
         directories_completed: directoriesCompleted,

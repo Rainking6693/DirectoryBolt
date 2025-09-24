@@ -24,6 +24,49 @@ module.exports = {
     paths.push(await config.transform(config, '/directory-submission-vs-manual'))
     paths.push(await config.transform(config, '/local-seo-directories-guide'))
     
+    // AI Business Intelligence pages
+    paths.push(await config.transform(config, '/ai-business-intelligence-vs-consultants'))
+    paths.push(await config.transform(config, '/business-intelligence-roi-calculator'))
+    paths.push(await config.transform(config, '/business-intelligence-value-breakdown'))
+    
+    // Industry-specific pages
+    paths.push(await config.transform(config, '/business-intelligence-for-healthcare-practices'))
+    paths.push(await config.transform(config, '/business-intelligence-for-law-firms'))
+    paths.push(await config.transform(config, '/business-intelligence-for-restaurants'))
+    
+    // Competitor comparison pages
+    paths.push(await config.transform(config, '/directorybolt-vs-mckinsey'))
+    paths.push(await config.transform(config, '/directorybolt-vs-deloitte'))
+    paths.push(await config.transform(config, '/directorybolt-vs-bcg'))
+    
+    // Problem-unaware content
+    paths.push(await config.transform(config, '/why-business-not-growing'))
+    paths.push(await config.transform(config, '/business-visibility-problems'))
+    paths.push(await config.transform(config, '/business-competition-analysis-without-consultant'))
+    
+    // Interactive tools
+    paths.push(await config.transform(config, '/business-intelligence-speed-test'))
+    paths.push(await config.transform(config, '/consultant-cost-calculator'))
+    paths.push(await config.transform(config, '/growth-barrier-assessment'))
+    
+    // Thought leadership and authority content
+    paths.push(await config.transform(config, '/future-of-business-intelligence'))
+    paths.push(await config.transform(config, '/ai-vs-human-consulting-research'))
+    paths.push(await config.transform(config, '/business-intelligence-university'))
+    paths.push(await config.transform(config, '/ai-business-intelligence-trends'))
+    
+    // Media outreach and community building
+    paths.push(await config.transform(config, '/press-release-ai-consulting-research'))
+    paths.push(await config.transform(config, '/executive-briefing-series'))
+    paths.push(await config.transform(config, '/industry-partnership-program'))
+    paths.push(await config.transform(config, '/ai-business-intelligence-community'))
+    
+    // Ongoing optimization and expansion
+    paths.push(await config.transform(config, '/ai-business-intelligence-trends-2025'))
+    paths.push(await config.transform(config, '/global-ai-business-intelligence-report'))
+    paths.push(await config.transform(config, '/seo-case-study-directorybolt-transformation'))
+    paths.push(await config.transform(config, '/roi-analytics-dashboard'))
+    
     // City-specific pages
     const cities = [
       'new-york', 'los-angeles', 'chicago', 'houston', 'phoenix',
@@ -65,7 +108,30 @@ module.exports = {
       '/analyze',
       '/directory-submission-service',
       '/directory-submission-vs-manual',
-      '/local-seo-directories-guide'
+      '/local-seo-directories-guide',
+      '/ai-business-intelligence-vs-consultants',
+      '/business-intelligence-roi-calculator',
+      '/business-intelligence-value-breakdown',
+      '/business-intelligence-for-healthcare-practices',
+      '/business-intelligence-for-law-firms',
+      '/business-intelligence-for-restaurants',
+      '/directorybolt-vs-mckinsey',
+      '/directorybolt-vs-deloitte',
+      '/directorybolt-vs-bcg',
+      '/why-business-not-growing',
+      '/business-visibility-problems',
+      '/business-intelligence-speed-test',
+      '/consultant-cost-calculator',
+      '/future-of-business-intelligence',
+      '/ai-vs-human-consulting-research',
+      '/business-intelligence-university',
+      '/press-release-ai-consulting-research',
+      '/executive-briefing-series',
+      '/industry-partnership-program',
+      '/ai-business-intelligence-community',
+      '/ai-business-intelligence-trends-2025',
+      '/global-ai-business-intelligence-report',
+      '/seo-case-study-directorybolt-transformation'
     ]
     
     // Medium priority pages

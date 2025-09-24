@@ -1,0 +1,88 @@
+{
+  "totalDirectories": 484,
+  "problematicEntries": [],
+  "highValueDirectories": [
+    {
+      "name": "Google Business Profile",
+      "url": "https://www.google.com/business",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Dribbble",
+      "url": "https://dribbble.com",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "SaaS Founders - Build & Scale",
+      "url": "https://www.facebook.com/groups/saasfoundersnetwork",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "SaaS Growth Hacks",
+      "url": "https://www.facebook.com/groups/SaaSgrowthhacking",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "SaaS Mantra",
+      "url": "https://www.facebook.com/groups/saasmantra",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "SaaS Products & Marketing",
+      "url": "https://www.facebook.com/groups/saasproductsandmarketing",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Scaling SaaS Founders",
+      "url": "https://www.facebook.com/groups/2044902829088090",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "The Startup Chat Mastermind Group",
+      "url": "https://www.facebook.com/groups/TheStartupChat",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Band of Entrepreneurs",
+      "url": "https://www.linkedin.com/groups/1789386",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Entrepreneur's network",
+      "url": "https://www.linkedin.com/groups/91749",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Executive Suite",
+      "url": "https://www.linkedin.com/groups/1426",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "On Startups",
+      "url": "https://www.linkedin.com/groups/2877",
+      "hasFormMapping": true,
+      "isActive": true
+    },
+    {
+      "name": "Startup Specialists Group",
+      "url": "https://www.linkedin.com/groups/56766",
+      "hasFormMapping": true,
+      "isActive": true
+    }
+  ],
+  "cleanProjection": {
+    "count": 484,
+    "mappingRate": 100
+  }
+}

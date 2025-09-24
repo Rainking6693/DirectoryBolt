@@ -3,7 +3,7 @@
 
 window.DevConfig = {
   // Use local development server
-  API_BASE: 'http://localhost:3003',
+  API_BASE: 'http://localhost:3001',
   ENDPOINT: '/api/extension/validate',
   
   // Enable debug logging

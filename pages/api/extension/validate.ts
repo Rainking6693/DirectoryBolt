@@ -8,14 +8,23 @@ const LIMITS: Record<string, number> = {
   enterprise: 500,
 };
 
-function applyCors(res: NextApiResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function applyCors(res: NextApiResponse, req: NextApiRequest) {
+  const origin = req.headers.origin;
+  
+  // Allow Chrome extension origins specifically
+  if (origin && origin.startsWith('chrome-extension://')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  applyCors(res);
+  applyCors(res, req);
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();

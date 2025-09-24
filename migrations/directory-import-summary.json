@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-09-23T23:29:40.161Z",
+  "totalDirectories": 592,
+  "sources": {
+    "json": 489,
+    "markdown": 103
+  },
+  "categories": {
+    "business_general": 567,
+    "review_platforms": 3,
+    "healthcare": 4,
+    "social_media": 9,
+    "professional_services": 1,
+    "legal": 4,
+    "real_estate": 2,
+    "tech_startups": 2
+  },
+  "averageDomainAuthority": 53.97466216216216,
+  "priorityDistribution": {
+    "high": 12,
+    "medium": 16,
+    "low": 75
+  }
+}

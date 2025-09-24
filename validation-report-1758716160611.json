@@ -1,0 +1,343 @@
+{
+  "timestamp": "2025-09-24T12:16:00.611Z",
+  "overall_status": "SYSTEM HEALTHY",
+  "summary": {
+    "pass": 10,
+    "fail": 0,
+    "warn": 0
+  },
+  "results": {
+    "environment": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "NODE_ENV is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.204Z"
+        },
+        {
+          "status": "PASS",
+          "message": "NEXT_PUBLIC_APP_URL is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.204Z"
+        },
+        {
+          "status": "PASS",
+          "message": "STRIPE_SECRET_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.204Z"
+        },
+        {
+          "status": "PASS",
+          "message": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "OPENAI_API_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "NEXT_PUBLIC_SUPABASE_URL is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "SUPABASE_SERVICE_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "JWT_SECRET is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "ADMIN_API_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "STAFF_API_KEY is configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Node.js version: v22.19.0",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.205Z"
+        }
+      ]
+    },
+    "database": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "Customers table accessible (1 records tested)",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.455Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Queue history table accessible",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.571Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Customer notifications table accessible",
+          "details": null,
+          "timestamp": "2025-09-24T12:15:59.715Z"
+        }
+      ]
+    },
+    "stripe": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "Stripe account connected: acct_1RyJPcPQdMywmVkH",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.348Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Stripe mode matches environment (live)",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.349Z"
+        }
+      ]
+    },
+    "autobolt": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "Extension manifest.json exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.349Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Extension version: 3.0.2",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.350Z"
+        },
+        {
+          "status": "PASS",
+          "message": "content.js exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.350Z"
+        },
+        {
+          "status": "PASS",
+          "message": "background-batch-fixed.js exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.350Z"
+        },
+        {
+          "status": "PASS",
+          "message": "customer-popup.html exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.350Z"
+        },
+        {
+          "status": "PASS",
+          "message": "31 AutoBolt API endpoints found",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        }
+      ]
+    },
+    "api_endpoints": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "analyze.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        },
+        {
+          "status": "PASS",
+          "message": "stripe/create-checkout-session.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        },
+        {
+          "status": "PASS",
+          "message": "customer/data.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        },
+        {
+          "status": "PASS",
+          "message": "staff/login.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        },
+        {
+          "status": "PASS",
+          "message": "admin/login.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        },
+        {
+          "status": "PASS",
+          "message": "autobolt/customer-data.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.351Z"
+        }
+      ]
+    },
+    "authentication": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "pages/staff/login.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/admin/login.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/api/staff/auth-check.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/api/admin/auth-check.ts exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        },
+        {
+          "status": "PASS",
+          "message": "JWT secret is properly configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        }
+      ]
+    },
+    "frontend": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "pages/index.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.352Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/pricing.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.353Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/staff/index.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.353Z"
+        },
+        {
+          "status": "PASS",
+          "message": "pages/admin/index.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.353Z"
+        },
+        {
+          "status": "PASS",
+          "message": "components/staff/JobProgressMonitor.tsx exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.353Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Next.js build directory exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.354Z"
+        }
+      ]
+    },
+    "seo": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "next-sitemap.config.js exists",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.354Z"
+        },
+        {
+          "status": "WARN",
+          "message": "pages/sitemap.xml.ts missing",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.354Z"
+        },
+        {
+          "status": "WARN",
+          "message": "pages/robots.txt.ts missing",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.354Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Homepage has proper meta tags",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.354Z"
+        }
+      ]
+    },
+    "analytics": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "5 analytics endpoints found",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.355Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Push notifications configured",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.355Z"
+        }
+      ]
+    },
+    "integration": {
+      "status": "PASS",
+      "details": [
+        {
+          "status": "PASS",
+          "message": "Test customer creation successful",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.478Z"
+        },
+        {
+          "status": "PASS",
+          "message": "Test customer cleanup successful",
+          "details": null,
+          "timestamp": "2025-09-24T12:16:00.610Z"
+        }
+      ]
+    }
+  }
+}

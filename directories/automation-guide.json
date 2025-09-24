@@ -1,0 +1,3382 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generated": "2025-09-24T06:28:34.104111",
+    "totalMappings": 70,
+    "accessibleDirectories": 70,
+    "coverage": "70 / 70 accessible directories"
+  },
+  "standardForms": {
+    "standard_business_form": {
+      "businessName": [
+        "input[name='business_name']",
+        "input[name='company_name']",
+        "input[name='name']",
+        "input[id='businessName']",
+        "input[id='companyName']",
+        "#business-name",
+        ".business-name input"
+      ],
+      "address": [
+        "input[name='address']",
+        "input[name='street']",
+        "input[name='address1']",
+        "input[id='address']",
+        "textarea[name='address']",
+        "#address",
+        ".address input"
+      ],
+      "city": [
+        "input[name='city']",
+        "input[id='city']",
+        "#city",
+        ".city input"
+      ],
+      "state": [
+        "select[name='state']",
+        "select[name='province']",
+        "select[name='region']",
+        "input[name='state']",
+        "select[id='state']",
+        "#state",
+        ".state select"
+      ],
+      "zip": [
+        "input[name='zip']",
+        "input[name='zipcode']",
+        "input[name='postal_code']",
+        "input[name='postcode']",
+        "input[id='zip']",
+        "#zip",
+        ".zip input"
+      ],
+      "phone": [
+        "input[name='phone']",
+        "input[name='telephone']",
+        "input[name='tel']",
+        "input[type='tel']",
+        "input[id='phone']",
+        "#phone",
+        ".phone input"
+      ],
+      "website": [
+        "input[name='website']",
+        "input[name='url']",
+        "input[name='web']",
+        "input[type='url']",
+        "input[id='website']",
+        "#website",
+        ".website input"
+      ],
+      "email": [
+        "input[name='email']",
+        "input[type='email']",
+        "input[id='email']",
+        "#email",
+        ".email input"
+      ],
+      "description": [
+        "textarea[name='description']",
+        "textarea[name='about']",
+        "textarea[name='bio']",
+        "textarea[name='summary']",
+        "textarea[id='description']",
+        "#description",
+        ".description textarea"
+      ],
+      "category": [
+        "select[name='category']",
+        "select[name='business_category']",
+        "select[name='industry']",
+        "select[name='type']",
+        "select[id='category']",
+        "#category",
+        ".category select"
+      ]
+    }
+  },
+  "directoryMappings": {
+    "psychology-today": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "huffpost": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "the-verge": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "mashable-india": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "quora": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "mashable": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "guardian-technology": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "wired": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "tech-time": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "dribbble": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "techcrunch": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "google-business-profile": {
+      "businessName": "input[aria-label='Business name']",
+      "address": "input[aria-label='Address']",
+      "city": "input[aria-label='City']",
+      "state": "input[aria-label='State']",
+      "zip": "input[aria-label='ZIP code']",
+      "phone": "input[aria-label='Phone number']",
+      "website": "input[aria-label='Website']",
+      "category": "input[aria-label='Business category']",
+      "hours": "input[aria-label='Business hours']",
+      "specialForm": "google_business_profile",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "softonic": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "pcmag": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "huffingtonpost": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "forbes-technology": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "slide-share": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "gizmodo": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "cnet": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "about-me": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "digg": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "slate": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "mit-technology-review": {
+      "businessName": "input[name='name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip_code']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "category": "select[name='primary_category']",
+      "hours": "input[name='hours']",
+      "photos": "input[type='file'][name='photos']",
+      "specialForm": "review_platform",
+      "formType": "review-platform",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "pc-world": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "hacker-news": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "crunchbase": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "venture-beat": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "atlassian": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "hackernews": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "smashing-magazine": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "healthline": {
+      "businessName": "input[name='practice_name']",
+      "doctorName": "input[name='doctor_name']",
+      "specialty": "select[name='specialty']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "insurance": "input[name='insurance_accepted']",
+      "specialForm": "healthcare_provider",
+      "formType": "healthcare",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "techrepublic": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "android-authority": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "freecodecamp": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "make-use-of": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "hackernoon": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "android-central": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "geekwire": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "infoworld": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "the-register-uk": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "instapaper": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "siliconangle": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "makeuseof": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "healthgrades": {
+      "businessName": "input[name='practice_name']",
+      "doctorName": "input[name='doctor_name']",
+      "specialty": "select[name='specialty']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "insurance": "input[name='insurance_accepted']",
+      "specialForm": "healthcare_provider",
+      "formType": "healthcare",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "webwiki": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "dev-community": {
+      "businessName": "input[name='name']",
+      "description": "textarea[name='description']",
+      "category": "input[name='category']",
+      "website": "input[name='website']",
+      "phone": "input[name='phone']",
+      "address": "input[name='street']",
+      "city": "input[name='city']",
+      "state": "input[name='state']",
+      "zip": "input[name='zip']",
+      "email": "input[name='email']",
+      "specialForm": "social_media_business",
+      "formType": "social-platform",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "mac-stories": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "media-index-kochava": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "android-headlines": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "activesearch": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "codeproject": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "addictive-tips": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "startup-digest-more-than-just-a-newsletter-techstars": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "yourstory": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "tech-co": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "aapsense": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "vccircle": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "tech-in-asia": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "f6s": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "sitejabber": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "devpost": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "recaptcha"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "gust-com": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "alternative-me": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "biggerpockets-com": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "software-world": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "alltopstartups": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "all-top-startups": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "inc42": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "babel-slack": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    },
+    "bizcommunity": {
+      "businessName": "input[name='business_name']",
+      "address": "input[name='address']",
+      "city": "input[name='city']",
+      "state": "select[name='state']",
+      "zip": "input[name='zip']",
+      "phone": "input[name='phone']",
+      "website": "input[name='website']",
+      "email": "input[name='email']",
+      "description": "textarea[name='description']",
+      "category": "select[name='category']",
+      "specialForm": "standard_business_directory",
+      "formType": "general-directory",
+      "requiredFields": [
+        "businessName",
+        "address",
+        "city",
+        "phone"
+      ],
+      "optionalFields": [
+        "website",
+        "email",
+        "description"
+      ],
+      "submissionMethod": "POST",
+      "successIndicators": [
+        ".success-message",
+        ".confirmation",
+        "text*=success",
+        "text*=submitted",
+        "text*=thank you"
+      ],
+      "errorIndicators": [
+        ".error-message",
+        ".alert-danger",
+        "text*=error",
+        "text*=failed",
+        "text*=required"
+      ],
+      "captcha": {
+        "present": true,
+        "type": "simple"
+      },
+      "automationComplexity": "high",
+      "estimatedSubmissionTime": "30-60 seconds"
+    }
+  },
+  "automationStrategies": {
+    "tier1_directories": {
+      "approach": "Custom automation with specific selectors",
+      "requirements": [
+        "Selenium WebDriver",
+        "Anti-detection measures",
+        "CAPTCHA solving"
+      ],
+      "success_rate": "85-95%"
+    },
+    "tier2_directories": {
+      "approach": "Standard form automation with fallback selectors",
+      "requirements": [
+        "Basic Selenium",
+        "Form detection"
+      ],
+      "success_rate": "75-85%"
+    },
+    "tier3_directories": {
+      "approach": "Bulk automation with error handling",
+      "requirements": [
+        "Simple form filling",
+        "Basic validation"
+      ],
+      "success_rate": "60-75%"
+    }
+  },
+  "commonChallenges": {
+    "captcha": {
+      "frequency": "40% of directories",
+      "solutions": [
+        "2captcha integration",
+        "Manual intervention",
+        "Skip and retry"
+      ]
+    },
+    "javascript_forms": {
+      "frequency": "60% of directories",
+      "solutions": [
+        "Selenium WebDriver",
+        "Headless Chrome",
+        "Wait strategies"
+      ]
+    },
+    "rate_limiting": {
+      "frequency": "30% of directories",
+      "solutions": [
+        "Proxy rotation",
+        "Delay strategies",
+        "IP rotation"
+      ]
+    },
+    "email_verification": {
+      "frequency": "25% of directories",
+      "solutions": [
+        "Email automation",
+        "Temporary emails",
+        "Manual verification"
+      ]
+    }
+  }
+}

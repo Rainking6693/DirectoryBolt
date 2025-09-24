@@ -1,0 +1,187 @@
+{
+  "summary": {
+    "totalDirectoriesWithMappings": 110,
+    "highPriority": 110,
+    "averageDomainAuthority": "85.7",
+    "categoriesRepresented": [
+      "general-directory",
+      "real-estate",
+      "review-platform",
+      "healthcare",
+      "social-platform",
+      "legal"
+    ],
+    "requiresLogin": 81,
+    "hasCaptcha": 108,
+    "averageSelectorsPerDirectory": "45.1"
+  },
+  "fieldCoverage": {
+    "businessName": 110,
+    "email": 110,
+    "phone": 110,
+    "website": 110,
+    "description": 110
+  },
+  "topDirectories": [
+    {
+      "name": "Google Business Profile",
+      "domain": "google.com",
+      "domainAuthority": 100,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Zillow",
+      "domain": "zillow.com",
+      "domainAuthority": 95,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 27
+    },
+    {
+      "name": "Tech | Time",
+      "domain": "time.com",
+      "domainAuthority": 94,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Huffingtonpost",
+      "domain": "huffingtonpost.com",
+      "domainAuthority": 94,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Forbes Technology",
+      "domain": "forbes.com",
+      "domainAuthority": 94,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Guardian Technology",
+      "domain": "theguardian.com",
+      "domainAuthority": 94,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "HuffPost",
+      "domain": "huffpost.com",
+      "domainAuthority": 94,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "SourceForge",
+      "domain": "sourceforge.net",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "The Verge",
+      "domain": "theverge.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "The Wall Street Journal",
+      "domain": "wsj.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Mashable",
+      "domain": "mashable.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Mashable India",
+      "domain": "in.mashable.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "CNET",
+      "domain": "cnet.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Engadget",
+      "domain": "engadget.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Gizmodo",
+      "domain": "gizmodo.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Psychology Today",
+      "domain": "psychologytoday.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "TechCrunch",
+      "domain": "techcrunch.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Wired",
+      "domain": "wired.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Quora",
+      "domain": "quora.com",
+      "domainAuthority": 93,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    },
+    {
+      "name": "Behance",
+      "domain": "behance.net",
+      "domainAuthority": 92,
+      "priority": "high",
+      "fieldsCount": 10,
+      "selectorsCount": 46
+    }
+  ]
+}

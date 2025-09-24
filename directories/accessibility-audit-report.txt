@@ -1,0 +1,83 @@
+
+================================================================================
+DIRECTORYBOLT URL ACCESSIBILITY AUDIT REPORT
+Generated: 2025-09-24 06:27:05
+================================================================================
+
+EXECUTIVE SUMMARY
+-----------------
+Total Directories in Database: 543
+Directories Tested: 100
+Testing Coverage: 18.4%
+
+ACCESSIBILITY RESULTS
+---------------------
+ACCESSIBLE: 70 (70.0%)
+INACCESSIBLE: 30 (30.0%)
+AVG RESPONSE TIME: 0.76s
+
+SUBMISSION FORM ANALYSIS
+------------------------
+Forms Accessible: 13 / 70 accessible sites
+Form Coverage Rate: 18.6%
+
+HIGH-VALUE DIRECTORIES (DA >= 60)
+----------------------------------
+Tested: 100
+Accessible: 70 (70.0%)
+
+ERROR BREAKDOWN
+---------------
+Connection Error: 2
+Timeout: 1
+
+CATEGORY PERFORMANCE
+--------------------
+general-directory     66/ 95 ( 69.5%)
+healthcare             2/  2 (100.0%)
+real-estate            0/  1 (  0.0%)
+review-platform        1/  1 (100.0%)
+social-platform        1/  1 (100.0%)
+
+TOP 10 ACCESSIBLE HIGH-VALUE DIRECTORIES
+-----------------------------------------
+ 1. Google Business Profile        (DA: 100) - https://www.google.com/business
+ 2. HuffPost                       (DA:  94) - https://www.huffpost.com
+ 3. Guardian Technology            (DA:  94) - http://www.theguardian.com/uk/technology
+ 4. Tech | Time                    (DA:  94) - https://time.com/section/tech
+ 5. Huffingtonpost                 (DA:  94) - http://www.huffingtonpost.com
+ 6. Forbes Technology              (DA:  94) - http://www.forbes.com/technology
+ 7. Psychology Today               (DA:  93) - https://www.psychologytoday.com/us
+ 8. The Verge                      (DA:  93) - https://www.theverge.com
+ 9. Mashable India                 (DA:  93) - https://in.mashable.com
+10. Quora                          (DA:  93) - https://www.quora.com
+
+TOP 10 INACCESSIBLE DIRECTORIES TO FIX
+---------------------------------------
+ 1. Zillow                         (DA:  95) - None
+ 2. SourceForge                    (DA:  93) - None
+ 3. The Wall Street Journal        (DA:  93) - None
+ 4. Engadget                       (DA:  93) - Connection Error
+ 5. Source Forge                   (DA:  92) - None
+ 6. Behance                        (DA:  92) - None
+ 7. Fast Company                   (DA:  92) - None
+ 8. Fastcompany                    (DA:  92) - None
+ 9. BostInno Startups, Tech News a (DA:  92) - None
+10. Entrepreneur                   (DA:  92) - Timeout
+
+HONEST ASSESSMENT
+-----------------
+• Real Accessibility Rate: 70.0%
+• Directories Requiring Updates: 30
+• High-Priority Fixes Needed: 30
+• Form Mapping Coverage: 13.0%
+
+RECOMMENDATIONS
+---------------
+1. Remove or update 30 inaccessible directories
+2. Prioritize fixing high-DA directories first
+3. Implement automated monitoring for URL changes
+4. Add fallback URLs for critical directories
+5. Update submission URLs based on actual form locations
+
+================================================================================

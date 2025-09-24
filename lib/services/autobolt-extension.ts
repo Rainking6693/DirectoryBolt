@@ -91,9 +91,10 @@ export class AutoBoltExtensionService {
         const fs = await import('fs/promises')
         const path = await import('path')
         
-        const directoryListPath = path.join(process.cwd(), 'lib', 'data', 'master-directory-list.json')
+        const directoryListPath = path.join(process.cwd(), 'directories', 'master-directory-list-486.json')
         const fileContent = await fs.readFile(directoryListPath, 'utf-8')
-        this.directoryList = JSON.parse(fileContent)
+        const directoryData = JSON.parse(fileContent)
+        this.directoryList = directoryData.directories
         
         console.log(`📂 Loaded ${this.directoryList.length} directories from master list`)
       } else {

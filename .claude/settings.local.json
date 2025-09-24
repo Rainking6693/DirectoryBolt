@@ -37,7 +37,17 @@
       "WebFetch(domain:localhost)",
       "Bash(nuanced:*)",
       "Bash(cat:*)",
-      "Bash(npx nuanced:*)"
+      "Bash(npx nuanced:*)",
+      "Bash(npx supabase:*)",
+      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_a9a9a9e4faf97f15e813840ffeb284f137e3a869)",
+      "Bash(jq:*)",
+      "Bash(python:*)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3000/staff-dashboard)",
+      "Bash(start http://localhost:3000/staff-login)",
+      "Bash(snippingtool)",
+      "Bash(powershell:*)",
+      "Bash(start chrome http://localhost:3000/staff-dashboard)"
     ],
     "deny": [],
     "ask": []

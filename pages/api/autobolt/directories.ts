@@ -6,23 +6,11 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next'
-// import { autoBoltExtensionService } from '../../../lib/services/autobolt-extension' // DISABLED FOR BUILD
+import { AutoBoltExtensionService } from '../../../lib/services/autobolt-extension'
 import { enhancedRateLimit, getClientIP, determineUserTier } from '../../../lib/utils/enhanced-rate-limit'
 
-// Attempt to load the real autoBoltExtensionService; fall back to a safe stub
-let autoBoltExtensionService: any = null
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  autoBoltExtensionService = require('../../../lib/services/autobolt-extension').autoBoltExtensionService
-} catch (err) {
-  // Fallback stub
-  autoBoltExtensionService = {
-    initialize: async () => {},
-    getDirectoryStats: () => ({ total: 0, processable: 0 }),
-    getProcessableDirectoriesForLimit: (n: number) => [],
-    getDirectoryList: () => []
-  }
-}
+// Initialize AutoBolt Extension Service
+const autoBoltExtensionService = new AutoBoltExtensionService()
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
