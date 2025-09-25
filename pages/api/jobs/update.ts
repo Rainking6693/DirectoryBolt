@@ -1,7 +1,5 @@
-// HUDSON'S APPROVED API ENDPOINT
-// /api/jobs/update - Job Progress Update Endpoint
-// Agent: Shane (Backend Developer)
-// Phase: 1 - API Endpoint Updates
+// API endpoint for AutoBolt to update job progress
+// Updated to work with new 'job_results' table schema
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
