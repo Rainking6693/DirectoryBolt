@@ -11,10 +11,10 @@ const WAF_CONFIG = {
     enabled: true,
     windowMs: 60 * 1000, // 1 minute window
     maxRequests: {
-      api: 100,        // API endpoints
-      auth: 10,        // Authentication endpoints
-      payment: 20,     // Payment endpoints
-      general: 200     // General pages
+      api: 200,        // API endpoints
+      auth: 30,        // Authentication endpoints
+      payment: 50,     // Payment endpoints
+      general: 500     // General pages (more generous for front page)
     }
   },
   
@@ -64,17 +64,14 @@ const WAF_CONFIG = {
   userAgentFiltering: {
     enabled: true,
     blockedAgents: [
-      /bot/i,
-      /crawler/i,
-      /spider/i,
-      /scraper/i,
+      // Only block obvious malicious agents
       /scanner/i,
-      /curl/i,
-      /wget/i,
-      /python/i,
-      /perl/i,
-      /ruby/i,
-      /php/i
+      /sqlmap/i,
+      /nikto/i,
+      /nmap/i,
+      /masscan/i,
+      /zap/i,
+      /burp/i
     ],
     allowedBots: [
       /googlebot/i,
@@ -85,7 +82,13 @@ const WAF_CONFIG = {
       /yandexbot/i,
       /facebookexternalhit/i,
       /twitterbot/i,
-      /linkedinbot/i
+      /linkedinbot/i,
+      /chrome/i,
+      /firefox/i,
+      /safari/i,
+      /edge/i,
+      /opera/i,
+      /mozilla/i
     ]
   }
 };
@@ -127,8 +130,8 @@ export default async function waf(request: Request, context: Context) {
       }
     }
     
-    // 🔍 4. Attack Pattern Detection
-    if (WAF_CONFIG.attackPatterns.enabled) {
+    // 🔍 4. Attack Pattern Detection (skip for front page and static assets)
+    if (WAF_CONFIG.attackPatterns.enabled && !isStaticOrFrontPage(pathname)) {
       const attackCheck = detectAttackPatterns(request, url);
       if (attackCheck.detected) {
         // Block IP temporarily for attack attempts
@@ -178,10 +181,10 @@ function blockIPTemporarily(ip: string, durationMs: number): void {
 // 🤖 User Agent Filtering
 function checkUserAgent(userAgent: string): { blocked: boolean; reason?: string } {
   if (!userAgent || userAgent.trim() === '') {
-    return { blocked: true, reason: 'Empty user agent' };
+    return { blocked: false }; // Allow empty user agents to prevent blocking legitimate traffic
   }
   
-  // Check if it's an allowed bot
+  // Check if it's an allowed bot or browser
   for (const allowedBot of WAF_CONFIG.userAgentFiltering.allowedBots) {
     if (allowedBot.test(userAgent)) {
       return { blocked: false };
@@ -196,6 +199,15 @@ function checkUserAgent(userAgent: string): { blocked: boolean; reason?: string 
   }
   
   return { blocked: false };
+}
+
+// Helper function to check if path is static or front page
+function isStaticOrFrontPage(pathname: string): boolean {
+  return pathname === '/' || 
+         pathname.startsWith('/_next/') ||
+         pathname.startsWith('/images/') ||
+         pathname.startsWith('/static/') ||
+         pathname.includes('.') && !pathname.startsWith('/api/');
 }
 
 // ⏱️ Rate Limiting Functions
@@ -386,8 +398,8 @@ function logBlockedRequest(reason: string, ip: string, pathname: string, details
 }
 
 function logAllowedRequest(ip: string, pathname: string, method: string, userAgent: string): void {
-  // Only log API requests to reduce noise
-  if (pathname.startsWith('/api/')) {
+  // Log front page requests and API requests for debugging
+  if (pathname === '/' || pathname.startsWith('/api/')) {
     console.log(`✅ WAF ALLOW: ${method} ${pathname}`, {
       timestamp: new Date().toISOString(),
       ip,
