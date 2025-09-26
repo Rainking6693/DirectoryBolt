@@ -19,4 +19,443 @@ const UPLOAD_CONFIG = {
   // Allowed file types by category
   allowedTypes: {
     image: [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',\n      'image/svg+xml', 'image/bmp', 'image/tiff'\n    ],\n    document: [\n      'application/pdf', 'text/plain', 'text/csv',\n      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'\n    ],\n    video: [\n      'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo',\n      'video/webm', 'video/ogg'\n    ],\n    audio: [\n      'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'\n    ]\n  },\n  \n  // Allowed file extensions\n  allowedExtensions: {\n    image: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'],\n    document: ['.pdf', '.txt', '.csv', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],\n    video: ['.mp4', '.mpeg', '.mov', '.avi', '.webm', '.ogg'],\n    audio: ['.mp3', '.wav', '.ogg', '.webm']\n  },\n  \n  // Dangerous file types to always reject\n  dangerousTypes: [\n    'application/x-executable', 'application/x-msdownload', 'application/x-msdos-program',\n    'application/x-sh', 'application/x-csh', 'application/x-perl', 'application/x-python-code',\n    'text/x-script', 'text/x-shellscript', 'application/javascript', 'text/javascript',\n    'application/x-php', 'text/x-php', 'application/x-httpd-php'\n  ],\n  \n  // Dangerous file extensions\n  dangerousExtensions: [\n    '.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar',\n    '.sh', '.bash', '.csh', '.php', '.asp', '.aspx', '.jsp', '.py', '.pl',\n    '.rb', '.go', '.rs', '.cpp', '.c', '.h'\n  ],\n  \n  // File signature validation (magic numbers)\n  fileSignatures: {\n    'image/jpeg': [0xFF, 0xD8, 0xFF],\n    'image/png': [0x89, 0x50, 0x4E, 0x47],\n    'image/gif': [0x47, 0x49, 0x46],\n    'application/pdf': [0x25, 0x50, 0x44, 0x46],\n    'video/mp4': [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70],\n    'application/zip': [0x50, 0x4B, 0x03, 0x04]\n  },\n  \n  // Virus scanning configuration\n  virusScanning: {\n    enabled: process.env.VIRUS_SCANNING_ENABLED === 'true',\n    apiKey: process.env.VIRUS_TOTAL_API_KEY,\n    timeout: 30000, // 30 seconds\n    maxRetries: 3\n  },\n  \n  // Storage configuration\n  storage: {\n    tempDir: '/tmp/uploads',\n    secureDir: '/secure/uploads',\n    quarantineDir: '/quarantine',\n    maxTempAge: 60 * 60 * 1000 // 1 hour\n  }\n};\n\n// File validation result interface\ninterface FileValidationResult {\n  isValid: boolean;\n  errors: string[];\n  warnings: string[];\n  fileInfo: {\n    originalName: string;\n    mimeType: string;\n    size: number;\n    extension: string;\n    hash: string;\n  };\n  securityChecks: {\n    typeValidation: boolean;\n    sizeValidation: boolean;\n    signatureValidation: boolean;\n    virusScanning?: boolean;\n    nameValidation: boolean;\n  };\n}\n\n// File upload security class\nclass FileUploadSecurity {\n  private allowedCategory: keyof typeof UPLOAD_CONFIG.allowedTypes;\n  private maxSize: number;\n  \n  constructor(category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document') {\n    this.allowedCategory = category;\n    this.maxSize = UPLOAD_CONFIG.maxFileSize[category] || UPLOAD_CONFIG.maxFileSize.default;\n  }\n  \n  // Main file validation method\n  async validateFile(file: {\n    originalname: string;\n    mimetype: string;\n    size: number;\n    buffer: Buffer;\n  }): Promise<FileValidationResult> {\n    const errors: string[] = [];\n    const warnings: string[] = [];\n    \n    // Generate file hash for tracking\n    const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');\n    \n    const fileInfo = {\n      originalName: file.originalname,\n      mimeType: file.mimetype,\n      size: file.size,\n      extension: path.extname(file.originalname).toLowerCase(),\n      hash\n    };\n    \n    const securityChecks = {\n      typeValidation: false,\n      sizeValidation: false,\n      signatureValidation: false,\n      nameValidation: false\n    };\n    \n    // 1. File name validation\n    const nameValidation = this.validateFileName(file.originalname);\n    if (!nameValidation.isValid) {\n      errors.push(...nameValidation.errors);\n    } else {\n      securityChecks.nameValidation = true;\n    }\n    \n    // 2. File type validation\n    const typeValidation = this.validateFileType(file.mimetype, fileInfo.extension);\n    if (!typeValidation.isValid) {\n      errors.push(...typeValidation.errors);\n    } else {\n      securityChecks.typeValidation = true;\n    }\n    \n    // 3. File size validation\n    const sizeValidation = this.validateFileSize(file.size);\n    if (!sizeValidation.isValid) {\n      errors.push(...sizeValidation.errors);\n    } else {\n      securityChecks.sizeValidation = true;\n    }\n    \n    // 4. File signature validation\n    const signatureValidation = this.validateFileSignature(file.buffer, file.mimetype);\n    if (!signatureValidation.isValid) {\n      errors.push(...signatureValidation.errors);\n      warnings.push(...signatureValidation.warnings);\n    } else {\n      securityChecks.signatureValidation = true;\n    }\n    \n    // 5. Virus scanning (if enabled)\n    if (UPLOAD_CONFIG.virusScanning.enabled) {\n      try {\n        const virusResult = await this.scanForViruses(file.buffer, hash);\n        if (!virusResult.isClean) {\n          errors.push('File failed virus scan');\n        } else {\n          securityChecks.virusScanning = true;\n        }\n      } catch (error) {\n        warnings.push('Virus scanning unavailable');\n      }\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors,\n      warnings,\n      fileInfo,\n      securityChecks\n    };\n  }\n  \n  // Validate file name\n  private validateFileName(filename: string): { isValid: boolean; errors: string[] } {\n    const errors: string[] = [];\n    \n    // Check for null bytes\n    if (filename.includes('\\0')) {\n      errors.push('File name contains null bytes');\n    }\n    \n    // Check for path traversal\n    if (filename.includes('..') || filename.includes('/') || filename.includes('\\\\')) {\n      errors.push('File name contains path traversal characters');\n    }\n    \n    // Check for control characters\n    if (/[\\x00-\\x1f\\x7f-\\x9f]/.test(filename)) {\n      errors.push('File name contains control characters');\n    }\n    \n    // Check length\n    if (filename.length > 255) {\n      errors.push('File name is too long');\n    }\n    \n    if (filename.length === 0) {\n      errors.push('File name is empty');\n    }\n    \n    // Check for dangerous patterns\n    const dangerousPatterns = [\n      /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i, // Windows reserved names\n      /\\.(bat|cmd|exe|scr|pif|com)$/i, // Dangerous extensions\n      /^\\./,  // Hidden files\n      /\\s+$/, // Trailing spaces\n      /\\.+$/  // Trailing dots\n    ];\n    \n    for (const pattern of dangerousPatterns) {\n      if (pattern.test(filename)) {\n        errors.push('File name contains dangerous patterns');\n        break;\n      }\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors\n    };\n  }\n  \n  // Validate file type\n  private validateFileType(mimeType: string, extension: string): { isValid: boolean; errors: string[] } {\n    const errors: string[] = [];\n    \n    // Check if type is dangerous\n    if (UPLOAD_CONFIG.dangerousTypes.includes(mimeType)) {\n      errors.push(`Dangerous file type: ${mimeType}`);\n    }\n    \n    // Check if extension is dangerous\n    if (UPLOAD_CONFIG.dangerousExtensions.includes(extension)) {\n      errors.push(`Dangerous file extension: ${extension}`);\n    }\n    \n    // Check if type is allowed for this category\n    const allowedTypes = UPLOAD_CONFIG.allowedTypes[this.allowedCategory];\n    if (!allowedTypes.includes(mimeType)) {\n      errors.push(`File type ${mimeType} not allowed for ${this.allowedCategory} uploads`);\n    }\n    \n    // Check if extension is allowed\n    const allowedExtensions = UPLOAD_CONFIG.allowedExtensions[this.allowedCategory];\n    if (!allowedExtensions.includes(extension)) {\n      errors.push(`File extension ${extension} not allowed for ${this.allowedCategory} uploads`);\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors\n    };\n  }\n  \n  // Validate file size\n  private validateFileSize(size: number): { isValid: boolean; errors: string[] } {\n    const errors: string[] = [];\n    \n    if (size === 0) {\n      errors.push('File is empty');\n    }\n    \n    if (size > this.maxSize) {\n      const maxSizeMB = (this.maxSize / (1024 * 1024)).toFixed(1);\n      errors.push(`File size exceeds maximum allowed size of ${maxSizeMB}MB`);\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors\n    };\n  }\n  \n  // Validate file signature (magic numbers)\n  private validateFileSignature(buffer: Buffer, mimeType: string): {\n    isValid: boolean;\n    errors: string[];\n    warnings: string[];\n  } {\n    const errors: string[] = [];\n    const warnings: string[] = [];\n    \n    const expectedSignature = UPLOAD_CONFIG.fileSignatures[mimeType as keyof typeof UPLOAD_CONFIG.fileSignatures];\n    \n    if (expectedSignature) {\n      const fileSignature = Array.from(buffer.slice(0, expectedSignature.length));\n      \n      const signatureMatches = expectedSignature.every((byte, index) => \n        fileSignature[index] === byte\n      );\n      \n      if (!signatureMatches) {\n        errors.push(`File signature does not match declared type ${mimeType}`);\n      }\n    } else {\n      warnings.push(`No signature validation available for ${mimeType}`);\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors,\n      warnings\n    };\n  }\n  \n  // Virus scanning (mock implementation)\n  private async scanForViruses(buffer: Buffer, hash: string): Promise<{ isClean: boolean; scanResult?: any }> {\n    if (!UPLOAD_CONFIG.virusScanning.enabled || !UPLOAD_CONFIG.virusScanning.apiKey) {\n      throw new Error('Virus scanning not configured');\n    }\n    \n    // TODO: Implement actual virus scanning with VirusTotal or ClamAV\n    // This is a mock implementation\n    \n    try {\n      // Simulate virus scanning delay\n      await new Promise(resolve => setTimeout(resolve, 1000));\n      \n      // Mock virus scanning result\n      const isClean = !buffer.toString().includes('EICAR'); // Simple test pattern\n      \n      console.log('🦠 Virus scan completed', {\n        hash,\n        isClean,\n        scanner: 'mock'\n      });\n      \n      return { isClean };\n    } catch (error) {\n      console.error('❌ Virus scanning failed:', error);\n      throw error;\n    }\n  }\n  \n  // Generate secure filename\n  generateSecureFilename(originalName: string, hash: string): string {\n    const extension = path.extname(originalName).toLowerCase();\n    const timestamp = Date.now();\n    const randomSuffix = crypto.randomBytes(8).toString('hex');\n    \n    return `${timestamp}_${hash.substring(0, 16)}_${randomSuffix}${extension}`;\n  }\n  \n  // Sanitize filename for storage\n  sanitizeFilename(filename: string): string {\n    return filename\n      .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special chars with underscore\n      .replace(/_{2,}/g, '_') // Replace multiple underscores with single\n      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores\n      .substring(0, 100); // Limit length\n  }\n}\n\n// Middleware function for file upload security\nexport function withFileUploadSecurity(\n  category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document',\n  options: {\n    virusScanning?: boolean;\n    logUploads?: boolean;\n  } = {}\n) {\n  const { virusScanning = true, logUploads = true } = options;\n  \n  return function middleware(\n    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return async function wrappedHandler(\n      req: NextApiRequest,\n      res: NextApiResponse\n    ) {\n      if (req.method !== 'POST') {\n        return handler(req, res);\n      }\n      \n      // Check if request contains file uploads\n      const contentType = req.headers['content-type'] || '';\n      if (!contentType.includes('multipart/form-data')) {\n        return handler(req, res);\n      }\n      \n      try {\n        const uploadSecurity = new FileUploadSecurity(category);\n        \n        // TODO: Parse multipart form data and validate files\n        // This would typically use a library like multer or formidable\n        \n        // For now, add security headers\n        res.setHeader('X-Content-Type-Options', 'nosniff');\n        res.setHeader('X-Frame-Options', 'DENY');\n        \n        if (logUploads) {\n          console.log('📁 File upload attempt', {\n            endpoint: req.url,\n            contentType,\n            contentLength: req.headers['content-length'],\n            userAgent: req.headers['user-agent'],\n            ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress\n          });\n        }\n        \n        return handler(req, res);\n        \n      } catch (error) {\n        console.error('❌ File upload security error:', error);\n        return res.status(400).json({\n          error: 'File Upload Error',\n          message: 'File upload validation failed'\n        });\n      }\n    };\n  };\n}\n\n// Utility function for manual file validation\nexport async function validateUploadedFile(\n  file: {\n    originalname: string;\n    mimetype: string;\n    size: number;\n    buffer: Buffer;\n  },\n  category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document'\n): Promise<FileValidationResult> {\n  const uploadSecurity = new FileUploadSecurity(category);\n  return uploadSecurity.validateFile(file);\n}\n\n// Export configuration and security class\nexport { UPLOAD_CONFIG, FileUploadSecurity };"
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'image/svg+xml', 'image/bmp', 'image/tiff'
+    ],
+    document: [
+      'application/pdf', 'text/plain', 'text/csv',
+      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ],
+    video: [
+      'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo',
+      'video/webm', 'video/ogg'
+    ],
+    audio: [
+      'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'
+    ]
+  },
+  
+  // Allowed file extensions
+  allowedExtensions: {
+    image: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'],
+    document: ['.pdf', '.txt', '.csv', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
+    video: ['.mp4', '.mpeg', '.mov', '.avi', '.webm', '.ogg'],
+    audio: ['.mp3', '.wav', '.ogg', '.webm']
+  },
+  
+  // Dangerous file types to always reject
+  dangerousTypes: [
+    'application/x-executable', 'application/x-msdownload', 'application/x-msdos-program',
+    'application/x-sh', 'application/x-csh', 'application/x-perl', 'application/x-python-code',
+    'text/x-script', 'text/x-shellscript', 'application/javascript', 'text/javascript',
+    'application/x-php', 'text/x-php', 'application/x-httpd-php'
+  ],
+  
+  // Dangerous file extensions
+  dangerousExtensions: [
+    '.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar',
+    '.sh', '.bash', '.csh', '.php', '.asp', '.aspx', '.jsp', '.py', '.pl',
+    '.rb', '.go', '.rs', '.cpp', '.c', '.h'
+  ],
+  
+  // File signature validation (magic numbers)
+  fileSignatures: {
+    'image/jpeg': [0xFF, 0xD8, 0xFF],
+    'image/png': [0x89, 0x50, 0x4E, 0x47],
+    'image/gif': [0x47, 0x49, 0x46],
+    'application/pdf': [0x25, 0x50, 0x44, 0x46],
+    'video/mp4': [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70],
+    'application/zip': [0x50, 0x4B, 0x03, 0x04]
+  },
+  
+  // Virus scanning configuration
+  virusScanning: {
+    enabled: process.env.VIRUS_SCANNING_ENABLED === 'true',
+    apiKey: process.env.VIRUS_TOTAL_API_KEY,
+    timeout: 30000, // 30 seconds
+    maxRetries: 3
+  },
+  
+  // Storage configuration
+  storage: {
+    tempDir: '/tmp/uploads',
+    secureDir: '/secure/uploads',
+    quarantineDir: '/quarantine',
+    maxTempAge: 60 * 60 * 1000 // 1 hour
+  }
+};
+
+// File validation result interface
+interface FileValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  fileInfo: {
+    originalName: string;
+    mimeType: string;
+    size: number;
+    extension: string;
+    hash: string;
+  };
+  securityChecks: {
+    typeValidation: boolean;
+    sizeValidation: boolean;
+    signatureValidation: boolean;
+    virusScanning?: boolean;
+    nameValidation: boolean;
+  };
+}
+
+// File upload security class
+class FileUploadSecurity {
+  private allowedCategory: keyof typeof UPLOAD_CONFIG.allowedTypes;
+  private maxSize: number;
+  
+  constructor(category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document') {
+    this.allowedCategory = category;
+    this.maxSize = UPLOAD_CONFIG.maxFileSize[category] || UPLOAD_CONFIG.maxFileSize.default;
+  }
+  
+  // Main file validation method
+  async validateFile(file: {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+  }): Promise<FileValidationResult> {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    
+    // Generate file hash for tracking
+    const hash = crypto.createHash('sha256').update(file.buffer).digest('hex');
+    
+    const fileInfo = {
+      originalName: file.originalname,
+      mimeType: file.mimetype,
+      size: file.size,
+      extension: path.extname(file.originalname).toLowerCase(),
+      hash
+    };
+    
+    const securityChecks = {
+      typeValidation: false,
+      sizeValidation: false,
+      signatureValidation: false,
+      nameValidation: false
+    };
+    
+    // 1. File name validation
+    const nameValidation = this.validateFileName(file.originalname);
+    if (!nameValidation.isValid) {
+      errors.push(...nameValidation.errors);
+    } else {
+      securityChecks.nameValidation = true;
+    }
+    
+    // 2. File type validation
+    const typeValidation = this.validateFileType(file.mimetype, fileInfo.extension);
+    if (!typeValidation.isValid) {
+      errors.push(...typeValidation.errors);
+    } else {
+      securityChecks.typeValidation = true;
+    }
+    
+    // 3. File size validation
+    const sizeValidation = this.validateFileSize(file.size);
+    if (!sizeValidation.isValid) {
+      errors.push(...sizeValidation.errors);
+    } else {
+      securityChecks.sizeValidation = true;
+    }
+    
+    // 4. File signature validation
+    const signatureValidation = this.validateFileSignature(file.buffer, file.mimetype);
+    if (!signatureValidation.isValid) {
+      errors.push(...signatureValidation.errors);
+      warnings.push(...signatureValidation.warnings);
+    } else {
+      securityChecks.signatureValidation = true;
+    }
+    
+    // 5. Virus scanning (if enabled)
+    if (UPLOAD_CONFIG.virusScanning.enabled) {
+      try {
+        const virusResult = await this.scanForViruses(file.buffer, hash);
+        if (!virusResult.isClean) {
+          errors.push('File failed virus scan');
+        } else {
+          securityChecks.virusScanning = true;
+        }
+      } catch (error) {
+        warnings.push('Virus scanning unavailable');
+      }
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+      fileInfo,
+      securityChecks
+    };
+  }
+  
+  // Validate file name
+  private validateFileName(filename: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    // Check for null bytes
+    if (filename.includes('\0')) {
+      errors.push('File name contains null bytes');
+    }
+    
+    // Check for path traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      errors.push('File name contains path traversal characters');
+    }
+    
+    // Check for control characters
+    if (/[\x00-\x1f\x7f-\x9f]/.test(filename)) {
+      errors.push('File name contains control characters');
+    }
+    
+    // Check length
+    if (filename.length > 255) {
+      errors.push('File name is too long');
+    }
+    
+    if (filename.length === 0) {
+      errors.push('File name is empty');
+    }
+    
+    // Check for dangerous patterns
+    const dangerousPatterns = [
+      /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i, // Windows reserved names
+      /\.(bat|cmd|exe|scr|pif|com)$/i, // Dangerous extensions
+      /^\./, // Hidden files
+      /\s+$/, // Trailing spaces
+      /\.+$/ // Trailing dots
+    ];
+    
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(filename)) {
+        errors.push('File name contains dangerous patterns');
+        break;
+      }
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+  
+  // Validate file type
+  private validateFileType(mimeType: string, extension: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    // Check if type is dangerous
+    if (UPLOAD_CONFIG.dangerousTypes.includes(mimeType)) {
+      errors.push(`Dangerous file type: ${mimeType}`);
+    }
+    
+    // Check if extension is dangerous
+    if (UPLOAD_CONFIG.dangerousExtensions.includes(extension)) {
+      errors.push(`Dangerous file extension: ${extension}`);
+    }
+    
+    // Check if type is allowed for this category
+    const allowedTypes = UPLOAD_CONFIG.allowedTypes[this.allowedCategory];
+    if (!allowedTypes.includes(mimeType)) {
+      errors.push(`File type ${mimeType} not allowed for ${this.allowedCategory} uploads`);
+    }
+    
+    // Check if extension is allowed
+    const allowedExtensions = UPLOAD_CONFIG.allowedExtensions[this.allowedCategory];
+    if (!allowedExtensions.includes(extension)) {
+      errors.push(`File extension ${extension} not allowed for ${this.allowedCategory} uploads`);
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+  
+  // Validate file size
+  private validateFileSize(size: number): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    if (size === 0) {
+      errors.push('File is empty');
+    }
+    
+    if (size > this.maxSize) {
+      const maxSizeMB = (this.maxSize / (1024 * 1024)).toFixed(1);
+      errors.push(`File size exceeds maximum allowed size of ${maxSizeMB}MB`);
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+  
+  // Validate file signature (magic numbers)
+  private validateFileSignature(buffer: Buffer, mimeType: string): {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+  } {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    
+    const expectedSignature = UPLOAD_CONFIG.fileSignatures[mimeType as keyof typeof UPLOAD_CONFIG.fileSignatures];
+    
+    if (expectedSignature) {
+      const fileSignature = Array.from(buffer.slice(0, expectedSignature.length));
+      
+      const signatureMatches = expectedSignature.every((byte, index) => 
+        fileSignature[index] === byte
+      );
+      
+      if (!signatureMatches) {
+        errors.push(`File signature does not match declared type ${mimeType}`);
+      }
+    } else {
+      warnings.push(`No signature validation available for ${mimeType}`);
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+  
+  // Virus scanning (mock implementation)
+  private async scanForViruses(buffer: Buffer, hash: string): Promise<{ isClean: boolean; scanResult?: any }> {
+    if (!UPLOAD_CONFIG.virusScanning.enabled || !UPLOAD_CONFIG.virusScanning.apiKey) {
+      throw new Error('Virus scanning not configured');
+    }
+    
+    // TODO: Implement actual virus scanning with VirusTotal or ClamAV
+    // This is a mock implementation
+    
+    try {
+      // Simulate virus scanning delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock virus scanning result
+      const isClean = !buffer.toString().includes('EICAR'); // Simple test pattern
+      
+      console.log('🦠 Virus scan completed', {
+        hash,
+        isClean,
+        scanner: 'mock'
+      });
+      
+      return { isClean };
+    } catch (error) {
+      console.error('❌ Virus scanning failed:', error);
+      throw error;
+    }
+  }
+  
+  // Generate secure filename
+  generateSecureFilename(originalName: string, hash: string): string {
+    const extension = path.extname(originalName).toLowerCase();
+    const timestamp = Date.now();
+    const randomSuffix = crypto.randomBytes(8).toString('hex');
+    
+    return `${timestamp}_${hash.substring(0, 16)}_${randomSuffix}${extension}`;
+  }
+  
+  // Sanitize filename for storage
+  sanitizeFilename(filename: string): string {
+    return filename
+      .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special chars with underscore
+      .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+      .substring(0, 100); // Limit length
+  }
+}
+
+// Middleware function for file upload security
+export function withFileUploadSecurity(
+  category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document',
+  options: {
+    virusScanning?: boolean;
+    logUploads?: boolean;
+  } = {}
+) {
+  const { virusScanning = true, logUploads = true } = options;
+  
+  return function middleware(
+    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return async function wrappedHandler(
+      req: NextApiRequest,
+      res: NextApiResponse
+    ) {
+      if (req.method !== 'POST') {
+        return handler(req, res);
+      }
+      
+      // Check if request contains file uploads
+      const contentType = req.headers['content-type'] || '';
+      if (!contentType.includes('multipart/form-data')) {
+        return handler(req, res);
+      }
+      
+      try {
+        const uploadSecurity = new FileUploadSecurity(category);
+        
+        // TODO: Parse multipart form data and validate files
+        // This would typically use a library like multer or formidable
+        
+        // For now, add security headers
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        
+        if (logUploads) {
+          console.log('📁 File upload attempt', {
+            endpoint: req.url,
+            contentType,
+            contentLength: req.headers['content-length'],
+            userAgent: req.headers['user-agent'],
+            ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+          });
+        }
+        
+        return handler(req, res);
+        
+      } catch (error) {
+        console.error('❌ File upload security error:', error);
+        return res.status(400).json({
+          error: 'File Upload Error',
+          message: 'File upload validation failed'
+        });
+      }
+    };
+  };
+}
+
+// Utility function for manual file validation
+export async function validateUploadedFile(
+  file: {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+  },
+  category: keyof typeof UPLOAD_CONFIG.allowedTypes = 'document'
+): Promise<FileValidationResult> {
+  const uploadSecurity = new FileUploadSecurity(category);
+  return uploadSecurity.validateFile(file);
+}
+
+// Export configuration and security class
+export { UPLOAD_CONFIG, FileUploadSecurity };

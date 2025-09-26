@@ -396,4 +396,4 @@ function getClientIP(req: NextApiRequest): string {
 
 // Export session manager for direct use
 export { SessionManager, SESSION_CONFIG };
-export type { SessionData };"
+export type { SessionData };
