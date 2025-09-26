@@ -296,4 +296,4 @@ export function addEmergencyIP(ip: string, durationHours: number = 24): void {
 export { IP_WHITELIST_CONFIG };
 
 // Export the IPWhitelist class for advanced usage
-export { IPWhitelist };"
+export { IPWhitelist };

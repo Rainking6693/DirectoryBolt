@@ -520,4 +520,4 @@ function getClientIP(req: NextApiRequest): string {
 
 // Export token manager for direct use
 export { TokenManager, TOKEN_CONFIG };
-export type { TokenPayload, RefreshTokenData, TokenPair };"
+export type { TokenPayload, RefreshTokenData, TokenPair };
