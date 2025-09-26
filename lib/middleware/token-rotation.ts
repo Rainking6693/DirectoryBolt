@@ -199,4 +199,325 @@ class TokenManager {
       }
       
       // Security check: IP and user agent validation (optional)
-      if (process.env.STRICT_TOKEN_VALIDATION === 'true') {\n        if (refreshData.ipAddress !== ipAddress) {\n          console.warn('⚠️ IP address mismatch during token rotation', {\n            tokenId,\n            originalIP: refreshData.ipAddress,\n            currentIP: ipAddress\n          });\n          // Optionally revoke token for security\n          // this.revokeRefreshToken(tokenId);\n          // return null;\n        }\n      }\n      \n      // Get user data for new tokens\n      const userData = await this.getUserData(refreshData.userId);\n      if (!userData) {\n        console.warn('⚠️ User not found during token rotation', { userId: refreshData.userId });\n        return null;\n      }\n      \n      // Update refresh token usage\n      refreshData.lastUsed = Date.now();\n      refreshData.rotationCount++;\n      TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);\n      \n      // Generate new token pair\n      const newTokenPair = this.generateTokenPair(\n        userData.id,\n        userData.email,\n        userData.role,\n        userData.userType,\n        userData.permissions,\n        ipAddress,\n        userAgent\n      );\n      \n      // Revoke old refresh token\n      this.revokeRefreshToken(tokenId);\n      \n      console.log('🔄 Tokens rotated successfully', {\n        userId: userData.id,\n        oldTokenId: tokenId,\n        rotationCount: refreshData.rotationCount\n      });\n      \n      return newTokenPair;\n      \n    } catch (error) {\n      console.error('❌ Token rotation failed', { error: error instanceof Error ? error.message : 'Unknown error' });\n      return null;\n    }\n  }\n  \n  // Revoke refresh token\n  revokeRefreshToken(tokenId: string): boolean {\n    const refreshData = TOKEN_CONFIG.refreshTokenStore.get(tokenId);\n    if (refreshData) {\n      refreshData.isActive = false;\n      TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);\n      \n      console.log('🗑️ Refresh token revoked', { tokenId });\n      return true;\n    }\n    return false;\n  }\n  \n  // Revoke all user tokens\n  revokeAllUserTokens(userId: string): number {\n    let revokedCount = 0;\n    \n    for (const [tokenId, refreshData] of TOKEN_CONFIG.refreshTokenStore.entries()) {\n      if (refreshData.userId === userId && refreshData.isActive) {\n        refreshData.isActive = false;\n        TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);\n        revokedCount++;\n      }\n    }\n    \n    console.log('🗑️ All user tokens revoked', { userId, revokedCount });\n    return revokedCount;\n  }\n  \n  // Get active tokens for user\n  getUserActiveTokens(userId: string): RefreshTokenData[] {\n    const userTokens: RefreshTokenData[] = [];\n    const now = Date.now();\n    \n    for (const refreshData of TOKEN_CONFIG.refreshTokenStore.values()) {\n      if (refreshData.userId === userId && refreshData.isActive && now < refreshData.expiresAt) {\n        userTokens.push(refreshData);\n      }\n    }\n    \n    return userTokens;\n  }\n  \n  // Generate secure token ID\n  private generateTokenId(): string {\n    return crypto.randomBytes(32).toString('hex');\n  }\n  \n  // Generate refresh token\n  private generateRefreshToken(tokenId: string, userId: string): string {\n    const payload = {\n      jti: tokenId,\n      sub: userId,\n      type: 'refresh',\n      iat: Math.floor(Date.now() / 1000)\n    };\n    \n    return jwt.sign(payload, TOKEN_CONFIG.refreshTokenSecret, {\n      algorithm: TOKEN_CONFIG.algorithm,\n      expiresIn: TOKEN_CONFIG.refreshTokenExpiry\n    });\n  }\n  \n  // Parse expiry string to seconds\n  private parseExpiry(expiry: string): number {\n    const unit = expiry.slice(-1);\n    const value = parseInt(expiry.slice(0, -1), 10);\n    \n    switch (unit) {\n      case 's': return value;\n      case 'm': return value * 60;\n      case 'h': return value * 60 * 60;\n      case 'd': return value * 24 * 60 * 60;\n      default: return 900; // 15 minutes default\n    }\n  }\n  \n  // Get user data (mock implementation)\n  private async getUserData(userId: string): Promise<{\n    id: string;\n    email: string;\n    role: string;\n    userType: 'customer' | 'staff';\n    permissions: string[];\n  } | null> {\n    // TODO: Implement actual user data retrieval\n    // This would typically query the database\n    \n    // Mock user data for development\n    if (userId === 'staff-user') {\n      return {\n        id: userId,\n        email: 'ben.stone@directorybolt.com',\n        role: 'manager',\n        userType: 'staff',\n        permissions: ['queue', 'processing', 'analytics', 'support']\n      };\n    }\n    \n    // Mock customer user\n    return {\n      id: userId,\n      email: 'customer@example.com',\n      role: 'professional',\n      userType: 'customer',\n      permissions: ['premium_features', 'priority_support']\n    };\n  }\n  \n  // Cleanup expired tokens\n  private cleanupExpiredTokens(): void {\n    const now = Date.now();\n    let cleanedCount = 0;\n    \n    for (const [tokenId, refreshData] of TOKEN_CONFIG.refreshTokenStore.entries()) {\n      if (now > refreshData.expiresAt) {\n        TOKEN_CONFIG.refreshTokenStore.delete(tokenId);\n        cleanedCount++;\n      }\n    }\n    \n    if (cleanedCount > 0) {\n      console.log('🧹 Cleaned up expired tokens', {\n        cleanedCount,\n        remainingTokens: TOKEN_CONFIG.refreshTokenStore.size\n      });\n    }\n  }\n  \n  // Start automatic cleanup timer\n  private startCleanupTimer(): void {\n    this.cleanupTimer = setInterval(() => {\n      this.cleanupExpiredTokens();\n    }, TOKEN_CONFIG.cleanupInterval);\n  }\n  \n  // Stop cleanup timer\n  stopCleanupTimer(): void {\n    if (this.cleanupTimer) {\n      clearInterval(this.cleanupTimer);\n      this.cleanupTimer = null;\n    }\n  }\n}\n\n// Middleware for automatic token rotation\nexport function withTokenRotation() {\n  return function middleware(\n    handler: (req: NextApiRequest & { user?: TokenPayload; newTokens?: TokenPair }, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return async function wrappedHandler(\n      req: NextApiRequest & { user?: TokenPayload; newTokens?: TokenPair },\n      res: NextApiResponse\n    ) {\n      const tokenManager = TokenManager.getInstance();\n      const authHeader = req.headers.authorization;\n      \n      if (authHeader && authHeader.startsWith('Bearer ')) {\n        const accessToken = authHeader.substring(7);\n        \n        // Validate current token\n        const tokenPayload = tokenManager.validateAccessToken(accessToken);\n        \n        if (tokenPayload) {\n          // Token is valid, attach user data\n          req.user = tokenPayload;\n          \n          // Check if token needs rotation\n          if (tokenManager.shouldRotateToken(accessToken)) {\n            const refreshToken = req.headers['x-refresh-token'] as string;\n            \n            if (refreshToken) {\n              const clientIP = getClientIP(req);\n              const userAgent = req.headers['user-agent'] || '';\n              \n              const newTokens = await tokenManager.rotateTokens(refreshToken, clientIP, userAgent);\n              \n              if (newTokens) {\n                req.newTokens = newTokens;\n                \n                // Set new tokens in response headers\n                res.setHeader('X-New-Access-Token', newTokens.accessToken);\n                res.setHeader('X-New-Refresh-Token', newTokens.refreshToken);\n                res.setHeader('X-Token-Rotated', 'true');\n                \n                console.log('🔄 Token rotation completed', {\n                  userId: tokenPayload.sub,\n                  newExpiresIn: newTokens.expiresIn\n                });\n              }\n            }\n          }\n        } else {\n          // Token is invalid or expired\n          return res.status(401).json({\n            error: 'Authentication Required',\n            message: 'Access token is invalid or expired. Please refresh your token.',\n            code: 'TOKEN_INVALID'\n          });\n        }\n      }\n      \n      // Continue to the actual handler\n      return handler(req, res);\n    };\n  };\n}\n\n// Token refresh endpoint helper\nexport async function handleTokenRefresh(\n  req: NextApiRequest,\n  res: NextApiResponse\n): Promise<void> {\n  if (req.method !== 'POST') {\n    return res.status(405).json({ error: 'Method not allowed' });\n  }\n  \n  const { refreshToken } = req.body;\n  \n  if (!refreshToken) {\n    return res.status(400).json({\n      error: 'Bad Request',\n      message: 'Refresh token is required'\n    });\n  }\n  \n  const tokenManager = TokenManager.getInstance();\n  const clientIP = getClientIP(req);\n  const userAgent = req.headers['user-agent'] || '';\n  \n  const newTokens = await tokenManager.rotateTokens(refreshToken, clientIP, userAgent);\n  \n  if (newTokens) {\n    res.status(200).json({\n      success: true,\n      data: newTokens\n    });\n  } else {\n    res.status(401).json({\n      error: 'Unauthorized',\n      message: 'Invalid or expired refresh token'\n    });\n  }\n}\n\n// Get client IP address\nfunction getClientIP(req: NextApiRequest): string {\n  const forwarded = req.headers['x-forwarded-for'];\n  const realIP = req.headers['x-real-ip'];\n  const cfConnectingIP = req.headers['cf-connecting-ip'];\n  \n  if (typeof forwarded === 'string') {\n    return forwarded.split(',')[0].trim();\n  }\n  \n  if (typeof realIP === 'string') {\n    return realIP;\n  }\n  \n  if (typeof cfConnectingIP === 'string') {\n    return cfConnectingIP;\n  }\n  \n  return req.socket.remoteAddress || 'unknown';\n}\n\n// Export token manager for direct use\nexport { TokenManager, TOKEN_CONFIG };\nexport type { TokenPayload, RefreshTokenData, TokenPair };"
+      if (process.env.STRICT_TOKEN_VALIDATION === 'true') {
+        if (refreshData.ipAddress !== ipAddress) {
+          console.warn('⚠️ IP address mismatch during token rotation', {
+            tokenId,
+            originalIP: refreshData.ipAddress,
+            currentIP: ipAddress
+          });
+          // Optionally revoke token for security
+          // this.revokeRefreshToken(tokenId);
+          // return null;
+        }
+      }
+      
+      // Get user data for new tokens
+      const userData = await this.getUserData(refreshData.userId);
+      if (!userData) {
+        console.warn('⚠️ User not found during token rotation', { userId: refreshData.userId });
+        return null;
+      }
+      
+      // Update refresh token usage
+      refreshData.lastUsed = Date.now();
+      refreshData.rotationCount++;
+      TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);
+      
+      // Generate new token pair
+      const newTokenPair = this.generateTokenPair(
+        userData.id,
+        userData.email,
+        userData.role,
+        userData.userType,
+        userData.permissions,
+        ipAddress,
+        userAgent
+      );
+      
+      // Revoke old refresh token
+      this.revokeRefreshToken(tokenId);
+      
+      console.log('🔄 Tokens rotated successfully', {
+        userId: userData.id,
+        oldTokenId: tokenId,
+        rotationCount: refreshData.rotationCount
+      });
+      
+      return newTokenPair;
+      
+    } catch (error) {
+      console.error('❌ Token rotation failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+      return null;
+    }
+  }
+  
+  // Revoke refresh token
+  revokeRefreshToken(tokenId: string): boolean {
+    const refreshData = TOKEN_CONFIG.refreshTokenStore.get(tokenId);
+    if (refreshData) {
+      refreshData.isActive = false;
+      TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);
+      
+      console.log('🗑️ Refresh token revoked', { tokenId });
+      return true;
+    }
+    return false;
+  }
+  
+  // Revoke all user tokens
+  revokeAllUserTokens(userId: string): number {
+    let revokedCount = 0;
+    
+    for (const [tokenId, refreshData] of TOKEN_CONFIG.refreshTokenStore.entries()) {
+      if (refreshData.userId === userId && refreshData.isActive) {
+        refreshData.isActive = false;
+        TOKEN_CONFIG.refreshTokenStore.set(tokenId, refreshData);
+        revokedCount++;
+      }
+    }
+    
+    console.log('🗑️ All user tokens revoked', { userId, revokedCount });
+    return revokedCount;
+  }
+  
+  // Get active tokens for user
+  getUserActiveTokens(userId: string): RefreshTokenData[] {
+    const userTokens: RefreshTokenData[] = [];
+    const now = Date.now();
+    
+    for (const refreshData of TOKEN_CONFIG.refreshTokenStore.values()) {
+      if (refreshData.userId === userId && refreshData.isActive && now < refreshData.expiresAt) {
+        userTokens.push(refreshData);
+      }
+    }
+    
+    return userTokens;
+  }
+  
+  // Generate secure token ID
+  private generateTokenId(): string {
+    return crypto.randomBytes(32).toString('hex');
+  }
+  
+  // Generate refresh token
+  private generateRefreshToken(tokenId: string, userId: string): string {
+    const payload = {
+      jti: tokenId,
+      sub: userId,
+      type: 'refresh',
+      iat: Math.floor(Date.now() / 1000)
+    };
+    
+    return jwt.sign(payload, TOKEN_CONFIG.refreshTokenSecret, {
+      algorithm: TOKEN_CONFIG.algorithm,
+      expiresIn: TOKEN_CONFIG.refreshTokenExpiry
+    });
+  }
+  
+  // Parse expiry string to seconds
+  private parseExpiry(expiry: string): number {
+    const unit = expiry.slice(-1);
+    const value = parseInt(expiry.slice(0, -1), 10);
+    
+    switch (unit) {
+      case 's': return value;
+      case 'm': return value * 60;
+      case 'h': return value * 60 * 60;
+      case 'd': return value * 24 * 60 * 60;
+      default: return 900; // 15 minutes default
+    }
+  }
+  
+  // Get user data (mock implementation)
+  private async getUserData(userId: string): Promise<{
+    id: string;
+    email: string;
+    role: string;
+    userType: 'customer' | 'staff';
+    permissions: string[];
+  } | null> {
+    // TODO: Implement actual user data retrieval
+    // This would typically query the database
+    
+    // Mock user data for development
+    if (userId === 'staff-user') {
+      return {
+        id: userId,
+        email: 'ben.stone@directorybolt.com',
+        role: 'manager',
+        userType: 'staff',
+        permissions: ['queue', 'processing', 'analytics', 'support']
+      };
+    }
+    
+    // Mock customer user
+    return {
+      id: userId,
+      email: 'customer@example.com',
+      role: 'professional',
+      userType: 'customer',
+      permissions: ['premium_features', 'priority_support']
+    };
+  }
+  
+  // Cleanup expired tokens
+  private cleanupExpiredTokens(): void {
+    const now = Date.now();
+    let cleanedCount = 0;
+    
+    for (const [tokenId, refreshData] of TOKEN_CONFIG.refreshTokenStore.entries()) {
+      if (now > refreshData.expiresAt) {
+        TOKEN_CONFIG.refreshTokenStore.delete(tokenId);
+        cleanedCount++;
+      }
+    }
+    
+    if (cleanedCount > 0) {
+      console.log('🧹 Cleaned up expired tokens', {
+        cleanedCount,
+        remainingTokens: TOKEN_CONFIG.refreshTokenStore.size
+      });
+    }
+  }
+  
+  // Start automatic cleanup timer
+  private startCleanupTimer(): void {
+    this.cleanupTimer = setInterval(() => {
+      this.cleanupExpiredTokens();
+    }, TOKEN_CONFIG.cleanupInterval);
+  }
+  
+  // Stop cleanup timer
+  stopCleanupTimer(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = null;
+    }
+  }
+}
+
+// Middleware for automatic token rotation
+export function withTokenRotation() {
+  return function middleware(
+    handler: (req: NextApiRequest & { user?: TokenPayload; newTokens?: TokenPair }, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return async function wrappedHandler(
+      req: NextApiRequest & { user?: TokenPayload; newTokens?: TokenPair },
+      res: NextApiResponse
+    ) {
+      const tokenManager = TokenManager.getInstance();
+      const authHeader = req.headers.authorization;
+      
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const accessToken = authHeader.substring(7);
+        
+        // Validate current token
+        const tokenPayload = tokenManager.validateAccessToken(accessToken);
+        
+        if (tokenPayload) {
+          // Token is valid, attach user data
+          req.user = tokenPayload;
+          
+          // Check if token needs rotation
+          if (tokenManager.shouldRotateToken(accessToken)) {
+            const refreshToken = req.headers['x-refresh-token'] as string;
+            
+            if (refreshToken) {
+              const clientIP = getClientIP(req);
+              const userAgent = req.headers['user-agent'] || '';
+              
+              const newTokens = await tokenManager.rotateTokens(refreshToken, clientIP, userAgent);
+              
+              if (newTokens) {
+                req.newTokens = newTokens;
+                
+                // Set new tokens in response headers
+                res.setHeader('X-New-Access-Token', newTokens.accessToken);
+                res.setHeader('X-New-Refresh-Token', newTokens.refreshToken);
+                res.setHeader('X-Token-Rotated', 'true');
+                
+                console.log('🔄 Token rotation completed', {
+                  userId: tokenPayload.sub,
+                  newExpiresIn: newTokens.expiresIn
+                });
+              }
+            }
+          }
+        } else {
+          // Token is invalid or expired
+          return res.status(401).json({
+            error: 'Authentication Required',
+            message: 'Access token is invalid or expired. Please refresh your token.',
+            code: 'TOKEN_INVALID'
+          });
+        }
+      }
+      
+      // Continue to the actual handler
+      return handler(req, res);
+    };
+  };
+}
+
+// Token refresh endpoint helper
+export async function handleTokenRefresh(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'Refresh token is required'
+    });
+  }
+  
+  const tokenManager = TokenManager.getInstance();
+  const clientIP = getClientIP(req);
+  const userAgent = req.headers['user-agent'] || '';
+  
+  const newTokens = await tokenManager.rotateTokens(refreshToken, clientIP, userAgent);
+  
+  if (newTokens) {
+    res.status(200).json({
+      success: true,
+      data: newTokens
+    });
+  } else {
+    res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Invalid or expired refresh token'
+    });
+  }
+}
+
+// Get client IP address
+function getClientIP(req: NextApiRequest): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  const realIP = req.headers['x-real-ip'];
+  const cfConnectingIP = req.headers['cf-connecting-ip'];
+  
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  
+  if (typeof realIP === 'string') {
+    return realIP;
+  }
+  
+  if (typeof cfConnectingIP === 'string') {
+    return cfConnectingIP;
+  }
+  
+  return req.socket.remoteAddress || 'unknown';
+}
+
+// Export token manager for direct use
+export { TokenManager, TOKEN_CONFIG };
+export type { TokenPayload, RefreshTokenData, TokenPair };"

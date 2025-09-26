@@ -153,4 +153,147 @@ class IPWhitelist {
       { network: '127.0.0.0', mask: 8 }
     ];
     
-    return privateRanges.some(range => \n      this.isIPInRange(ip, range.network, range.mask)\n    );\n  }\n  \n  private checkEmergencyBypass(): boolean {\n    if (!IP_WHITELIST_CONFIG.emergencyBypass.enabled) {\n      return false;\n    }\n    \n    const validUntil = IP_WHITELIST_CONFIG.emergencyBypass.validUntil;\n    if (validUntil && new Date() > new Date(validUntil)) {\n      return false;\n    }\n    \n    return true;\n  }\n}\n\n// Middleware function for API routes\nexport function withIPWhitelist(\n  allowedLevel: 'admin' | 'staff' = 'staff'\n) {\n  return function middleware(\n    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return async function wrappedHandler(\n      req: NextApiRequest,\n      res: NextApiResponse\n    ) {\n      const clientIP = getClientIP(req);\n      const ipWhitelist = IPWhitelist.getInstance();\n      \n      // Check if IP is allowed\n      if (!ipWhitelist.isIPAllowed(clientIP)) {\n        // Log unauthorized access attempt\n        logUnauthorizedAccess(req, clientIP, allowedLevel);\n        \n        // Return 403 Forbidden\n        return res.status(403).json({\n          error: 'Access Denied',\n          message: 'Your IP address is not authorized to access this resource.',\n          code: 'IP_NOT_WHITELISTED',\n          timestamp: new Date().toISOString()\n        });\n      }\n      \n      // Log authorized access\n      logAuthorizedAccess(req, clientIP, allowedLevel);\n      \n      // Continue to the actual handler\n      return handler(req, res);\n    };\n  };\n}\n\n// Get client IP address from request\nfunction getClientIP(req: NextApiRequest): string {\n  // Check various headers for the real IP\n  const forwarded = req.headers['x-forwarded-for'];\n  const realIP = req.headers['x-real-ip'];\n  const cfConnectingIP = req.headers['cf-connecting-ip'];\n  \n  if (typeof forwarded === 'string') {\n    // X-Forwarded-For can contain multiple IPs, take the first one\n    return forwarded.split(',')[0].trim();\n  }\n  \n  if (typeof realIP === 'string') {\n    return realIP;\n  }\n  \n  if (typeof cfConnectingIP === 'string') {\n    return cfConnectingIP;\n  }\n  \n  // Fallback to connection remote address\n  return req.socket.remoteAddress || 'unknown';\n}\n\n// Logging functions\nfunction logUnauthorizedAccess(\n  req: NextApiRequest,\n  clientIP: string,\n  level: string\n): void {\n  console.warn('🚫 UNAUTHORIZED IP ACCESS ATTEMPT', {\n    timestamp: new Date().toISOString(),\n    ip: clientIP,\n    path: req.url,\n    method: req.method,\n    userAgent: req.headers['user-agent'],\n    level,\n    headers: {\n      'x-forwarded-for': req.headers['x-forwarded-for'],\n      'x-real-ip': req.headers['x-real-ip'],\n      'cf-connecting-ip': req.headers['cf-connecting-ip']\n    }\n  });\n}\n\nfunction logAuthorizedAccess(\n  req: NextApiRequest,\n  clientIP: string,\n  level: string\n): void {\n  if (IP_WHITELIST_CONFIG.development.logAllRequests || process.env.NODE_ENV === 'production') {\n    console.log('✅ AUTHORIZED IP ACCESS', {\n      timestamp: new Date().toISOString(),\n      ip: clientIP,\n      path: req.url,\n      method: req.method,\n      level\n    });\n  }\n}\n\n// Utility function to add IP to whitelist (for emergency access)\nexport function addEmergencyIP(ip: string, durationHours: number = 24): void {\n  const ipWhitelist = IPWhitelist.getInstance();\n  (ipWhitelist as any).allowedIPs.add(ip);\n  \n  console.log('🚨 EMERGENCY IP ADDED', {\n    timestamp: new Date().toISOString(),\n    ip,\n    durationHours,\n    expiresAt: new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()\n  });\n  \n  // Remove after duration\n  setTimeout(() => {\n    (ipWhitelist as any).allowedIPs.delete(ip);\n    console.log('⏰ EMERGENCY IP EXPIRED', {\n      timestamp: new Date().toISOString(),\n      ip\n    });\n  }, durationHours * 60 * 60 * 1000);\n}\n\n// Export configuration for external use\nexport { IP_WHITELIST_CONFIG };\n\n// Export the IPWhitelist class for advanced usage\nexport { IPWhitelist };"
+    return privateRanges.some(range => 
+      this.isIPInRange(ip, range.network, range.mask)
+    );
+  }
+  
+  private checkEmergencyBypass(): boolean {
+    if (!IP_WHITELIST_CONFIG.emergencyBypass.enabled) {
+      return false;
+    }
+    
+    const validUntil = IP_WHITELIST_CONFIG.emergencyBypass.validUntil;
+    if (validUntil && new Date() > new Date(validUntil)) {
+      return false;
+    }
+    
+    return true;
+  }
+}
+
+// Middleware function for API routes
+export function withIPWhitelist(
+  allowedLevel: 'admin' | 'staff' = 'staff'
+) {
+  return function middleware(
+    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return async function wrappedHandler(
+      req: NextApiRequest,
+      res: NextApiResponse
+    ) {
+      const clientIP = getClientIP(req);
+      const ipWhitelist = IPWhitelist.getInstance();
+      
+      // Check if IP is allowed
+      if (!ipWhitelist.isIPAllowed(clientIP)) {
+        // Log unauthorized access attempt
+        logUnauthorizedAccess(req, clientIP, allowedLevel);
+        
+        // Return 403 Forbidden
+        return res.status(403).json({
+          error: 'Access Denied',
+          message: 'Your IP address is not authorized to access this resource.',
+          code: 'IP_NOT_WHITELISTED',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Log authorized access
+      logAuthorizedAccess(req, clientIP, allowedLevel);
+      
+      // Continue to the actual handler
+      return handler(req, res);
+    };
+  };
+}
+
+// Get client IP address from request
+function getClientIP(req: NextApiRequest): string {
+  // Check various headers for the real IP
+  const forwarded = req.headers['x-forwarded-for'];
+  const realIP = req.headers['x-real-ip'];
+  const cfConnectingIP = req.headers['cf-connecting-ip'];
+  
+  if (typeof forwarded === 'string') {
+    // X-Forwarded-For can contain multiple IPs, take the first one
+    return forwarded.split(',')[0].trim();
+  }
+  
+  if (typeof realIP === 'string') {
+    return realIP;
+  }
+  
+  if (typeof cfConnectingIP === 'string') {
+    return cfConnectingIP;
+  }
+  
+  // Fallback to connection remote address
+  return req.socket.remoteAddress || 'unknown';
+}
+
+// Logging functions
+function logUnauthorizedAccess(
+  req: NextApiRequest,
+  clientIP: string,
+  level: string
+): void {
+  console.warn('🚫 UNAUTHORIZED IP ACCESS ATTEMPT', {
+    timestamp: new Date().toISOString(),
+    ip: clientIP,
+    path: req.url,
+    method: req.method,
+    userAgent: req.headers['user-agent'],
+    level,
+    headers: {
+      'x-forwarded-for': req.headers['x-forwarded-for'],
+      'x-real-ip': req.headers['x-real-ip'],
+      'cf-connecting-ip': req.headers['cf-connecting-ip']
+    }
+  });
+}
+
+function logAuthorizedAccess(
+  req: NextApiRequest,
+  clientIP: string,
+  level: string
+): void {
+  if (IP_WHITELIST_CONFIG.development.logAllRequests || process.env.NODE_ENV === 'production') {
+    console.log('✅ AUTHORIZED IP ACCESS', {
+      timestamp: new Date().toISOString(),
+      ip: clientIP,
+      path: req.url,
+      method: req.method,
+      level
+    });
+  }
+}
+
+// Utility function to add IP to whitelist (for emergency access)
+export function addEmergencyIP(ip: string, durationHours: number = 24): void {
+  const ipWhitelist = IPWhitelist.getInstance();
+  (ipWhitelist as any).allowedIPs.add(ip);
+  
+  console.log('🚨 EMERGENCY IP ADDED', {
+    timestamp: new Date().toISOString(),
+    ip,
+    durationHours,
+    expiresAt: new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+  });
+  
+  // Remove after duration
+  setTimeout(() => {
+    (ipWhitelist as any).allowedIPs.delete(ip);
+    console.log('⏰ EMERGENCY IP EXPIRED', {
+      timestamp: new Date().toISOString(),
+      ip
+    });
+  }, durationHours * 60 * 60 * 1000);
+}
+
+// Export configuration for external use
+export { IP_WHITELIST_CONFIG };
+
+// Export the IPWhitelist class for advanced usage
+export { IPWhitelist };"
