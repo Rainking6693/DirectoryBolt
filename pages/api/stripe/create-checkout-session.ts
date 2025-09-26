@@ -81,7 +81,44 @@ interface CheckoutRequest {
   addons?: string[]
 }
 
+// 🔒 SECURITY: Secure CORS configuration for Stripe endpoints
+function getSecureCorsHeaders(req: NextApiRequest) {
+  const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? ['https://directorybolt.netlify.app', 'https://directorybolt.com']
+    : ['http://localhost:3000', 'http://localhost:3001'];
+    
+  const origin = req.headers.origin;
+  const corsHeaders: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+  };
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    corsHeaders['Access-Control-Allow-Origin'] = origin;
+  }
+  
+  return corsHeaders;
+}
+
+// 🔒 SECURITY: Apply CORS headers to response
+function applyCorsHeaders(res: NextApiResponse, corsHeaders: Record<string, string>) {
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 🔒 SECURITY FIX: Apply secure CORS headers (CORS-008)
+  const corsHeaders = getSecureCorsHeaders(req);
+  applyCorsHeaders(res, corsHeaders);
+  
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

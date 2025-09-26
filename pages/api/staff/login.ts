@@ -3,8 +3,48 @@
 
 import { NextApiRequest, NextApiResponse } from 'next'
 import { serialize } from 'cookie'
+import { withIPWhitelist } from '../../../lib/middleware/ip-whitelist'
+import { SessionManager, createSessionCookie } from '../../../lib/middleware/session-management'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// 🔒 SECURITY: Secure CORS configuration for staff endpoints
+function getStaffCorsHeaders(req: NextApiRequest) {
+  const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? ['https://directorybolt.netlify.app', 'https://directorybolt.com']
+    : ['http://localhost:3000', 'http://localhost:3001'];
+    
+  const origin = req.headers.origin;
+  const corsHeaders: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
+    'Access-Control-Allow-Credentials': 'true', // Important for staff cookies
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+  };
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    corsHeaders['Access-Control-Allow-Origin'] = origin;
+  }
+  
+  return corsHeaders;
+}
+
+// 🔒 SECURITY: Apply CORS headers to response
+function applyCorsHeaders(res: NextApiResponse, corsHeaders: Record<string, string>) {
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+}
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 🔒 SECURITY FIX: Apply secure CORS headers (CORS-012)
+  const corsHeaders = getStaffCorsHeaders(req);
+  applyCorsHeaders(res, corsHeaders);
+  
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -43,26 +83,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('✅ Staff login successful')
 
-    // Set secure session cookie
-    const sessionToken = process.env.STAFF_SESSION_TOKEN
+    // 🔒 SECURITY: Create secure session with session management (AUTH-002)
+    const sessionManager = SessionManager.getInstance();
+    const clientIP = req.headers['x-forwarded-for'] as string || 
+                     req.headers['x-real-ip'] as string || 
+                     req.socket.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
     
-    if (!sessionToken) {
-      console.error('❌ STAFF_SESSION_TOKEN not configured')
-      return res.status(500).json({
-        error: 'Server Configuration Error',
-        message: 'Session system not properly configured'
-      })
-    }
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 24 * 60 * 60, // 24 hours
-      path: '/'
-    }
-
-    const cookie = serialize('staff-session', sessionToken, cookieOptions)
-    res.setHeader('Set-Cookie', cookie)
+    // Create session for staff user
+    const sessionData = sessionManager.createSession(
+      'staff-user',
+      'staff',
+      'ben.stone@directorybolt.com',
+      clientIP,
+      userAgent,
+      'manager',
+      ['queue', 'processing', 'analytics', 'support']
+    );
+    
+    // Set secure session cookie
+    const sessionCookie = createSessionCookie(sessionData);
+    res.setHeader('Set-Cookie', sessionCookie);
 
     // Return success response with user data
     return res.status(200).json({
@@ -93,3 +134,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   }
 }
+
+// 🔒 SECURITY: Apply IP whitelist for staff access (INFRA-004)
+export default withIPWhitelist('staff')(handler);

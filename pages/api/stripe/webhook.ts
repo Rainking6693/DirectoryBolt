@@ -179,7 +179,51 @@ const handleCustomerSubscriptionDeleted = async (subscription: Stripe.Subscripti
   // 3. Offer win-back incentives
 }
 
+// 🔒 SECURITY: Secure CORS configuration for Stripe webhook endpoints
+function getWebhookCorsHeaders(req: NextApiRequest) {
+  // Webhooks are called by Stripe servers, so we need to allow Stripe origins
+  const allowedOrigins = [
+    'https://api.stripe.com',
+    'https://hooks.stripe.com'
+  ];
+  
+  // For development, also allow localhost for testing
+  if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push('http://localhost:3000', 'http://localhost:3001');
+  }
+    
+  const origin = req.headers.origin;
+  const corsHeaders: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Stripe-Signature',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+  };
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    corsHeaders['Access-Control-Allow-Origin'] = origin;
+  }
+  
+  return corsHeaders;
+}
+
+// 🔒 SECURITY: Apply CORS headers to response
+function applyCorsHeaders(res: NextApiResponse, corsHeaders: Record<string, string>) {
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 🔒 SECURITY FIX: Apply secure CORS headers for Stripe webhooks (CORS-008)
+  const corsHeaders = getWebhookCorsHeaders(req);
+  applyCorsHeaders(res, corsHeaders);
+  
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

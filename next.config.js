@@ -148,7 +148,7 @@ const nextConfig = {
     return config
   },
   
-  // Enhanced security and performance headers
+  // 🔒 SECURITY: Enhanced security and performance headers (INFRA-002, INFRA-003)
   async headers() {
     return [
       {
@@ -158,18 +158,20 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com https://www.google-analytics.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https: http:",
+              "img-src 'self' data: blob: https: http: https://www.google-analytics.com https://www.googletagmanager.com",
               "media-src 'self'",
               "object-src 'none'",
               "base-uri 'self'",
-              "form-action 'self'",
+              "form-action 'self' https://checkout.stripe.com",
               "frame-ancestors 'none'",
-              "connect-src 'self' https://api.stripe.com https://js.stripe.com",
+              "frame-src 'self' https://js.stripe.com https://checkout.stripe.com",
+              "connect-src 'self' https://api.stripe.com https://js.stripe.com https://www.google-analytics.com https://analytics.google.com",
               "worker-src 'self' blob:",
-              "manifest-src 'self'"
+              "manifest-src 'self'",
+              "upgrade-insecure-requests"
             ].join('; ')
           },
           {
@@ -198,7 +200,27 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=(self)'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(self), usb=(), bluetooth=(), magnetometer=(), gyroscope=(), accelerometer=()'
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp'
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin'
+          },
+          {
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none'
+          },
+          {
+            key: 'Expect-CT',
+            value: 'max-age=86400, enforce'
           }
         ],
       },
