@@ -1,0 +1,35 @@
+# Proxy Manager Service for DirectoryBolt AutoBolt Workers
+FROM node:18-alpine
+
+# Create app user for security
+RUN addgroup -g 1001 -S autobolt && \
+    adduser -S autobolt -u 1001 -G autobolt
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files for proxy manager
+COPY deployment/proxy-manager/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy proxy manager source code
+COPY deployment/proxy-manager/ ./
+
+# Create directories with proper permissions
+RUN mkdir -p /app/logs /app/data && \
+    chown -R autobolt:autobolt /app
+
+# Switch to non-root user
+USER autobolt
+
+# Expose proxy management port
+EXPOSE 3002
+
+# Health check for proxy service
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3002/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"
+
+# Start the proxy manager
+CMD ["node", "proxy-manager.js"]

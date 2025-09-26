@@ -1,0 +1,178 @@
+version: '3.8'
+
+services:
+  # Primary AutoBolt Worker Instance - Production Ready
+  autobolt-worker-1:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-1
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-prod-001
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=DirectoryBolt-Secure-Worker-Token-2025
+      - HTTP_PROXY_ENABLED=true
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+      - HEALTH_CHECK_PORT=3000
+    volumes:
+      - worker_data_1:/app/data
+      - worker_logs_1:/app/logs
+    networks:
+      - autobolt_production
+    ports:
+      - "3001:3000"
+    depends_on:
+      - redis
+      - monitoring
+    healthcheck:
+      test: ["CMD", "node", "/app/health-check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Secondary Worker for Load Distribution
+  autobolt-worker-2:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-2
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-prod-002
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=DirectoryBolt-Secure-Worker-Token-2025
+      - HTTP_PROXY_ENABLED=true
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+      - HEALTH_CHECK_PORT=3000
+    volumes:
+      - worker_data_2:/app/data
+      - worker_logs_2:/app/logs
+    networks:
+      - autobolt_production
+    ports:
+      - "3002:3000"
+    depends_on:
+      - redis
+      - monitoring
+    healthcheck:
+      test: ["CMD", "node", "/app/health-check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis for Worker Coordination and Caching
+  redis:
+    image: redis:7-alpine
+    container_name: autobolt-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass DirectoryBolt-Redis-Secure-2025
+    volumes:
+      - redis_data:/data
+    networks:
+      - autobolt_production
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Auto-scaling Controller
+  scaling-controller:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-scaling
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:DirectoryBolt-Redis-Secure-2025@redis:6379
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - SCALING_AUTH_TOKEN=DirectoryBolt-Scaling-Token-2025
+      - MIN_WORKERS=2
+      - MAX_WORKERS=8
+      - SCALE_UP_THRESHOLD=10
+      - SCALE_DOWN_THRESHOLD=2
+      - CPU_THRESHOLD=80
+      - MEMORY_THRESHOLD=85
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - autobolt_production
+    depends_on:
+      - redis
+    command: ["node", "deployment/scaling/auto-scaler.js"]
+
+  # Monitoring Service
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: autobolt-monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - autobolt_production
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+volumes:
+  worker_data_1:
+    driver: local
+  worker_data_2:
+    driver: local
+  worker_logs_1:
+    driver: local
+  worker_logs_2:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  autobolt_production:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

@@ -1,0 +1,195 @@
+version: '3.8'
+
+services:
+  # Primary AutoBolt Worker Instance
+  autobolt-worker-1:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-1
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-1
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=${WORKER_AUTH_TOKEN}
+      - HTTP_PROXY_ENABLED=true
+      - HTTP_PROXY_SERVER=${HTTP_PROXY_SERVER_1}
+      - HTTP_PROXY_USERNAME=${HTTP_PROXY_USERNAME}
+      - HTTP_PROXY_PASSWORD=${HTTP_PROXY_PASSWORD}
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+    volumes:
+      - worker_data_1:/app/data
+      - worker_logs_1:/app/logs
+    networks:
+      - autobolt_network
+    depends_on:
+      - redis
+      - monitoring
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Secondary Worker for Load Distribution
+  autobolt-worker-2:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-2
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-2
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=${WORKER_AUTH_TOKEN}
+      - HTTP_PROXY_ENABLED=true
+      - HTTP_PROXY_SERVER=${HTTP_PROXY_SERVER_2}
+      - HTTP_PROXY_USERNAME=${HTTP_PROXY_USERNAME}
+      - HTTP_PROXY_PASSWORD=${HTTP_PROXY_PASSWORD}
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+    volumes:
+      - worker_data_2:/app/data
+      - worker_logs_2:/app/logs
+    networks:
+      - autobolt_network
+    depends_on:
+      - redis
+      - monitoring
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis for Worker Coordination and Caching
+  redis:
+    image: redis:7-alpine
+    container_name: autobolt-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - autobolt_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Monitoring and Health Check Service
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: autobolt-monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - autobolt_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Auto-scaling Controller (Custom)
+  scaling-controller:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.scaling
+    container_name: autobolt-scaling
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - SCALING_AUTH_TOKEN=${SCALING_AUTH_TOKEN}
+      - MIN_WORKERS=2
+      - MAX_WORKERS=8
+      - SCALE_UP_THRESHOLD=10
+      - SCALE_DOWN_THRESHOLD=2
+      - CPU_THRESHOLD=80
+      - MEMORY_THRESHOLD=85
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - autobolt_network
+    depends_on:
+      - redis
+
+  # Proxy Rotation Service
+  proxy-manager:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.proxy
+    container_name: autobolt-proxy-manager
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - PROXY_LIST=${PROXY_LIST}
+      - PROXY_ROTATION_INTERVAL=300000
+      - PROXY_HEALTH_CHECK_INTERVAL=60000
+    networks:
+      - autobolt_network
+    depends_on:
+      - redis
+
+volumes:
+  worker_data_1:
+    driver: local
+  worker_data_2:
+    driver: local
+  worker_logs_1:
+    driver: local
+  worker_logs_2:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  autobolt_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

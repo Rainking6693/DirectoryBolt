@@ -1,0 +1,80 @@
+services:
+  # Primary AutoBolt Worker - Secure Production Deployment
+  autobolt-worker-1:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-prod-001
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-prod-001
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=DirectoryBolt-Secure-Worker-Token-2025
+      - HTTP_PROXY_ENABLED=true
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+    ports:
+      - "3001:3000"
+    volumes:
+      - worker_data:/app/data
+      - worker_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "/app/health-check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  # Secondary Worker for High Availability
+  autobolt-worker-2:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: autobolt-worker-prod-002
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WORKER_ID=worker-prod-002
+      - TWO_CAPTCHA_KEY=${TWO_CAPTCHA_KEY}
+      - ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
+      - WORKER_AUTH_TOKEN=DirectoryBolt-Secure-Worker-Token-2025
+      - HTTP_PROXY_ENABLED=true
+      - MAX_JOBS_PER_WORKER=3
+      - WORKER_TIMEOUT=300000
+      - HEADLESS=true
+      - LOG_LEVEL=info
+    ports:
+      - "3002:3000"
+    volumes:
+      - worker_data_2:/app/data
+      - worker_logs_2:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "/app/health-check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+volumes:
+  worker_data:
+    driver: local
+  worker_data_2:
+    driver: local
+  worker_logs:
+    driver: local
+  worker_logs_2:
+    driver: local

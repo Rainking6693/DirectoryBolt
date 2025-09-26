@@ -1,0 +1,27 @@
+{
+  "name": "directorybolt-worker",
+  "version": "1.0.0",
+  "description": "DirectoryBolt AutoBolt Worker Service - Playwright-based form automation",
+  "main": "worker.js",
+  "scripts": {
+    "start": "node worker.js",
+    "dev": "node --inspect worker.js",
+    "test": "node test-worker.js"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0"
+  },
+  "keywords": [
+    "automation",
+    "playwright",
+    "directory-submission",
+    "form-filling"
+  ],
+  "author": "DirectoryBolt",
+  "license": "PRIVATE"
+}
