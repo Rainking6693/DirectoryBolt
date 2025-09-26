@@ -10,7 +10,7 @@ Transform DirectoryBolt's architecture from AutoBolt directly accessing Supabase
 
 PhasePrimary AgentAuditors (Required)Primary TasksDependenciesEst. Hours1ShaneCora + FrankBackend Job Queue API + Database SchemaNone8-12 hours2RileyCora + FrankStaff Dashboard Job Progress UIPhase 1 approved6-8 hours3AlexCora + FrankAutoBolt Extension IntegrationPhase 2 approved8-10 hours4NathanCora + FrankIndividual Component TestingPhase 3 approved4-6 hours5BlakeCora + FrankEnd-to-End Integration TestingAll phases approved6-8 hours
 
-🚨 MANDATORY QUALITY GATES: No phase can begin until previous phase passes both Cora (QA Auditor) and Frank (Critical Database Investigator) approval.
+🚨 MANDATORY QUALITY GATES: No phase can begin until previous phase passes both Cora (QA Auditor) and Hudson approval.
 
 
 
@@ -2518,7 +2518,7 @@ Post-Audit Review: Analysis of audit results and planning for next phase
 
 🚨 Critical Success Factors with Quality Gates
 
-Revenue Protection (Frank's Primary Focus)
+Revenue Protection (Hudson and Cora Primary Focus)
 
 
 
@@ -2529,10 +2529,6 @@ Customer data integrity maintained at every integration point
 Zero revenue leakage from system vulnerabilities or failures
 
 Emergency recovery procedures tested and documented
-
-
-
-Customer Experience (Cora's Primary Focus)
 
 
 

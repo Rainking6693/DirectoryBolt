@@ -554,7 +554,8 @@ export class AIAnalysisCacheService {
       const now = new Date()
       let cleanedCount = 0
 
-      for (const [key, entry] of this.seoCache.entries()) {
+      const entries = Array.from(this.seoCache.entries())
+      for (const [key, entry] of entries) {
         if (now > entry.expiresAt) {
           this.seoCache.delete(key)
           cleanedCount++

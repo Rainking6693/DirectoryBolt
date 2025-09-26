@@ -21,9 +21,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Validate against admin credentials
-    const validUsername = process.env.ADMIN_USERNAME || 'admin'
-    const validPassword = process.env.ADMIN_PASSWORD || 'DirectoryBolt2025!'
+    // Validate against environment admin credentials
+    const validUsername = process.env.ADMIN_USERNAME
+    const validPassword = process.env.ADMIN_PASSWORD
+
+    if (!validUsername || !validPassword) {
+      console.error('❌ Admin credentials not configured in environment')
+      return res.status(500).json({
+        error: 'Server Configuration Error',
+        message: 'Admin authentication system not properly configured'
+      })
+    }
 
     if (username !== validUsername || password !== validPassword) {
       console.log('❌ Invalid admin credentials provided')
@@ -36,7 +44,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('✅ Admin login successful')
 
     // Set secure session cookie
-    const sessionToken = process.env.ADMIN_SESSION_TOKEN || 'DirectoryBolt-Session-2025'
+    const sessionToken = process.env.ADMIN_SESSION_TOKEN
+    
+    if (!sessionToken) {
+      console.error('❌ ADMIN_SESSION_TOKEN not configured')
+      return res.status(500).json({
+        error: 'Server Configuration Error',
+        message: 'Admin session system not properly configured'
+      })
+    }
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

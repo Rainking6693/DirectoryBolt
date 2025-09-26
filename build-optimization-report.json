@@ -9,7 +9,7 @@
     "optimizations": [
       {
         "name": "Dependency Analysis",
-        "startTime": 39.6452,
+        "startTime": 51.7153,
         "results": {
           "totalDependencies": 86,
           "heavyPackages": [
@@ -22,18 +22,18 @@
           "duplicates": [],
           "outdated": []
         },
-        "duration": 0.036599999999999966
+        "duration": 0.028199999999998226
       },
       {
         "name": "Next.js Config Optimization",
-        "startTime": 40.1721,
+        "startTime": 52.1949,
         "applied": [
           "SWC Minification",
           "Experimental Features",
           "CSS Optimization",
           "Bundle Splitting"
         ],
-        "duration": 0.18099999999999739
+        "duration": 0.24980000000000047
       }
     ],
     "recommendations": [
@@ -45,545 +45,275 @@
       }
     ],
     "performance": {
-      "buildDuration": 22.9071,
+      "buildDuration": 16.557499999999997,
       "memoryUsage": {
-        "rss": 56537088,
+        "rss": 48271360,
         "heapTotal": 7176192,
-        "heapUsed": 5321128,
-        "external": 2646985,
-        "arrayBuffers": 815205
+        "heapUsed": 4983456,
+        "external": 2647211,
+        "arrayBuffers": 16659
       },
       "nodeVersion": "v22.19.0",
       "platform": "win32",
       "cpuUsage": {
-        "user": 62000,
+        "user": 46000,
         "system": 31000
       },
       "comparison": {
-        "durationChange": "+0.0s",
-        "memoryChange": "+0.1MB",
+        "durationChange": "-0.0s",
+        "memoryChange": "-0.5MB",
         "trend": "stable"
       }
     },
     "bundleAnalysis": {
       "name": "Bundle Analysis",
-      "startTime": 40.5412,
+      "startTime": 52.6314,
       "results": {
-        "totalSize": 20262050,
+        "totalSize": 1158595,
         "files": [
           {
-            "path": "chunks\\main-app.js",
-            "size": 6025492,
+            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
+            "size": 288392,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main.js",
-            "size": 5159589,
+            "path": "chunks\\main-701879ce832108bc.js",
+            "size": 271604,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard.js",
-            "size": 1587148,
-            "type": "javascript"
+            "path": "css\\b3b9e63db2b5f5ff.css",
+            "size": 142657,
+            "type": "stylesheet"
           },
           {
-            "path": "chunks\\components_NewLandingPage_tsx.js",
-            "size": 1511013,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\pricing.js",
-            "size": 1176808,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\analyze.js",
-            "size": 1125599,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\_app.js",
-            "size": 1039064,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\pages\\_app.464813f790b9c274.hot-update.js",
-            "size": 700648,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\pages\\_app.4bccb897dc9c2d38.hot-update.js",
-            "size": 700648,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\components_PricingPage_tsx.js",
-            "size": 322744,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\index.js",
-            "size": 163503,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\app-pages-internals.js",
-            "size": 135647,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\polyfills.js",
+            "path": "chunks\\polyfills-42372ed130431b0a.js",
             "size": 112594,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\offline.js",
-            "size": 103762,
+            "path": "chunks\\common-844d905ff5c9f38a.js",
+            "size": 97434,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_sections_PricingPreviewSection_tsx.js",
-            "size": 96730,
+            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
+            "size": 88031,
             "type": "javascript"
           },
           {
-            "path": "chunks\\react-refresh.js",
-            "size": 78963,
+            "path": "chunks\\564.c1dfa36b8203fac0.js",
+            "size": 46601,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-login.js",
-            "size": 59363,
+            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
+            "size": 41281,
             "type": "javascript"
           },
           {
-            "path": "chunks\\webpack.js",
-            "size": 56485,
+            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
+            "size": 19148,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_sections_TestimonialsSection_tsx.js",
-            "size": 37756,
+            "path": "chunks\\871.979e53b691a67bbd.js",
+            "size": 10389,
             "type": "javascript"
           },
           {
-            "path": "webpack\\webpack.7921c5c26a4bcfd6.hot-update.js",
-            "size": 25174,
+            "path": "chunks\\671-56f89135b3ff6d47.js",
+            "size": 9621,
             "type": "javascript"
           },
           {
-            "path": "chunks\\app\\_not-found\\page.js",
-            "size": 14873,
+            "path": "chunks\\675.998edcef657e914f.js",
+            "size": 9521,
             "type": "javascript"
           },
           {
-            "path": "webpack\\a4bc9b701fb63217.webpack.hot-update.json",
-            "size": 4267,
-            "type": "data"
+            "path": "chunks\\pages\\staff-login-46f43010e270524d.js",
+            "size": 5940,
+            "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_error.js",
+            "path": "chunks\\pages\\admin-login-b1d04baebaa7067e.js",
+            "size": 5738,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\103.39910a74ea3c1066.js",
+            "size": 5180,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\webpack-4a53010a6980477f.js",
             "size": 3388,
             "type": "javascript"
           },
           {
-            "path": "webpack\\webpack.d4fa7f1b4dbc1bca.hot-update.js",
-            "size": 2780,
+            "path": "ljXpJYblwE0ur4EkQmhlF\\_buildManifest.js",
+            "size": 741,
             "type": "javascript"
           },
           {
-            "path": "webpack\\5bb722bb93725c54.webpack.hot-update.json",
-            "size": 2289,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\464813f790b9c274.webpack.hot-update.json",
-            "size": 1521,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\webpack.9b29d3f73eac3bac.hot-update.js",
-            "size": 1203,
+            "path": "chunks\\pages\\_error-9998ac99de8d5718.js",
+            "size": 247,
             "type": "javascript"
           },
           {
-            "path": "webpack\\webpack.e93cf323f077d5d4.hot-update.js",
-            "size": 1203,
+            "path": "ljXpJYblwE0ur4EkQmhlF\\_ssgManifest.js",
+            "size": 88,
             "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.5bb722bb93725c54.hot-update.js",
-            "size": 1178,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.a4bc9b701fb63217.hot-update.js",
-            "size": 1178,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.1debee9b1758a397.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.1fcd59b254d7e064.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.275e2cda5ff1200f.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.2d5ea087363920ce.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.43fe61e6fcb5610e.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.464813f790b9c274.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.4bccb897dc9c2d38.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.68f438e4484d660d.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.6c672fabe0d41971.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "development\\_buildManifest.js",
-            "size": 467,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\1fcd59b254d7e064.webpack.hot-update.json",
-            "size": 415,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\9b29d3f73eac3bac.webpack.hot-update.json",
-            "size": 415,
-            "type": "data"
-          },
-          {
-            "path": "development\\_ssgManifest.js",
-            "size": 76,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\4bccb897dc9c2d38.webpack.hot-update.json",
-            "size": 44,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\1debee9b1758a397.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\275e2cda5ff1200f.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\2d5ea087363920ce.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\43fe61e6fcb5610e.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\68f438e4484d660d.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\6c672fabe0d41971.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\7921c5c26a4bcfd6.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\d4fa7f1b4dbc1bca.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\e93cf323f077d5d4.webpack.hot-update.json",
-            "size": 31,
-            "type": "data"
-          },
-          {
-            "path": "webpack\\633457081244afec._.hot-update.json",
-            "size": 22,
-            "type": "data"
           }
         ],
         "chunks": [],
         "assets": [
           {
-            "path": "chunks\\app\\_not-found\\page.js",
-            "size": 14873,
+            "path": "chunks\\103.39910a74ea3c1066.js",
+            "size": 5180,
             "type": "javascript"
           },
           {
-            "path": "chunks\\app-pages-internals.js",
-            "size": 135647,
+            "path": "chunks\\564.c1dfa36b8203fac0.js",
+            "size": 46601,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_NewLandingPage_tsx.js",
-            "size": 1511013,
+            "path": "chunks\\671-56f89135b3ff6d47.js",
+            "size": 9621,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_PricingPage_tsx.js",
-            "size": 322744,
+            "path": "chunks\\675.998edcef657e914f.js",
+            "size": 9521,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_sections_PricingPreviewSection_tsx.js",
-            "size": 96730,
+            "path": "chunks\\871.979e53b691a67bbd.js",
+            "size": 10389,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_sections_TestimonialsSection_tsx.js",
-            "size": 37756,
+            "path": "chunks\\common-844d905ff5c9f38a.js",
+            "size": 97434,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main-app.js",
-            "size": 6025492,
+            "path": "chunks\\main-701879ce832108bc.js",
+            "size": 271604,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main.js",
-            "size": 5159589,
+            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
+            "size": 288392,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\analyze.js",
-            "size": 1125599,
+            "path": "chunks\\pages\\admin-login-b1d04baebaa7067e.js",
+            "size": 5738,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\index.js",
-            "size": 163503,
+            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
+            "size": 19148,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\offline.js",
-            "size": 103762,
+            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
+            "size": 88031,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\pricing.js",
-            "size": 1176808,
+            "path": "chunks\\pages\\staff-login-46f43010e270524d.js",
+            "size": 5940,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard.js",
-            "size": 1587148,
+            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
+            "size": 41281,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-login.js",
-            "size": 59363,
+            "path": "chunks\\pages\\_error-9998ac99de8d5718.js",
+            "size": 247,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_app.js",
-            "size": 1039064,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\_error.js",
-            "size": 3388,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\polyfills.js",
+            "path": "chunks\\polyfills-42372ed130431b0a.js",
             "size": 112594,
             "type": "javascript"
           },
           {
-            "path": "chunks\\react-refresh.js",
-            "size": 78963,
+            "path": "chunks\\webpack-4a53010a6980477f.js",
+            "size": 3388,
             "type": "javascript"
           },
           {
-            "path": "chunks\\webpack.js",
-            "size": 56485,
+            "path": "css\\b3b9e63db2b5f5ff.css",
+            "size": 142657,
+            "type": "stylesheet"
+          },
+          {
+            "path": "ljXpJYblwE0ur4EkQmhlF\\_buildManifest.js",
+            "size": 741,
             "type": "javascript"
           },
           {
-            "path": "development\\_buildManifest.js",
-            "size": 467,
-            "type": "javascript"
-          },
-          {
-            "path": "development\\_ssgManifest.js",
-            "size": 76,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\pages\\_app.464813f790b9c274.hot-update.js",
-            "size": 700648,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\pages\\_app.4bccb897dc9c2d38.hot-update.js",
-            "size": 700648,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.1debee9b1758a397.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.1fcd59b254d7e064.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.275e2cda5ff1200f.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.2d5ea087363920ce.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.43fe61e6fcb5610e.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.464813f790b9c274.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.4bccb897dc9c2d38.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.5bb722bb93725c54.hot-update.js",
-            "size": 1178,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.68f438e4484d660d.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.6c672fabe0d41971.hot-update.js",
-            "size": 858,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.7921c5c26a4bcfd6.hot-update.js",
-            "size": 25174,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.9b29d3f73eac3bac.hot-update.js",
-            "size": 1203,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.a4bc9b701fb63217.hot-update.js",
-            "size": 1178,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.d4fa7f1b4dbc1bca.hot-update.js",
-            "size": 2780,
-            "type": "javascript"
-          },
-          {
-            "path": "webpack\\webpack.e93cf323f077d5d4.hot-update.js",
-            "size": 1203,
+            "path": "ljXpJYblwE0ur4EkQmhlF\\_ssgManifest.js",
+            "size": 88,
             "type": "javascript"
           }
         ],
         "largestFiles": [
           {
-            "path": "chunks\\main-app.js",
-            "size": 6025492,
+            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
+            "size": 288392,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main.js",
-            "size": 5159589,
+            "path": "chunks\\main-701879ce832108bc.js",
+            "size": 271604,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard.js",
-            "size": 1587148,
+            "path": "css\\b3b9e63db2b5f5ff.css",
+            "size": 142657,
+            "type": "stylesheet"
+          },
+          {
+            "path": "chunks\\polyfills-42372ed130431b0a.js",
+            "size": 112594,
             "type": "javascript"
           },
           {
-            "path": "chunks\\components_NewLandingPage_tsx.js",
-            "size": 1511013,
+            "path": "chunks\\common-844d905ff5c9f38a.js",
+            "size": 97434,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\pricing.js",
-            "size": 1176808,
+            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
+            "size": 88031,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\analyze.js",
-            "size": 1125599,
+            "path": "chunks\\564.c1dfa36b8203fac0.js",
+            "size": 46601,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_app.js",
-            "size": 1039064,
+            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
+            "size": 41281,
             "type": "javascript"
           },
           {
-            "path": "webpack\\pages\\_app.464813f790b9c274.hot-update.js",
-            "size": 700648,
+            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
+            "size": 19148,
             "type": "javascript"
           },
           {
-            "path": "webpack\\pages\\_app.4bccb897dc9c2d38.hot-update.js",
-            "size": 700648,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\components_PricingPage_tsx.js",
-            "size": 322744,
+            "path": "chunks\\871.979e53b691a67bbd.js",
+            "size": 10389,
             "type": "javascript"
           }
         ],
@@ -658,18 +388,18 @@
         ],
         "hasAnalyzeScript": true
       },
-      "duration": 10.295599999999993
+      "duration": 4.353400000000001
     },
     "cacheStats": {
       "name": "Build Cache Optimization",
-      "startTime": 51.5101,
+      "startTime": 57.5484,
       "strategy": "intelligent-fingerprinting",
       "results": {
         "manifestCreated": true,
         "fingerprintedFiles": 5,
         "cacheDirectory": "C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt\\.build-cache"
       },
-      "duration": 4.281599999999997
+      "duration": 4.5901
     }
   },
   "nextSteps": [

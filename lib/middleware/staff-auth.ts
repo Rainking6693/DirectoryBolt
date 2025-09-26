@@ -29,7 +29,15 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
     
     // Check for staff API key in headers (highest priority)
     const staffKey = req.headers['x-staff-key'] || req.headers['authorization']
-    const validStaffKey = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
+    const validStaffKey = process.env.STAFF_API_KEY
+    
+    if (!validStaffKey) {
+      console.error('❌ STAFF_API_KEY environment variable not configured')
+      return {
+        isAuthenticated: false,
+        error: 'Authentication system not properly configured'
+      }
+    }
     
     if (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`) {
       console.log('✅ Staff authenticated via API key')
@@ -55,7 +63,15 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
 
     // Check for staff session cookie (secure session-based auth)
     const staffSession = req.cookies['staff-session']
-    const validStaffSession = process.env.STAFF_SESSION_TOKEN || 'DirectoryBolt-Staff-Session-2025'
+    const validStaffSession = process.env.STAFF_SESSION_TOKEN
+    
+    if (!validStaffSession) {
+      console.error('❌ STAFF_SESSION_TOKEN environment variable not configured')
+      return {
+        isAuthenticated: false,
+        error: 'Session authentication not properly configured'
+      }
+    }
     
     if (staffSession === validStaffSession) {
       console.log('✅ Staff authenticated via secure session')

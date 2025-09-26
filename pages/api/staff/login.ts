@@ -21,9 +21,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Validate against exact credentials specified
-    const validUsername = process.env.STAFF_USERNAME || 'staff'
-    const validPassword = process.env.STAFF_PASSWORD || 'DirectoryBoltStaff2025!'
+    // Validate against environment credentials
+    const validUsername = process.env.STAFF_USERNAME
+    const validPassword = process.env.STAFF_PASSWORD
+
+    if (!validUsername || !validPassword) {
+      console.error('❌ Staff credentials not configured in environment')
+      return res.status(500).json({
+        error: 'Server Configuration Error',
+        message: 'Authentication system not properly configured'
+      })
+    }
 
     if (username !== validUsername || password !== validPassword) {
       console.log('❌ Invalid staff credentials provided')
@@ -36,7 +44,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('✅ Staff login successful')
 
     // Set secure session cookie
-    const sessionToken = process.env.STAFF_SESSION_TOKEN || 'DirectoryBolt-Staff-Session-2025'
+    const sessionToken = process.env.STAFF_SESSION_TOKEN
+    
+    if (!sessionToken) {
+      console.error('❌ STAFF_SESSION_TOKEN not configured')
+      return res.status(500).json({
+        error: 'Server Configuration Error',
+        message: 'Session system not properly configured'
+      })
+    }
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

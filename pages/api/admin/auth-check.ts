@@ -10,7 +10,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Check for admin API key in headers (highest priority)
     const adminKey = req.headers['x-admin-key'] || req.headers['authorization']
-    const validAdminKey = process.env.ADMIN_API_KEY || 'DirectoryBolt-Admin-2025-SecureKey'
+    const validAdminKey = process.env.ADMIN_API_KEY
+    
+    if (!validAdminKey) {
+      console.error('❌ ADMIN_API_KEY environment variable not configured')
+      return res.status(500).json({
+        authenticated: false,
+        error: 'Admin authentication system not properly configured'
+      })
+    }
     
     if (adminKey === validAdminKey || adminKey === `Bearer ${validAdminKey}`) {
       console.log('✅ Admin authenticated via API key')
@@ -37,7 +45,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Check for admin session/cookie
     const adminSession = req.cookies['admin-session']
-    const validAdminSession = process.env.ADMIN_SESSION_TOKEN || 'DirectoryBolt-Session-2025'
+    const validAdminSession = process.env.ADMIN_SESSION_TOKEN
+    
+    if (!validAdminSession) {
+      console.error('❌ ADMIN_SESSION_TOKEN environment variable not configured')
+      return res.status(500).json({
+        authenticated: false,
+        error: 'Admin session system not properly configured'
+      })
+    }
     
     if (adminSession === validAdminSession) {
       console.log('✅ Admin authenticated via session')
@@ -69,8 +85,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const [username, password] = credentials.split(':')
       
       // SECURITY: Both environment variables MUST be set - no fallbacks
-      const validUsername = process.env.ADMIN_USERNAME || 'admin'
-      const validPassword = process.env.ADMIN_PASSWORD || 'DirectoryBolt2025!'
+      const validUsername = process.env.ADMIN_USERNAME
+      const validPassword = process.env.ADMIN_PASSWORD
+      
+      if (!validUsername || !validPassword) {
+        console.error('❌ Admin basic auth credentials not configured in environment')
+        return res.status(500).json({
+          authenticated: false,
+          error: 'Admin basic authentication system not properly configured'
+        })
+      }
       
       if (username === validUsername && password === validPassword) {
         console.log('✅ Admin authenticated via basic auth')

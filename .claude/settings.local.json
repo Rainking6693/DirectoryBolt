@@ -51,7 +51,16 @@
       "Bash(for file in ai-vs-human-consulting-research.tsx business-intelligence-roi-calculator.tsx)",
       "Bash(do mv \"pages/$file\" \"pages/$file.tmp\")",
       "Bash(git checkout:*)",
-      "Bash(git rev-list:*)"
+      "Bash(git rev-list:*)",
+      "Read(//c/Users/Ben/OneDrive/Documents/GitHub/**)",
+      "Bash(railway --version)",
+      "Bash(docker:*)",
+      "Bash(netlify:*)",
+      "Bash(start \"Docker Desktop\" \"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\")",
+      "Bash(chmod:*)",
+      "Bash(bash:*)",
+      "Bash(mcp list-servers:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

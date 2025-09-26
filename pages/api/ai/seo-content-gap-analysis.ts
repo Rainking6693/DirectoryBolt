@@ -18,6 +18,8 @@ import { rateLimit } from '../../../lib/utils/rate-limit'
 import { logger } from '../../../lib/utils/logger'
 import { AI, BusinessProfile } from '../../../lib/services/ai-service'
 import { createAIAnalysisCacheService } from '../../../lib/services/ai-analysis-cache'
+import { validateCustomerAuth, hasFeatureAccess } from '../../../lib/middleware/customer-auth'
+import { sanitizeBusinessData } from '../../../lib/utils/sanitizer'
 
 // Rate limiting for SEO analysis (expensive AI operation)
 const limiter = rateLimit({
@@ -29,7 +31,7 @@ export interface SEOContentGapRequest {
   businessProfile: BusinessProfile
   competitorUrls?: string[]
   targetKeywords?: string[]
-  userTier: 'free' | 'professional' | 'enterprise'
+  // userTier removed - now validated server-side via authentication
   analysisDepth?: 'basic' | 'comprehensive' | 'enterprise'
   includeKeywordGaps?: boolean
   includeContentSuggestions?: boolean
@@ -160,18 +162,46 @@ export default async function handler(
       })
     }
 
-    // Validate input
+    // Validate customer authentication and tier access
+    const authResult = await validateCustomerAuth(req)
+    
+    if (!authResult.isAuthenticated || !authResult.customer) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        message: 'Please log in to access SEO Content Gap Analysis',
+        requestId
+      })
+    }
+    
+    // Check if customer has SEO analysis feature access
+    if (!hasFeatureAccess(authResult.customer, 'seoAnalysis')) {
+      return res.status(403).json({
+        success: false,
+        error: 'Premium feature access required',
+        message: `SEO Content Gap Analysis is available for Professional and Enterprise plans. Your current plan: ${authResult.customer.tier}`,
+        requiredTier: 'professional',
+        upgradeUrl: '/pricing',
+        requestId
+      })
+    }
+    
+    // Sanitize and validate input
+    const rawInput = req.body
+    const sanitizedInput = sanitizeBusinessData(rawInput)
+    
     const {
       businessProfile,
       competitorUrls = [],
       targetKeywords = [],
-      userTier,
       analysisDepth = 'basic',
       includeKeywordGaps = true,
       includeContentSuggestions = true,
       includeCompetitorAnalysis = true,
       forceRefresh = false
-    }: SEOContentGapRequest = req.body
+    } = sanitizedInput
+    
+    const userTier = authResult.customer.tier
 
     if (!businessProfile || !businessProfile.name) {
       return res.status(400).json({
@@ -181,11 +211,20 @@ export default async function handler(
       })
     }
 
-    // Feature gating - SEO content gap analysis is Professional+ only
-    if (userTier === 'free') {
+    // Server-side tier validation (redundant check after authentication, but kept for security)
+    if (!['professional', 'enterprise'].includes(userTier)) {
+      logger.warn('SEO analysis access attempt with insufficient tier', {
+        requestId,
+        customerTier: userTier,
+        customerId: authResult.customer.id
+      })
+      
       return res.status(403).json({
         success: false,
-        error: 'SEO Content Gap Analysis is a Professional feature. Upgrade to access AI-powered SEO insights.',
+        error: 'Insufficient tier access',
+        message: 'SEO Content Gap Analysis requires Professional or Enterprise tier',
+        currentTier: userTier,
+        requiredTier: 'professional',
         requestId
       })
     }
@@ -276,8 +315,8 @@ export default async function handler(
       targetKeywords.length
     )
 
-    // Cache the results
-    if (userTier !== 'free') {
+    // Cache the results for paid tiers
+    if (userTier === 'professional' || userTier === 'enterprise') {
       try {
         const cacheKey = `seo_gap_${businessProfile.name.toLowerCase().replace(/\s+/g, '_')}_${userTier}`
         await cacheService.storeSEOAnalysis(cacheKey, analysisResult, confidence)

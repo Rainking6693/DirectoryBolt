@@ -41,6 +41,7 @@ const PLANS: PricingPlan[] = [
     features: [
       '300 Directory Submissions',
       'Premium AI Intelligence',
+      'SEO Content Gap Analysis',
       'Dedicated Support',
       '2-3 Day Processing',
       'Custom Reporting'
@@ -53,6 +54,7 @@ const PLANS: PricingPlan[] = [
     features: [
       '500 Directory Submissions',
       'Enterprise AI Intelligence',
+      'Advanced SEO Content Gap Analysis',
       'White-glove Support',
       '1-2 Day Processing',
       'Custom Solutions'
@@ -111,13 +113,13 @@ export default function StreamlinedPricing() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`relative bg-white rounded-2xl shadow-lg p-8 ${
-                plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+              className={`relative bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl ${
+                plan.popular ? 'ring-2 ring-blue-500 scale-105 shadow-2xl' : 'hover:scale-102'
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <span className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg border-2 border-white">
                     Most Popular
                   </span>
                 </div>

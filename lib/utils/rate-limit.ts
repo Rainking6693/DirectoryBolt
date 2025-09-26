@@ -17,7 +17,8 @@ const rateLimitStore = new Map<string, RateLimitData>()
 // Cleanup old entries every 5 minutes
 setInterval(() => {
   const now = Date.now()
-  for (const [key, data] of rateLimitStore.entries()) {
+  const entries = Array.from(rateLimitStore.entries())
+  for (const [key, data] of entries) {
     if (now > data.resetTime) {
       rateLimitStore.delete(key)
     }
@@ -204,7 +205,8 @@ export class AdvancedRateLimit {
     const now = Date.now()
     const maxAge = 24 * 60 * 60 * 1000 // 24 hours
 
-    for (const [key, data] of this.store.entries()) {
+    const entries = Array.from(this.store.entries())
+    for (const [key, data] of entries) {
       if (key.startsWith('sliding_')) {
         // Clean up sliding window data
         const requests = data.filter((timestamp: number) => 

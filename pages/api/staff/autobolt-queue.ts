@@ -1,107 +1,62 @@
-// Staff Dashboard - AutoBolt Queue API
-// Provides AutoBolt processing queue data for staff monitoring
-
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
+import { getQueueSnapshot } from '../../../lib/server/autoboltJobs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+function authenticateStaff(req: NextApiRequest) {
+  const staffKey = req.headers['x-staff-key'] || req.headers['authorization']
+  const validStaffKey = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase configuration')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+  if (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`) {
+    return true
   }
-})
+
+  const staffSession = req.headers.cookie?.split('; ').find(row => row.startsWith('staff-session='))?.split('=')[1]
+  if (staffSession) {
+    return true
+  }
+
+  const authHeader = req.headers.authorization
+  if (authHeader?.startsWith('Basic ')) {
+    const decoded = Buffer.from(authHeader.replace('Basic ', ''), 'base64').toString()
+    const [username, password] = decoded.split(':')
+    if (username === 'staff' && password === (process.env.STAFF_DASHBOARD_PASSWORD || 'DirectoryBoltStaff2025!')) {
+      return true
+    }
+  }
+
+  return false
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ success: false, error: 'Method not allowed' })
+  }
+
+  if (!authenticateStaff(req)) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' })
   }
 
   try {
-    console.log('📋 Staff requesting AutoBolt queue data')
+    const snapshot = await getQueueSnapshot()
 
-    // Get queue items
-    const { data: queueItems, error: queueError } = await supabase
-      .from('autobolt_processing_queue')
-      .select(`
-        id,
-        customer_id,
-        business_name,
-        email,
-        package_type,
-        directory_limit,
-        priority_level,
-        status,
-        created_at,
-        started_at,
-        completed_at,
-        error_message
-      `)
-      .order('priority_level', { ascending: true })
-      .order('created_at', { ascending: true })
-
-    if (queueError) {
-      console.error('❌ Failed to get queue items:', queueError)
-      return res.status(500).json({
-        error: 'Database Error',
-        message: 'Failed to retrieve queue data',
-        details: queueError.message
-      })
-    }
-
-    // Get queue statistics
-    const { data: stats, error: statsError } = await supabase
-      .rpc('get_queue_stats')
-
-    if (statsError) {
-      console.error('❌ Failed to get queue stats:', statsError)
-      // Fallback to manual calculation
-      const manualStats = {
-        total_queued: queueItems?.filter(item => item.status === 'queued').length || 0,
-        total_processing: queueItems?.filter(item => item.status === 'processing').length || 0,
-        total_completed: queueItems?.filter(item => item.status === 'completed').length || 0,
-        total_failed: queueItems?.filter(item => item.status === 'failed').length || 0
-      }
-      
-      res.status(200).json({
-        success: true,
-        data: {
-          queue_items: queueItems || [],
-          stats: manualStats
-        },
-        retrieved_at: new Date().toISOString()
-      })
-      return
-    }
-
-    console.log(`✅ Retrieved ${queueItems?.length || 0} AutoBolt queue items`)
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: {
-        queue_items: queueItems || [],
-        stats: stats?.[0] || {
-          total_queued: 0,
-          total_processing: 0,
-          total_completed: 0,
-          total_failed: 0
+        queueItems: snapshot.jobs,
+        stats: {
+          total_queued: snapshot.stats.pendingJobs,
+          total_processing: snapshot.stats.inProgressJobs,
+          total_completed: snapshot.stats.completedJobs,
+          total_failed: snapshot.stats.failedJobs,
+          total_jobs: snapshot.stats.totalJobs,
+          completed_directories: snapshot.stats.completedDirectories,
+          failed_directories: snapshot.stats.failedDirectories,
+          success_rate: snapshot.stats.successRate
         }
       },
       retrieved_at: new Date().toISOString()
     })
-
   } catch (error) {
-    console.error('❌ AutoBolt queue error:', error)
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to retrieve AutoBolt queue data',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    })
+    console.error('AutoBolt queue snapshot error:', error)
+    return res.status(500).json({ success: false, error: 'Failed to retrieve AutoBolt queue data' })
   }
 }

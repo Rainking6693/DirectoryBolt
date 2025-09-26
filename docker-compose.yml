@@ -1,63 +1,50 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  directorybolt-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: directorybolt-production
+  orchestrator:
+    build: .
+    container_name: autobolt-orchestrator
+    command: ["npm", "run", "dev:api"]
     ports:
-      - "3000:3000"
+      - "4000:4000"   # local machine → container port
     environment:
-      - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      PORT: 4000
+      JOB_STALL_MINUTES: 10
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+    healthcheck:                  # <--- Health check added here
+      test: ["CMD", "curl", "-f", "http://localhost:4000/healthz"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
-    volumes:
-      - app-logs:/app/logs
-    networks:
-      - directorybolt-network
 
-  # Optional: Add a reverse proxy
-  nginx:
-    image: nginx:alpine
-    container_name: directorybolt-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
+  worker1:
+    build: .
+    container_name: autobolt-worker1
+    command: ["npm", "run", "dev:worker"]
     depends_on:
-      - directorybolt-app
+      - orchestrator
+    environment:
+      API_BASE: http://orchestrator:4000
+      WORKER_ID: worker-1
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      TWO_CAPTCHA_KEY: ${TWO_CAPTCHA_KEY}
     restart: unless-stopped
-    networks:
-      - directorybolt-network
 
-  # Optional: Add monitoring
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: directorybolt-monitor
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer-data:/data
+  worker2:
+    build: .
+    container_name: autobolt-worker2
+    command: ["npm", "run", "dev:worker"]
+    depends_on:
+      - orchestrator
+    environment:
+      API_BASE: http://orchestrator:4000
+      WORKER_ID: worker-2
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      TWO_CAPTCHA_KEY: ${TWO_CAPTCHA_KEY}
     restart: unless-stopped
-    networks:
-      - directorybolt-network
-
-volumes:
-  app-logs:
-    driver: local
-  portainer-data:
-    driver: local
-
-networks:
-  directorybolt-network:
-    driver: bridge

@@ -1,16 +1,16 @@
 {
-  "timestamp": "2025-09-23T20:43:20.601Z",
+  "timestamp": "2025-09-25T22:27:42.547Z",
   "environment": "production",
   "platform": "netlify",
-  "buildId": "local",
-  "deployUrl": "localhost",
+  "buildId": "0",
+  "deployUrl": "https://0--directorybolt.netlify.app",
   "tests": [
     {
       "name": "Environment Variables",
       "critical": true,
       "status": "passed",
-      "startTime": "2025-09-23T20:43:20.603Z",
-      "duration": 0.6687999999999974,
+      "startTime": "2025-09-25T22:27:42.548Z",
+      "duration": 0.6631,
       "result": {
         "configured": 5,
         "missing": [
@@ -21,41 +21,41 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-23T20:43:20.603Z"
+      "endTime": "2025-09-25T22:27:42.549Z"
     },
     {
       "name": "API Connectivity",
       "critical": true,
       "status": "passed",
-      "startTime": "2025-09-23T20:43:20.603Z",
-      "duration": 1337.7521000000002,
+      "startTime": "2025-09-25T22:27:42.549Z",
+      "duration": 1815.6921,
       "result": {
         "tested": 2,
-        "healthy": 1,
+        "healthy": 2,
         "services": [
           {
             "service": "OpenAI",
-            "status": "error",
-            "error": "401 Incorrect API key provided: sk-proj-********************************************************************************************************************************************************M4sA. You can find your API key at https://platform.openai.com/account/api-keys."
+            "status": "healthy",
+            "latency": 909.4969
           },
           {
             "service": "Supabase",
             "status": "healthy",
-            "latency": 767.0652
+            "latency": 649.27
           }
         ],
-        "averageLatency": 767.0652
+        "averageLatency": 779.38345
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-23T20:43:21.941Z"
+      "endTime": "2025-09-25T22:27:44.365Z"
     },
     {
       "name": "Build Artifacts",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-23T20:43:21.941Z",
-      "duration": 7.558800000000019,
+      "startTime": "2025-09-25T22:27:44.365Z",
+      "duration": 601.6071,
       "result": {
         "present": [
           "nextBuild",
@@ -66,9 +66,9 @@
         ],
         "missing": [],
         "sizes": {
-          "nextBuild": 215720,
-          "publicAssets": 163050,
-          "serverFunctions": 46431,
+          "nextBuild": 318189502,
+          "publicAssets": 254537,
+          "serverFunctions": 90764,
           "packageJson": 7715,
           "nextConfig": 7086
         },
@@ -82,24 +82,24 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-23T20:43:21.949Z"
+      "endTime": "2025-09-25T22:27:44.966Z"
     },
     {
       "name": "Performance Metrics",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-23T20:43:21.949Z",
-      "duration": 109.94410000000016,
+      "startTime": "2025-09-25T22:27:44.966Z",
+      "duration": 101.83069999999998,
       "result": {
         "memoryUsage": {
-          "heapUsed": 14648360,
-          "heapTotal": 21491712,
-          "external": 3550378,
-          "rss": 67133440,
-          "heapUtilization": 68.15818116304555
+          "heapUsed": 12492120,
+          "heapTotal": 31186944,
+          "external": 3573519,
+          "rss": 79101952,
+          "heapUtilization": 40.05560788514578
         },
         "timing": {
-          "applicationStartup": 108.55749999999989,
+          "applicationStartup": 99.97810000000027,
           "nodeVersion": "v22.19.0",
           "platform": "win32",
           "arch": "x64"
@@ -111,39 +111,39 @@
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-23T20:43:22.059Z"
+      "endTime": "2025-09-25T22:27:45.068Z"
     },
     {
       "name": "Security Configuration",
       "critical": false,
       "status": "passed",
-      "startTime": "2025-09-23T20:43:22.059Z",
-      "duration": 0.2153000000000702,
+      "startTime": "2025-09-25T22:27:45.068Z",
+      "duration": 0.1948000000002139,
       "result": {
         "headers": {},
         "environment": {
           "nodeEnv": "production",
-          "telemetryDisabled": false,
+          "telemetryDisabled": true,
           "productionMode": true
         },
         "dependencies": {},
-        "score": 40
+        "score": 50
       },
       "error": null,
       "metadata": {},
-      "endTime": "2025-09-23T20:43:22.059Z"
+      "endTime": "2025-09-25T22:27:45.068Z"
     }
   ],
   "performance": {
     "memoryUsage": {
-      "heapUsed": 14648360,
-      "heapTotal": 21491712,
-      "external": 3550378,
-      "rss": 67133440,
-      "heapUtilization": 68.15818116304555
+      "heapUsed": 12492120,
+      "heapTotal": 31186944,
+      "external": 3573519,
+      "rss": 79101952,
+      "heapUtilization": 40.05560788514578
     },
     "timing": {
-      "applicationStartup": 108.55749999999989,
+      "applicationStartup": 99.97810000000027,
       "nodeVersion": "v22.19.0",
       "platform": "win32",
       "arch": "x64"
@@ -157,31 +157,19 @@
     "headers": {},
     "environment": {
       "nodeEnv": "production",
-      "telemetryDisabled": false,
+      "telemetryDisabled": true,
       "productionMode": true
     },
     "dependencies": {},
-    "score": 40
+    "score": 50
   },
   "dependencies": {},
   "overall": {
     "healthy": true,
     "score": 100,
     "criticalIssues": [],
-    "warnings": [
-      {
-        "test": "Security Configuration",
-        "error": "Low security score: 40/100",
-        "impact": "high"
-      }
-    ],
+    "warnings": [],
     "recommendations": [
-      {
-        "category": "Performance",
-        "priority": "medium",
-        "recommendation": "Consider optimizing memory usage or increasing heap size",
-        "implementation": "Add NODE_OPTIONS=\"--max-old-space-size=4096\" to environment"
-      },
       {
         "category": "Security",
         "priority": "high",

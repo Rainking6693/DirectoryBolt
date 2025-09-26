@@ -25,8 +25,16 @@ export function applyCorsHeaders(
   // Enhanced Chrome extension support (Hudson's requirement)
   if (origin && origin.startsWith('chrome-extension://')) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (process.env.NODE_ENV === 'production') {
+    // Production: Only allow DirectoryBolt domain
+    res.setHeader('Access-Control-Allow-Origin', 'https://directorybolt.netlify.app');
   } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Development: Allow localhost for testing
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    }
   }
   
   // Standard methods + additional if specified

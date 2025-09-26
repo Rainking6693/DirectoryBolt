@@ -74,11 +74,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function handleGetApiKeys(req: NextApiRequest, res: NextApiResponse) {
   // Return configured API keys (for display purposes)
+  const adminApiKey = process.env.ADMIN_API_KEY
+  const staffApiKey = process.env.STAFF_API_KEY
+  
+  if (!adminApiKey || !staffApiKey) {
+    return res.status(500).json({
+      success: false,
+      error: 'API keys not properly configured in environment'
+    })
+  }
+
   const keys: ApiKey[] = [
     {
       id: 'admin-1',
       name: 'Admin API Key',
-      key: process.env.ADMIN_API_KEY || 'DirectoryBolt-Admin-2025-SecureKey',
+      key: adminApiKey,
       type: 'admin',
       created: '2025-01-01T00:00:00Z',
       active: true
@@ -86,7 +96,7 @@ async function handleGetApiKeys(req: NextApiRequest, res: NextApiResponse) {
     {
       id: 'staff-1',
       name: 'Staff API Key',
-      key: process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey',
+      key: staffApiKey,
       type: 'staff',
       created: '2025-01-01T00:00:00Z',
       active: true

@@ -3,20 +3,39 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import CustomerValidation from './CustomerValidation'
+import BatchProcessingMonitor from './BatchProcessingMonitor'
+
+type QueueStatus = 'pending' | 'in_progress' | 'complete' | 'failed' | 'cancelled'
 
 interface QueueItem {
   id: string
-  customer_id: string
-  business_name: string
-  email: string
-  package_type: string
-  directory_limit: number
-  priority_level: number
-  status: 'queued' | 'processing' | 'completed' | 'failed' | 'paused'
-  created_at: string
-  started_at?: string
-  completed_at?: string
-  error_message?: string
+  customerId: string
+  businessName: string | null
+  email: string | null
+  packageSize: number
+  priorityLevel: number
+  status: QueueStatus
+  createdAt: string
+  startedAt?: string | null
+  completedAt?: string | null
+  errorMessage?: string | null
+  directoriesTotal: number
+  directoriesCompleted: number
+  directoriesFailed: number
+  progressPercentage: number
+}
+
+interface QueueStats {
+  totalJobs: number
+  pendingJobs: number
+  inProgressJobs: number
+  completedJobs: number
+  failedJobs: number
+  totalDirectories: number
+  completedDirectories: number
+  failedDirectories: number
+  successRate: number
 }
 
 interface ExtensionStatus {
@@ -29,346 +48,749 @@ interface ExtensionStatus {
   error_message?: string
 }
 
-interface QueueStats {
-  total_queued: number
-  total_processing: number
-  total_completed: number
-  total_failed: number
+interface WorkerStatus {
+  worker_id: string
+  status: 'online' | 'offline' | 'processing' | 'error' | 'idle'
+  last_heartbeat: string
+  current_job_id?: string
+  jobs_processed: number
+  jobs_failed: number
+  proxy_enabled: boolean
+  captcha_credits: number
+  error_message?: string
+  uptime_seconds: number
+}
+
+function formatPackage(size: number) {
+  switch (size) {
+    case 50:
+      return 'Starter (50)'
+    case 100:
+      return 'Growth (100)'
+    case 300:
+      return 'Professional (300)'
+    case 500:
+      return 'Enterprise (500)'
+    default:
+      return `Custom (${size})`
+  }
+}
+
+function formatStatus(status: QueueStatus) {
+  switch (status) {
+    case 'pending':
+      return 'Pending'
+    case 'in_progress':
+      return 'In Progress'
+    case 'complete':
+      return 'Complete'
+    case 'failed':
+      return 'Failed'
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return status
+  }
 }
 
 export default function AutoBoltQueueMonitor() {
   const router = useRouter()
   const [queueItems, setQueueItems] = useState<QueueItem[]>([])
   const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus[]>([])
+  const [workerStatus, setWorkerStatus] = useState<WorkerStatus[]>([])
   const [queueStats, setQueueStats] = useState<QueueStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [filteredStatus, setFilteredStatus] = useState<string | null>(null)
+  const [filteredStatus, setFilteredStatus] = useState<QueueStatus | 'all'>('all')
+  const [retryingJobs, setRetryingJobs] = useState<Set<string>>(new Set())
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
+  const [showExtensionComponents, setShowExtensionComponents] = useState(true)
 
   useEffect(() => {
     fetchQueueData()
-    const interval = setInterval(fetchQueueData, 5000) // Update every 5 seconds
+    // Increase frequency for real-time updates during development
+    const interval = setInterval(fetchQueueData, 3000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Real-time status updates via Server-Sent Events (optional enhancement)
+  useEffect(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://directorybolt.netlify.app'
+    let eventSource: EventSource | null = null
+    
+    try {
+      eventSource = new EventSource(`${baseUrl}/api/autobolt/stream`)
+      
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (data.type === 'queue_update') {
+            fetchQueueData()
+          } else if (data.type === 'worker_status') {
+            setWorkerStatus(data.workers || [])
+          }
+        } catch (error) {
+          console.error('SSE parsing error:', error)
+        }
+      }
+
+      eventSource.onerror = (error) => {
+        console.warn('SSE connection error (non-critical):', error)
+        // SSE is optional, don't impact main functionality
+        if (eventSource) {
+          eventSource.close()
+        }
+      }
+    } catch (sseError) {
+      console.warn('SSE initialization failed (non-critical):', sseError)
+      // SSE is an enhancement, don't fail if unavailable
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close()
+      }
+    }
   }, [])
 
   const fetchQueueData = async () => {
     try {
-      const storedAuth = localStorage.getItem('staffAuth')
-      
-      if (!storedAuth) {
+      // Validate authentication with server first
+      const authResponse = await fetch('/api/staff/auth-check')
+      if (!authResponse.ok) {
+        throw new Error('Staff authentication expired or invalid')
+      }
+
+      const authData = await authResponse.json()
+      if (!authData.isAuthenticated) {
         throw new Error('Staff authentication required')
       }
-      
+
       const headers = {
-        'Authorization': `Bearer ${storedAuth}`
+        'Content-Type': 'application/json'
+        // Server validates via session cookies, no need for Bearer token
       }
 
-      // Fetch queue items
-      const queueResponse = await fetch('/api/staff/autobolt-queue', { headers })
-      if (!queueResponse.ok) {
-        throw new Error('Failed to fetch queue data')
-      }
+      // Use production backend API URLs
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://directorybolt.netlify.app'
       
+      // Fetch queue data with production endpoint
+      const queueResponse = await fetch(`${baseUrl}/api/staff/autobolt-queue`, { 
+        headers,
+        method: 'GET',
+        cache: 'no-store'
+      })
+      
+      if (!queueResponse.ok) {
+        const errorText = await queueResponse.text()
+        throw new Error(`Queue API Error: ${queueResponse.status} - ${errorText}`)
+      }
+
       const queueResult = await queueResponse.json()
       if (queueResult.success) {
-        setQueueItems(queueResult.data.queue_items || [])
-        setQueueStats(queueResult.data.stats || null)
-      }
+        const items: QueueItem[] = (queueResult.data?.queueItems || []).map((item: any) => ({
+          id: item.id,
+          customerId: item.customerId,
+          businessName: item.businessName || null,
+          email: item.email || null,
+          packageSize: item.packageSize,
+          priorityLevel: item.priorityLevel,
+          status: item.status,
+          createdAt: item.createdAt,
+          startedAt: item.startedAt,
+          completedAt: item.completedAt,
+          errorMessage: item.errorMessage,
+          directoriesTotal: item.directoriesTotal,
+          directoriesCompleted: item.directoriesCompleted,
+          directoriesFailed: item.directoriesFailed,
+          progressPercentage: item.progressPercentage
+        }))
 
-      // Fetch extension status
-      const extensionResponse = await fetch('/api/staff/autobolt-extensions', { headers })
-      if (extensionResponse.ok) {
-        const extensionResult = await extensionResponse.json()
-        if (extensionResult.success) {
-          setExtensionStatus(extensionResult.data || [])
+        setQueueItems(items)
+
+        if (queueResult.data?.stats) {
+          const stats = queueResult.data.stats
+          setQueueStats({
+            totalJobs: stats.total_jobs ?? stats.totalJobs ?? 0,
+            pendingJobs: stats.total_queued ?? stats.pendingJobs ?? 0,
+            inProgressJobs: stats.total_processing ?? stats.inProgressJobs ?? 0,
+            completedJobs: stats.total_completed ?? stats.completedJobs ?? 0,
+            failedJobs: stats.total_failed ?? stats.failedJobs ?? 0,
+            totalDirectories: stats.total_directories ?? 0,
+            completedDirectories: stats.completed_directories ?? stats.completedDirectories ?? 0,
+            failedDirectories: stats.failed_directories ?? stats.failedDirectories ?? 0,
+            successRate: stats.success_rate ?? stats.successRate ?? 0
+          })
         }
       }
 
+      // Fetch backend worker status (replaces extension functionality)
+      try {
+        const workerResponse = await fetch(`${baseUrl}/api/autobolt-status`, { 
+          headers,
+          method: 'GET',
+          cache: 'no-store'
+        })
+        
+        if (workerResponse.ok) {
+          const workerResult = await workerResponse.json()
+          if (workerResult.success && workerResult.data) {
+            setWorkerStatus(workerResult.data.workers || [])
+          }
+        }
+      } catch (workerError) {
+        console.warn('Worker status fetch failed:', workerError)
+        // Don't fail the entire operation if worker status fails
+      }
+
+      // Legacy extension status (will be phased out)
+      try {
+        const extensionResponse = await fetch('/api/staff/autobolt-extensions', { headers })
+        if (extensionResponse.ok) {
+          const extensionResult = await extensionResponse.json()
+          if (extensionResult.success) {
+            setExtensionStatus(extensionResult.data?.extensions || [])
+          }
+        }
+      } catch (extensionError) {
+        console.warn('Extension status fetch failed:', extensionError)
+        // Extensions are legacy, don't fail if unavailable
+        setExtensionStatus([])
+      }
+
       setLastUpdated(new Date())
+      setLoading(false)
       setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-      console.error('AutoBolt queue fetch error:', err)
-    } finally {
+    } catch (fetchError) {
+      console.error('Failed to load AutoBolt queue:', fetchError)
+      setError(fetchError instanceof Error ? fetchError.message : 'Failed to load queue data')
       setLoading(false)
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'queued': return 'text-volt-400 bg-volt-400/20'
-      case 'processing': return 'text-blue-400 bg-blue-400/20'
-      case 'completed': return 'text-green-400 bg-green-400/20'
-      case 'failed': return 'text-red-400 bg-red-400/20'
-      case 'paused': return 'text-gray-400 bg-gray-400/20'
-      default: return 'text-gray-400 bg-gray-400/20'
+  const filteredItems = filteredStatus === 'all'
+    ? queueItems
+    : queueItems.filter(item => item.status === filteredStatus)
+
+  const retryFailedJobs = async () => {
+    try {
+      const failedJobs = queueItems.filter(item => item.status === 'failed')
+      if (failedJobs.length === 0) {
+        setError('No failed jobs to retry')
+        return
+      }
+
+      // Validate authentication with server
+      const authResponse = await fetch('/api/staff/auth-check')
+      if (!authResponse.ok) {
+        throw new Error('Staff authentication expired')
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      setRetryingJobs(new Set(failedJobs.map(job => job.id)))
+
+      // Use production backend API endpoint
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://directorybolt.netlify.app'
+      const response = await fetch(`${baseUrl}/api/autobolt/jobs/retry`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          jobIds: failedJobs.map(job => job.id)
+        })
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Retry API Error: ${response.status} - ${errorText}`)
+      }
+
+      const result = await response.json()
+      if (result.success) {
+        // Refresh queue data to show updated statuses
+        await fetchQueueData()
+        setError(null)
+        
+        // Show success message
+        console.log(`Successfully queued ${result.data?.retriedJobsCount || failedJobs.length} jobs for retry`)
+      } else {
+        throw new Error(result.error || 'Failed to retry jobs')
+      }
+    } catch (retryError) {
+      console.error('Failed to retry jobs:', retryError)
+      setError(retryError instanceof Error ? retryError.message : 'Failed to retry jobs')
+    } finally {
+      setRetryingJobs(new Set())
     }
   }
 
-  const getExtensionStatusColor = (status: string) => {
-    switch (status) {
-      case 'online': return 'text-green-400 bg-green-400/20'
-      case 'processing': return 'text-blue-400 bg-blue-400/20'
-      case 'offline': return 'text-gray-400 bg-gray-400/20'
-      case 'error': return 'text-red-400 bg-red-400/20'
-      default: return 'text-gray-400 bg-gray-400/20'
+  const retrySpecificJob = async (jobId: string) => {
+    try {
+      // Validate authentication with server
+      const authResponse = await fetch('/api/staff/auth-check')
+      if (!authResponse.ok) {
+        throw new Error('Staff authentication expired')
+      }
+
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      setRetryingJobs(prev => new Set([...prev, jobId]))
+
+      // Use production backend API endpoint
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://directorybolt.netlify.app'
+      const response = await fetch(`${baseUrl}/api/autobolt/jobs/retry`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          jobIds: [jobId]
+        })
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Retry API Error: ${response.status} - ${errorText}`)
+      }
+
+      const result = await response.json()
+      if (result.success) {
+        // Refresh queue data to show updated status
+        await fetchQueueData()
+        setError(null)
+        
+        // Log success
+        console.log(`Successfully queued job ${jobId} for retry`)
+      } else {
+        throw new Error(result.error || 'Failed to retry job')
+      }
+    } catch (retryError) {
+      console.error('Failed to retry job:', retryError)
+      setError(retryError instanceof Error ? retryError.message : 'Failed to retry job')
+    } finally {
+      setRetryingJobs(prev => {
+        const updated = new Set(prev)
+        updated.delete(jobId)
+        return updated
+      })
     }
-  }
-
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date()
-    const time = new Date(timestamp)
-    const diffMs = now.getTime() - time.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours}h ago`
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays}d ago`
-  }
-
-  const handleStatClick = (status: string) => {
-    setFilteredStatus(filteredStatus === status ? null : status)
-  }
-
-  const handleQueueItemClick = (item: QueueItem) => {
-    // Navigate to detailed view of queue item
-    router.push(`/staff-dashboard/queue-item/${item.id}`)
-  }
-
-  const handleExtensionClick = (extensionId: string) => {
-    // Navigate to extension details
-    router.push(`/staff-dashboard/extension/${extensionId}`)
-  }
-
-  const getFilteredQueueItems = () => {
-    if (!filteredStatus) return queueItems
-    return queueItems.filter(item => item.status === filteredStatus)
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-volt-500"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-600/10 border border-red-500/20 rounded-xl p-6 text-center">
-        <p className="text-red-400 font-medium">Failed to load AutoBolt queue</p>
-        <p className="text-red-300 text-sm mt-2">{error}</p>
-        <button 
-          onClick={fetchQueueData}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
-        >
-          Retry
-        </button>
-      </div>
-    )
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">AutoBolt Processing Queue</h2>
-        <div className="flex items-center space-x-2 text-secondary-300">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm">
-            {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : 'Live'}
-          </span>
+      {/* Real-time Status Header */}
+      <div className="bg-secondary-900/40 border border-secondary-800 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${
+                workerStatus.some(w => w.status === 'online') || extensionStatus.some(e => e.status === 'online')
+                  ? 'bg-green-400 animate-pulse' 
+                  : 'bg-red-400'
+              }`}></div>
+              <span className="text-secondary-200 font-medium">
+                {workerStatus.some(w => w.status === 'online') || extensionStatus.some(e => e.status === 'online')
+                  ? 'AutoBolt Active' 
+                  : 'AutoBolt Offline'}
+              </span>
+            </div>
+            <div className="text-secondary-400 text-sm">
+              {workerStatus.length > 0 && `${workerStatus.length} backend workers`}
+              {extensionStatus.length > 0 && ` • ${extensionStatus.length} legacy extensions`}
+              {error && (
+                <span className="text-red-300 ml-2">
+                  • Backend Connection Issue
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Backend Connection Status */}
+            <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-400' : 'bg-green-400'}`}></div>
+              <span className="text-xs text-secondary-300">
+                {error ? 'Backend Disconnected' : 'Backend Connected'}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowExtensionComponents(!showExtensionComponents)}
+              className="px-3 py-1 text-xs bg-secondary-700 hover:bg-secondary-600 rounded text-secondary-200"
+            >
+              {showExtensionComponents ? 'Hide Tools' : 'Show Tools'}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Queue Statistics */}
-      {queueStats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <button 
-            onClick={() => handleStatClick('queued')}
-            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
-              filteredStatus === 'queued' ? 'ring-2 ring-volt-500 bg-secondary-700' : ''
-            }`}
-          >
-            <p className="text-2xl font-bold text-volt-500">{queueStats.total_queued}</p>
-            <p className="text-secondary-400 text-sm">Queued</p>
-          </button>
-          <button 
-            onClick={() => handleStatClick('processing')}
-            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
-              filteredStatus === 'processing' ? 'ring-2 ring-blue-500 bg-secondary-700' : ''
-            }`}
-          >
-            <p className="text-2xl font-bold text-blue-400">{queueStats.total_processing}</p>
-            <p className="text-secondary-400 text-sm">Processing</p>
-          </button>
-          <button 
-            onClick={() => handleStatClick('completed')}
-            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
-              filteredStatus === 'completed' ? 'ring-2 ring-green-500 bg-secondary-700' : ''
-            }`}
-          >
-            <p className="text-2xl font-bold text-green-400">{queueStats.total_completed}</p>
-            <p className="text-secondary-400 text-sm">Completed</p>
-          </button>
-          <button 
-            onClick={() => handleStatClick('failed')}
-            className={`bg-secondary-800 rounded-xl p-4 border border-secondary-700 text-center hover:bg-secondary-700 transition-colors cursor-pointer ${
-              filteredStatus === 'failed' ? 'ring-2 ring-red-500 bg-secondary-700' : ''
-            }`}
-          >
-            <p className="text-2xl font-bold text-red-400">{queueStats.total_failed}</p>
-            <p className="text-secondary-400 text-sm">Failed</p>
-          </button>
+      {/* Extension Migration Components */}
+      {showExtensionComponents && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <CustomerValidation />
+          <BatchProcessingMonitor 
+            customerId={selectedCustomerId}
+            onBatchStart={() => console.log('Batch started')}
+            onBatchComplete={() => fetchQueueData()}
+          />
         </div>
       )}
 
-      {/* Extension Status */}
-      <div className="bg-secondary-800 rounded-xl p-6 border border-secondary-700">
-        <h3 className="text-xl font-bold text-white mb-4">AutoBolt Extensions</h3>
-        {extensionStatus.length > 0 ? (
-          <div className="space-y-3">
-            {extensionStatus.map((extension) => (
-              <button 
-                key={extension.extension_id} 
-                onClick={() => handleExtensionClick(extension.extension_id)}
-                className="w-full flex items-center justify-between p-3 bg-secondary-700 rounded-lg hover:bg-secondary-600 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getExtensionStatusColor(extension.status)}`}>
-                    {extension.status}
-                  </span>
-                  <span className="text-white font-medium">{extension.extension_id}</span>
-                  {extension.current_customer_id && (
-                    <span className="text-secondary-300 text-sm">
-                      Processing: {extension.current_customer_id}
-                    </span>
-                  )}
-                </div>
-                <div className="text-right text-sm text-secondary-300">
-                  <div>Processed: {extension.directories_processed}</div>
-                  <div>Failed: {extension.directories_failed}</div>
-                  <div>Last seen: {formatTimeAgo(extension.last_heartbeat)}</div>
-                </div>
-              </button>
-            ))}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white">AutoBolt Queue</h2>
+          <p className="text-secondary-400 text-sm">
+            Real-time job queue and worker status monitoring
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-secondary-400 text-sm">
+            {lastUpdated ? `Last updated ${lastUpdated.toLocaleTimeString()}` : 'Awaiting updates...'}
           </div>
-        ) : (
-          <p className="text-secondary-400 text-center py-4">No AutoBolt extensions connected</p>
-        )}
+          <button
+            onClick={fetchQueueData}
+            disabled={loading}
+            className="px-4 py-2 text-sm bg-secondary-800 hover:bg-secondary-700 disabled:opacity-50 rounded-md text-secondary-100"
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+          {queueItems.some(item => item.status === 'failed') && (
+            <button
+              onClick={retryFailedJobs}
+              disabled={retryingJobs.size > 0}
+              className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-md text-white font-medium"
+            >
+              {retryingJobs.size > 0 ? 'Retrying...' : `Retry ${queueItems.filter(item => item.status === 'failed').length} Failed Jobs`}
+            </button>
+          )}
+          <button
+            onClick={() => router.push('/staff-dashboard')}
+            className="px-4 py-2 text-sm bg-volt-500/10 border border-volt-500/40 text-volt-300 rounded-md hover:bg-volt-500/15"
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
 
-      {/* Processing Queue */}
-      <div className="bg-secondary-800 rounded-xl border border-secondary-700">
-        <div className="p-6 border-b border-secondary-700">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white">Processing Queue</h3>
-            {filteredStatus && (
-              <div className="flex items-center space-x-2">
-                <span className="text-secondary-300 text-sm">Filtered by:</span>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(filteredStatus)}`}>
-                  {filteredStatus}
-                </span>
-                <button 
-                  onClick={() => setFilteredStatus(null)}
-                  className="text-secondary-400 hover:text-white text-sm"
-                >
-                  Clear filter
-                </button>
-              </div>
-            )}
-          </div>
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-md">
+          {error}
         </div>
+      )}
+
+      {queueStats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatCard label="Pending Jobs" value={queueStats.pendingJobs} status="pending" />
+          <StatCard label="In Progress" value={queueStats.inProgressJobs} status="in_progress" />
+          <StatCard label="Completed" value={queueStats.completedJobs} status="completed" />
+          <StatCard label="Failed" value={queueStats.failedJobs} status="failed" />
+        </div>
+      )}
+
+      <div className="bg-secondary-900/60 border border-secondary-800 rounded-lg overflow-hidden">
+        <div className="px-4 py-3 border-b border-secondary-800 flex items-center gap-4">
+          <span className="text-sm text-secondary-400">Filter status:</span>
+          <select
+            value={filteredStatus}
+            onChange={(event) => setFilteredStatus(event.target.value as QueueStatus | 'all')}
+            className="bg-secondary-800 text-secondary-100 text-sm px-3 py-2 rounded-md border border-secondary-700"
+          >
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-secondary-700">
+          <table className="min-w-full divide-y divide-secondary-800">
+            <thead className="bg-secondary-900/80">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Package
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Started
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-300 uppercase tracking-wider">
-                  Duration
-                </th>
+                <Th>Customer</Th>
+                <Th>Email</Th>
+                <Th>Package</Th>
+                <Th>Status</Th>
+                <Th>Progress</Th>
+                <Th>Completed</Th>
+                <Th>Failed</Th>
+                <Th>Priority</Th>
+                <Th>Created</Th>
+                <Th>Actions</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-secondary-700">
-              {getFilteredQueueItems().length > 0 ? (
-                getFilteredQueueItems().map((item) => (
-                  <tr 
-                    key={item.id} 
-                    onClick={() => handleQueueItemClick(item)}
-                    className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-white">{item.business_name}</div>
-                        <div className="text-sm text-secondary-400">{item.email}</div>
-                        <div className="text-xs text-secondary-500">{item.customer_id}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium bg-volt-500/20 text-volt-400 rounded-full">
-                        {item.package_type} ({item.directory_limit})
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(item.priority_level)}`}>
-                        P{item.priority_level}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-300">
-                      {item.started_at ? formatTimeAgo(item.started_at) : 'Not started'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-300">
-                      {item.started_at && !item.completed_at ? 
-                        formatTimeAgo(item.started_at) : 
-                        item.completed_at ? 'Completed' : 'N/A'
-                      }
-                    </td>
-                  </tr>
-                ))
-              ) : (
+            <tbody className="divide-y divide-secondary-800">
+              {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-secondary-400">
-                    {filteredStatus ? `No items with status "${filteredStatus}"` : 'No items in AutoBolt processing queue'}
+                  <td colSpan={10} className="py-6 text-center text-secondary-400">
+                    Loading queue data...
                   </td>
                 </tr>
+              ) : filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="py-6 text-center text-secondary-400">
+                    No jobs match the current filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item) => (
+                  <tr key={item.id} className="hover:bg-secondary-800/40 transition-colors">
+                    <Td>
+                      <div className="font-medium text-secondary-100">{item.businessName || 'Unknown Business'}</div>
+                      <div className="text-xs text-secondary-500">{item.customerId}</div>
+                    </Td>
+                    <Td>
+                      <span className="text-secondary-300 text-sm">{item.email || 'N/A'}</span>
+                    </Td>
+                    <Td>
+                      <span className="text-secondary-200 text-sm">{formatPackage(item.packageSize)}</span>
+                    </Td>
+                    <Td>
+                      <StatusPill status={item.status} />
+                    </Td>
+                    <Td>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-secondary-800 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`h-full ${item.status === 'complete' ? 'bg-green-400' : 'bg-volt-400'}`}
+                            style={{ width: `${item.progressPercentage}%` }}
+                          />
+                        </div>
+                        <span className="text-secondary-300 text-xs w-12">{item.progressPercentage}%</span>
+                      </div>
+                    </Td>
+                    <Td>
+                      <span className="text-secondary-200 text-sm">{item.directoriesCompleted}/{item.directoriesTotal}</span>
+                    </Td>
+                    <Td>
+                      <span className="text-red-300 text-sm">{item.directoriesFailed}</span>
+                    </Td>
+                    <Td>
+                      <span className="text-secondary-300 text-sm">{item.priorityLevel}</span>
+                    </Td>
+                    <Td>
+                      <div className="text-secondary-300 text-xs">
+                        <div>Created: {new Date(item.createdAt).toLocaleString()}</div>
+                        {item.startedAt && <div>Started: {new Date(item.startedAt).toLocaleString()}</div>}
+                        {item.completedAt && <div>Completed: {new Date(item.completedAt).toLocaleString()}</div>}
+                        {item.errorMessage && <div className="text-red-300">Error: {item.errorMessage}</div>}
+                      </div>
+                    </Td>
+                    <Td>
+                      {item.status === 'failed' && (
+                        <button
+                          onClick={() => retrySpecificJob(item.id)}
+                          disabled={retryingJobs.has(item.id)}
+                          className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded text-white font-medium"
+                        >
+                          {retryingJobs.has(item.id) ? 'Retrying...' : 'Retry'}
+                        </button>
+                      )}
+                    </Td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Worker Status - New Backend Architecture */}
+      <div className="bg-secondary-900/60 border border-secondary-800 rounded-lg overflow-hidden">
+        <div className="px-4 py-3 border-b border-secondary-800">
+          <h3 className="text-secondary-200 font-medium">Worker Status</h3>
+          <p className="text-secondary-500 text-sm">Backend worker heartbeat monitoring and performance metrics</p>
+        </div>
+        <div className="divide-y divide-secondary-800">
+          {workerStatus.length === 0 ? (
+            <div className="p-4 text-secondary-400 text-sm">
+              No active workers detected. Backend workers will appear here once deployed.
+            </div>
+          ) : (
+            workerStatus.map((worker) => (
+              <div key={worker.worker_id} className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <div className="text-secondary-100 font-medium">Worker {worker.worker_id}</div>
+                    <div className="text-secondary-400 text-xs">
+                      Last heartbeat: {new Date(worker.last_heartbeat).toLocaleString()}
+                      {worker.current_job_id && ` | Processing job: ${worker.current_job_id}`}
+                    </div>
+                    {worker.error_message && (
+                      <div className="text-red-300 text-xs mt-1">Error: {worker.error_message}</div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <div className="text-secondary-200 text-sm">Uptime</div>
+                      <div className="text-secondary-400 text-xs">
+                        {Math.floor(worker.uptime_seconds / 3600)}h {Math.floor((worker.uptime_seconds % 3600) / 60)}m
+                      </div>
+                    </div>
+                    <WorkerStatusBadge status={worker.status} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                  <div className="bg-secondary-800/40 rounded p-2">
+                    <div className="text-secondary-400">Jobs Processed</div>
+                    <div className="text-secondary-200 font-medium">{worker.jobs_processed}</div>
+                  </div>
+                  <div className="bg-secondary-800/40 rounded p-2">
+                    <div className="text-secondary-400">Jobs Failed</div>
+                    <div className="text-red-300 font-medium">{worker.jobs_failed}</div>
+                  </div>
+                  <div className="bg-secondary-800/40 rounded p-2">
+                    <div className="text-secondary-400">Proxy</div>
+                    <div className={`font-medium ${worker.proxy_enabled ? 'text-green-300' : 'text-secondary-300'}`}>
+                      {worker.proxy_enabled ? 'Enabled' : 'Disabled'}
+                    </div>
+                  </div>
+                  <div className="bg-secondary-800/40 rounded p-2">
+                    <div className="text-secondary-400">Captcha Credits</div>
+                    <div className="text-secondary-200 font-medium">{worker.captcha_credits}</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Legacy Extension Status - Will be removed after migration */}
+      <div className="bg-secondary-900/60 border border-secondary-800 rounded-lg overflow-hidden">
+        <div className="px-4 py-3 border-b border-secondary-800">
+          <h3 className="text-secondary-200 font-medium">Extension Status (Legacy)</h3>
+          <p className="text-secondary-500 text-sm">Chrome extension instances - will be deprecated after backend migration</p>
+        </div>
+        <div className="divide-y divide-secondary-800">
+          {extensionStatus.length === 0 ? (
+            <div className="p-4 text-secondary-400 text-sm">
+              No active AutoBolt extension heartbeats detected.
+            </div>
+          ) : (
+            extensionStatus.map((extension) => (
+              <div key={extension.extension_id} className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-secondary-100 font-medium">Extension {extension.extension_id}</div>
+                  <div className="text-secondary-400 text-xs">Last heartbeat: {new Date(extension.last_heartbeat).toLocaleString()}</div>
+                  {extension.error_message && (
+                    <div className="text-red-300 text-xs mt-1">Error: {extension.error_message}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <div className="text-secondary-200 text-sm">Processing</div>
+                    <div className="text-secondary-400 text-xs">{extension.directories_processed} directories</div>
+                  </div>
+                  <div>
+                    <div className="text-secondary-200 text-sm">Failed</div>
+                    <div className="text-red-300 text-xs">{extension.directories_failed}</div>
+                  </div>
+                  <StatusBadge status={extension.status} />
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function getPriorityColor(priority: number) {
-  switch (priority) {
-    case 1: return 'text-red-400 bg-red-400/20'
-    case 2: return 'text-orange-400 bg-orange-400/20'
-    case 3: return 'text-volt-400 bg-volt-400/20'
-    case 4: return 'text-gray-400 bg-gray-400/20'
-    default: return 'text-gray-400 bg-gray-400/20'
+type StatusBadgeStatus = ExtensionStatus['status']
+type WorkerStatusBadgeStatus = WorkerStatus['status']
+type StatusPillStatus = QueueStatus
+
+function StatusBadge({ status }: { status: StatusBadgeStatus }) {
+  const colors: Record<StatusBadgeStatus, string> = {
+    online: 'bg-green-500/20 text-green-300 border-green-400/40',
+    offline: 'bg-secondary-800 text-secondary-300 border-secondary-700',
+    processing: 'bg-volt-500/10 text-volt-300 border-volt-500/40',
+    error: 'bg-red-500/10 text-red-300 border-red-500/40'
   }
+
+  const labels: Record<StatusBadgeStatus, string> = {
+    online: 'Online',
+    offline: 'Offline',
+    processing: 'Processing',
+    error: 'Error'
+  }
+
+  return (
+    <span className={`px-3 py-1 text-xs rounded-full border ${colors[status]}`}>
+      {labels[status]}
+    </span>
+  )
 }
+
+function WorkerStatusBadge({ status }: { status: WorkerStatusBadgeStatus }) {
+  const colors: Record<WorkerStatusBadgeStatus, string> = {
+    online: 'bg-green-500/20 text-green-300 border-green-400/40',
+    offline: 'bg-secondary-800 text-secondary-300 border-secondary-700',
+    idle: 'bg-blue-500/20 text-blue-300 border-blue-400/40',
+    processing: 'bg-volt-500/10 text-volt-300 border-volt-500/40',
+    error: 'bg-red-500/10 text-red-300 border-red-500/40'
+  }
+
+  const labels: Record<WorkerStatusBadgeStatus, string> = {
+    online: 'Online',
+    offline: 'Offline',
+    idle: 'Idle',
+    processing: 'Processing',
+    error: 'Error'
+  }
+
+  return (
+    <span className={`px-3 py-1 text-xs rounded-full border ${colors[status]}`}>
+      {labels[status]}
+    </span>
+  )
+}
+
+function StatusPill({ status }: { status: StatusPillStatus }) {
+  const colors: Record<StatusPillStatus, string> = {
+    pending: 'bg-amber-500/10 text-amber-300 border-amber-500/40',
+    in_progress: 'bg-volt-500/10 text-volt-300 border-volt-500/40',
+    completed: 'bg-green-500/10 text-green-300 border-green-500/40',
+    failed: 'bg-red-500/10 text-red-300 border-red-500/40',
+    cancelled: 'bg-secondary-700 text-secondary-200 border-secondary-500/40'
+  }
+
+  return (
+    <span className={`px-3 py-1 text-xs rounded-full border ${colors[status]}`}>
+      {formatStatus(status)}
+    </span>
+  )
+}
+
+function StatCard({ label, value, status }: { label: string; value: number; status: QueueStatus }) {
+  return (
+    <div className="bg-secondary-900/60 border border-secondary-800 rounded-lg p-4">
+      <div className="text-secondary-500 text-sm">{label}</div>
+      <div className="text-2xl font-semibold text-secondary-100 mt-2">{value}</div>
+      <div className="text-xs text-secondary-400 mt-1">Status: {formatStatus(status)}</div>
+    </div>
+  )
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondary-400">
+      {children}
+    </th>
+  )
+}
+
+function Td({ children }: { children: React.ReactNode }) {
+  return (
+    <td className="px-4 py-3 whitespace-nowrap align-top">
+      {children}
+    </td>
+  )
+}
+
+
+
+
