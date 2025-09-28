@@ -62,7 +62,10 @@
       "Bash(mcp list-servers:*)",
       "Bash(npx tsc:*)",
       "Bash(npx eslint:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
