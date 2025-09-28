@@ -109,7 +109,7 @@
     "lucide-react": "^0.542.0",
     "metascraper": "^5.34.0",
     "micro": "^10.0.1",
-    "next": "^14.2.32",
+    "next": "14.2.33",
     "next-sitemap": "^4.2.3",
     "node-fetch": "^2.7.0",
     "node-html-parser": "^6.1.0",
@@ -133,7 +133,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
-    "@netlify/plugin-nextjs": "^5.13.0",
+    "@netlify/plugin-nextjs": "^5.13.3",
     "@next/bundle-analyzer": "^14.0.0",
     "@next/react-refresh-utils": "^15.5.3",
     "@playwright/test": "^1.55.0",
