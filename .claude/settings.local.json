@@ -60,7 +60,9 @@
       "Bash(chmod:*)",
       "Bash(bash:*)",
       "Bash(mcp list-servers:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
