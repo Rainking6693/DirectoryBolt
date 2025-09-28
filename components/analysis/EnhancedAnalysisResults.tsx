@@ -1,6 +1,8 @@
 // 📊 ENHANCED ANALYSIS RESULTS COMPONENT
 // Complete business intelligence dashboard with AI insights
 
+// Note: This component is dynamically imported to reduce initial bundle size.
+// See components/analysis/EnhancedAnalysisResults.dynamic.tsx for wrapper.
 'use client'
 import { useState, useEffect } from 'react'
 import CheckoutButton from '../CheckoutButton'

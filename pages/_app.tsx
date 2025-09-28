@@ -1,4 +1,4 @@
-import type { AppProps } from 'next/app'
+import type { AppProps, NextWebVitalsMetric } from 'next/app'
 import Head from 'next/head'
 import Script from 'next/script'
 import { useEffect } from 'react'
@@ -10,6 +10,15 @@ import { inlineCriticalCSS } from '../lib/utils/critical-css'
 import CookieConsent from '../components/CookieConsent'
 
 const GA = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+
+export function reportWebVitals(metric: NextWebVitalsMetric) {
+  const value = metric.name === 'CLS' ? metric.value * 1000 : metric.value
+  console.log('[WebVitals]', metric.name, {
+    id: metric.id,
+    label: metric.label,
+    value,
+  })
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {

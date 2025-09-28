@@ -7,7 +7,7 @@ const nextConfig = {
   },
   // Enhanced configuration for SEO and performance
   
-  reactStrictMode: false,
+  reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
   swcMinify: true,
@@ -37,6 +37,7 @@ const nextConfig = {
     optimizeCss: true,
     scrollRestoration: true,
     optimizePackageImports: ['@headlessui/react', 'framer-motion', 'lucide-react'],
+    appDir: true,
   },
   
   // Enhanced webpack configuration
