@@ -9,14 +9,14 @@ security:
       header: "Authorization"
       token_env: "WORKER_AUTH_TOKEN"
       validation_endpoint: "https://directorybolt.netlify.app/api/validate-worker"
-      
+
     orchestrator:
       type: "jwt"
-      secret_env: "JWT_SECRET"  
+      secret_env: "JWT_SECRET"
       issuer: "directorybolt.com"
       audience: "autobolt-workers"
       expiry: "1h"
-      
+
     api_keys:
       header: "X-API-Key"
       secret_env: "API_KEY_SECRET"
@@ -33,48 +33,48 @@ security:
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
       headers: ["Content-Type", "Authorization", "X-Worker-ID", "X-API-Key"]
       credentials: true
-      
+
     rate_limiting:
       enabled: true
       requests_per_minute: 60
       burst_allowance: 10
-      
+
     ip_whitelisting:
-      enabled: false  # Set to true if specific IP ranges needed
+      enabled: false # Set to true if specific IP ranges needed
       allowed_ranges: []
 
   # Container Security
   containers:
     run_as_non_root: true
-    read_only_filesystem: false  # Playwright needs write access
+    read_only_filesystem: false # Playwright needs write access
     no_new_privileges: true
     drop_capabilities: ["ALL"]
-    add_capabilities: ["SYS_ADMIN"]  # Required for Playwright browser sandbox
-    
+    add_capabilities: ["SYS_ADMIN"] # Required for Playwright browser sandbox
+
     resource_limits:
       memory: "2Gi"
       cpu: "1000m"
       ephemeral_storage: "5Gi"
-      
+
     seccomp:
       enabled: true
       profile: "runtime/default"
-      
+
     apparmor:
-      enabled: false  # May interfere with browser automation
+      enabled: false # May interfere with browser automation
 
   # Secrets Management
   secrets:
     encryption_at_rest: true
     rotation_policy:
       worker_tokens: "90d"
-      api_keys: "30d" 
+      api_keys: "30d"
       proxy_credentials: "60d"
-      
+
     storage:
       environment_variables: true
-      secrets_manager: false  # Could integrate AWS/GCP secrets
-      
+      secrets_manager: false # Could integrate AWS/GCP secrets
+
     validation:
       strong_passwords: true
       minimum_entropy: 128
@@ -86,14 +86,14 @@ security:
     credential_rotation: "weekly"
     health_check_ssl_verify: true
     block_private_ips: true
-    
+
     allowed_protocols: ["http", "https"]
     blocked_domains:
       - "localhost"
       - "127.0.0.1"
       - "0.0.0.0"
       - "internal"
-      
+
     connection_limits:
       max_per_proxy: 10
       timeout: "30s"
@@ -103,16 +103,16 @@ security:
   data:
     customer_data:
       encryption_in_transit: true
-      encryption_at_rest: true  # If stored temporarily
-      retention_period: "24h"  # Max time to keep data
+      encryption_at_rest: true # If stored temporarily
+      retention_period: "24h" # Max time to keep data
       purge_on_completion: true
-      
+
     logs:
       sanitize_sensitive_data: true
       retention_period: "7d"
       no_customer_data: true
       encrypt_at_rest: true
-      
+
     metrics:
       anonymize_customer_data: true
       aggregate_only: true
@@ -123,13 +123,13 @@ security:
     headless_mode: true
     disable_dev_tools: true
     disable_extensions: true
-    no_sandbox: true  # Required for containers
+    no_sandbox: true # Required for containers
     disable_background_timer_throttling: true
-    
+
     user_agent:
       randomization: false
       fixed_value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-      
+
     security_flags:
       - "--disable-blink-features=AutomationControlled"
       - "--disable-dev-shm-usage"
@@ -145,16 +145,16 @@ security:
   monitoring:
     security_events:
       - "authentication_failure"
-      - "rate_limit_exceeded"  
+      - "rate_limit_exceeded"
       - "unusual_proxy_activity"
       - "container_escape_attempt"
       - "resource_limit_exceeded"
-      
+
     log_analysis:
       enabled: true
       real_time_alerts: true
       anomaly_detection: true
-      
+
     compliance:
       audit_logs: true
       access_logs: true
@@ -166,11 +166,11 @@ security:
       on_compromise: true
       on_rate_limit_abuse: true
       on_proxy_abuse: true
-      
+
     notification_channels:
       - "security-alerts@directorybolt.com"
       - "slack://security-channel"
-      
+
     escalation_procedures:
       level_1: "auto_isolation"
       level_2: "human_review"
@@ -182,16 +182,16 @@ policies:
   access_control:
     principle: "least_privilege"
     role_based: true
-    mandatory_2fa: false  # For service accounts
+    mandatory_2fa: false # For service accounts
     session_timeout: "1h"
-    
-  # Code Security  
+
+  # Code Security
   code_security:
     static_analysis: true
     dependency_scanning: true
     container_scanning: true
     secrets_scanning: true
-    
+
   # Operational Security
   operational:
     security_updates: "automatic"
@@ -203,10 +203,10 @@ policies:
 compliance:
   standards:
     - "SOC 2 Type II"
-    - "ISO 27001" 
-    - "GDPR"  # If processing EU customer data
-    - "CCPA"  # If processing CA resident data
-    
+    - "ISO 27001"
+    - "GDPR" # If processing EU customer data
+    - "CCPA" # If processing CA resident data
+
   requirements:
     data_encryption: true
     audit_trails: true
@@ -222,14 +222,14 @@ validation:
     - validate_network_policies
     - test_authentication
     - verify_resource_limits
-    
+
   runtime:
     - monitor_authentication_failures
     - track_resource_usage
     - validate_proxy_health
     - check_log_integrity
     - verify_data_encryption
-    
+
   periodic:
     - security_scan_containers
     - audit_access_logs

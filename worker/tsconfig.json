@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "types": ["node"],
+    "baseUrl": "..",
+    "paths": {
+      "auto-bolt-extension/*": ["auto-bolt-extension/*"]
+    }
+  },
+  "include": ["**/*.js", "../auto-bolt-extension/lib/*.d.ts"],
+  "exclude": ["test-worker.js", "deployment/**/*"]
+}

@@ -1,50 +1,131 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
-import { updateJobProgress, DirectoryResultInput } from '../../../../lib/server/autoboltJobs'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit';
+import {
+  updateJobProgress,
+  type DirectoryResultInput,
+  normalizeJobStatus
+} from '../../../../lib/server/autoboltJobs';
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Method not allowed. Use POST.' })
+const WORKER_API_ENV_KEY = 'AUTOBOLT_API_KEY' as const;
+
+type UpdateJobStatus = ReturnType<typeof normalizeJobStatus> | DirectoryResultInput['status'];
+
+type ApiResponse =
+  | { success: true; data: Awaited<ReturnType<typeof updateJobProgress>>; message: string }
+  | { success: false; error: string };
+
+interface UpdateJobRequestBody {
+  jobId: string;
+  directoryResults?: DirectoryResultInput[];
+  status?: string;
+  errorMessage?: string;
+}
+
+function readSingleHeader(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+function extractApiKey(req: NextApiRequest): string | undefined {
+  const directHeader = readSingleHeader(req.headers['x-api-key']);
+  if (directHeader) {
+    return directHeader;
   }
 
+  const authHeader = readSingleHeader(req.headers.authorization);
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice('Bearer '.length);
+  }
+
+  return undefined;
+}
+
+function isDirectoryResult(value: unknown): value is DirectoryResultInput {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const candidate = value as Partial<DirectoryResultInput>;
+  return typeof candidate.directoryName === 'string' && typeof candidate.status === 'string';
+}
+
+function sanitizeDirectoryResults(raw: unknown): DirectoryResultInput[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.filter(isDirectoryResult).map((item) => ({ ...item }));
+}
+
+function sanitizeErrorMessage(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim().length > 0 ? value : undefined;
+}
+
+function sanitizeStatus(value: unknown): UpdateJobStatus | undefined {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return undefined;
+  }
+  return normalizeJobStatus(value) ?? value;
+}
+
+function parseRequestBody(body: unknown): UpdateJobRequestBody | null {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  const candidate = body as Partial<UpdateJobRequestBody>;
+  if (typeof candidate.jobId !== 'string' || candidate.jobId.trim().length === 0) {
+    return null;
+  }
+  return {
+    jobId: candidate.jobId,
+    directoryResults: sanitizeDirectoryResults(candidate.directoryResults),
+    status: typeof candidate.status === 'string' ? candidate.status.trim() : undefined,
+    errorMessage: sanitizeErrorMessage(candidate.errorMessage)
+  };
+}
+
+async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed. Use POST.' });
+  }
+
+  const expectedKey = process.env[WORKER_API_ENV_KEY];
+  if (!expectedKey) {
+    console.error('[autobolt:jobs:update] Missing AUTOBOLT_API_KEY environment variable');
+    return res.status(500).json({ success: false, error: 'Worker authentication not configured' });
+  }
+
+  const providedKey = extractApiKey(req);
+  if (!providedKey || providedKey !== expectedKey) {
+    return res.status(401).json({ success: false, error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.' });
+  }
+
+  const parsedBody = parseRequestBody(req.body);
+  if (!parsedBody) {
+    return res.status(400).json({ success: false, error: 'jobId is required' });
+  }
+
+  const { jobId, directoryResults, status, errorMessage } = parsedBody;
+
   try {
-    const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '')
-    if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
-      return res.status(401).json({ success: false, error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.' })
-    }
-
-    const {
-      jobId,
-      directoryResults = [],
-      status,
-      errorMessage
-    }: {
-      jobId?: string
-      directoryResults?: DirectoryResultInput[]
-      status?: string
-      errorMessage?: string
-    } = req.body
-
-    if (!jobId) {
-      return res.status(400).json({ success: false, error: 'jobId is required' })
-    }
-
+    const canonicalStatus = sanitizeStatus(status);
     const progress = await updateJobProgress({
       jobId,
       directoryResults,
-      status: status as any,
+      status: canonicalStatus,
       errorMessage
-    })
+    });
 
     return res.status(200).json({
       success: true,
       data: progress,
       message: `Job ${jobId} updated successfully.`
-    })
+    });
   } catch (error) {
-    console.error('AutoBolt Update Job API Error:', error)
-    return res.status(500).json({ success: false, error: 'Internal server error. Please try again later.' })
+    console.error('[autobolt:jobs:update] Failed to update job progress', error);
+    return res.status(500).json({ success: false, error: 'Internal server error. Please try again later.' });
   }
 }
 
-export default withRateLimit(handler, rateLimiters.general)
+export default withRateLimit(handler, rateLimiters.general);

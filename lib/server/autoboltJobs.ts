@@ -1,6 +1,14 @@
 import { createSupabaseAdminClient } from './supabaseAdmin'
 
-export type JobStatus = 'pending' | 'in_progress' | 'complete' | 'failed'
+import type {
+  DirectoryBoltSupabaseClient,
+  JobResultsInsert,
+  JobResultsRow,
+  JobsRow,
+  JobStatus,
+} from '../../types/supabase'
+
+export type { JobStatus } from '../../types/supabase'
 
 export interface DirectoryResultInput {
   directoryName: string

@@ -213,8 +213,10 @@ export function getDirectoryLimit(tier: string): number {
   return tierData?.directory_limit || 5 // Default to free tier limit
 }
 
-export default {
+const oneTimePurchaseSchema = {
   TIER_FEATURES,
   canAccessFeature,
   getDirectoryLimit
 }
+
+export default oneTimePurchaseSchema

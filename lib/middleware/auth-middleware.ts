@@ -1,13 +1,34 @@
-// 🔐 AUTHENTICATION MIDDLEWARE - AUTH-003
-// Comprehensive authentication validation for all protected API endpoints
-// Implements role-based access control and permission checking
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { withSessionValidation, SessionData } from './session-management';
 
-// Authentication configuration
+interface AuthOptions {
+  required?: boolean;
+  userType?: 'customer' | 'staff' | 'any';
+  permissions?: string[];
+  roles?: string[];
+}
+
+interface EndpointAuthConfig {
+  required: boolean;
+  userType: 'customer' | 'staff' | 'any';
+  permissions: string[];
+  roles: string[];
+}
+
+interface AuthenticatedUser {
+  id: string;
+  email: string;
+  role: string;
+  permissions: string[];
+  userType: 'customer' | 'staff';
+}
+
+export interface AuthenticatedRequest extends NextApiRequest {
+  session?: SessionData;
+  user?: AuthenticatedUser;
+}
+
 const AUTH_CONFIG = {
-  // Public endpoints that don't require authentication
   publicEndpoints: [
     '/api/auth/login',
     '/api/auth/register',
@@ -15,11 +36,9 @@ const AUTH_CONFIG = {
     '/api/health',
     '/api/robots',
     '/api/sitemap',
-    '/api/stripe/webhook', // Webhooks use signature validation instead
+    '/api/stripe/webhook',
     '/api/payments/webhook'
   ],
-  
-  // Staff-only endpoints
   staffOnlyEndpoints: [
     '/api/staff/',
     '/api/admin/',
@@ -27,13 +46,197 @@ const AUTH_CONFIG = {
     '/api/queue/',
     '/api/monitor/'
   ],
-  
-  // Customer endpoints
   customerEndpoints: [
     '/api/user/',
     '/api/customer/',
     '/api/directories/',
     '/api/submissions/'
   ],
-  
-  // Permission-based endpoints\n  permissionEndpoints: {\n    '/api/staff/analytics': ['analytics'],\n    '/api/staff/queue': ['queue', 'processing'],\n    '/api/staff/users': ['support', 'admin'],\n    '/api/admin/': ['admin'],\n    '/api/analytics/': ['analytics', 'admin']\n  }\n};\n\n// User roles and their permissions\nconst ROLE_PERMISSIONS = {\n  // Staff roles\n  admin: ['admin', 'analytics', 'queue', 'processing', 'support', 'users'],\n  manager: ['analytics', 'queue', 'processing', 'support'],\n  analyst: ['analytics', 'queue'],\n  support: ['support', 'queue'],\n  \n  // Customer roles\n  enterprise: ['premium_features', 'priority_support', 'bulk_operations'],\n  professional: ['premium_features', 'priority_support'],\n  growth: ['premium_features'],\n  starter: ['basic_features']\n};\n\n// Extended request interface with authentication data\nexport interface AuthenticatedRequest extends NextApiRequest {\n  session?: SessionData;\n  user?: {\n    id: string;\n    email: string;\n    role: string;\n    permissions: string[];\n    userType: 'customer' | 'staff';\n  };\n}\n\n// Authentication middleware factory\nexport function withAuthentication(\n  options: {\n    required?: boolean;\n    userType?: 'customer' | 'staff' | 'any';\n    permissions?: string[];\n    roles?: string[];\n  } = {}\n) {\n  const {\n    required = true,\n    userType = 'any',\n    permissions = [],\n    roles = []\n  } = options;\n  \n  return function middleware(\n    handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return withSessionValidation(userType, required)(\n      async function wrappedHandler(\n        req: AuthenticatedRequest,\n        res: NextApiResponse\n      ) {\n        // Check if endpoint requires authentication\n        if (!required && !req.session) {\n          // Optional authentication - continue without session\n          return handler(req, res);\n        }\n        \n        if (required && !req.session) {\n          return res.status(401).json({\n            error: 'Authentication Required',\n            message: 'Please log in to access this resource.',\n            code: 'NO_AUTHENTICATION'\n          });\n        }\n        \n        if (req.session) {\n          // Build user object from session\n          const userPermissions = getUserPermissions(req.session.role || '', req.session.userType);\n          \n          req.user = {\n            id: req.session.userId,\n            email: req.session.email,\n            role: req.session.role || '',\n            permissions: userPermissions,\n            userType: req.session.userType\n          };\n          \n          // Check role requirements\n          if (roles.length > 0 && !roles.includes(req.user.role)) {\n            return res.status(403).json({\n              error: 'Access Denied',\n              message: 'Insufficient role privileges for this resource.',\n              code: 'INSUFFICIENT_ROLE',\n              required: roles,\n              current: req.user.role\n            });\n          }\n          \n          // Check permission requirements\n          if (permissions.length > 0) {\n            const hasPermission = permissions.some(permission => \n              userPermissions.includes(permission)\n            );\n            \n            if (!hasPermission) {\n              return res.status(403).json({\n                error: 'Access Denied',\n                message: 'Insufficient permissions for this resource.',\n                code: 'INSUFFICIENT_PERMISSIONS',\n                required: permissions,\n                current: userPermissions\n              });\n            }\n          }\n          \n          // Log authenticated access\n          logAuthenticatedAccess(req);\n        }\n        \n        // Continue to the actual handler\n        return handler(req, res);\n      }\n    );\n  };\n}\n\n// Automatic authentication middleware based on endpoint path\nexport function withAutoAuthentication() {\n  return function middleware(\n    handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return async function wrappedHandler(\n      req: AuthenticatedRequest,\n      res: NextApiResponse\n    ) {\n      const pathname = req.url || '';\n      \n      // Check if endpoint is public\n      if (isPublicEndpoint(pathname)) {\n        return handler(req, res);\n      }\n      \n      // Determine authentication requirements based on endpoint\n      const authRequirements = getEndpointAuthRequirements(pathname);\n      \n      // Apply appropriate authentication\n      const authMiddleware = withAuthentication(authRequirements);\n      return authMiddleware(handler)(req, res);\n    };\n  };\n}\n\n// Check if endpoint is public\nfunction isPublicEndpoint(pathname: string): boolean {\n  return AUTH_CONFIG.publicEndpoints.some(endpoint => \n    pathname.startsWith(endpoint)\n  );\n}\n\n// Get authentication requirements for endpoint\nfunction getEndpointAuthRequirements(pathname: string): {\n  required: boolean;\n  userType: 'customer' | 'staff' | 'any';\n  permissions: string[];\n  roles: string[];\n} {\n  // Staff-only endpoints\n  if (AUTH_CONFIG.staffOnlyEndpoints.some(endpoint => pathname.startsWith(endpoint))) {\n    const permissions = getEndpointPermissions(pathname);\n    return {\n      required: true,\n      userType: 'staff',\n      permissions,\n      roles: []\n    };\n  }\n  \n  // Customer endpoints\n  if (AUTH_CONFIG.customerEndpoints.some(endpoint => pathname.startsWith(endpoint))) {\n    return {\n      required: true,\n      userType: 'customer',\n      permissions: [],\n      roles: []\n    };\n  }\n  \n  // Default: require authentication\n  return {\n    required: true,\n    userType: 'any',\n    permissions: [],\n    roles: []\n  };\n}\n\n// Get required permissions for endpoint\nfunction getEndpointPermissions(pathname: string): string[] {\n  for (const [endpoint, permissions] of Object.entries(AUTH_CONFIG.permissionEndpoints)) {\n    if (pathname.startsWith(endpoint)) {\n      return permissions;\n    }\n  }\n  return [];\n}\n\n// Get user permissions based on role and user type\nfunction getUserPermissions(role: string, userType: 'customer' | 'staff'): string[] {\n  if (!role) {\n    return userType === 'customer' ? ['basic_features'] : [];\n  }\n  \n  return ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || [];\n}\n\n// Permission checking utilities\nexport function hasPermission(user: AuthenticatedRequest['user'], permission: string): boolean {\n  return user?.permissions.includes(permission) || false;\n}\n\nexport function hasRole(user: AuthenticatedRequest['user'], role: string): boolean {\n  return user?.role === role;\n}\n\nexport function hasAnyRole(user: AuthenticatedRequest['user'], roles: string[]): boolean {\n  return user ? roles.includes(user.role) : false;\n}\n\nexport function hasAnyPermission(user: AuthenticatedRequest['user'], permissions: string[]): boolean {\n  return user ? permissions.some(permission => user.permissions.includes(permission)) : false;\n}\n\n// Logging function\nfunction logAuthenticatedAccess(req: AuthenticatedRequest): void {\n  if (req.user && req.url?.startsWith('/api/')) {\n    console.log('🔐 Authenticated API access', {\n      timestamp: new Date().toISOString(),\n      userId: req.user.id,\n      email: req.user.email,\n      role: req.user.role,\n      userType: req.user.userType,\n      endpoint: req.url,\n      method: req.method,\n      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress\n    });\n  }\n}\n\n// Export configuration for external use\nexport { AUTH_CONFIG, ROLE_PERMISSIONS };"
+  permissionEndpoints: {
+    '/api/staff/analytics': ['analytics'],
+    '/api/staff/queue': ['queue', 'processing'],
+    '/api/staff/users': ['support', 'admin'],
+    '/api/admin/': ['admin'],
+    '/api/analytics/': ['analytics', 'admin']
+  } as Record<string, string[]>
+};
+
+const ROLE_PERMISSIONS = {
+  admin: ['admin', 'analytics', 'queue', 'processing', 'support', 'users'],
+  manager: ['analytics', 'queue', 'processing', 'support'],
+  analyst: ['analytics', 'queue'],
+  support: ['support', 'queue'],
+  enterprise: ['premium_features', 'priority_support', 'bulk_operations'],
+  professional: ['premium_features', 'priority_support'],
+  growth: ['premium_features'],
+  starter: ['basic_features']
+} as const;
+
+type RoleKey = keyof typeof ROLE_PERMISSIONS;
+
+export function withAuthentication(options: AuthOptions = {}) {
+  const {
+    required = true,
+    userType = 'any',
+    permissions = [],
+    roles = []
+  } = options;
+
+  return function middleware(
+    handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return withSessionValidation(userType, required)(async (req, res) => {
+      if (!required && !req.session) {
+        return handler(req, res);
+      }
+
+      if (required && !req.session) {
+        return res.status(401).json({
+          error: 'Authentication Required',
+          message: 'Please log in to access this resource.',
+          code: 'NO_AUTHENTICATION'
+        });
+      }
+
+      if (req.session) {
+        const userPermissions = getUserPermissions(req.session.role || '', req.session.userType);
+
+        req.user = {
+          id: req.session.userId,
+          email: req.session.email,
+          role: req.session.role || '',
+          permissions: userPermissions,
+          userType: req.session.userType
+        };
+
+        if (roles.length > 0 && !roles.includes(req.user.role)) {
+          return res.status(403).json({
+            error: 'Access Denied',
+            message: 'Insufficient role privileges for this resource.',
+            code: 'INSUFFICIENT_ROLE',
+            required: roles,
+            current: req.user.role
+          });
+        }
+
+        if (permissions.length > 0) {
+          const hasPermission = permissions.some((permission) => userPermissions.includes(permission));
+          if (!hasPermission) {
+            return res.status(403).json({
+              error: 'Access Denied',
+              message: 'Insufficient permissions for this resource.',
+              code: 'INSUFFICIENT_PERMISSIONS',
+              required: permissions,
+              current: userPermissions
+            });
+          }
+        }
+
+        logAuthenticatedAccess(req);
+      }
+
+      return handler(req, res);
+    });
+  };
+}
+
+export function withAutoAuthentication() {
+  return function middleware(
+    handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return async function wrappedHandler(req: AuthenticatedRequest, res: NextApiResponse) {
+      const pathname = req.url || '';
+
+      if (isPublicEndpoint(pathname)) {
+        return handler(req, res);
+      }
+
+      const authRequirements = getEndpointAuthRequirements(pathname);
+      const authMiddleware = withAuthentication(authRequirements);
+      return authMiddleware(handler)(req, res);
+    };
+  };
+}
+
+function isPublicEndpoint(pathname: string): boolean {
+  return AUTH_CONFIG.publicEndpoints.some((endpoint) => pathname.startsWith(endpoint));
+}
+
+function getEndpointAuthRequirements(pathname: string): EndpointAuthConfig {
+  if (AUTH_CONFIG.staffOnlyEndpoints.some((endpoint) => pathname.startsWith(endpoint))) {
+    const permissions = getEndpointPermissions(pathname);
+    return {
+      required: true,
+      userType: 'staff',
+      permissions,
+      roles: []
+    };
+  }
+
+  if (AUTH_CONFIG.customerEndpoints.some((endpoint) => pathname.startsWith(endpoint))) {
+    return {
+      required: true,
+      userType: 'customer',
+      permissions: [],
+      roles: []
+    };
+  }
+
+  return {
+    required: true,
+    userType: 'any',
+    permissions: [],
+    roles: []
+  };
+}
+
+function getEndpointPermissions(pathname: string): string[] {
+  for (const [endpoint, permissions] of Object.entries(AUTH_CONFIG.permissionEndpoints)) {
+    if (pathname.startsWith(endpoint)) {
+      return permissions;
+    }
+  }
+  return [];
+}
+
+function getUserPermissions(role: string, userType: 'customer' | 'staff'): string[] {
+  if (!role) {
+    return userType === 'customer' ? ['basic_features'] : [];
+  }
+
+  const key = role as RoleKey;
+  return ROLE_PERMISSIONS[key] ? [...ROLE_PERMISSIONS[key]] : [];
+}
+
+export function hasPermission(user: AuthenticatedUser | undefined, permission: string): boolean {
+  return user?.permissions.includes(permission) ?? false;
+}
+
+export function hasRole(user: AuthenticatedUser | undefined, role: string): boolean {
+  return user?.role === role;
+}
+
+export function hasAnyRole(user: AuthenticatedUser | undefined, roles: string[]): boolean {
+  return user ? roles.includes(user.role) : false;
+}
+
+export function hasAnyPermission(user: AuthenticatedUser | undefined, permissions: string[]): boolean {
+  return user ? permissions.some((permission) => user.permissions.includes(permission)) : false;
+}
+
+function logAuthenticatedAccess(req: AuthenticatedRequest): void {
+  if (req.user && req.url?.startsWith('/api/')) {
+    console.log('[auth] authenticated API access', {
+      timestamp: new Date().toISOString(),
+      userId: req.user.id,
+      email: req.user.email,
+      role: req.user.role,
+      userType: req.user.userType,
+      endpoint: req.url,
+      method: req.method,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    });
+  }
+}
+
+export { AUTH_CONFIG, ROLE_PERMISSIONS };

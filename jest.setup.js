@@ -6,6 +6,8 @@
 // Load environment variables from .env.local
 require('dotenv').config({ path: '.env.local' })
 
+require('@testing-library/jest-dom')
+
 // Set test environment variables
 process.env.NODE_ENV = 'test'
 process.env.TEST_BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3002'

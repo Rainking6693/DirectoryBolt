@@ -32,7 +32,7 @@ services:
       resources:
         limits:
           memory: 2G
-          cpus: '1.0'
+          cpus: "1.0"
 
   # Secondary Worker for High Availability
   autobolt-worker-2:
@@ -67,7 +67,7 @@ services:
       resources:
         limits:
           memory: 2G
-          cpus: '1.0'
+          cpus: "1.0"
 
 volumes:
   worker_data:

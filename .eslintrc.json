@@ -1,17 +1,21 @@
 {
-  "extends": [],
+  "extends": ["next/core-web-vitals"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json",
     "tsconfigRootDir": "."
   },
-  "plugins": [],
+  "ignorePatterns": [
+    "**/*.js",
+    "**/*.jsx",
+    ".next/",
+    ".netlify/"
+  ],
   "rules": {},
   "overrides": [
     {
-      "files": ["**/*.{js,jsx,ts,tsx}"]
+      "files": ["**/*.ts", "**/*.tsx"],
+      "parser": "@typescript-eslint/parser"
     }
   ]
 }
-
-

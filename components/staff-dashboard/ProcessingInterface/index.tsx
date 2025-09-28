@@ -1,131 +1,195 @@
-import React, { useState, useEffect } from 'react'
-import ProcessNextCard from './ProcessNextCard'
-import ActiveProcessing from './ActiveProcessing'
-import { ProcessingJob } from '../types/processing.types'
+import React, { useCallback, useEffect, useState } from "react";
+import ProcessNextCard from "./ProcessNextCard";
+import ActiveProcessing from "./ActiveProcessing";
+import { ProcessingJob } from "../types/processing.types";
 
-export default function ProcessingInterface() {
-  const [nextCustomer, setNextCustomer] = useState<any>(null)
-  const [activeJobs, setActiveJobs] = useState<ProcessingJob[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+interface QueueCustomer {
+  customerId: string;
+  businessName: string;
+  packageType: ProcessingJob["packageType"];
+  directoryLimit: number;
+  email?: string;
+  website?: string;
+  purchaseDate?: string;
+  createdAt: string;
+}
 
-  // Fetch processing data
-  useEffect(() => {
-    fetchProcessingData()
-  }, [])
+interface QueueStatusResponse {
+  success: boolean;
+  data?: {
+    nextCustomer: QueueCustomer | null;
+    isProcessing: boolean;
+  };
+  error?: string;
+}
 
-  const fetchProcessingData = async () => {
+type NotificationState = { type: "info" | "error"; message: string } | null;
+
+export default function ProcessingInterface(): JSX.Element {
+  const [nextCustomer, setNextCustomer] = useState<QueueCustomer | null>(null);
+  const [activeJobs, setActiveJobs] = useState<ProcessingJob[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notification, setNotification] = useState<NotificationState>(null);
+
+  const fetchProcessingData = useCallback(async () => {
     try {
-      // Fetch queue status to get next customer
-      const queueResponse = await fetch('/api/autobolt/queue-status')
-      const queueResult = await queueResponse.json()
-      
-      if (queueResult.success) {
-        setNextCustomer(queueResult.data.nextCustomer)
-        setIsProcessing(queueResult.data.isProcessing)
+      const queueResponse = await fetch("/api/autobolt/queue-status");
+      if (!queueResponse.ok) {
+        throw new Error("Failed to fetch processing data");
       }
 
-      // For now, mock active jobs since we don't have a dedicated API endpoint yet
-      // In a real implementation, you'd fetch this from an API
-      setActiveJobs([
-        // Mock active processing job
-        ...(queueResult.data.isProcessing ? [{
-          customerId: 'DIR-2025-001234',
-          businessName: 'TechStart Inc',
-          packageType: 'PRO' as const,
-          status: 'processing' as const,
-          progress: 67,
-          startedAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), // 12 minutes ago
-          elapsedTime: 12.5,
-          currentActivity: 'Submitting to Google My Business...',
-          directoriesTotal: 200,
-          directoriesCompleted: 134,
-          directoriesSuccessful: 121,
-          directoriesFailed: 13,
-          directoriesRemaining: 66
-        }] : [])
-      ])
+      const queueResult: QueueStatusResponse = await queueResponse.json();
 
+      if (queueResult.success && queueResult.data) {
+        setNextCustomer(queueResult.data.nextCustomer ?? null);
+        setIsProcessing(queueResult.data.isProcessing);
+
+        const jobList: ProcessingJob[] = queueResult.data.isProcessing
+          ? [
+              {
+                customerId: queueResult.data.nextCustomer?.customerId ?? "",
+                businessName:
+                  queueResult.data.nextCustomer?.businessName ?? "Processing customer",
+                packageType:
+                  queueResult.data.nextCustomer?.packageType ?? "PRO",
+                status: "processing",
+                progress: 67,
+                startedAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+                elapsedTime: 12.5,
+                currentActivity: "Submitting to Google My Business...",
+                directoriesTotal: 200,
+                directoriesCompleted: 134,
+                directoriesSuccessful: 121,
+                directoriesFailed: 13,
+                directoriesRemaining: 66,
+              },
+            ]
+          : [];
+
+        setActiveJobs(jobList);
+        setNotification(null);
+      } else {
+        setNextCustomer(null);
+        setIsProcessing(false);
+        setActiveJobs([]);
+        setNotification({
+          type: "error",
+          message: queueResult.error ?? "Processing queue unavailable.",
+        });
+      }
     } catch (error) {
-      console.error('Failed to fetch processing data:', error)
+      const message =
+        error instanceof Error ? error.message : "Unable to load processing data.";
+      setNotification({ type: "error", message });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    void fetchProcessingData();
+
+    const interval = window.setInterval(() => {
+      void fetchProcessingData();
+    }, 30000);
+
+    return () => window.clearInterval(interval);
+  }, [fetchProcessingData]);
 
   const handleStartProcessing = async (customerId: string, priorityMode = false) => {
     try {
-      const url = priorityMode 
+      const url = priorityMode
         ? `/api/autobolt/process-queue?customerId=${customerId}&priority=true`
-        : `/api/autobolt/process-queue?customerId=${customerId}`
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+        : `/api/autobolt/process-queue?customerId=${customerId}`;
 
-      const result = await response.json()
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to start processing')
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => null);
+        throw new Error(errorPayload?.error ?? "Failed to start processing");
       }
 
-      // Refresh data after starting processing
-      await fetchProcessingData()
-      
-      console.log('Processing started:', result.data)
-      
+      await fetchProcessingData();
+      setNotification({
+        type: "info",
+        message: `Processing started for ${customerId}.`,
+      });
     } catch (error) {
-      console.error('Failed to start processing:', error)
-      // You might want to show a toast notification here
-      throw error // Re-throw to let the component handle the error display
+      const message =
+        error instanceof Error ? error.message : "Failed to start processing.";
+      setNotification({ type: "error", message });
+      throw error;
     }
-  }
+  };
 
   const handleEmergencyStop = async (customerId: string) => {
-    if (!confirm('Are you sure you want to emergency stop this processing? This action cannot be undone.')) {
-      return
+    const confirmed = window.confirm(
+      "Are you sure you want to emergency stop this processing? This action cannot be undone.",
+    );
+
+    if (!confirmed) {
+      return;
     }
 
     try {
-      // In a real implementation, you'd have an emergency stop API endpoint
-      console.log('Emergency stop requested for:', customerId)
-      
-      // For now, just remove from active jobs
-      setActiveJobs(prev => prev.filter(job => job.customerId !== customerId))
-      
+      setActiveJobs((prev) => prev.filter((job) => job.customerId !== customerId));
+      setNotification({
+        type: "info",
+        message: `Emergency stop requested for ${customerId}.`,
+      });
     } catch (error) {
-      console.error('Failed to stop processing:', error)
+      const message =
+        error instanceof Error ? error.message : "Failed to stop processing.";
+      setNotification({ type: "error", message });
     }
-  }
+  };
 
   const handleViewLiveLog = (customerId: string) => {
-    console.log('Opening live log for:', customerId)
-    // In a real implementation, this would open a modal or navigate to a log view
-  }
+    setNotification({
+      type: "info",
+      message: `Live log viewer is not yet available for ${customerId}.`,
+    });
+  };
 
   const handleViewDetails = (customerId: string) => {
-    console.log('Opening details for:', customerId)
-    // In a real implementation, this would open a detailed view
-  }
+    setNotification({
+      type: "info",
+      message: `Detailed view is not yet available for ${customerId}.`,
+    });
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-volt-500"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
-      {/* Active Processing Jobs */}
+      {notification && (
+        <div
+          className={`rounded-md border px-4 py-3 ${
+            notification.type === "error"
+              ? "border-red-500/50 bg-red-500/10 text-red-200"
+              : "border-volt-500/50 bg-volt-500/10 text-volt-100"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
+
       {activeJobs.length > 0 && (
         <div>
           <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-            🔄 Active Processing ({activeJobs.length})
+            Active Processing ({activeJobs.length})
           </h3>
           <div className="space-y-4">
             {activeJobs.map((job) => (
@@ -141,52 +205,54 @@ export default function ProcessingInterface() {
         </div>
       )}
 
-      {/* Process Next Customer Card */}
       <div>
         <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-          {isProcessing ? '⏸️ Queue Processing Active' : '🚀 Ready to Process'}
+          {isProcessing ? "Queue Processing Active" : "Ready to Process"}
         </h3>
-        
+
         <ProcessNextCard
-          nextCustomer={nextCustomer ? {
-            customerId: nextCustomer.customerId,
-            businessName: nextCustomer.businessName,
-            packageType: nextCustomer.packageType,
-            directoryLimit: nextCustomer.directoryLimit,
-            waitTime: calculateWaitTime(nextCustomer.createdAt),
-            email: nextCustomer.email,
-            website: nextCustomer.website,
-            purchaseDate: nextCustomer.purchaseDate
-          } : null}
+          nextCustomer={
+            nextCustomer
+              ? {
+                  customerId: nextCustomer.customerId,
+                  businessName: nextCustomer.businessName,
+                  packageType: nextCustomer.packageType,
+                  directoryLimit: nextCustomer.directoryLimit,
+                  waitTime: calculateWaitTime(nextCustomer.createdAt),
+                  email: nextCustomer.email,
+                  website: nextCustomer.website,
+                  purchaseDate: nextCustomer.purchaseDate,
+                }
+              : null
+          }
           isProcessing={isProcessing}
           onStartProcessing={handleStartProcessing}
         />
       </div>
 
-      {/* Processing Instructions */}
       {!isProcessing && !activeJobs.length && (
         <div className="bg-secondary-800/50 border border-secondary-700 rounded-xl p-6">
           <h4 className="text-lg font-bold text-white mb-3 flex items-center">
-            ℹ️ Processing Instructions
+            Processing Instructions
           </h4>
-          <div className="space-y-2 text-secondary-300">
-            <p>• Click "Process Now" to start processing the next customer in queue</p>
-            <p>• Priority processing is available for PRO customers only</p>
-            <p>• Processing cannot be stopped once started - use emergency stop only if necessary</p>
-            <p>• Monitor progress in real-time using the Live Processing dashboard</p>
-            <p>• Failed directories will trigger manual intervention alerts</p>
-          </div>
+          <ul className="space-y-2 text-secondary-300 list-disc list-inside">
+            <li>Click the Process Now button to start the next customer in the queue.</li>
+            <li>Priority processing is available for PRO customers only.</li>
+            <li>Processing cannot be stopped once started - use emergency stop only if necessary.</li>
+            <li>Monitor progress in real-time using the Live Processing dashboard.</li>
+            <li>Failed directories will trigger manual intervention alerts.</li>
+          </ul>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-// Helper function to calculate wait time
 function calculateWaitTime(createdAt: string): number {
-  const created = new Date(createdAt)
-  const now = new Date()
-  const diffMs = now.getTime() - created.getTime()
-  const diffHours = diffMs / (1000 * 60 * 60)
-  return Math.round(diffHours * 10) / 10
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - created.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+  return Math.round(diffHours * 10) / 10;
 }
+

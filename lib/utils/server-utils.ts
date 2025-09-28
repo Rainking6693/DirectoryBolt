@@ -21,7 +21,9 @@ export function maskValue(val: string | undefined): string | undefined {
 // Backwards-compatible alias used across the codebase
 export const getRawBody = buffer
 
-export default {
+const serverUtils = {
   buffer,
   maskValue
 }
+
+export default serverUtils

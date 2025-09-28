@@ -1,14 +1,18 @@
-import React from 'react'
-import { AnalyticsMetrics, PackageDistribution, DirectoryPerformance } from '../types/analytics.types'
-import ExportModal from './ExportModal'
+import React from "react";
+import {
+  AnalyticsMetrics,
+  PackageDistribution,
+  DirectoryPerformance,
+} from "../types/analytics.types";
+import ExportModal from "./ExportModal";
 
 interface AnalyticsDashboardProps {
-  metrics: AnalyticsMetrics
-  packageDistribution: PackageDistribution
-  directoryPerformance: DirectoryPerformance[]
-  onExport: () => void
-  showExportModal: boolean
-  setShowExportModal: (show: boolean) => void
+  metrics: AnalyticsMetrics;
+  packageDistribution: PackageDistribution;
+  directoryPerformance: DirectoryPerformance[];
+  onExport: () => void;
+  showExportModal: boolean;
+  setShowExportModal: (show: boolean) => void;
 }
 
 export default function AnalyticsDashboard({
@@ -17,22 +21,22 @@ export default function AnalyticsDashboard({
   directoryPerformance,
   onExport,
   showExportModal,
-  setShowExportModal
+  setShowExportModal,
 }: AnalyticsDashboardProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(amount)
-  }
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
 
   const formatTime = (minutes: number) => {
-    if (minutes < 60) return `${Math.round(minutes)} minutes`
-    const hours = Math.floor(minutes / 60)
-    const mins = Math.round(minutes % 60)
-    return `${hours}h ${mins}m`
-  }
+    if (minutes < 60) return `${Math.round(minutes)} minutes`;
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    return `${hours}h ${mins}m`;
+  };
 
   return (
     <div className="space-y-6">
@@ -41,7 +45,7 @@ export default function AnalyticsDashboard({
         <h2 className="text-2xl font-bold text-white flex items-center">
           📈 ANALYTICS & REPORTS
         </h2>
-        
+
         <div className="flex items-center space-x-3">
           <select className="bg-secondary-800 border border-secondary-600 text-white px-3 py-2 rounded-lg text-sm">
             <option value="today">📅 Today</option>
@@ -49,7 +53,7 @@ export default function AnalyticsDashboard({
             <option value="month">Month</option>
             <option value="quarter">Quarter</option>
           </select>
-          
+
           <button
             onClick={onExport}
             className="bg-volt-600 hover:bg-volt-500 text-secondary-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center space-x-2"
@@ -124,7 +128,7 @@ export default function AnalyticsDashboard({
           <h3 className="text-lg font-bold text-white mb-4">
             📦 Package Distribution
           </h3>
-          
+
           <div className="space-y-4">
             {Object.entries(packageDistribution).map(([pkg, data]) => (
               <div key={pkg} className="flex items-center">
@@ -136,11 +140,13 @@ export default function AnalyticsDashboard({
                     </span>
                   </div>
                   <div className="w-full bg-secondary-700 rounded-full h-3">
-                    <div 
+                    <div
                       className={`h-3 rounded-full transition-all duration-500 ${
-                        pkg === 'PRO' ? 'bg-purple-600' :
-                        pkg === 'GROWTH' ? 'bg-orange-500' :
-                        'bg-blue-500'
+                        pkg === "PRO"
+                          ? "bg-purple-600"
+                          : pkg === "GROWTH"
+                            ? "bg-orange-500"
+                            : "bg-blue-500"
                       }`}
                       style={{ width: `${data.percentage}%` }}
                     ></div>
@@ -156,10 +162,13 @@ export default function AnalyticsDashboard({
           <h3 className="text-lg font-bold text-white mb-4">
             🎯 Directory Success Rates
           </h3>
-          
+
           <div className="space-y-3">
             {directoryPerformance.slice(0, 6).map((directory, index) => (
-              <div key={directory.directoryName} className="flex items-center justify-between">
+              <div
+                key={directory.directoryName}
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center space-x-3">
                   <span className="text-white font-medium">
                     {directory.directoryName}
@@ -168,11 +177,15 @@ export default function AnalyticsDashboard({
                     ({directory.totalSubmissions.toLocaleString()} submissions)
                   </span>
                 </div>
-                <div className={`font-bold ${
-                  directory.successRate >= 95 ? 'text-green-400' :
-                  directory.successRate >= 85 ? 'text-volt-400' :
-                  'text-red-400'
-                }`}>
+                <div
+                  className={`font-bold ${
+                    directory.successRate >= 95
+                      ? "text-green-400"
+                      : directory.successRate >= 85
+                        ? "text-volt-400"
+                        : "text-red-400"
+                  }`}
+                >
                   {directory.successRate}%
                 </div>
               </div>
@@ -192,12 +205,12 @@ export default function AnalyticsDashboard({
         <ExportModal
           onClose={() => setShowExportModal(false)}
           onExport={(config) => {
-            console.log('Export configuration:', config)
+            console.log("Export configuration:", config);
             // Handle export logic here
-            setShowExportModal(false)
+            setShowExportModal(false);
           }}
         />
       )}
     </div>
-  )
+  );
 }

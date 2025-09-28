@@ -1,12 +1,26 @@
-// 🧪 COMPREHENSIVE SECURITY TEST SUITE
-// Validates all security implementations and identifies vulnerabilities
-// Implements automated security testing for continuous validation
+export interface SecurityTestResult {
+  testName: string;
+  endpoint: string;
+  passed: boolean;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  details?: Record<string, unknown>;
+  recommendation?: string;
+}
 
-import type { NextApiRequest, NextApiResponse } from 'next';
+export interface SecurityTestSuiteSummary {
+  totalTests: number;
+  passedTests: number;
+  failedTests: number;
+  criticalIssues: number;
+  highIssues: number;
+  mediumIssues: number;
+  lowIssues: number;
+  results: SecurityTestResult[];
+  summary: string;
+}
 
-// Security test configuration
-const SECURITY_TEST_CONFIG = {
-  // Test endpoints
+export const SECURITY_TEST_CONFIG = {
   testEndpoints: [
     '/api/auth/login',
     '/api/auth/refresh-token',
@@ -16,51 +30,51 @@ const SECURITY_TEST_CONFIG = {
     '/api/stripe/webhook',
     '/api/payments/webhook'
   ],
-  
-  // Attack patterns to test
   attackPatterns: {
-    sqlInjection: [
-      "' OR '1'='1",
-      "'; DROP TABLE users; --",
-      "' UNION SELECT * FROM users --",
-      "admin'--",
-      "' OR 1=1#"
-    ],
-    xss: [
-      "<script>alert('XSS')</script>",
-      "javascript:alert('XSS')",
-      "<img src=x onerror=alert('XSS')>",
-      "<svg onload=alert('XSS')>",
-      "';alert('XSS');//"
-    ],
-    pathTraversal: [
-      "../../../etc/passwd",
-      "..\\..\\..\\windows\\system32\\config\\sam",
-      "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
-      "....//....//....//etc/passwd"
-    ],
-    commandInjection: [
-      "; ls -la",
-      "| cat /etc/passwd",
-      "&& whoami",
-      "`id`",
-      "$(whoami)"
-    ]
+    sqlInjection: ["' OR '1'='1", "' UNION SELECT * FROM users --"],
+    xss: ["<script>alert('XSS')</script>", "<img src=x onerror=alert('xss')>"],
+    pathTraversal: ['../../../../etc/passwd', '..\\..\\..\\windows\\system32\\config\\sam'],
+    commandInjection: ['; ls -la', '&& whoami']
   },
-  
-  // CORS test origins
-  corsTestOrigins: [
-    'https://malicious-site.com',
-    'http://evil.example.com',
-    'https://attacker.net',
-    'null',
-    '*'
-  ],
-  
-  // Rate limiting test configuration
+  corsTestOrigins: ['https://malicious-site.com', 'http://evil.example.com', 'null', '*'],
   rateLimitTests: {
-    maxRequests: 150, // Exceed normal limits
-    timeWindow: 60000, // 1 minute
+    maxRequests: 150,
+    timeWindow: 60000,
     endpoints: ['/api/auth/login', '/api/auth/refresh-token']
   }
-};\n\n// Security test result interfaces\ninterface SecurityTestResult {\n  testName: string;\n  endpoint: string;\n  passed: boolean;\n  severity: 'low' | 'medium' | 'high' | 'critical';\n  description: string;\n  details: any;\n  recommendation?: string;\n}\n\ninterface SecurityTestSuite {\n  totalTests: number;\n  passedTests: number;\n  failedTests: number;\n  criticalIssues: number;\n  highIssues: number;\n  mediumIssues: number;\n  lowIssues: number;\n  results: SecurityTestResult[];\n  summary: string;\n}\n\n// Security testing class\nclass SecurityTester {\n  private baseUrl: string;\n  private results: SecurityTestResult[] = [];\n  \n  constructor(baseUrl: string = 'http://localhost:3000') {\n    this.baseUrl = baseUrl;\n  }\n  \n  // Run comprehensive security test suite\n  async runSecurityTests(): Promise<SecurityTestSuite> {\n    console.log('🧪 Starting comprehensive security test suite...');\n    \n    this.results = [];\n    \n    // 1. CORS Security Tests\n    await this.testCORSSecurity();\n    \n    // 2. Authentication Security Tests\n    await this.testAuthenticationSecurity();\n    \n    // 3. Input Validation Tests\n    await this.testInputValidation();\n    \n    // 4. Rate Limiting Tests\n    await this.testRateLimiting();\n    \n    // 5. Error Handling Tests\n    await this.testErrorHandling();\n    \n    // 6. Session Security Tests\n    await this.testSessionSecurity();\n    \n    // 7. File Upload Security Tests\n    await this.testFileUploadSecurity();\n    \n    // 8. Infrastructure Security Tests\n    await this.testInfrastructureSecurity();\n    \n    return this.generateTestSummary();\n  }\n  \n  // Test CORS security implementation\n  private async testCORSSecurity(): Promise<void> {\n    console.log('🔒 Testing CORS security...');\n    \n    for (const endpoint of SECURITY_TEST_CONFIG.testEndpoints) {\n      for (const origin of SECURITY_TEST_CONFIG.corsTestOrigins) {\n        try {\n          const response = await this.makeRequest(endpoint, {\n            method: 'POST',\n            headers: {\n              'Origin': origin,\n              'Content-Type': 'application/json'\n            },\n            body: JSON.stringify({ test: 'data' })\n          });\n          \n          const corsHeader = response.headers.get('Access-Control-Allow-Origin');\n          \n          if (corsHeader === '*' || corsHeader === origin) {\n            this.addResult({\n              testName: 'CORS Origin Validation',\n              endpoint,\n              passed: false,\n              severity: 'high',\n              description: `Endpoint accepts requests from unauthorized origin: ${origin}`,\n              details: { origin, corsHeader },\n              recommendation: 'Implement strict origin validation in CORS configuration'\n            });\n          } else {\n            this.addResult({\n              testName: 'CORS Origin Validation',\n              endpoint,\n              passed: true,\n              severity: 'low',\n              description: `Endpoint correctly rejects unauthorized origin: ${origin}`,\n              details: { origin, corsHeader }\n            });\n          }\n        } catch (error) {\n          // Network errors are expected for blocked requests\n          this.addResult({\n            testName: 'CORS Origin Validation',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: `Endpoint correctly blocks unauthorized origin: ${origin}`,\n            details: { origin, error: 'Request blocked' }\n          });\n        }\n      }\n    }\n  }\n  \n  // Test authentication security\n  private async testAuthenticationSecurity(): Promise<void> {\n    console.log('🔐 Testing authentication security...');\n    \n    const authEndpoints = ['/api/auth/login', '/api/staff/login'];\n    \n    for (const endpoint of authEndpoints) {\n      // Test without credentials\n      try {\n        const response = await this.makeRequest(endpoint, {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({})\n        });\n        \n        if (response.status === 200) {\n          this.addResult({\n            testName: 'Authentication Required',\n            endpoint,\n            passed: false,\n            severity: 'critical',\n            description: 'Endpoint allows access without proper authentication',\n            details: { status: response.status },\n            recommendation: 'Implement proper authentication validation'\n          });\n        } else {\n          this.addResult({\n            testName: 'Authentication Required',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: 'Endpoint correctly requires authentication',\n            details: { status: response.status }\n          });\n        }\n      } catch (error) {\n        this.addResult({\n          testName: 'Authentication Required',\n          endpoint,\n          passed: true,\n          severity: 'low',\n          description: 'Endpoint correctly blocks unauthenticated requests',\n          details: { error: 'Request blocked' }\n        });\n      }\n      \n      // Test with invalid credentials\n      try {\n        const response = await this.makeRequest(endpoint, {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({\n            username: 'invalid',\n            password: 'invalid'\n          })\n        });\n        \n        if (response.status === 200) {\n          this.addResult({\n            testName: 'Invalid Credentials Rejection',\n            endpoint,\n            passed: false,\n            severity: 'high',\n            description: 'Endpoint accepts invalid credentials',\n            details: { status: response.status },\n            recommendation: 'Implement proper credential validation'\n          });\n        } else {\n          this.addResult({\n            testName: 'Invalid Credentials Rejection',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: 'Endpoint correctly rejects invalid credentials',\n            details: { status: response.status }\n          });\n        }\n      } catch (error) {\n        this.addResult({\n          testName: 'Invalid Credentials Rejection',\n          endpoint,\n          passed: true,\n          severity: 'low',\n          description: 'Endpoint correctly handles invalid credentials',\n          details: { error: 'Request handled securely' }\n        });\n      }\n    }\n  }\n  \n  // Test input validation against injection attacks\n  private async testInputValidation(): Promise<void> {\n    console.log('🛡️ Testing input validation...');\n    \n    const testEndpoints = ['/api/auth/login', '/api/staff/login'];\n    \n    for (const endpoint of testEndpoints) {\n      // Test SQL injection\n      for (const payload of SECURITY_TEST_CONFIG.attackPatterns.sqlInjection) {\n        try {\n          const response = await this.makeRequest(endpoint, {\n            method: 'POST',\n            headers: { 'Content-Type': 'application/json' },\n            body: JSON.stringify({\n              username: payload,\n              password: payload\n            })\n          });\n          \n          const responseText = await response.text();\n          \n          // Check for SQL error messages or successful injection\n          if (responseText.includes('SQL') || responseText.includes('database') || response.status === 200) {\n            this.addResult({\n              testName: 'SQL Injection Protection',\n              endpoint,\n              passed: false,\n              severity: 'critical',\n              description: `Endpoint vulnerable to SQL injection: ${payload}`,\n              details: { payload, status: response.status, response: responseText.substring(0, 200) },\n              recommendation: 'Implement proper input sanitization and parameterized queries'\n            });\n          } else {\n            this.addResult({\n              testName: 'SQL Injection Protection',\n              endpoint,\n              passed: true,\n              severity: 'low',\n              description: `Endpoint protected against SQL injection: ${payload}`,\n              details: { payload, status: response.status }\n            });\n          }\n        } catch (error) {\n          this.addResult({\n            testName: 'SQL Injection Protection',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: `Endpoint blocks SQL injection attempt: ${payload}`,\n            details: { payload, error: 'Request blocked' }\n          });\n        }\n      }\n      \n      // Test XSS\n      for (const payload of SECURITY_TEST_CONFIG.attackPatterns.xss) {\n        try {\n          const response = await this.makeRequest(endpoint, {\n            method: 'POST',\n            headers: { 'Content-Type': 'application/json' },\n            body: JSON.stringify({\n              username: payload,\n              password: 'test'\n            })\n          });\n          \n          const responseText = await response.text();\n          \n          // Check if XSS payload is reflected\n          if (responseText.includes(payload) && !responseText.includes('&lt;')) {\n            this.addResult({\n              testName: 'XSS Protection',\n              endpoint,\n              passed: false,\n              severity: 'high',\n              description: `Endpoint vulnerable to XSS: ${payload}`,\n              details: { payload, status: response.status },\n              recommendation: 'Implement proper output encoding and CSP headers'\n            });\n          } else {\n            this.addResult({\n              testName: 'XSS Protection',\n              endpoint,\n              passed: true,\n              severity: 'low',\n              description: `Endpoint protected against XSS: ${payload}`,\n              details: { payload, status: response.status }\n            });\n          }\n        } catch (error) {\n          this.addResult({\n            testName: 'XSS Protection',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: `Endpoint blocks XSS attempt: ${payload}`,\n            details: { payload, error: 'Request blocked' }\n          });\n        }\n      }\n    }\n  }\n  \n  // Test rate limiting\n  private async testRateLimiting(): Promise<void> {\n    console.log('⏱️ Testing rate limiting...');\n    \n    for (const endpoint of SECURITY_TEST_CONFIG.rateLimitTests.endpoints) {\n      const requests = [];\n      const startTime = Date.now();\n      \n      // Make rapid requests to test rate limiting\n      for (let i = 0; i < SECURITY_TEST_CONFIG.rateLimitTests.maxRequests; i++) {\n        requests.push(\n          this.makeRequest(endpoint, {\n            method: 'POST',\n            headers: { 'Content-Type': 'application/json' },\n            body: JSON.stringify({ test: `request_${i}` })\n          }).catch(error => ({ status: 0, error }))\n        );\n      }\n      \n      const responses = await Promise.all(requests);\n      const rateLimitedResponses = responses.filter(r => r.status === 429);\n      \n      if (rateLimitedResponses.length === 0) {\n        this.addResult({\n          testName: 'Rate Limiting',\n          endpoint,\n          passed: false,\n          severity: 'medium',\n          description: 'Endpoint does not implement rate limiting',\n          details: {\n            totalRequests: responses.length,\n            rateLimitedRequests: rateLimitedResponses.length,\n            duration: Date.now() - startTime\n          },\n          recommendation: 'Implement rate limiting to prevent abuse'\n        });\n      } else {\n        this.addResult({\n          testName: 'Rate Limiting',\n          endpoint,\n          passed: true,\n          severity: 'low',\n          description: 'Endpoint implements rate limiting',\n          details: {\n            totalRequests: responses.length,\n            rateLimitedRequests: rateLimitedResponses.length,\n            duration: Date.now() - startTime\n          }\n        });\n      }\n    }\n  }\n  \n  // Test error handling security\n  private async testErrorHandling(): Promise<void> {\n    console.log('❌ Testing error handling...');\n    \n    for (const endpoint of SECURITY_TEST_CONFIG.testEndpoints) {\n      try {\n        // Send malformed request to trigger error\n        const response = await this.makeRequest(endpoint, {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: 'invalid json'\n        });\n        \n        const responseText = await response.text();\n        \n        // Check for information disclosure in error messages\n        const sensitivePatterns = [\n          /stack trace/i,\n          /file path/i,\n          /database/i,\n          /internal server/i,\n          /process\\.env/i\n        ];\n        \n        const hasSensitiveInfo = sensitivePatterns.some(pattern => pattern.test(responseText));\n        \n        if (hasSensitiveInfo) {\n          this.addResult({\n            testName: 'Error Information Disclosure',\n            endpoint,\n            passed: false,\n            severity: 'medium',\n            description: 'Error messages contain sensitive information',\n            details: { status: response.status, response: responseText.substring(0, 200) },\n            recommendation: 'Implement secure error handling that does not expose sensitive information'\n          });\n        } else {\n          this.addResult({\n            testName: 'Error Information Disclosure',\n            endpoint,\n            passed: true,\n            severity: 'low',\n            description: 'Error messages do not expose sensitive information',\n            details: { status: response.status }\n          });\n        }\n      } catch (error) {\n        this.addResult({\n          testName: 'Error Information Disclosure',\n          endpoint,\n          passed: true,\n          severity: 'low',\n          description: 'Endpoint handles errors securely',\n          details: { error: 'Request handled securely' }\n        });\n      }\n    }\n  }\n  \n  // Test session security\n  private async testSessionSecurity(): Promise<void> {\n    console.log('🍪 Testing session security...');\n    \n    // Test session cookie security attributes\n    try {\n      const response = await this.makeRequest('/api/staff/login', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n          username: 'test',\n          password: 'test'\n        })\n      });\n      \n      const setCookieHeader = response.headers.get('Set-Cookie');\n      \n      if (setCookieHeader) {\n        const hasHttpOnly = setCookieHeader.includes('HttpOnly');\n        const hasSecure = setCookieHeader.includes('Secure');\n        const hasSameSite = setCookieHeader.includes('SameSite');\n        \n        if (!hasHttpOnly || !hasSecure || !hasSameSite) {\n          this.addResult({\n            testName: 'Session Cookie Security',\n            endpoint: '/api/staff/login',\n            passed: false,\n            severity: 'medium',\n            description: 'Session cookies missing security attributes',\n            details: { hasHttpOnly, hasSecure, hasSameSite, setCookieHeader },\n            recommendation: 'Ensure all session cookies have HttpOnly, Secure, and SameSite attributes'\n          });\n        } else {\n          this.addResult({\n            testName: 'Session Cookie Security',\n            endpoint: '/api/staff/login',\n            passed: true,\n            severity: 'low',\n            description: 'Session cookies have proper security attributes',\n            details: { hasHttpOnly, hasSecure, hasSameSite }\n          });\n        }\n      }\n    } catch (error) {\n      // Expected for invalid credentials\n    }\n  }\n  \n  // Test file upload security\n  private async testFileUploadSecurity(): Promise<void> {\n    console.log('📁 Testing file upload security...');\n    \n    // This would test file upload endpoints if they exist\n    // For now, we'll test that dangerous file types are rejected\n    \n    this.addResult({\n      testName: 'File Upload Security',\n      endpoint: 'N/A',\n      passed: true,\n      severity: 'low',\n      description: 'File upload security middleware implemented',\n      details: { note: 'File upload security patterns established' }\n    });\n  }\n  \n  // Test infrastructure security\n  private async testInfrastructureSecurity(): Promise<void> {\n    console.log('🏗️ Testing infrastructure security...');\n    \n    try {\n      const response = await this.makeRequest('/', { method: 'GET' });\n      \n      // Check security headers\n      const securityHeaders = {\n        'X-Content-Type-Options': response.headers.get('X-Content-Type-Options'),\n        'X-Frame-Options': response.headers.get('X-Frame-Options'),\n        'X-XSS-Protection': response.headers.get('X-XSS-Protection'),\n        'Strict-Transport-Security': response.headers.get('Strict-Transport-Security'),\n        'Content-Security-Policy': response.headers.get('Content-Security-Policy')\n      };\n      \n      const missingHeaders = Object.entries(securityHeaders)\n        .filter(([key, value]) => !value)\n        .map(([key]) => key);\n      \n      if (missingHeaders.length > 0) {\n        this.addResult({\n          testName: 'Security Headers',\n          endpoint: '/',\n          passed: false,\n          severity: 'medium',\n          description: `Missing security headers: ${missingHeaders.join(', ')}`,\n          details: { securityHeaders, missingHeaders },\n          recommendation: 'Implement all recommended security headers'\n        });\n      } else {\n        this.addResult({\n          testName: 'Security Headers',\n          endpoint: '/',\n          passed: true,\n          severity: 'low',\n          description: 'All security headers present',\n          details: { securityHeaders }\n        });\n      }\n    } catch (error) {\n      this.addResult({\n        testName: 'Security Headers',\n        endpoint: '/',\n        passed: false,\n        severity: 'high',\n        description: 'Unable to test security headers',\n        details: { error: error.message },\n        recommendation: 'Ensure application is accessible for security testing'\n      });\n    }\n  }\n  \n  // Helper method to make HTTP requests\n  private async makeRequest(endpoint: string, options: RequestInit): Promise<Response> {\n    const url = `${this.baseUrl}${endpoint}`;\n    return fetch(url, {\n      ...options,\n      // Add timeout\n      signal: AbortSignal.timeout(10000)\n    });\n  }\n  \n  // Add test result\n  private addResult(result: SecurityTestResult): void {\n    this.results.push(result);\n  }\n  \n  // Generate test summary\n  private generateTestSummary(): SecurityTestSuite {\n    const totalTests = this.results.length;\n    const passedTests = this.results.filter(r => r.passed).length;\n    const failedTests = totalTests - passedTests;\n    \n    const criticalIssues = this.results.filter(r => !r.passed && r.severity === 'critical').length;\n    const highIssues = this.results.filter(r => !r.passed && r.severity === 'high').length;\n    const mediumIssues = this.results.filter(r => !r.passed && r.severity === 'medium').length;\n    const lowIssues = this.results.filter(r => !r.passed && r.severity === 'low').length;\n    \n    const passRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;\n    \n    let summary = `Security test completed: ${passedTests}/${totalTests} tests passed (${passRate}%)`;\n    \n    if (criticalIssues > 0) {\n      summary += ` - ${criticalIssues} CRITICAL issues found`;\n    }\n    if (highIssues > 0) {\n      summary += ` - ${highIssues} HIGH severity issues found`;\n    }\n    if (mediumIssues > 0) {\n      summary += ` - ${mediumIssues} MEDIUM severity issues found`;\n    }\n    \n    return {\n      totalTests,\n      passedTests,\n      failedTests,\n      criticalIssues,\n      highIssues,\n      mediumIssues,\n      lowIssues,\n      results: this.results,\n      summary\n    };\n  }\n}\n\n// Export security testing functionality\nexport { SecurityTester, SECURITY_TEST_CONFIG };\nexport type { SecurityTestResult, SecurityTestSuite };"
+} as const;
+
+export class SecurityTester {
+  constructor(private readonly baseUrl: string = 'http://localhost:3000') {}
+
+  async runSecurityTests(): Promise<SecurityTestSuiteSummary> {
+    // At the moment we only perform static analysis; dynamic tests can be added later.
+    const results: SecurityTestResult[] = [];
+
+    results.push({
+      testName: 'Static configuration review',
+      endpoint: 'N/A',
+      passed: false,
+      severity: 'high',
+      description: 'Dynamic security tests not yet implemented. Implement active checks before relying on this suite.',
+      recommendation: 'Implement HTTP client mocks and live checks for CORS, auth, and rate limiting.'
+    });
+
+    const criticalIssues = results.filter((r) => !r.passed && r.severity === 'critical').length;
+    const highIssues = results.filter((r) => !r.passed && r.severity === 'high').length;
+    const mediumIssues = results.filter((r) => !r.passed && r.severity === 'medium').length;
+    const lowIssues = results.filter((r) => !r.passed && r.severity === 'low').length;
+
+    return {
+      totalTests: results.length,
+      passedTests: results.filter((r) => r.passed).length,
+      failedTests: results.filter((r) => !r.passed).length,
+      criticalIssues,
+      highIssues,
+      mediumIssues,
+      lowIssues,
+      results,
+      summary: 'Security test harness initialised but dynamic checks are pending implementation.'
+    };
+  }
+}

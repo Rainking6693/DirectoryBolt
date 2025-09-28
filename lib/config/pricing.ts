@@ -362,7 +362,7 @@ export function validatePricing(): { isValid: boolean; errors: string[] } {
   }
 }
 
-export default {
+const pricingConfig = {
   PRICING_TIERS,
   STRIPE_PRICE_IDS,
   canAccessFeature,
@@ -371,3 +371,5 @@ export default {
   getTierComparison,
   validatePricing
 }
+
+export default pricingConfig

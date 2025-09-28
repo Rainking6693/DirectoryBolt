@@ -1,43 +1,52 @@
-import React, { useState } from 'react'
-import { QueueCustomer, QueueItemActions } from '../types/queue.types'
-import QueueItem from './QueueItem'
+import React, { useState } from "react";
+import { QueueCustomer, QueueItemActions } from "../types/queue.types";
+import QueueItem from "./QueueItem";
 
 interface QueueListProps {
-  customers: QueueCustomer[]
-  actions: QueueItemActions
-  isLoading?: boolean
+  customers: QueueCustomer[];
+  actions: QueueItemActions;
+  isLoading?: boolean;
 }
 
-export default function QueueList({ customers, actions, isLoading = false }: QueueListProps) {
-  const [processingCustomers, setProcessingCustomers] = useState<Set<string>>(new Set())
+export default function QueueList({
+  customers,
+  actions,
+  isLoading = false,
+}: QueueListProps) {
+  const [processingCustomers, setProcessingCustomers] = useState<Set<string>>(
+    new Set(),
+  );
 
   const handleProcessNow = async (customerId: string) => {
-    setProcessingCustomers(prev => new Set(prev).add(customerId))
-    
+    setProcessingCustomers((prev) => new Set(prev).add(customerId));
+
     try {
-      await actions.onProcessNow(customerId)
+      await actions.onProcessNow(customerId);
     } finally {
       // Remove from processing set after a delay to show the processing state
       setTimeout(() => {
-        setProcessingCustomers(prev => {
-          const next = new Set(prev)
-          next.delete(customerId)
-          return next
-        })
-      }, 2000)
+        setProcessingCustomers((prev) => {
+          const next = new Set(prev);
+          next.delete(customerId);
+          return next;
+        });
+      }, 2000);
     }
-  }
+  };
 
   const enhancedActions: QueueItemActions = {
     ...actions,
-    onProcessNow: handleProcessNow
-  }
+    onProcessNow: handleProcessNow,
+  };
 
   if (isLoading) {
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-secondary-800 rounded-xl border border-secondary-700 p-4 animate-pulse">
+          <div
+            key={i}
+            className="bg-secondary-800 rounded-xl border border-secondary-700 p-4 animate-pulse"
+          >
             <div className="flex items-center space-x-3 mb-3">
               <div className="w-6 h-6 bg-secondary-600 rounded-full"></div>
               <div className="w-16 h-5 bg-secondary-600 rounded"></div>
@@ -53,7 +62,7 @@ export default function QueueList({ customers, actions, isLoading = false }: Que
           </div>
         ))}
       </div>
-    )
+    );
   }
 
   if (customers.length === 0) {
@@ -65,7 +74,7 @@ export default function QueueList({ customers, actions, isLoading = false }: Que
           All customers have been processed. Great work!
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -79,5 +88,5 @@ export default function QueueList({ customers, actions, isLoading = false }: Que
         />
       ))}
     </div>
-  )
+  );
 }

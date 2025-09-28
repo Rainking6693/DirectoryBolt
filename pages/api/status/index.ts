@@ -89,10 +89,11 @@ async function handler(
   try {
     if (req.method !== 'GET') {
       res.setHeader('Allow', ['GET'])
-      return res.status(405).json(handleApiError(
+      res.status(405).json(handleApiError(
         new Error('Method not allowed'),
         requestId
       ))
+      return
     }
     
     // ⚠️ SECURITY: Check for admin authentication
@@ -110,7 +111,8 @@ async function handler(
       }
       
       res.setHeader('Cache-Control', 'public, max-age=30')
-      return res.status(200).json(publicStatus)
+      res.status(200).json(publicStatus)
+      return
     }
     
     // Full system status only for authenticated admin users
@@ -135,7 +137,7 @@ async function handler(
     
     // Log status check
     const duration = Date.now() - startTime
-    logger.apiResponse({
+    logger.apiResponse?.({
       requestId,
       method: 'GET',
       url: '/api/status',
@@ -149,10 +151,11 @@ async function handler(
     res.setHeader('X-Response-Time', `${duration}ms`)
     
     res.status(200).json(status)
-    
+    return
   } catch (error) {
     const errorResponse = handleApiError(error as Error, requestId)
-    return res.status(errorResponse.error.statusCode).json(errorResponse)
+    res.status(errorResponse.error.statusCode).json(errorResponse)
+    return
   }
 }
 

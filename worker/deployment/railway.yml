@@ -42,7 +42,7 @@ services:
       policy:
         metric: cpu
         target: 70
-        
+
   # Proxy Management Service
   proxy-manager:
     build:
@@ -65,7 +65,7 @@ services:
       memory: 512
       cpu: 250
       disk: 1
-      
+
   # Redis Service
   redis:
     image: redis:7-alpine
@@ -101,7 +101,7 @@ volumes:
 # Network Configuration
 network:
   internal: true
-  
+
 # Deployment Configuration
 deployment:
   strategy: rolling

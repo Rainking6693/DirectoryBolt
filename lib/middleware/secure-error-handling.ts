@@ -1,76 +1,158 @@
-// 🔒 SECURE ERROR HANDLING MIDDLEWARE - DATA-006
-// Prevents information disclosure through error messages
-// Implements secure error responses and comprehensive error logging
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Error handling configuration
-const ERROR_CONFIG = {
-  // Environment-based error detail levels
-  showDetailedErrors: process.env.NODE_ENV !== 'production',
-  
-  // Error logging settings
-  logErrors: true,
-  logLevel: process.env.LOG_LEVEL || 'error',
-  
-  // Sensitive information patterns to remove from error messages
-  sensitivePatterns: [
-    // Database connection strings
-    /postgresql:\/\/[^@]+@[^\/]+\/\w+/gi,
-    /mysql:\/\/[^@]+@[^\/]+\/\w+/gi,
-    /mongodb:\/\/[^@]+@[^\/]+\/\w+/gi,
-    
-    // API keys and tokens
-    /sk_[a-zA-Z0-9_]+/gi,
-    /pk_[a-zA-Z0-9_]+/gi,
-    /Bearer\s+[a-zA-Z0-9_\-\.]+/gi,
-    /token[\"']?\s*:\s*[\"'][^\"']+[\"']/gi,
-    
-    // File paths
-    /[A-Za-z]:\\\\[^\\s]+/gi,
-    /\/[a-zA-Z0-9_\-\/\.]+\/[a-zA-Z0-9_\-\.]+/gi,
-    
-    // IP addresses (internal)
-    /192\.168\.\d+\.\d+/gi,
-    /10\.\d+\.\d+\.\d+/gi,
-    /172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+/gi,
-    
-    // Email addresses in error messages
-    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi,
-    
-    // Stack trace file paths
-    /at\s+[^\s]+\s+\([^)]+\)/gi,
-    
-    // Environment variables
-    /process\.env\.[A-Z_]+/gi,
-    
-    // SQL queries
-    /(SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\s+[^;]+/gi
-  ],
-  
-  // Generic error messages by category
-  genericMessages: {
-    authentication: 'Authentication failed. Please check your credentials.',
-    authorization: 'Access denied. You do not have permission to perform this action.',
-    validation: 'Invalid input data. Please check your request and try again.',
-    database: 'A database error occurred. Please try again later.',
-    network: 'Network error occurred. Please check your connection and try again.',
-    server: 'An internal server error occurred. Please try again later.',
-    notFound: 'The requested resource was not found.',
-    rateLimit: 'Too many requests. Please wait before trying again.',
-    payment: 'Payment processing error. Please try again or contact support.',
-    upload: 'File upload failed. Please check the file and try again.',
-    external: 'External service error. Please try again later.',
-    default: 'An unexpected error occurred. Please try again later.'
-  },
-  
-  // Error codes that should never expose details
-  sensitiveErrorCodes: [
-    'ECONNREFUSED',
-    'ENOTFOUND',
-    'ETIMEDOUT',
-    'EACCES',
-    'EPERM',
-    'MODULE_NOT_FOUND'
-  ]
-};\n\n// Error classification\ninterface ErrorClassification {\n  category: keyof typeof ERROR_CONFIG.genericMessages;\n  severity: 'low' | 'medium' | 'high' | 'critical';\n  shouldLog: boolean;\n  shouldAlert: boolean;\n  statusCode: number;\n}\n\n// Secure error handler class\nclass SecureErrorHandler {\n  private requestId: string;\n  private userId?: string;\n  private endpoint: string;\n  \n  constructor(requestId: string, userId?: string, endpoint: string = 'unknown') {\n    this.requestId = requestId;\n    this.userId = userId;\n    this.endpoint = endpoint;\n  }\n  \n  // Main error handling method\n  handleError(error: any): {\n    statusCode: number;\n    response: any;\n    shouldLog: boolean;\n    shouldAlert: boolean;\n  } {\n    const classification = this.classifyError(error);\n    const sanitizedMessage = this.sanitizeErrorMessage(error);\n    \n    // Create secure response\n    const response = {\n      error: true,\n      message: ERROR_CONFIG.showDetailedErrors ? sanitizedMessage : ERROR_CONFIG.genericMessages[classification.category],\n      code: this.getErrorCode(error, classification),\n      timestamp: new Date().toISOString(),\n      requestId: this.requestId\n    };\n    \n    // Add debug info in development\n    if (ERROR_CONFIG.showDetailedErrors) {\n      response.debug = {\n        originalMessage: error.message,\n        stack: error.stack?.split('\\n').slice(0, 5), // Limit stack trace\n        category: classification.category,\n        severity: classification.severity\n      };\n    }\n    \n    return {\n      statusCode: classification.statusCode,\n      response,\n      shouldLog: classification.shouldLog,\n      shouldAlert: classification.shouldAlert\n    };\n  }\n  \n  // Classify error type and severity\n  private classifyError(error: any): ErrorClassification {\n    const message = error.message?.toLowerCase() || '';\n    const code = error.code || '';\n    const name = error.name?.toLowerCase() || '';\n    \n    // Authentication errors\n    if (message.includes('unauthorized') || message.includes('authentication') || \n        message.includes('invalid token') || message.includes('expired token')) {\n      return {\n        category: 'authentication',\n        severity: 'medium',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 401\n      };\n    }\n    \n    // Authorization errors\n    if (message.includes('forbidden') || message.includes('access denied') || \n        message.includes('permission') || message.includes('not allowed')) {\n      return {\n        category: 'authorization',\n        severity: 'medium',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 403\n      };\n    }\n    \n    // Validation errors\n    if (message.includes('validation') || message.includes('invalid') || \n        message.includes('required') || message.includes('format') ||\n        name.includes('validation')) {\n      return {\n        category: 'validation',\n        severity: 'low',\n        shouldLog: false,\n        shouldAlert: false,\n        statusCode: 400\n      };\n    }\n    \n    // Database errors\n    if (message.includes('database') || message.includes('sql') || \n        message.includes('connection') || code.includes('ECONNREFUSED') ||\n        name.includes('sequelize') || name.includes('prisma')) {\n      return {\n        category: 'database',\n        severity: 'high',\n        shouldLog: true,\n        shouldAlert: true,\n        statusCode: 503\n      };\n    }\n    \n    // Network errors\n    if (code.includes('ENOTFOUND') || code.includes('ETIMEDOUT') || \n        message.includes('network') || message.includes('timeout')) {\n      return {\n        category: 'network',\n        severity: 'medium',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 503\n      };\n    }\n    \n    // Rate limiting\n    if (message.includes('rate limit') || message.includes('too many requests')) {\n      return {\n        category: 'rateLimit',\n        severity: 'low',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 429\n      };\n    }\n    \n    // Payment errors\n    if (message.includes('payment') || message.includes('stripe') || \n        message.includes('billing') || message.includes('charge')) {\n      return {\n        category: 'payment',\n        severity: 'high',\n        shouldLog: true,\n        shouldAlert: true,\n        statusCode: 402\n      };\n    }\n    \n    // File upload errors\n    if (message.includes('upload') || message.includes('file') || \n        message.includes('multipart') || message.includes('size')) {\n      return {\n        category: 'upload',\n        severity: 'low',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 400\n      };\n    }\n    \n    // Not found errors\n    if (message.includes('not found') || message.includes('404')) {\n      return {\n        category: 'notFound',\n        severity: 'low',\n        shouldLog: false,\n        shouldAlert: false,\n        statusCode: 404\n      };\n    }\n    \n    // External service errors\n    if (message.includes('external') || message.includes('api') || \n        message.includes('service unavailable')) {\n      return {\n        category: 'external',\n        severity: 'medium',\n        shouldLog: true,\n        shouldAlert: false,\n        statusCode: 503\n      };\n    }\n    \n    // Default server error\n    return {\n      category: 'server',\n      severity: 'high',\n      shouldLog: true,\n      shouldAlert: true,\n      statusCode: 500\n    };\n  }\n  \n  // Sanitize error message to remove sensitive information\n  private sanitizeErrorMessage(error: any): string {\n    let message = error.message || 'Unknown error';\n    \n    // Remove sensitive patterns\n    for (const pattern of ERROR_CONFIG.sensitivePatterns) {\n      message = message.replace(pattern, '[REDACTED]');\n    }\n    \n    // Remove sensitive error codes\n    for (const sensitiveCode of ERROR_CONFIG.sensitiveErrorCodes) {\n      if (message.includes(sensitiveCode)) {\n        message = message.replace(new RegExp(sensitiveCode, 'gi'), '[ERROR_CODE_REDACTED]');\n      }\n    }\n    \n    // Limit message length\n    if (message.length > 200) {\n      message = message.substring(0, 200) + '...';\n    }\n    \n    return message;\n  }\n  \n  // Get appropriate error code\n  private getErrorCode(error: any, classification: ErrorClassification): string {\n    // Use custom error codes if available\n    if (error.code && typeof error.code === 'string' && !ERROR_CONFIG.sensitiveErrorCodes.includes(error.code)) {\n      return error.code;\n    }\n    \n    // Generate code based on classification\n    const categoryCode = classification.category.toUpperCase();\n    const timestamp = Date.now().toString().slice(-6);\n    \n    return `${categoryCode}_${timestamp}`;\n  }\n  \n  // Log error securely\n  logError(error: any, classification: ErrorClassification, additionalContext?: any): void {\n    const logEntry = {\n      timestamp: new Date().toISOString(),\n      requestId: this.requestId,\n      userId: this.userId,\n      endpoint: this.endpoint,\n      category: classification.category,\n      severity: classification.severity,\n      message: this.sanitizeErrorMessage(error),\n      originalError: {\n        name: error.name,\n        code: error.code,\n        stack: ERROR_CONFIG.showDetailedErrors ? error.stack : undefined\n      },\n      context: additionalContext\n    };\n    \n    // Log based on severity\n    switch (classification.severity) {\n      case 'critical':\n        console.error('🚨 CRITICAL ERROR:', logEntry);\n        break;\n      case 'high':\n        console.error('❌ HIGH SEVERITY ERROR:', logEntry);\n        break;\n      case 'medium':\n        console.warn('⚠️ MEDIUM SEVERITY ERROR:', logEntry);\n        break;\n      case 'low':\n        console.log('ℹ️ LOW SEVERITY ERROR:', logEntry);\n        break;\n    }\n    \n    // TODO: Send to external logging service (e.g., Sentry, LogRocket)\n    // await this.sendToExternalLogger(logEntry);\n  }\n  \n  // Send alert for critical errors\n  async sendAlert(error: any, classification: ErrorClassification): Promise<void> {\n    if (!classification.shouldAlert) {\n      return;\n    }\n    \n    const alertData = {\n      timestamp: new Date().toISOString(),\n      requestId: this.requestId,\n      userId: this.userId,\n      endpoint: this.endpoint,\n      severity: classification.severity,\n      category: classification.category,\n      message: this.sanitizeErrorMessage(error),\n      environment: process.env.NODE_ENV\n    };\n    \n    console.error('🚨 SECURITY ALERT:', alertData);\n    \n    // TODO: Implement actual alerting (email, Slack, PagerDuty, etc.)\n    // await this.sendToAlertingService(alertData);\n  }\n}\n\n// Middleware function for secure error handling\nexport function withSecureErrorHandling(\n  options: {\n    logErrors?: boolean;\n    sendAlerts?: boolean;\n  } = {}\n) {\n  const { logErrors = true, sendAlerts = true } = options;\n  \n  return function middleware(\n    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void\n  ) {\n    return async function wrappedHandler(\n      req: NextApiRequest,\n      res: NextApiResponse\n    ) {\n      const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\n      const userId = (req as any).user?.sub;\n      const endpoint = req.url || 'unknown';\n      \n      const errorHandler = new SecureErrorHandler(requestId, userId, endpoint);\n      \n      try {\n        // Add request ID to request for tracking\n        (req as any).requestId = requestId;\n        \n        // Continue to the actual handler\n        await handler(req, res);\n        \n      } catch (error) {\n        const handledError = errorHandler.handleError(error);\n        \n        // Log error if enabled\n        if (logErrors && handledError.shouldLog) {\n          errorHandler.logError(error, errorHandler.classifyError(error), {\n            method: req.method,\n            headers: req.headers,\n            query: req.query,\n            body: req.body ? '[REDACTED]' : undefined\n          });\n        }\n        \n        // Send alert if enabled and required\n        if (sendAlerts && handledError.shouldAlert) {\n          await errorHandler.sendAlert(error, errorHandler.classifyError(error));\n        }\n        \n        // Send secure error response\n        if (!res.headersSent) {\n          res.status(handledError.statusCode).json(handledError.response);\n        }\n      }\n    };\n  };\n}\n\n// Utility function for manual error handling\nexport function handleSecureError(\n  error: any,\n  requestId: string,\n  userId?: string,\n  endpoint?: string\n): {\n  statusCode: number;\n  response: any;\n} {\n  const errorHandler = new SecureErrorHandler(requestId, userId, endpoint);\n  const handledError = errorHandler.handleError(error);\n  \n  return {\n    statusCode: handledError.statusCode,\n    response: handledError.response\n  };\n}\n\n// Export configuration and handler for external use\nexport { ERROR_CONFIG, SecureErrorHandler };"
+const GENERIC_MESSAGES = {
+  authentication: 'Authentication failed. Please check your credentials.',
+  authorization: 'Access denied. You do not have permission to perform this action.',
+  validation: 'Invalid input data. Please review the request payload.',
+  database: 'A database error occurred. Please try again later.',
+  network: 'A network error occurred. Please retry in a moment.',
+  server: 'An internal server error occurred. Please try again later.',
+  notFound: 'The requested resource was not found.',
+  rateLimit: 'Too many requests. Please wait before trying again.',
+  payment: 'Payment processing error. Please try again or contact support.',
+  default: 'An unexpected error occurred. Please try again later.'
+} as const;
+
+type ErrorCategory = keyof typeof GENERIC_MESSAGES;
+
+type Severity = 'low' | 'medium' | 'high' | 'critical';
+
+interface ClassifiedError {
+  category: ErrorCategory;
+  severity: Severity;
+  statusCode: number;
+  shouldLog: boolean;
+  shouldAlert: boolean;
+}
+
+export class SecureErrorHandler {
+  constructor(
+    private readonly requestId: string,
+    private readonly userId?: string,
+    private readonly endpoint: string = 'unknown'
+  ) {}
+
+  handle(error: unknown): { statusCode: number; body: Record<string, unknown>; log: boolean; alert: boolean } {
+    const classification = this.classify(error);
+    const sanitizedMessage = this.sanitizeMessage(error);
+
+    const body: Record<string, unknown> = {
+      error: true,
+      message: process.env.NODE_ENV !== 'production' ? sanitizedMessage : GENERIC_MESSAGES[classification.category],
+      code: this.deriveErrorCode(error, classification),
+      timestamp: new Date().toISOString(),
+      requestId: this.requestId
+    };
+
+    if (process.env.NODE_ENV !== 'production') {
+      body.debug = {
+        originalMessage: (error as Error)?.message,
+        stack: (error as Error)?.stack?.split('\n').slice(0, 5),
+        category: classification.category,
+        severity: classification.severity
+      };
+    }
+
+    return {
+      statusCode: classification.statusCode,
+      body,
+      log: classification.shouldLog,
+      alert: classification.shouldAlert
+    };
+  }
+
+  private classify(error: unknown): ClassifiedError {
+    const err = (error ?? {}) as { message?: string; code?: string; name?: string };
+    const message = (err.message || '').toLowerCase();
+    const code = (err.code || '').toUpperCase();
+    const name = (err.name || '').toLowerCase();
+
+    if (message.includes('unauthorized') || message.includes('invalid token') || message.includes('authentication')) {
+      return { category: 'authentication', severity: 'medium', statusCode: 401, shouldLog: true, shouldAlert: false };
+    }
+
+    if (message.includes('forbidden') || message.includes('access denied') || message.includes('permission')) {
+      return { category: 'authorization', severity: 'medium', statusCode: 403, shouldLog: true, shouldAlert: false };
+    }
+
+    if (message.includes('validation') || message.includes('invalid') || name.includes('validation')) {
+      return { category: 'validation', severity: 'low', statusCode: 400, shouldLog: false, shouldAlert: false };
+    }
+
+    if (code === 'ECONNREFUSED' || code === 'ETIMEDOUT' || code === 'ENOTFOUND') {
+      return { category: 'network', severity: 'high', statusCode: 503, shouldLog: true, shouldAlert: code !== 'ETIMEDOUT' };
+    }
+
+    if (message.includes('rate limit') || message.includes('too many requests')) {
+      return { category: 'rateLimit', severity: 'medium', statusCode: 429, shouldLog: false, shouldAlert: false };
+    }
+
+    if (message.includes('payment')) {
+      return { category: 'payment', severity: 'medium', statusCode: 402, shouldLog: true, shouldAlert: false };
+    }
+
+    if (message.includes('not found') || code === 'ENOENT' || name === 'notfounderror') {
+      return { category: 'notFound', severity: 'low', statusCode: 404, shouldLog: false, shouldAlert: false };
+    }
+
+    if (message.includes('database') || message.includes('sql') || code === '23505') {
+      return { category: 'database', severity: 'high', statusCode: 500, shouldLog: true, shouldAlert: true };
+    }
+
+    return { category: 'server', severity: 'critical', statusCode: 500, shouldLog: true, shouldAlert: true };
+  }
+
+  private sanitizeMessage(error: unknown): string {
+    const raw = (error as Error)?.message ?? 'Unknown error';
+    const patterns: RegExp[] = [
+      /sk_[a-z0-9_\-]+/gi,
+      /pk_[a-z0-9_\-]+/gi,
+      /Bearer\s+[A-Za-z0-9._\-]+/gi,
+      /postgresql:\/\/[^\s]+/gi,
+      /mysql:\/\/[^\s]+/gi,
+      /mongodb:\/\/[^\s]+/gi,
+      /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/gi,
+      /[A-Za-z]:\\\\[^\s]+/gi,
+      /\/[A-Za-z0-9_\-]+\/[A-Za-z0-9_\-]+\/[A-Za-z0-9_\-\.]+/gi
+    ];
+
+    return patterns.reduce((msg, pattern) => msg.replace(pattern, '[redacted]'), raw);
+  }
+
+  private deriveErrorCode(error: unknown, classification: ClassifiedError): string {
+    const base = classification.category.toUpperCase();
+    const code = (error as { code?: string })?.code;
+    return code ? `${base}_${code}` : `${base}_ERROR`;
+  }
+}
+
+export function withSecureErrorHandling(handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void) {
+  return async function wrapped(req: NextApiRequest, res: NextApiResponse) {
+    const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+    const userId = (req as { user?: { id?: string } }).user?.id;
+
+    try {
+      await handler(req, res);
+    } catch (error) {
+      const secureHandler = new SecureErrorHandler(requestId, userId, req.url || 'unknown');
+      const { statusCode, body, log, alert } = secureHandler.handle(error);
+
+      if (log) {
+        console.error('[error] secure handler captured error', {
+          requestId,
+          endpoint: req.url,
+          userId,
+          error: body,
+          original: (error as Error)?.message
+        });
+      }
+
+      if (alert) {
+        // Place hook to alerting system (PagerDuty, etc.)
+        console.warn('[alert] critical error detected', { requestId, endpoint: req.url, userId });
+      }
+
+      res.status(statusCode).json(body);
+    }
+  };
+}

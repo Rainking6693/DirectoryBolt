@@ -1,21 +1,25 @@
-import React from 'react'
-import ActiveJobs from './ActiveJobs'
-import SystemHealth from './SystemHealth'
-import ActivityFeed from './ActivityFeed'
-import { ProcessingJob, SystemHealth as SystemHealthType, ActivityFeedItem } from '../types/processing.types'
+import React from "react";
+import ActiveJobs from "./ActiveJobs";
+import SystemHealth from "./SystemHealth";
+import ActivityFeed from "./ActivityFeed";
+import {
+  ProcessingJob,
+  SystemHealth as SystemHealthType,
+  ActivityFeedItem,
+} from "../types/processing.types";
 
 interface LiveDashboardProps {
-  activeJobs: ProcessingJob[]
-  systemHealth: SystemHealthType
-  activityFeed: ActivityFeedItem[]
-  isConnected: boolean
+  activeJobs: ProcessingJob[];
+  systemHealth: SystemHealthType;
+  activityFeed: ActivityFeedItem[];
+  isConnected: boolean;
 }
 
-export default function LiveDashboard({ 
-  activeJobs, 
-  systemHealth, 
-  activityFeed, 
-  isConnected 
+export default function LiveDashboard({
+  activeJobs,
+  systemHealth,
+  activityFeed,
+  isConnected,
 }: LiveDashboardProps) {
   return (
     <div className="space-y-6">
@@ -25,11 +29,13 @@ export default function LiveDashboard({
           📊 LIVE PROCESSING STATUS
         </h2>
         <div className="flex items-center space-x-2">
-          <div className={`w-3 h-3 rounded-full ${
-            isConnected ? 'bg-green-500' : 'bg-volt-500'
-          }`}></div>
+          <div
+            className={`w-3 h-3 rounded-full ${
+              isConnected ? "bg-green-500" : "bg-volt-500"
+            }`}
+          ></div>
           <span className="text-secondary-300 text-sm font-medium">
-            {isConnected ? 'Live' : 'Reconnecting...'}
+            {isConnected ? "Live" : "Reconnecting..."}
           </span>
         </div>
       </div>
@@ -44,7 +50,9 @@ export default function LiveDashboard({
         ) : (
           <div className="bg-secondary-800/50 border border-secondary-700 rounded-xl p-6 text-center">
             <div className="text-4xl mb-3">😴</div>
-            <h4 className="text-lg font-bold text-white mb-2">No Active Processing</h4>
+            <h4 className="text-lg font-bold text-white mb-2">
+              No Active Processing
+            </h4>
             <p className="text-secondary-300">
               All processing tasks are complete. Queue is ready for new jobs.
             </p>
@@ -68,5 +76,5 @@ export default function LiveDashboard({
         <ActivityFeed activities={activityFeed} />
       </div>
     </div>
-  )
+  );
 }

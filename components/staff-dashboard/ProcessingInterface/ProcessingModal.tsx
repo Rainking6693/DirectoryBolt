@@ -1,45 +1,45 @@
-import React, { useEffect } from 'react'
-import { ProcessingModalData } from '../types/processing.types'
+import React, { useEffect } from "react";
+import { ProcessingModalData } from "../types/processing.types";
 
 interface ProcessingModalProps {
-  customer: ProcessingModalData
-  onConfirm: (priorityMode?: boolean) => void
-  onCancel: () => void
-  isProcessing?: boolean
+  customer: ProcessingModalData;
+  onConfirm: (priorityMode?: boolean) => void;
+  onCancel: () => void;
+  isProcessing?: boolean;
 }
 
 export default function ProcessingModal({
   customer,
   onConfirm,
   onCancel,
-  isProcessing = false
+  isProcessing = false,
 }: ProcessingModalProps) {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isProcessing) {
-        onCancel()
+      if (e.key === "Escape" && !isProcessing) {
+        onCancel();
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [onCancel, isProcessing])
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onCancel, isProcessing]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
-    document.body.style.overflow = 'hidden'
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [])
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div 
+      <div
         className="bg-secondary-800 rounded-xl border border-secondary-700 max-w-md w-full animate-scale-in"
         style={{
-          animation: 'scale-in 0.2s ease-out'
+          animation: "scale-in 0.2s ease-out",
         }}
       >
         {/* Header */}
@@ -61,7 +61,9 @@ export default function ProcessingModal({
           <div className="bg-secondary-900/50 rounded-lg p-4 mb-6 space-y-2">
             <div className="flex justify-between">
               <span className="text-secondary-400">Customer:</span>
-              <span className="text-white font-medium">{customer.customerId}</span>
+              <span className="text-white font-medium">
+                {customer.customerId}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-secondary-400">Package:</span>
@@ -71,7 +73,9 @@ export default function ProcessingModal({
             </div>
             <div className="flex justify-between">
               <span className="text-secondary-400">Estimated time:</span>
-              <span className="text-white font-medium">{customer.estimatedTime}</span>
+              <span className="text-white font-medium">
+                {customer.estimatedTime}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-secondary-400">Status updates:</span>
@@ -81,7 +85,8 @@ export default function ProcessingModal({
 
           <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
             <p className="text-red-300 text-sm">
-              <strong>⚠️ Important:</strong> Processing cannot be stopped once started.
+              <strong>⚠️ Important:</strong> Processing cannot be stopped once
+              started.
             </p>
           </div>
         </div>
@@ -137,5 +142,5 @@ export default function ProcessingModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

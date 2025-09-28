@@ -325,7 +325,7 @@ export function withFeatureAccess(
   }
 }
 
-export default {
+const tierAccessMiddleware = {
   requireTierAccess,
   checkDirectoryLimit,
   requireFeatureAccess,
@@ -333,3 +333,5 @@ export default {
   withTierAccess,
   withFeatureAccess
 }
+
+export default tierAccessMiddleware

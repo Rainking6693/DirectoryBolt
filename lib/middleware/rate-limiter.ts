@@ -151,4 +151,6 @@ export function withRateLimit(
   };
 }
 
-export default { createRateLimiter, rateLimiters, withRateLimit };
+const rateLimiterExports = { createRateLimiter, rateLimiters, withRateLimit };
+
+export default rateLimiterExports;

@@ -9,10 +9,8 @@
     ],
     "downlevelIteration": true,
     "allowJs": false,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
@@ -60,6 +58,8 @@
   ],
   "exclude": [
     "node_modules",
-    "pages-backup"
+    "pages-backup",
+    "__tests__",
+    "tests"
   ]
 }

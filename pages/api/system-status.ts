@@ -3,18 +3,75 @@
  * Comprehensive system diagnostics for DirectoryBolt
  */
 
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import fs from 'fs'
+import path from 'path'
+
+type GoogleSheetsConfigMethod = 'service-account-file' | 'environment-variables' | 'none'
+
+interface SystemStatus {
+  timestamp: string
+  environment?: string
+  environment_variables: {
+    stripe: {
+      secret_key: boolean
+      secret_key_format: boolean
+      publishable_key: boolean
+      webhook_secret: boolean
+      starter_price: boolean
+      growth_price: boolean
+      professional_price: boolean
+      enterprise_price: boolean
+    }
+    google_sheets: {
+      sheet_id: boolean
+      service_account_email: boolean
+      private_key: boolean
+      service_account_file: boolean
+      config_method: GoogleSheetsConfigMethod
+    }
+    ai: {
+      openai_key: boolean
+      anthropic_key: boolean
+    }
+    urls: {
+      nextauth_url?: string
+      base_url?: string
+      app_url?: string
+    }
+  }
+  api_endpoints: {
+    payment_configured: boolean
+    extension_validation: boolean
+    google_sheets_connection: boolean
+  }
+  critical_issues: string[]
+  warnings: string[]
+  recommendations: string[]
+}
+
+const SERVICE_ACCOUNT_FILENAME = 'directoryboltGoogleKey9.17.json'
+
+function serviceAccountFileExists(): boolean {
+  try {
+    const serviceAccountPath = path.join(process.cwd(), 'config', SERVICE_ACCOUNT_FILENAME)
+    return fs.existsSync(serviceAccountPath)
+  } catch {
+    return false
+  }
+}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
-) {
+): Promise<void> {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    res.status(405).json({ error: 'Method not allowed' })
+    return
   }
 
   try {
-    const status = {
+    const status: SystemStatus = {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
       
@@ -34,15 +91,8 @@ export default async function handler(
           sheet_id: !!process.env.GOOGLE_SHEET_ID,
           service_account_email: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
           private_key: !!process.env.GOOGLE_PRIVATE_KEY,
-          service_account_file: (() => {
-            try {
-              const fs = require('fs')
-              const path = require('path')
-              return fs.existsSync(path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json'))
-            } catch {
-              return false
-            }
-          })()
+          service_account_file: serviceAccountFileExists(),
+          config_method: 'none'
         },
         ai: {
           openai_key: !!process.env.OPENAI_API_KEY,
@@ -99,18 +149,12 @@ export default async function handler(
 
     // Check Google Sheets Configuration
     try {
-      // EMILY FIX: Check for service account file or environment variables
-      const fs = require('fs')
-      const path = require('path')
-      const serviceAccountPath = path.join(process.cwd(), 'config', 'directoryboltGoogleKey9.17.json')
-      
       let hasValidConfig = false
-      let configMethod = 'none'
+      let configMethod: GoogleSheetsConfigMethod = 'none'
       
-      if (fs.existsSync(serviceAccountPath)) {
+      if (status.environment_variables.google_sheets.service_account_file) {
         hasValidConfig = true
         configMethod = 'service-account-file'
-        status.environment_variables.google_sheets.config_method = 'service-account-file'
       } else {
         // Check environment variables
         if (!process.env.GOOGLE_SHEET_ID) {
@@ -126,7 +170,6 @@ export default async function handler(
         if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
           hasValidConfig = true
           configMethod = 'environment-variables'
-          status.environment_variables.google_sheets.config_method = 'environment-variables'
         }
       }
       
@@ -169,13 +212,15 @@ export default async function handler(
     // Set appropriate status code
     const statusCode = status.critical_issues.length > 0 ? 503 : 200
 
-    return res.status(statusCode).json(status)
+    res.status(statusCode).json(status)
+    return
 
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       error: 'System status check failed',
       message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     })
+    return
   }
 }

@@ -1,56 +1,72 @@
-import React from 'react'
-import { ActivityFeedItem } from '../types/processing.types'
+import React from "react";
+import { ActivityFeedItem } from "../types/processing.types";
 
 interface ActivityFeedProps {
-  activities: ActivityFeedItem[]
+  activities: ActivityFeedItem[];
 }
 
 export default function ActivityFeed({ activities }: ActivityFeedProps) {
-  const getStatusColor = (status: 'success' | 'failed' | 'processing' | 'started') => {
+  const getStatusColor = (
+    status: "success" | "failed" | "processing" | "started",
+  ) => {
     switch (status) {
-      case 'success': return 'text-green-400'
-      case 'failed': return 'text-red-400'
-      case 'processing': return 'text-volt-400'
-      case 'started': return 'text-blue-400'
-      default: return 'text-secondary-400'
+      case "success":
+        return "text-green-400";
+      case "failed":
+        return "text-red-400";
+      case "processing":
+        return "text-volt-400";
+      case "started":
+        return "text-blue-400";
+      default:
+        return "text-secondary-400";
     }
-  }
+  };
 
-  const getStatusIcon = (status: 'success' | 'failed' | 'processing' | 'started') => {
+  const getStatusIcon = (
+    status: "success" | "failed" | "processing" | "started",
+  ) => {
     switch (status) {
-      case 'success': return '✅'
-      case 'failed': return '❌'
-      case 'processing': return '🔄'
-      case 'started': return '🚀'
-      default: return '📝'
+      case "success":
+        return "✅";
+      case "failed":
+        return "❌";
+      case "processing":
+        return "🔄";
+      case "started":
+        return "🚀";
+      default:
+        return "📝";
     }
-  }
+  };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    })
-  }
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   if (activities.length === 0) {
     return (
       <div className="bg-secondary-800 border border-secondary-700 rounded-xl p-6 text-center">
         <div className="text-4xl mb-3">📭</div>
-        <h4 className="text-lg font-bold text-white mb-2">No Recent Activity</h4>
+        <h4 className="text-lg font-bold text-white mb-2">
+          No Recent Activity
+        </h4>
         <p className="text-secondary-300">
           Processing activity will appear here in real-time.
         </p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="bg-secondary-800 border border-secondary-700 rounded-xl p-6">
       <div className="space-y-3 max-h-96 overflow-y-auto">
         {activities.map((activity) => (
-          <div 
+          <div
             key={activity.id}
             className="flex items-start space-x-3 p-3 bg-secondary-900/30 rounded-lg border border-secondary-700/50 hover:bg-secondary-900/50 transition-colors"
           >
@@ -74,11 +90,13 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
                 <span className="text-white font-medium">
                   {activity.directoryName}
                 </span>
-                <span className={`font-medium ${getStatusColor(activity.status)}`}>
+                <span
+                  className={`font-medium ${getStatusColor(activity.status)}`}
+                >
                   {activity.status}
                 </span>
               </div>
-              
+
               {activity.message && (
                 <div className="text-secondary-300 text-sm mt-1 truncate">
                   {activity.message}
@@ -87,7 +105,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
             </div>
 
             {/* Processing indicator for active items */}
-            {activity.status === 'processing' && (
+            {activity.status === "processing" && (
               <div className="flex-shrink-0">
                 <div className="animate-spin rounded-full h-3 w-3 border border-volt-500 border-t-transparent"></div>
               </div>
@@ -107,5 +125,5 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

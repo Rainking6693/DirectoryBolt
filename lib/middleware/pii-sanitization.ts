@@ -1,350 +1,174 @@
-// 🔒 PII SANITIZATION MIDDLEWARE - DATA-001
-// Comprehensive Personal Identifiable Information protection
-// Implements data masking, field filtering, and access control for customer data
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// PII Configuration
-const PII_CONFIG = {
-  // Sensitive fields that should be masked or removed
-  sensitiveFields: [
-    // Personal information
-    'password', 'password_hash', 'passwordHash',
-    'ssn', 'socialSecurityNumber', 'social_security_number',
-    'creditCard', 'credit_card', 'cardNumber', 'card_number',
-    'bankAccount', 'bank_account', 'accountNumber', 'account_number',
-    'driverLicense', 'driver_license', 'passport', 'passportNumber',
-    
-    // Authentication data
-    'token', 'refreshToken', 'refresh_token', 'apiKey', 'api_key',
-    'secret', 'privateKey', 'private_key', 'salt',
-    'verification_token', 'verificationToken', 'resetToken', 'reset_token',
-    
-    // Internal system data
-    'internalId', 'internal_id', 'systemId', 'system_id',
-    'debugInfo', 'debug_info', 'stackTrace', 'stack_trace',
-    'errorDetails', 'error_details', 'logs', 'auditLog', 'audit_log'
-  ],
-  
-  // Fields that should be masked (partially hidden)
-  maskableFields: [
-    'email', 'phone', 'phoneNumber', 'phone_number',
-    'address', 'streetAddress', 'street_address',
-    'ipAddress', 'ip_address', 'userAgent', 'user_agent'
-  ],
-  
-  // Fields that require role-based access
-  restrictedFields: {
-    admin: [], // Admin can see everything
-    manager: ['password_hash', 'token', 'secret', 'privateKey'],
-    support: ['password_hash', 'token', 'secret', 'privateKey', 'ssn', 'creditCard'],
-    customer: ['password_hash', 'token', 'secret', 'privateKey', 'ssn', 'creditCard', 'internalId', 'systemId']
-  },
-  
-  // Masking patterns
-  maskingPatterns: {
-    email: (email: string) => {
-      const [local, domain] = email.split('@');
-      if (local.length <= 2) return `${local[0]}***@${domain}`;
-      return `${local.substring(0, 2)}***@${domain}`;
-    },
-    phone: (phone: string) => {
-      const cleaned = phone.replace(/\D/g, '');
-      if (cleaned.length >= 10) {
-        return `***-***-${cleaned.slice(-4)}`;
-      }
-      return '***-***-****';
-    },
-    address: (address: string) => {
-      const words = address.split(' ');
-      if (words.length <= 2) return '*** ***';
-      return `${words[0]} *** ${words[words.length - 1]}`;
-    },
-    ipAddress: (ip: string) => {
-      const parts = ip.split('.');
-      if (parts.length === 4) {
-        return `${parts[0]}.${parts[1]}.***.***.***`;
-      }
-      return '***.***.***.***.***';
-    },
-    userAgent: (ua: string) => {
-      // Keep browser and OS info, mask specific version details
-      return ua.replace(/\d+\.\d+\.\d+/g, 'X.X.X');
-    },
-    default: (value: string) => {
-      if (value.length <= 4) return '***';
-      return `${value.substring(0, 2)}***${value.slice(-2)}`;
-    }
-  }
+const ALWAYS_REMOVE = [
+  'password',
+  'password_hash',
+  'passwordhash',
+  'secret',
+  'privatekey',
+  'private_key',
+  'token',
+  'refreshtoken',
+  'refresh_token',
+  'salt',
+  'verification_token',
+  'verificationtoken'
+];
+
+const MASKABLE_FIELDS = ['email', 'phone', 'address', 'ipaddress', 'ip_address', 'useragent', 'user_agent'];
+
+const ROLE_RESTRICTIONS: Record<string, string[]> = {
+  admin: [],
+  manager: ['password_hash', 'token', 'secret', 'privateKey'],
+  support: ['password_hash', 'token', 'secret', 'privateKey', 'ssn', 'creditCard'],
+  customer: ['password_hash', 'token', 'secret', 'privateKey', 'ssn', 'creditCard', 'internalId', 'systemId']
 };
 
-// PII sanitization class
-class PIISanitizer {
-  private userRole: string;
-  private userType: 'customer' | 'staff' | 'admin';
-  private requestingUserId?: string;
-  
-  constructor(userRole: string = 'customer', userType: 'customer' | 'staff' | 'admin' = 'customer', requestingUserId?: string) {
-    this.userRole = userRole;
-    this.userType = userType;
-    this.requestingUserId = requestingUserId;
+function maskEmail(value: string): string {
+  const [local, domain] = value.split('@');
+  if (!domain) return '***@***';
+  if (local.length <= 2) return `${local[0] ?? '*'}***@${domain}`;
+  return `${local.slice(0, 2)}***@${domain}`;
+}
+
+function maskPhone(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length >= 4) {
+    return `***-***-${digits.slice(-4)}`;
   }
-  
-  // Main sanitization method
-  sanitizeData(data: any, targetUserId?: string): any {
-    if (data === null || data === undefined) {
-      return data;
-    }
-    
-    // Check if user is accessing their own data
-    const isOwnData = targetUserId && this.requestingUserId === targetUserId;
-    
+  return '***-***-****';
+}
+
+function maskAddress(value: string): string {
+  const parts = value.split(' ');
+  if (parts.length <= 2) {
+    return '*** ***';
+  }
+  return `${parts[0]} *** ${parts[parts.length - 1]}`;
+}
+
+function maskIp(value: string): string {
+  const parts = value.split('.');
+  if (parts.length === 4) {
+    return `${parts[0]}.${parts[1]}.***.***`;
+  }
+  return '***.***.***.***';
+}
+
+function maskDefault(value: string): string {
+  if (value.length <= 4) return '***';
+  return `${value.slice(0, 2)}***${value.slice(-2)}`;
+}
+
+function maskValue(fieldName: string, raw: unknown): unknown {
+  if (typeof raw !== 'string') return raw;
+  const lower = fieldName.toLowerCase();
+  if (lower.includes('email')) return maskEmail(raw);
+  if (lower.includes('phone')) return maskPhone(raw);
+  if (lower.includes('address')) return maskAddress(raw);
+  if (lower.includes('ip')) return maskIp(raw);
+  return maskDefault(raw);
+}
+
+export class PIISanitizer {
+  constructor(private userRole: string = 'customer', private userType: 'customer' | 'staff' | 'admin' = 'customer', private requestingUserId?: string) {}
+
+  sanitizeData<T>(data: T, targetUserId?: string): T {
+    if (data === null || data === undefined) return data;
+
+    const isOwnData = targetUserId && this.requestingUserId && this.requestingUserId === targetUserId;
+
     if (Array.isArray(data)) {
-      return data.map(item => this.sanitizeData(item, targetUserId));
+      return data.map((item) => this.sanitizeData(item, targetUserId)) as unknown as T;
     }
-    
+
     if (typeof data === 'object') {
-      return this.sanitizeObject(data, isOwnData);
+      return this.sanitizeObject(data as Record<string, unknown>, isOwnData) as unknown as T;
     }
-    
+
     return data;
   }
-  
-  // Sanitize object properties
-  private sanitizeObject(obj: Record<string, any>, isOwnData: boolean = false): Record<string, any> {
-    const sanitized: Record<string, any> = {};
-    
+
+  private sanitizeObject(obj: Record<string, unknown>, isOwnData: boolean): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {};
+    const restricted = ROLE_RESTRICTIONS[this.userRole] ?? ROLE_RESTRICTIONS.customer;
+
     for (const [key, value] of Object.entries(obj)) {
-      const lowerKey = key.toLowerCase();
-      
-      // Check if field should be completely removed
-      if (this.shouldRemoveField(key, isOwnData)) {
-        continue; // Skip this field entirely
-      }
-      
-      // Check if field should be masked
-      if (this.shouldMaskField(key, isOwnData)) {
-        sanitized[key] = this.maskValue(key, value);
+      const lower = key.toLowerCase();
+
+      if (ALWAYS_REMOVE.some((field) => lower.includes(field))) {
         continue;
       }
-      
-      // Recursively sanitize nested objects
-      if (typeof value === 'object' && value !== null) {
+
+      if (!isOwnData && restricted.some((field) => lower.includes(field.toLowerCase()))) {
+        continue;
+      }
+
+      if (MASKABLE_FIELDS.some((field) => lower.includes(field))) {
+        sanitized[key] = maskValue(key, value);
+        continue;
+      }
+
+      if (value && typeof value === 'object') {
         sanitized[key] = this.sanitizeData(value, isOwnData ? this.requestingUserId : undefined);
       } else {
         sanitized[key] = value;
       }
     }
-    
+
     return sanitized;
-  }
-  
-  // Check if field should be completely removed
-  private shouldRemoveField(fieldName: string, isOwnData: boolean): boolean {
-    const lowerField = fieldName.toLowerCase();
-    
-    // Always remove highly sensitive fields
-    const alwaysRemove = [
-      'password', 'password_hash', 'passwordhash',
-      'secret', 'privatekey', 'private_key',
-      'token', 'refreshtoken', 'refresh_token',
-      'salt', 'verification_token', 'verificationtoken'
-    ];
-    
-    if (alwaysRemove.some(field => lowerField.includes(field))) {
-      return true;
-    }
-    
-    // Role-based field removal
-    const restrictedForRole = PII_CONFIG.restrictedFields[this.userRole as keyof typeof PII_CONFIG.restrictedFields] || PII_CONFIG.restrictedFields.customer;
-    
-    if (restrictedForRole.some(field => lowerField.includes(field.toLowerCase()))) {
-      return !isOwnData; // Allow own data access
-    }
-    
-    // Admin and manager can see more fields
-    if (this.userRole === 'admin') {
-      return false; // Admin can see everything
-    }
-    
-    return false;
-  }
-  
-  // Check if field should be masked
-  private shouldMaskField(fieldName: string, isOwnData: boolean): boolean {
-    const lowerField = fieldName.toLowerCase();
-    
-    // Don't mask own data for certain fields
-    if (isOwnData && ['email', 'phone', 'address'].some(field => lowerField.includes(field))) {
-      return false;
-    }
-    
-    // Check if field is in maskable list
-    return PII_CONFIG.maskableFields.some(field => 
-      lowerField.includes(field.toLowerCase())
-    );
-  }
-  
-  // Mask field value
-  private maskValue(fieldName: string, value: any): any {
-    if (typeof value !== 'string') {
-      return value;
-    }
-    
-    const lowerField = fieldName.toLowerCase();
-    
-    // Apply specific masking pattern
-    if (lowerField.includes('email')) {
-      return PII_CONFIG.maskingPatterns.email(value);
-    }
-    
-    if (lowerField.includes('phone')) {
-      return PII_CONFIG.maskingPatterns.phone(value);
-    }
-    
-    if (lowerField.includes('address')) {
-      return PII_CONFIG.maskingPatterns.address(value);
-    }
-    
-    if (lowerField.includes('ip')) {
-      return PII_CONFIG.maskingPatterns.ipAddress(value);
-    }
-    
-    if (lowerField.includes('useragent') || lowerField.includes('user_agent')) {
-      return PII_CONFIG.maskingPatterns.userAgent(value);
-    }
-    
-    // Default masking
-    return PII_CONFIG.maskingPatterns.default(value);
-  }
-  
-  // Sanitize API response
-  sanitizeResponse(data: any, targetUserId?: string): any {
-    const sanitized = this.sanitizeData(data, targetUserId);
-    
-    // Add sanitization metadata
-    if (typeof sanitized === 'object' && sanitized !== null && !Array.isArray(sanitized)) {
-      sanitized._sanitized = {
-        timestamp: new Date().toISOString(),
-        userRole: this.userRole,
-        userType: this.userType,
-        fieldsRemoved: this.countRemovedFields(data, sanitized),
-        fieldsMasked: this.countMaskedFields(data, sanitized)
-      };
-    }
-    
-    return sanitized;
-  }
-  
-  // Count removed fields for audit
-  private countRemovedFields(original: any, sanitized: any): number {
-    if (typeof original !== 'object' || typeof sanitized !== 'object') {
-      return 0;
-    }
-    
-    const originalKeys = Object.keys(original || {});
-    const sanitizedKeys = Object.keys(sanitized || {});
-    
-    return originalKeys.length - sanitizedKeys.length;
-  }
-  
-  // Count masked fields for audit
-  private countMaskedFields(original: any, sanitized: any): number {
-    if (typeof original !== 'object' || typeof sanitized !== 'object') {
-      return 0;
-    }
-    
-    let maskedCount = 0;
-    
-    for (const key of Object.keys(original || {})) {
-      if (sanitized[key] && typeof original[key] === 'string' && typeof sanitized[key] === 'string') {
-        if (original[key] !== sanitized[key] && sanitized[key].includes('***')) {
-          maskedCount++;
-        }
-      }
-    }
-    
-    return maskedCount;
   }
 }
 
-// Middleware function for automatic PII sanitization
-export function withPIISanitization(
-  options: {
-    enabled?: boolean;
-    logSanitization?: boolean;
-  } = {}
-) {
-  const { enabled = true, logSanitization = true } = options;
-  
-  return function middleware(
-    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void
-  ) {
-    return async function wrappedHandler(
-      req: NextApiRequest,
-      res: NextApiResponse
-    ) {
-      if (!enabled) {
-        return handler(req, res);
-      }
-      
-      // Get user context from request (set by auth middleware)
-      const user = (req as any).user;
-      const userRole = user?.role || 'customer';
-      const userType = user?.userType || 'customer';
-      const requestingUserId = user?.sub;
-      
-      // Create sanitizer instance
-      const sanitizer = new PIISanitizer(userRole, userType, requestingUserId);
-      
-      // Override res.json to sanitize responses
-      const originalJson = res.json;
-      res.json = function(data: any) {
-        try {
-          // Extract target user ID from request (if applicable)
-          const targetUserId = req.query.userId as string || req.body?.userId;
-          
-          // Sanitize response data
-          const sanitizedData = sanitizer.sanitizeResponse(data, targetUserId);
-          
-          // Log sanitization if enabled
-          if (logSanitization && sanitizedData._sanitized) {
-            console.log('🔒 PII sanitization applied', {
-              endpoint: req.url,
-              userRole,
-              userType,
-              fieldsRemoved: sanitizedData._sanitized.fieldsRemoved,
-              fieldsMasked: sanitizedData._sanitized.fieldsMasked,
-              requestingUserId,
-              targetUserId
-            });
-          }
-          
-          return originalJson.call(this, sanitizedData);
-        } catch (error) {
-          console.error('❌ PII sanitization error:', error);
-          // Return original data if sanitization fails
-          return originalJson.call(this, data);
-        }
-      };
-      
-      // Continue to the actual handler
-      return handler(req, res);
-    };
-  };
-}
-
-// Utility function for manual sanitization
 export function sanitizePII(
-  data: any,
+  data: unknown,
   userRole: string = 'customer',
   userType: 'customer' | 'staff' | 'admin' = 'customer',
   requestingUserId?: string,
   targetUserId?: string
-): any {
+): unknown {
   const sanitizer = new PIISanitizer(userRole, userType, requestingUserId);
   return sanitizer.sanitizeData(data, targetUserId);
 }
 
-// Export configuration for external use
-export { PII_CONFIG, PIISanitizer };"
+export function withPIISanitization(options: {
+  userRole?: string;
+  userType?: 'customer' | 'staff' | 'admin';
+  requestingUserId?: string;
+  targetUserId?: string;
+  logSanitization?: boolean;
+} = {}) {
+  const { userRole = 'customer', userType = 'customer', requestingUserId, targetUserId, logSanitization = false } = options;
+
+  return function middleware(
+    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void
+  ) {
+    return async function wrapped(req: NextApiRequest, res: NextApiResponse) {
+      const originalJson = res.json.bind(res);
+
+      res.json = (payload: unknown) => {
+        try {
+          const sanitizer = new PIISanitizer(userRole, userType, requestingUserId);
+          const sanitized = sanitizer.sanitizeData(payload, targetUserId);
+
+          if (logSanitization && sanitized && typeof sanitized === 'object') {
+            console.log('[pii] response sanitized', {
+              endpoint: req.url,
+              role: userRole,
+              userType,
+              requestingUserId,
+              targetUserId
+            });
+          }
+
+          return originalJson(sanitized);
+        } catch (error) {
+          console.error('[pii] sanitization failed', error);
+          return originalJson(payload);
+        }
+      };
+
+      return handler(req, res);
+    };
+  };
+}

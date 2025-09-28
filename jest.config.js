@@ -61,9 +61,18 @@ module.exports = {
   
   // TypeScript support
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx'
+    '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          tsx: true,
+          decorators: false
+        },
+        transform: {
+          react: {
+            runtime: 'automatic'
+          }
+        }
       }
     }]
   },

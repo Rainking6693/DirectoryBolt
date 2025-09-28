@@ -1,5 +1,5 @@
 [build]
-  command = "node -e \"require('fs').copyFileSync('.env.netlify', '.env')\" && npm ci --include=dev && npm run optimize:pre-build && npm run build"
+  command = "npm ci --include=dev && npm run optimize:pre-build && npm run build"
   publish = ".next"
 
   [build.environment]

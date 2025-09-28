@@ -48,7 +48,6 @@ interface UpgradeResponse {
   requestId: string
 }
 
-import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { PRICING_TIERS, getTier } from '../../../lib/config/pricing'
 

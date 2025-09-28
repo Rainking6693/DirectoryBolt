@@ -48,18 +48,21 @@ docker-compose logs -f
 ### Environment Variables
 
 **Required:**
+
 - `TWO_CAPTCHA_KEY`: `your_production_2captcha_api_key` (already configured)
 - `ORCHESTRATOR_URL`: `https://directorybolt.netlify.app/api`
 - `WORKER_AUTH_TOKEN`: Secure token for worker authentication
 
 **HTTP Proxy Configuration:**
+
 - `HTTP_PROXY_ENABLED`: `true`
 - `HTTP_PROXY_SERVER`: Primary proxy server URL
-- `HTTP_PROXY_USERNAME`: Proxy authentication username  
+- `HTTP_PROXY_USERNAME`: Proxy authentication username
 - `HTTP_PROXY_PASSWORD`: Proxy authentication password
 - `PROXY_LIST`: Comma-separated list for rotation
 
 **Scaling Configuration:**
+
 - `MIN_WORKERS`: `2` (minimum worker instances)
 - `MAX_WORKERS`: `8` (maximum worker instances)
 - `SCALE_UP_THRESHOLD`: `10` (queue size trigger for scaling up)
@@ -89,6 +92,7 @@ docker-compose logs -f
 ### 1. AutoBolt Workers (`autobolt-worker-*`)
 
 **Features:**
+
 - Playwright browser automation
 - 2Captcha integration for solving captchas
 - HTTP proxy support with authentication
@@ -98,6 +102,7 @@ docker-compose logs -f
 - Error handling and retry logic
 
 **Resources:**
+
 - Memory: 2GB per worker
 - CPU: 1 core per worker
 - Auto-restart on failure
@@ -105,6 +110,7 @@ docker-compose logs -f
 ### 2. Proxy Manager (`proxy-manager`)
 
 **Features:**
+
 - Health monitoring of proxy endpoints
 - Automatic rotation based on performance
 - Redis-backed proxy state management
@@ -112,6 +118,7 @@ docker-compose logs -f
 - Failed proxy detection and removal
 
 **Endpoints:**
+
 - `GET /health` - Service health check
 - `GET /proxy/next` - Get next available proxy
 - `GET /proxy/status` - Get all proxy statuses
@@ -120,6 +127,7 @@ docker-compose logs -f
 ### 3. Auto-Scaler (`scaling-controller`)
 
 **Features:**
+
 - Queue size monitoring
 - CPU/memory usage tracking
 - Automatic worker scaling (2-8 instances)
@@ -127,6 +135,7 @@ docker-compose logs -f
 - Cooldown periods to prevent thrashing
 
 **Scaling Rules:**
+
 - **Scale Up**: Queue ≥ 10 jobs OR CPU > 80% OR Memory > 85%
 - **Scale Down**: Queue ≤ 2 jobs AND CPU < 30% AND Memory < 50%
 - **Cooldown**: 5 min scale-up, 10 min scale-down
@@ -134,6 +143,7 @@ docker-compose logs -f
 ### 4. Redis Coordination
 
 **Features:**
+
 - Worker state coordination
 - Proxy health state storage
 - Queue status caching
@@ -144,25 +154,30 @@ docker-compose logs -f
 ### Completed Migrations
 
 ✅ **Content Script → Playwright Automation**
+
 - `content.js` → Worker Playwright page interactions
 - DOM manipulation → `page.click()`, `page.fill()`, `page.evaluate()`
 
 ✅ **Extension Field Mapping → Worker Helpers**
+
 - `AdvancedFieldMapper.js` → Playwright element analysis
 - `DynamicFormDetector.js` → Multi-strategy form detection
 - `FallbackSelectorEngine.js` → Retry mechanisms with XPath
 
 ✅ **Background Scripts → Orchestrator**
+
 - `background-batch.js` → Netlify Functions queue management
 - Extension messaging → HTTP API calls
 
 ✅ **Cache Busting → Proxy Rotation**
+
 - `cache-buster.js` → Random query params + proxy rotation
 - Extension throttling → Enterprise proxy scaling
 
 ### Extension Dependencies Removed
 
 🗑️ **Deleted Extension Files:**
+
 - `manifest.json` - No longer needed
 - `popup.html/css/js` - Replaced by staff dashboard
 - Extension-specific authentication - Replaced by JWT
@@ -170,18 +185,21 @@ docker-compose logs -f
 ## Security Features
 
 ### API Communications
+
 - **HTTPS Only**: All worker-to-orchestrator communication
 - **JWT Authentication**: Secure token-based auth
 - **API Key Validation**: X-API-Key headers for worker requests
 - **Rate Limiting**: Orchestrator-side request throttling
 
 ### Worker Security
+
 - **Non-root containers**: All services run as dedicated users
 - **Resource limits**: Memory and CPU constraints
 - **Network isolation**: Internal Docker network
 - **Secure environment variables**: No secrets in code
 
 ### Proxy Security
+
 - **Authenticated proxies**: Username/password support
 - **Health monitoring**: Automatic bad proxy removal
 - **Rotation strategy**: Regular proxy switching
@@ -190,18 +208,21 @@ docker-compose logs -f
 ## Monitoring & Health Checks
 
 ### Worker Health Checks
+
 - **HTTP endpoint**: `GET /health` on port 3000
 - **Status file**: `/app/data/worker-status.json`
 - **Criteria**: Updated within 2 minutes = healthy
 - **Auto-restart**: Docker/Railway automatic restart
 
 ### System Monitoring
+
 - **Prometheus**: Metrics collection on port 9090
 - **Health endpoints**: All services expose `/health`
 - **Log aggregation**: Centralized logging
 - **Performance metrics**: CPU, memory, job processing rates
 
 ### Alerting Thresholds
+
 - Queue backup > 50 jobs
 - Worker response time > 60 seconds
 - Database connection failures
@@ -213,11 +234,12 @@ docker-compose logs -f
 ### Auto-scaling Rules
 
 **Scale Up Triggers:**
+
 ```javascript
 // Queue size threshold
 queueSize >= 10
 
-// Resource usage thresholds  
+// Resource usage thresholds
 avgCpu > 80% || avgMemory > 85%
 
 // Cooldown period
@@ -225,6 +247,7 @@ avgCpu > 80% || avgMemory > 85%
 ```
 
 **Scale Down Triggers:**
+
 ```javascript
 // Low load conditions
 queueSize <= 2 && avgCpu < 30% && avgMemory < 50%
@@ -248,15 +271,18 @@ docker ps --filter name=autobolt-worker
 
 ## Deployment Platforms
 
-### Railway (Recommended) 
+### Railway (Recommended)
+
 ✅ **Pros:**
+
 - Simple Git-based deployment
-- Built-in environment variable management  
+- Built-in environment variable management
 - Automatic HTTPS and domain management
 - Integrated monitoring and logs
 - Pay-per-use pricing
 
 **Deployment:**
+
 ```bash
 railway login
 railway init
@@ -264,13 +290,16 @@ railway up
 ```
 
 ### Docker Compose
+
 ✅ **Pros:**
+
 - Full control over environment
 - Local development capability
 - Custom networking configuration
 - Multi-service orchestration
 
 **Deployment:**
+
 ```bash
 cp .env.production .env
 # Edit .env with values
@@ -278,12 +307,15 @@ docker-compose up -d
 ```
 
 ### Fly.io
+
 ✅ **Pros:**
+
 - Global edge deployment
 - Docker-native platform
 - Built-in load balancing
 
 **Deployment:**
+
 ```bash
 fly auth login
 fly launch
@@ -295,12 +327,14 @@ fly deploy
 ### Worker → Orchestrator Communication
 
 **Job Management:**
+
 - `GET /api/jobs-next` - Get next pending job
 - `POST /api/jobs-update` - Update job status
 - `POST /api/jobs-complete` - Mark job complete
 - `POST /api/jobs-retry` - Retry failed job
 
 **Status & Health:**
+
 - `GET /api/autobolt-status` - Get system status
 - `GET /api/healthz` - Health check endpoint
 - `GET /api/version` - Version information
@@ -308,10 +342,12 @@ fly deploy
 ### Internal Service APIs
 
 **Proxy Manager:**
+
 - `GET /proxy/next` - Get next proxy
 - `GET /proxy/status` - Proxy health status
 
 **Auto-scaler:**
+
 - `GET /scaling/status` - Current scaling state
 - `POST /scaling/manual` - Manual scaling trigger
 
@@ -320,16 +356,18 @@ fly deploy
 ### Common Issues
 
 **Workers not connecting to orchestrator:**
+
 ```bash
 # Check environment variables
 docker-compose exec autobolt-worker-1 env | grep ORCHESTRATOR
 
-# Test API connectivity  
+# Test API connectivity
 curl -H "Authorization: Bearer $WORKER_AUTH_TOKEN" \
   https://directorybolt.netlify.app/api/healthz
 ```
 
 **Proxy connection failures:**
+
 ```bash
 # Check proxy manager logs
 docker-compose logs proxy-manager
@@ -341,6 +379,7 @@ curl --proxy $HTTP_PROXY_SERVER \
 ```
 
 **Captcha solving failures:**
+
 ```bash
 # Verify 2Captcha balance
 curl "http://2captcha.com/res.php?key=your_production_2captcha_api_key&action=getbalance"
@@ -352,6 +391,7 @@ docker-compose logs autobolt-worker-1 | grep -i captcha
 ### Log Analysis
 
 **Worker logs:**
+
 ```bash
 # All workers
 docker-compose logs -f --tail=100 autobolt-worker-1 autobolt-worker-2
@@ -361,6 +401,7 @@ docker exec autobolt-worker-1 tail -f /app/logs/worker-*.log
 ```
 
 **System metrics:**
+
 ```bash
 # Container resource usage
 docker stats
@@ -372,18 +413,21 @@ curl http://localhost:9090/metrics
 ## Performance Optimization
 
 ### Worker Performance
+
 - **Concurrent jobs**: 3 per worker (configurable)
 - **Browser reuse**: Single browser instance per worker
 - **Memory management**: Automatic cleanup after jobs
 - **Timeout handling**: 5-minute job timeout
 
 ### Proxy Performance
+
 - **Health checks**: 1-minute intervals
 - **Rotation strategy**: Round-robin with health weighting
 - **Failure handling**: 3-strike rule for proxy removal
 - **Response time tracking**: Performance-based selection
 
 ### Scaling Performance
+
 - **Check interval**: 30-second monitoring cycles
 - **Scale-up speed**: 1 worker per 5 jobs in queue
 - **Scale-down patience**: 10-minute cooldown
@@ -407,7 +451,7 @@ curl http://localhost:9090/metrics
 This deployment configuration requires Hudson's approval for:
 
 1. **Worker deployment platform selection** (Railway vs others)
-2. **Proxy service provider configuration** 
+2. **Proxy service provider configuration**
 3. **Production environment variable values**
 4. **Security token generation and distribution**
 5. **Final production deployment authorization**
@@ -417,6 +461,7 @@ This deployment configuration requires Hudson's approval for:
 **Status**: DEPLOYMENT READY - AWAITING HUDSON APPROVAL
 
 **Next Steps**:
+
 1. Hudson reviews deployment configuration
 2. Hudson approves proxy provider and platform
 3. Hudson provides production environment variables

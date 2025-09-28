@@ -1,115 +1,119 @@
-import React, { useState } from 'react'
-import { ProcessingModalData } from '../types/processing.types'
-import ProcessingModal from './ProcessingModal'
+import React, { useState } from "react";
+import { ProcessingModalData } from "../types/processing.types";
+import ProcessingModal from "./ProcessingModal";
 
 interface ProcessNextCardProps {
   nextCustomer?: {
-    customerId: string
-    businessName: string
-    packageType: string
-    directoryLimit: number
-    waitTime: number
-    email?: string
-    website?: string
-    purchaseDate?: string
-  } | null
-  isProcessing?: boolean
-  onStartProcessing: (customerId: string, priorityMode?: boolean) => Promise<void>
+    customerId: string;
+    businessName: string;
+    packageType: string;
+    directoryLimit: number;
+    waitTime: number;
+    email?: string;
+    website?: string;
+    purchaseDate?: string;
+  } | null;
+  isProcessing?: boolean;
+  onStartProcessing: (
+    customerId: string,
+    priorityMode?: boolean,
+  ) => Promise<void>;
 }
 
-export default function ProcessNextCard({ 
-  nextCustomer, 
-  isProcessing = false, 
-  onStartProcessing 
+export default function ProcessNextCard({
+  nextCustomer,
+  isProcessing = false,
+  onStartProcessing,
 }: ProcessNextCardProps) {
-  const [showModal, setShowModal] = useState(false)
-  const [isStarting, setIsStarting] = useState(false)
+  const [showModal, setShowModal] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const handleProcessNow = () => {
     if (nextCustomer) {
-      setShowModal(true)
+      setShowModal(true);
     }
-  }
+  };
 
   const handleConfirmProcessing = async (priorityMode = false) => {
-    if (!nextCustomer) return
+    if (!nextCustomer) return;
 
-    setIsStarting(true)
+    setIsStarting(true);
     try {
-      await onStartProcessing(nextCustomer.customerId, priorityMode)
-      setShowModal(false)
+      await onStartProcessing(nextCustomer.customerId, priorityMode);
+      setShowModal(false);
     } catch (error) {
-      console.error('Failed to start processing:', error)
+      console.error("Failed to start processing:", error);
       // Error handling is done in parent component
     } finally {
-      setIsStarting(false)
+      setIsStarting(false);
     }
-  }
+  };
 
   const handleReviewDetails = () => {
-    if (!nextCustomer) return
-    
+    if (!nextCustomer) return;
+
     // Create detailed customer information display
     const details = `
 Customer Details:
 
 ID: ${nextCustomer.customerId}
 Business: ${nextCustomer.businessName}
-Email: ${nextCustomer.email || 'Not provided'}
-Website: ${nextCustomer.website || 'Not provided'}
+Email: ${nextCustomer.email || "Not provided"}
+Website: ${nextCustomer.website || "Not provided"}
 Package: ${nextCustomer.packageType}
 Directory Limit: ${nextCustomer.directoryLimit}
 Wait Time: ${nextCustomer.waitTime} hours
-Purchase Date: ${nextCustomer.purchaseDate ? new Date(nextCustomer.purchaseDate).toLocaleDateString() : 'Not provided'}
+Purchase Date: ${nextCustomer.purchaseDate ? new Date(nextCustomer.purchaseDate).toLocaleDateString() : "Not provided"}
 
 Processing Information:
 Estimated Time: ${getEstimatedTime(nextCustomer.directoryLimit, nextCustomer.packageType)}
-Priority: ${nextCustomer.packageType === 'PRO' ? 'High' : nextCustomer.packageType === 'GROWTH' ? 'Medium' : 'Standard'}
-    `
-    alert(details)
-  }
+Priority: ${nextCustomer.packageType === "PRO" ? "High" : nextCustomer.packageType === "GROWTH" ? "Medium" : "Standard"}
+    `;
+    alert(details);
+  };
 
   const handleSchedule = () => {
-    if (!nextCustomer) return
-    
+    if (!nextCustomer) return;
+
     // Simple scheduling interface
     const scheduleTime = prompt(
       `Schedule processing for ${nextCustomer.businessName}\n\nEnter delay in hours (e.g., 2 for 2 hours from now):
 
 Current time: ${new Date().toLocaleString()}
 Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
-      '1'
-    )
-    
+      "1",
+    );
+
     if (scheduleTime && !isNaN(Number(scheduleTime))) {
-      const hours = Number(scheduleTime)
-      const scheduledDate = new Date(Date.now() + hours * 60 * 60 * 1000)
-      
+      const hours = Number(scheduleTime);
+      const scheduledDate = new Date(Date.now() + hours * 60 * 60 * 1000);
+
       alert(
         `✅ Processing scheduled for ${nextCustomer.businessName}\n\n` +
-        `Scheduled Time: ${scheduledDate.toLocaleString()}\n` +
-        `Customer: ${nextCustomer.customerId}\n` +
-        `Package: ${nextCustomer.packageType}\n` +
-        `Directories: ${nextCustomer.directoryLimit}\n\n` +
-        `Note: This is a demo implementation. In production, this would integrate with your scheduling system.`
-      )
+          `Scheduled Time: ${scheduledDate.toLocaleString()}\n` +
+          `Customer: ${nextCustomer.customerId}\n` +
+          `Package: ${nextCustomer.packageType}\n` +
+          `Directories: ${nextCustomer.directoryLimit}\n\n` +
+          `Note: This is a demo implementation. In production, this would integrate with your scheduling system.`,
+      );
     } else if (scheduleTime !== null) {
-      alert('Invalid time entered. Please enter a number of hours.')
+      alert("Invalid time entered. Please enter a number of hours.");
     }
-  }
+  };
 
   const getEstimatedTime = (directoryLimit: number, packageType: string) => {
-    const baseTimePerDirectory = packageType === 'PRO' ? 2.5 : packageType === 'GROWTH' ? 2 : 1.5
-    const totalMinutes = directoryLimit * baseTimePerDirectory
-    
+    const baseTimePerDirectory =
+      packageType === "PRO" ? 2.5 : packageType === "GROWTH" ? 2 : 1.5;
+    const totalMinutes = directoryLimit * baseTimePerDirectory;
+
     if (totalMinutes < 60) {
-      return `${Math.round(totalMinutes)} minutes`
+      return `${Math.round(totalMinutes)} minutes`;
     } else {
-      const hours = Math.floor(totalMinutes / 60)
-      const minutes = Math.round(totalMinutes % 60)
-      return `${hours}h ${minutes}m`
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = Math.round(totalMinutes % 60);
+      return `${hours}h ${minutes}m`;
     }
-  }
+  };
 
   if (isProcessing) {
     return (
@@ -119,10 +123,11 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
           🔄 Processing in Progress
         </h3>
         <p className="text-secondary-300">
-          Queue processing is currently active. Check the Live Processing tab for details.
+          Queue processing is currently active. Check the Live Processing tab
+          for details.
         </p>
       </div>
-    )
+    );
   }
 
   if (!nextCustomer) {
@@ -136,10 +141,13 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
           All customers have been processed. Queue is empty!
         </p>
       </div>
-    )
+    );
   }
 
-  const estimatedTime = getEstimatedTime(nextCustomer.directoryLimit, nextCustomer.packageType)
+  const estimatedTime = getEstimatedTime(
+    nextCustomer.directoryLimit,
+    nextCustomer.packageType,
+  );
 
   return (
     <>
@@ -157,15 +165,17 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
             {nextCustomer.businessName}
           </h3>
           <div className="text-secondary-300 space-x-4">
-            <span className="font-medium">
-              {nextCustomer.customerId}
-            </span>
+            <span className="font-medium">{nextCustomer.customerId}</span>
             <span>•</span>
-            <span className={`px-2 py-1 rounded text-xs font-bold ${
-              nextCustomer.packageType === 'PRO' ? 'bg-purple-600 text-white' :
-              nextCustomer.packageType === 'GROWTH' ? 'bg-orange-500 text-white' :
-              'bg-blue-500 text-white'
-            }`}>
+            <span
+              className={`px-2 py-1 rounded text-xs font-bold ${
+                nextCustomer.packageType === "PRO"
+                  ? "bg-purple-600 text-white"
+                  : nextCustomer.packageType === "GROWTH"
+                    ? "bg-orange-500 text-white"
+                    : "bg-blue-500 text-white"
+              }`}
+            >
               {nextCustomer.packageType} Package
             </span>
             <span>•</span>
@@ -194,7 +204,7 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
               </>
             )}
           </button>
-          
+
           <div className="text-center mt-3 text-secondary-300 text-sm">
             Estimated completion: {estimatedTime}
           </div>
@@ -202,15 +212,15 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
 
         {/* Secondary Actions */}
         <div className="flex space-x-3">
-          <button 
+          <button
             onClick={handleReviewDetails}
             className="flex-1 border-2 border-secondary-600 hover:border-volt-500 text-secondary-300 hover:text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>📋</span>
             <span>Review Details</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => handleConfirmProcessing(true)}
             disabled={isStarting}
             className="flex-1 border-2 border-orange-600 hover:border-orange-500 text-orange-300 hover:text-orange-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -218,8 +228,8 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
             <span>⚡</span>
             <span>Priority Process</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={handleSchedule}
             className="flex-1 border-2 border-blue-600 hover:border-blue-500 text-blue-300 hover:text-blue-200 py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
           >
@@ -238,7 +248,7 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
             packageType: nextCustomer.packageType,
             directoryCount: nextCustomer.directoryLimit,
             estimatedTime,
-            canPriorityProcess: nextCustomer.packageType === 'PRO'
+            canPriorityProcess: nextCustomer.packageType === "PRO",
           }}
           onConfirm={(priorityMode) => handleConfirmProcessing(priorityMode)}
           onCancel={() => setShowModal(false)}
@@ -246,5 +256,5 @@ Customer: ${nextCustomer.businessName} (${nextCustomer.customerId})`,
         />
       )}
     </>
-  )
+  );
 }

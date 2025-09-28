@@ -1,39 +1,47 @@
 // Staff Dashboard Logout API
 // Handles secure staff session termination
 
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { serialize } from 'cookie'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+interface StaffLogoutResponse {
+  success: boolean
+  message: string
+  redirectTo: string
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<StaffLogoutResponse | { error: string; message: string }>
+): Promise<void> {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    res.status(405).json({ error: 'Method not allowed', message: 'Only POST is supported' })
+    return
   }
 
   try {
-    console.log('🔓 Staff logout requested')
+    console.log('?? Staff logout requested')
 
-    // Clear the staff session cookie
     const cookie = serialize('staff-session', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 0, // Expire immediately
-      path: '/'
+      sameSite: 'strict',
+      maxAge: 0,
+      path: '/',
     })
 
     res.setHeader('Set-Cookie', cookie)
 
-    console.log('✅ Staff logout successful')
+    console.log('? Staff logout successful')
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'Logout successful',
       redirectTo: '/staff-login'
     })
-
   } catch (error) {
-    console.error('❌ Staff logout error:', error)
-    return res.status(500).json({
+    console.error('? Staff logout error:', error)
+    res.status(500).json({
       error: 'Internal Server Error',
       message: 'Logout failed'
     })
