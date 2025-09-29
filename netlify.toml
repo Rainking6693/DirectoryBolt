@@ -7,6 +7,7 @@
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
     NODE_OPTIONS = "--max-old-space-size=4096"
     NETLIFY_BUILD_DEBUG = "true"
+    NEXT_DISABLE_ESLINT = "true"
 
 [functions]
   directory = "netlify/functions"
