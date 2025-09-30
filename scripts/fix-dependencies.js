@@ -48,7 +48,6 @@ async function main() {
       'uuid@^9.0.1',
       'express@^4.18.2',
       'express-rate-limit@^7.1.5',
-      'bcrypt@^5.1.1',
       'bcryptjs@^2.4.3',
       'helmet@^7.1.0',
       'joi@^17.11.0',
@@ -71,9 +70,7 @@ async function main() {
       '@types/uuid@^9.0.7',
       '@types/express@^4.17.21',
       '@types/cors@^2.8.17',
-      '@types/bcrypt@^5.0.2',
       '@types/jsonwebtoken@^9.0.5',
-      '@types/formidable@^3.4.5',
       '@types/archiver@^6.0.2'
     ];
     

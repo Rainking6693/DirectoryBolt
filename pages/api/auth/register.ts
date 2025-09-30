@@ -215,7 +215,7 @@ async function saveUser(user: User, requestId?: string): Promise<void> {
 // Security utilities
 async function hashPassword(password: string): Promise<string> {
   // TODO: Implement bcrypt hashing
-  // const bcrypt = require('bcrypt')
+  // const bcrypt = require('bcryptjs')
   // const saltRounds = 12
   // return await bcrypt.hash(password, saltRounds)
   

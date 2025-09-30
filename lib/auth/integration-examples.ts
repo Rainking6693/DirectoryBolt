@@ -557,7 +557,7 @@ export const enhancedLoginApiExample = `
 import { jwtManager } from '../../../lib/auth/jwt'
 import { sessionManager } from '../../../lib/auth/session-manager'
 import { getUserRole } from '../../../lib/auth/rbac'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

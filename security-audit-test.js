@@ -215,7 +215,7 @@ class SecurityAuditSuite {
                     }
 
                     // Check for password hashing
-                    if (content.includes('bcrypt') || content.includes('hash')) {
+                    if (content.includes('bcryptjs') || content.includes('hash')) {
                         this.log(
                             'Authentication Security',
                             'INFO',
@@ -228,7 +228,7 @@ class SecurityAuditSuite {
                             'CRITICAL',
                             `Plain text password handling in ${file}`,
                             'Passwords may not be properly hashed',
-                            'Implement proper password hashing with bcrypt'
+                            'Implement proper password hashing with bcryptjs'
                         );
                     }
 

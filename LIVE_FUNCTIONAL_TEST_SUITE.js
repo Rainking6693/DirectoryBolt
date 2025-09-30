@@ -283,7 +283,7 @@ class LiveTestSuite {
       const pkg = JSON.parse(content);
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
       
-      const securityLibs = ['helmet', 'cors', 'express-rate-limit', 'joi', 'bcrypt'];
+      const securityLibs = ['helmet', 'cors', 'express-rate-limit', 'joi', 'bcryptjs'];
       const found = securityLibs.filter(lib => deps[lib]);
       
       if (found.length < 3) throw new Error(`Only ${found.length}/5 security libs found`);

@@ -325,7 +325,7 @@ async function findUserByEmail(email: string): Promise<User | null> {
 
 async function verifyPassword(password: string, hash: string): Promise<boolean> {
   // TODO: Implement bcrypt verification
-  // const bcrypt = require('bcrypt')
+  // const bcrypt = require('bcryptjs')
   // return await bcrypt.compare(password, hash)
   
   // Mock verification for development

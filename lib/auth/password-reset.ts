@@ -1,7 +1,7 @@
 // 🔒 JORDAN'S PASSWORD RESET SYSTEM - Secure password recovery flow
 // Comprehensive password reset with secure token generation and validation
 
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { randomBytes, createHash } from 'crypto'
 import type { User } from '../database/schema'
 import { jwtManager } from './jwt'

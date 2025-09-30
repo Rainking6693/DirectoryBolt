@@ -1,7 +1,7 @@
 // 🔒 JORDAN'S JWT TOKEN MANAGEMENT - Enterprise-grade token handling
 // Secure JWT generation, validation, and refresh with comprehensive security controls
 
-import jwt from 'jsonwebtoken'
+import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import { randomBytes, createHash } from 'crypto'
 import type { User } from '../database/schema'
 import { AuthenticationError, ValidationError } from '../utils/errors'
@@ -46,6 +46,7 @@ export interface RefreshTokenRecord {
 }
 
 export type UserRole = 'customer' | 'admin' | 'va'
+
 
 // JWT Token Management Class
 export class JWTManager {
@@ -104,7 +105,7 @@ export class JWTManager {
       const token = jwt.sign(payload, this.accessTokenSecret, {
         expiresIn: customExpiry || JWT_CONFIG.ACCESS_TOKEN_EXPIRES,
         algorithm: 'HS256'
-      } as jwt.SignOptions)
+      } as any)
       
       logger.info('Access token generated', {
         metadata: { 
@@ -188,10 +189,10 @@ export class JWTManager {
 
       return decoded
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
+      if (error instanceof TokenExpiredError) {
         throw new AuthenticationError('Access token expired', 'TOKEN_EXPIRED')
       }
-      if (error instanceof jwt.JsonWebTokenError) {
+      if (error instanceof JsonWebTokenError) {
         throw new AuthenticationError('Invalid access token', 'INVALID_TOKEN')
       }
       throw error
@@ -265,7 +266,7 @@ export class JWTManager {
     return jwt.sign(payload, this.accessTokenSecret, {
       expiresIn: '1h', // Password reset tokens expire in 1 hour
       algorithm: JWT_CONFIG.ALGORITHM
-    })
+    } as any)
   }
 
   /**
@@ -285,10 +286,10 @@ export class JWTManager {
 
       return decoded
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
+      if (error instanceof TokenExpiredError) {
         throw new AuthenticationError('Password reset token expired', 'TOKEN_EXPIRED')
       }
-      if (error instanceof jwt.JsonWebTokenError) {
+      if (error instanceof JsonWebTokenError) {
         throw new AuthenticationError('Invalid password reset token', 'INVALID_TOKEN')
       }
       throw error
@@ -310,7 +311,7 @@ export class JWTManager {
     return jwt.sign(payload, this.accessTokenSecret, {
       expiresIn: '24h', // Email verification tokens expire in 24 hours
       algorithm: JWT_CONFIG.ALGORITHM
-    })
+    } as any)
   }
 
   /**

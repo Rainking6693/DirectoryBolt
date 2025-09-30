@@ -246,7 +246,7 @@ class CompleteLiveTest {
       const pkg = JSON.parse(content);
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
       
-      const securityLibs = ['helmet', 'cors', 'express-rate-limit', 'joi', 'bcrypt'];
+      const securityLibs = ['helmet', 'cors', 'express-rate-limit', 'joi', 'bcryptjs'];
       const installed = securityLibs.filter(lib => deps[lib]);
       
       const secrets = ['JWT_SECRET', 'ADMIN_API_KEY', 'STAFF_API_KEY'];
