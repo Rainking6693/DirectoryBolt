@@ -222,7 +222,7 @@ export class EnhancedWebsiteAnalyzer {
       ])
 
       // Parse HTML content
-      const $ = cheerio.load(htmlData.html)
+      const $ = cheerio.load(htmlData.html) as cheerio.CheerioAPI as cheerio.CheerioAPI as cheerio.CheerioAPI
 
       // Extract comprehensive data
       const basicInfo = this.extractBasicInfo($, url)
@@ -421,7 +421,7 @@ export class EnhancedWebsiteAnalyzer {
     }
   }
 
-  private extractBasicInfo($: cheerio.Root, url: string): BasicWebsiteInfo {
+  private extractBasicInfo($: cheerio.CheerioAPI, url: string): BasicWebsiteInfo {
     return {
       title: $('title').text().trim() || '',
       description: $('meta[name="description"]').attr('content') || 
@@ -435,7 +435,7 @@ export class EnhancedWebsiteAnalyzer {
     }
   }
 
-  private findFavicon($: cheerio.Root): string {
+  private findFavicon($: cheerio.CheerioAPI): string {
     const faviconSelectors = [
       'link[rel="icon"]',
       'link[rel="shortcut icon"]',
@@ -451,7 +451,7 @@ export class EnhancedWebsiteAnalyzer {
     return '/favicon.ico'
   }
 
-  private async extractBusinessProfile($: cheerio.Root, html: string, url: string): Promise<Partial<EnhancedBusinessProfile>> {
+  private async extractBusinessProfile($: cheerio.CheerioAPI, html: string, url: string): Promise<Partial<EnhancedBusinessProfile>> {
     const domain = new URL(url).hostname
 
     // Extract business name
@@ -475,7 +475,7 @@ export class EnhancedWebsiteAnalyzer {
     }
   }
 
-  private extractBusinessName($: cheerio.Root, html: string): string {
+  private extractBusinessName($: cheerio.CheerioAPI, html: string): string {
     // Try multiple methods to extract business name
     const candidates = [
       $('meta[property="og:site_name"]').attr('content'),
@@ -489,7 +489,7 @@ export class EnhancedWebsiteAnalyzer {
     return candidates[0] || 'Unknown Business'
   }
 
-  private extractBusinessDescription($: cheerio.Root, html: string): string {
+  private extractBusinessDescription($: cheerio.CheerioAPI, html: string): string {
     const candidates = [
       $('meta[name="description"]').attr('content'),
       $('meta[property="og:description"]').attr('content'),
@@ -500,7 +500,7 @@ export class EnhancedWebsiteAnalyzer {
     return candidates[0] || ''
   }
 
-  private extractContactInfo($: cheerio.Root, html: string): any {
+  private extractContactInfo($: cheerio.CheerioAPI, html: string): any {
     // Extract email
     const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi
     const emails = html.match(emailRegex) || []
@@ -535,7 +535,7 @@ export class EnhancedWebsiteAnalyzer {
     }
   }
 
-  private extractSocialLinks($: cheerio.Root): any[] {
+  private extractSocialLinks($: cheerio.CheerioAPI): any[] {
     const socialPlatforms = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'pinterest']
     const socialLinks: any[] = []
 
@@ -557,7 +557,7 @@ export class EnhancedWebsiteAnalyzer {
     return socialLinks
   }
 
-  private extractLocationInfo($: cheerio.Root, html: string): any {
+  private extractLocationInfo($: cheerio.CheerioAPI, html: string): any {
     // Look for address information
     const addressSelectors = [
       '[class*="address"]',
@@ -603,7 +603,7 @@ export class EnhancedWebsiteAnalyzer {
     return ''
   }
 
-  private analyzeSEO($: cheerio.Root, html: string): SEOAnalysis {
+  private analyzeSEO($: cheerio.CheerioAPI, html: string): SEOAnalysis {
     let score = 100
     const issues: string[] = []
 
@@ -721,7 +721,7 @@ export class EnhancedWebsiteAnalyzer {
     return 100
   }
 
-  private analyzeHeadingStructure($: cheerio.Root, issues: string[]): number {
+  private analyzeHeadingStructure($: cheerio.CheerioAPI, issues: string[]): number {
     const h1Count = $('h1').length
     if (h1Count === 0) {
       issues.push('Missing H1 tag')
@@ -734,7 +734,7 @@ export class EnhancedWebsiteAnalyzer {
     return 100
   }
 
-  private analyzeImageOptimization($: cheerio.Root, issues: string[]): number {
+  private analyzeImageOptimization($: cheerio.CheerioAPI, issues: string[]): number {
     const images = $('img')
     const imagesWithoutAlt = $('img:not([alt])').length
     
@@ -761,17 +761,17 @@ export class EnhancedWebsiteAnalyzer {
     return hasJsonLd ? 100 : 50
   }
 
-  private analyzeOGTags($: cheerio.Root): number {
+  private analyzeOGTags($: cheerio.CheerioAPI): number {
     const ogTags = $('meta[property^="og:"]').length
     return ogTags > 3 ? 100 : (ogTags * 25)
   }
 
-  private isMobileOptimized($: cheerio.Root): boolean {
+  private isMobileOptimized($: cheerio.CheerioAPI): boolean {
     const viewport = $('meta[name="viewport"]').attr('content')
     return viewport ? viewport.includes('width=device-width') : false
   }
 
-  private calculateContentLength($: cheerio.Root): number {
+  private calculateContentLength($: cheerio.CheerioAPI): number {
     const textContent = $('body').text().replace(/\s+/g, ' ').trim()
     return textContent.split(' ').length
   }
@@ -787,7 +787,7 @@ export class EnhancedWebsiteAnalyzer {
     }))
   }
 
-  private analyzeContent($: cheerio.Root, html: string): ContentAnalysis {
+  private analyzeContent($: cheerio.CheerioAPI, html: string): ContentAnalysis {
     const textContent = $('body').text()
     
     return {
@@ -841,7 +841,7 @@ export class EnhancedWebsiteAnalyzer {
       .map(([word]) => word)
   }
 
-  private findExpertiseIndicators($: cheerio.Root): string[] {
+  private findExpertiseIndicators($: cheerio.CheerioAPI): string[] {
     const indicators: string[] = []
     
     // Look for testimonials
@@ -856,7 +856,7 @@ export class EnhancedWebsiteAnalyzer {
     return indicators
   }
 
-  private findTrustSignals($: cheerio.Root): string[] {
+  private findTrustSignals($: cheerio.CheerioAPI): string[] {
     const signals: string[] = []
     
     // SSL certificate (assume HTTPS)
@@ -874,7 +874,7 @@ export class EnhancedWebsiteAnalyzer {
     return signals
   }
 
-  private analyzeSocialPresence($: cheerio.Root): SocialMediaPresence {
+  private analyzeSocialPresence($: cheerio.CheerioAPI): SocialMediaPresence {
     const socialLinks = this.extractSocialLinks($)
     
     return {
@@ -893,7 +893,7 @@ export class EnhancedWebsiteAnalyzer {
     }
   }
 
-  private async analyzeTechStack($: cheerio.Root, html: string, url: string): Promise<TechnologyStack> {
+  private async analyzeTechStack($: cheerio.CheerioAPI, html: string, url: string): Promise<TechnologyStack> {
     const techStack: any = {
       website: {
         framework: this.detectFramework(html),
@@ -968,7 +968,7 @@ export class EnhancedWebsiteAnalyzer {
     return ecommerce
   }
 
-  private analyzeStructuredData($: cheerio.Root): StructuredDataAnalysis {
+  private analyzeStructuredData($: cheerio.CheerioAPI): StructuredDataAnalysis {
     const jsonLdScripts = $('script[type="application/ld+json"]')
     const structuredData: any = {
       hasStructuredData: jsonLdScripts.length > 0,

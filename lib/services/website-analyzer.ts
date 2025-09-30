@@ -84,7 +84,7 @@ export class WebsiteAnalyzer {
       const websiteData = await this.fetchWebsiteWithRetries(url)
       
       // Parse basic website information
-      const $ = cheerio.load(websiteData.html)
+      const $ = cheerio.load(websiteData.html) as cheerio.CheerioAPI as cheerio.CheerioAPI as cheerio.CheerioAPI
       const title = $('title').text().trim() || 'No title found'
       const description = $('meta[name="description"]').attr('content') || 
                          $('meta[property="og:description"]').attr('content') || 
@@ -229,7 +229,7 @@ export class WebsiteAnalyzer {
     throw lastError || new Error('Failed to fetch website after all retries')
   }
 
-  private calculateSeoScore($: cheerio.Root, html: string): number {
+  private calculateSeoScore($: cheerio.CheerioAPI, html: string): number {
     let score = 100
     const issues: string[] = []
 
@@ -407,7 +407,7 @@ export class WebsiteAnalyzer {
     return Math.round((advantage / averageCompetitorListings) * 100)
   }
 
-  private generateIssues($: cheerio.Root, currentListings: string[], seoScore: number): AnalysisIssue[] {
+  private generateIssues($: cheerio.CheerioAPI, currentListings: string[], seoScore: number): AnalysisIssue[] {
     const issues: AnalysisIssue[] = []
 
     if (currentListings.length < 10) {

@@ -84,7 +84,7 @@ export class ContentGapAnalyzer {
         }
       })
 
-      const $ = cheerio.load(response.data)
+      const $ = cheerio.load(response.data) as cheerio.CheerioAPI as cheerio.CheerioAPI
 
       const title = $('title').text().trim()
       const description = $('meta[name="description"]').attr('content') || ''
@@ -123,7 +123,7 @@ export class ContentGapAnalyzer {
     const pages: CompetitorContent[] = []
     const domain = new URL(baseUrl).hostname
     const links = new Set<string>()
-    const $ = cheerio.load(html)
+    const $ = cheerio.load(html) as cheerio.CheerioAPI as cheerio.CheerioAPI
 
     $('a[href]').each((_, element) => {
       const href = $(element).attr('href')
@@ -135,7 +135,7 @@ export class ContentGapAnalyzer {
     for (const pageUrl of Array.from(links).slice(0, 5)) {
       try {
         const pageContent = await axios.get(pageUrl, { timeout: 15000 })
-        const pageTitle = cheerio.load(pageContent.data)('title').text().trim()
+        const $ = cheerio.load(pageContent.data) as cheerio.CheerioAPI;const pageTitle = $('title').text().trim();
 
         pages.push({
           url: pageUrl,

@@ -792,7 +792,7 @@ export class ScrapingUtils {
     links?: { internal: string[]; external: string[] }
     images?: string[]
   } {
-    const $ = cheerio.load(html)
+    const $ = cheerio.load(html) as cheerio.CheerioAPI as cheerio.CheerioAPI as cheerio.CheerioAPI
     
     return {
       title: $('title').text().trim() || undefined,
@@ -810,7 +810,7 @@ export class ScrapingUtils {
     }
   }
 
-  private static extractOpenGraph($: cheerio.Root): Record<string, string> {
+  private static extractOpenGraph($: cheerio.CheerioAPI): Record<string, string> {
     const ogData: Record<string, string> = {}
     
     $('meta[property^="og:"]').each((_, el) => {
@@ -824,7 +824,7 @@ export class ScrapingUtils {
     return ogData
   }
 
-  private static extractTwitterCards($: cheerio.Root): Record<string, string> {
+  private static extractTwitterCards($: cheerio.CheerioAPI): Record<string, string> {
     const twitterData: Record<string, string> = {}
     
     $('meta[name^="twitter:"]').each((_, el) => {
@@ -838,7 +838,7 @@ export class ScrapingUtils {
     return twitterData
   }
 
-  private static extractSchemaOrg($: cheerio.Root): any[] {
+  private static extractSchemaOrg($: cheerio.CheerioAPI): any[] {
     const schemas: any[] = []
     
     $('script[type="application/ld+json"]').each((_, el) => {
@@ -855,7 +855,7 @@ export class ScrapingUtils {
     return schemas
   }
 
-  private static extractLinks($: cheerio.Root, baseUrl: string): {
+  private static extractLinks($: cheerio.CheerioAPI, baseUrl: string): {
     internal: string[]
     external: string[]
   } {
@@ -882,7 +882,7 @@ export class ScrapingUtils {
     return { internal, external }
   }
 
-  private static extractImages($: cheerio.Root, baseUrl: string): string[] {
+  private static extractImages($: cheerio.CheerioAPI, baseUrl: string): string[] {
     const images: string[] = []
     
     $('img[src]').each((_, el) => {
