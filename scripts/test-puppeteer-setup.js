@@ -15,8 +15,9 @@ async function testPuppeteerSetup() {
     const puppeteerVersion = require('puppeteer-core/package.json').version
     console.log(`✅ puppeteer-core@${puppeteerVersion} - INSTALLED`)
   } catch (error) {
-    console.log('❌ puppeteer-core - NOT INSTALLED')
-    console.log('   Run: npm install puppeteer-core@^21.0.0')
+    console.log('❌ chrome-aws-lambda - NOT INSTALLED')
+    console.log('   Run: npm install chrome-aws-lambda@^10.1.0')
+    console.log('   TODO: Align puppeteer-core with chrome-aws-lambda peer requirement before enabling serverless Chrome.')
     return false
   }
   
