@@ -63,6 +63,7 @@
     "pages-backup",
     "__tests__",
     "tests",
+    "lib/testing",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",

@@ -20,6 +20,11 @@ if (isE2E) {
 module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json'
+    }
+  },
   
   // Enhanced test patterns for comprehensive coverage
   testMatch: baseTestMatch,
