@@ -131,30 +131,34 @@ class ErrorHandler {
         }
         
         return result;
-      } catch (error) {
-        lastError = error as Error;
+      // TODO: Review resilience logging and unify error handling strategy in Stage 7.x cleanup
+      } catch (error: unknown) {
+        const normalizedError = error instanceof Error ? error : new Error(String(error));
+        lastError = normalizedError;
         
         const errorContext: ErrorContext = {
           ...context,
           attemptNumber: attempt,
           timestamp: Date.now(),
-          stackTrace: error.stack
+          stackTrace: normalizedError.stack
         };
 
-        this.logError(errorContext, error as Error);
+        this.logError(errorContext, normalizedError);
 
-        // Check if error is retryable
-        if (!this.isRetryableError(error as Error, config.retryableErrors) || attempt === config.maxAttempts) {
-          // Send to dead letter queue if final attempt
-          if (attempt === config.maxAttempts) {
-            this.addToDeadLetterQueue(context.operation, context, error as Error);
-          }
-          throw error;
+        if (!(normalizedError instanceof Error)) {
+          console.error('Unknown error thrown during executeWithRetry:', error);
         }
 
-        // Calculate delay with exponential backoff and jitter
+        // Check if error is retryable
+        if (!this.isRetryableError(normalizedError, config.retryableErrors) || attempt === config.maxAttempts) {
+          if (attempt === config.maxAttempts) {
+            this.addToDeadLetterQueue(context.operation, context, normalizedError);
+          }
+          throw normalizedError;
+        }
+
         const delay = this.calculateDelay(attempt, config);
-        console.warn(`⚠️ Attempt ${attempt} failed, retrying in ${delay}ms: ${error.message}`);
+        console.warn(`⚠️ Attempt ${attempt} failed, retrying in ${delay}ms: ${normalizedError.message}`);
         
         await this.sleep(delay);
       }

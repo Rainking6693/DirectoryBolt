@@ -1,37 +1,19 @@
-// Temporary module type overrides to accelerate incremental type-cleanup.
-// These make commonly-used error classes and the Errors helper permissive so
-// we can update call-sites in small batches without the type-check blowing up.
+// Ambient module declarations for JS/third-party modules without types
 
-declare module 'lib/utils/errors' {
-  export class ValidationError extends Error {
-    constructor(...args: any[])
-    field?: string
-    code?: string
-  }
-
-  export class AuthorizationError extends Error {
-    constructor(...args: any[])
-    errorCode?: string
-  }
-
-  export class AuthenticationError extends Error {
-    constructor(...args: any[])
-    errorCode?: string
-  }
-
-  export class RateLimitError extends Error {
-    constructor(...args: any[])
-    retryAfter?: number
-    remaining?: number
-  }
-
-  export const Errors: any
-  export default Errors
+declare module '@/lib/analytics/enhanced-ga4' {
+  export function trackEvent(event: string, params?: Record<string, any>): void;
+  const ga: { trackEvent: typeof trackEvent };
+  export default ga;
 }
 
-// Also provide a permissive ambient declaration for the errors shim
-declare module 'lib/utils/errors-shim' {
-  import Errors from 'lib/utils/errors'
-  export default Errors
-  export const ValidationError: any
+declare module '@/lib/utils/critical-css' {
+  export function extractCritical(html: string): { css: string; ids: string[] };
+  const css: { extractCritical: typeof extractCritical };
+  export default css;
+}
+
+declare module '@/lib/wasm/directory-analyzer' {
+  export function analyzeDirectory(data: Uint8Array): Promise<any>; // TODO: refine typing
+  const analyzer: { analyzeDirectory: typeof analyzeDirectory };
+  export default analyzer;
 }

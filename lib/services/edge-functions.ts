@@ -13,6 +13,7 @@ import type {
   NonEmptyString,
   URL as TypedURL 
 } from '../types/enhanced-types';
+import { makeNonEmptyString } from '@/lib/types/non-empty-string';
 
 // Edge function configuration
 export interface EdgeFunctionConfig {
@@ -402,6 +403,7 @@ async function performEdgeAnalysis(
     return {
       success: true,
       data: analysis,
+      error: null,
       metadata: {
         requestId: context.requestId,
         timestamp: new Date(),
@@ -415,7 +417,7 @@ async function performEdgeAnalysis(
       data: null,
       error: {
         code: 'ANALYSIS_FAILED',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: makeNonEmptyString(error instanceof Error ? error.message : 'Unknown error'),
         details: { url, context: context.geo },
         timestamp: new Date()
       },
@@ -578,9 +580,3 @@ export function createEdgeMiddleware(config: EdgeFunctionConfig) {
     });
   };
 }
-
-export {
-  type EdgeFunctionConfig,
-  type EdgeContext,
-  type EdgeCache
-};

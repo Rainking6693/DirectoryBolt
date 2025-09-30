@@ -11,7 +11,21 @@
  * - 3.2.7: Remove "Auto-Bolt On" visual indicator
  */
 
-import { BusinessSubmissionRecord } from './airtable'
+export interface BusinessSubmissionRecord {
+  customerId: string
+  businessName: string
+  email: string
+  phone?: string
+  website?: string
+  description?: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+  facebook?: string
+  instagram?: string
+  linkedin?: string
+}
 
 export interface DirectoryEntry {
   id: string

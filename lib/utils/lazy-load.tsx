@@ -1,5 +1,5 @@
 import { ComponentType, lazy, Suspense } from 'react'
-import dynamic from 'next/dynamic'
+import dynamic, { type DynamicOptionsLoadingProps } from 'next/dynamic'
 
 // Generic loading fallback
 export const DefaultLoadingFallback = ({ message = "Loading..." }: { message?: string }) => (
@@ -22,13 +22,13 @@ export const SmallLoadingFallback = () => (
 export function createLazyComponent<T = any>(
   importFunc: () => Promise<{ default: ComponentType<T> }>,
   options?: {
-    loading?: ComponentType<any>
+    loading?: (loadingProps: DynamicOptionsLoadingProps) => JSX.Element | null
     ssr?: boolean
     fallback?: ComponentType<any>
   }
 ) {
   return dynamic(importFunc, {
-    loading: options?.loading || SmallLoadingFallback,
+    loading: options?.loading || (() => <SmallLoadingFallback />),
     ssr: options?.ssr ?? true,
   })
 }

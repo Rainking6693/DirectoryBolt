@@ -311,6 +311,8 @@ class FeatureFlagService {
 export const featureFlagService = new FeatureFlagService();
 
 // React hook for feature flags
+import React from 'react'
+
 export function useFeatureFlag(flagKey: string, context?: Partial<FeatureFlagContext>) {
   const [isEnabled, setIsEnabled] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -330,4 +332,3 @@ export function useFeatureFlag(flagKey: string, context?: Partial<FeatureFlagCon
 }
 
 // Export types for external use
-export type { FeatureFlagContext };

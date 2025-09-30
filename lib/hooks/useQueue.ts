@@ -162,7 +162,9 @@ export function useQueue(
         }
       }
     }
-  }, [autoRefresh, enableRealTime, fetchQueue, refreshInterval])
+
+    return () => {}
+  }, [autoRefresh, enableRealTime, refreshInterval, fetchQueue])
 
   // Initial fetch
   useEffect(() => {

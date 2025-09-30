@@ -700,7 +700,7 @@ export class IntegratedSEOAIService {
         businessModel: {
           type: 'B2B',
           revenueStreams: [],
-          pricingModel: 'service',
+          pricingModel: 'one-time',
           customerAcquisitionModel: []
         },
         targetMarket: {
@@ -730,6 +730,7 @@ export class IntegratedSEOAIService {
             channels: ['Online']
           }
         },
+        serviceAreas: profile.location?.region ? [profile.location.region] : [],
         location: {
           headquarters: {
             city: profile.location?.city || 'Unknown',

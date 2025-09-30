@@ -47,7 +47,7 @@ const toScalingLabel = (workers: number): string => {
 };
 
 const selectCount = async (status: string): Promise<number> => {
-  const { count = 0, error } = await supabase
+  const { count: rawCount, error } = await supabase
     .from("jobs")
     .select("id", { count: "exact", head: true })
     .eq("status", status);
@@ -57,12 +57,12 @@ const selectCount = async (status: string): Promise<number> => {
     throw error;
   }
 
-  return count;
+  return typeof rawCount === "number" ? rawCount : 0;
 };
 
 const countRetriesLast24h = async (): Promise<number> => {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const { count = 0, error } = await supabase
+  const { count: rawCount, error } = await supabase
     .from("job_results")
     .select("id", { count: "exact", head: true })
     .eq("status", "retry")
@@ -73,12 +73,12 @@ const countRetriesLast24h = async (): Promise<number> => {
     throw error;
   }
 
-  return count;
+  return typeof rawCount === "number" ? rawCount : 0;
 };
 
 const countCaptchasSolved = async (): Promise<number> => {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const { count = 0, error } = await supabase
+  const { count: rawCount, error } = await supabase
     .from("job_results")
     .select("id", { count: "exact", head: true })
     .eq("directory_name", "CAPTCHA_SOLVED")
@@ -89,7 +89,7 @@ const countCaptchasSolved = async (): Promise<number> => {
     throw error;
   }
 
-  return count;
+  return typeof rawCount === "number" ? rawCount : 0;
 };
 
 const handler: Handler = async (event): Promise<HandlerResponse> => {

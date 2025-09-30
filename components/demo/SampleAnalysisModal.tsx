@@ -3,6 +3,8 @@
 
 'use client'
 import { useState, useEffect } from 'react'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - StartTrialButton is provided from a JS module
 import { StartTrialButton } from '../CheckoutButton'
 import { getSampleAnalysis, getAllSampleAnalyses, type SampleAnalysis } from '../../lib/data/sample-analyses'
 
@@ -149,6 +151,8 @@ export default function SampleAnalysisModal({ isOpen, onClose }: SampleAnalysisM
 
       return () => clearInterval(timer)
     }
+
+    return () => {}
   }, [isOpen, steps.length])
 
   if (!isOpen) return null

@@ -32,6 +32,8 @@ export function SMSVerificationForm({ action, onComplete, onCancel }: SMSVerific
       }, 1000)
       return () => clearInterval(timer)
     }
+
+    return () => {}
   }, [step, timeRemaining])
 
   const formatPhoneNumber = (value: string) => {

@@ -10,18 +10,26 @@
  * - 3.3.5: Unmappable site logic
  */
 
-import { BusinessSubmissionRecord } from './airtable'
+import type { BusinessSubmissionRecord } from './autobolt-extension'
 // import { DirectoryEntry, DirectorySubmissionResult, AutoBoltProcessingResult } from './autobolt-extension' // DISABLED FOR BUILD
 
 // Temporary types for build compatibility
 interface DirectoryEntry {
   id: string;
   name: string;
+  requiresLogin?: boolean;
+  hasCaptcha?: boolean;
+  skipReason?: string;
+  submissionUrl?: string;
 }
 
 interface DirectorySubmissionResult {
   success: boolean;
   directoryName: string;
+  directoryId?: string;
+  submittedAt?: Date;
+  fields?: Record<string, string>;
+  error?: string;
 }
 
 interface AutoBoltProcessingResult {
@@ -39,6 +47,14 @@ export interface EnhancedDirectoryResult extends DirectorySubmissionResult {
 }
 
 export interface EnhancedProcessingResult extends AutoBoltProcessingResult {
+  customerId: string
+  totalDirectories: number
+  processedDirectories: number
+  successfulSubmissions: number
+  failedSubmissions: number
+  skippedDirectories: number
+  results: EnhancedDirectoryResult[]
+  completedAt: Date
   mappingStats: {
     siteSpecific: number
     autoMapped: number
@@ -168,6 +184,8 @@ export class EnhancedAutoBoltService {
     const averageConfidence = confidenceCount > 0 ? totalConfidence / confidenceCount : 0
     
     const enhancedResult: EnhancedProcessingResult = {
+      success: results.some(r => r.success),
+      message: 'Enhanced AutoBolt processing completed',
       customerId: businessData.customerId,
       totalDirectories: directories.length,
       processedDirectories: results.filter(r => r.success).length,
@@ -208,7 +226,7 @@ export class EnhancedAutoBoltService {
 
     // Step 2: Attempt dynamic mapping
     const mappingResult = await dynamicFormMapper.mapFormFields(
-      directory.submissionUrl,
+      directory.submissionUrl || directory.name,
       businessData
     )
 
@@ -256,7 +274,7 @@ export class EnhancedAutoBoltService {
 
       // Execute submission via Chrome extension
       const submissionResult = await chromeExtensionBridge.executeFormSubmission(
-        directory.submissionUrl,
+        directory.submissionUrl || directory.name,
         mappingResult.mappedFields,
         businessData
       )
@@ -267,7 +285,7 @@ export class EnhancedAutoBoltService {
         // Save successful mapping for future use
         if (saveMapping && mappingResult.method !== 'site-specific') {
           await dynamicFormMapper.saveMappingForSite(
-            directory.submissionUrl,
+            directory.submissionUrl || directory.name,
             mappingResult.mappedFields
           )
         }
@@ -341,7 +359,7 @@ export class EnhancedAutoBoltService {
 
       // Start manual mapping session
       const sessionId = await chromeExtensionBridge.startManualMappingSession(
-        directory.submissionUrl,
+        directory.submissionUrl || directory.name,
         businessData,
         fieldsNeedingMapping
       )
@@ -363,11 +381,11 @@ export class EnhancedAutoBoltService {
         console.log(`✅ Manual mapping completed for ${directory.name}: ${Object.keys(manualMappings).length} fields`)
 
         // Save manual mappings for future use
-        await dynamicFormMapper.saveMappingForSite(directory.submissionUrl, manualMappings)
+        await dynamicFormMapper.saveMappingForSite(directory.submissionUrl || directory.name, manualMappings)
 
         // Execute submission with manual mappings
         const submissionResult = await chromeExtensionBridge.executeFormSubmission(
-          directory.submissionUrl,
+          directory.submissionUrl || directory.name,
           manualMappings,
           businessData
         )
@@ -466,13 +484,13 @@ export class EnhancedAutoBoltService {
 
     // Get mapping for directory
     const mappingResult = await dynamicFormMapper.mapFormFields(
-      directory.submissionUrl,
+      directory.submissionUrl || directory.name,
       businessData
     )
 
     // Test the mapping without submitting
     const testResult = await chromeExtensionBridge.testFormSubmission(
-      directory.submissionUrl,
+      directory.submissionUrl || directory.name,
       mappingResult.mappedFields,
       businessData
     )

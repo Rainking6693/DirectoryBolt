@@ -317,7 +317,7 @@ export const createUserId = (id: string): Result<UserId> => {
   if (!isNonEmptyString(id)) {
     return { success: false, error: new Error('User ID must be a non-empty string') };
   }
-  return { success: true, data: id as UserId };
+  return { success: true, data: (id as unknown) as UserId };
 };
 
 export const createEmail = (email: string): Result<Email> => {

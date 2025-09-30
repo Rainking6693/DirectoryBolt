@@ -9,7 +9,7 @@
  * - 3.3.5: Unmappable site logic
  */
 
-import { BusinessSubmissionRecord } from './airtable'
+import type { BusinessSubmissionRecord } from './autobolt-extension'
 
 export interface SiteMapping {
   siteId: string

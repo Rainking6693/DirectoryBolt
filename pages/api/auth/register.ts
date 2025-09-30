@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 🔒 JORDAN'S AUTHENTICATION API - Secure user registration with comprehensive validation
 // POST /api/auth/register - Create new user accounts with security controls
 

@@ -173,6 +173,7 @@ export class ExtensionSecurityManager {
       };
 
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       this.logSecurityEvent({
         timestamp: Date.now(),
         event: 'SESSION_CREATION_ERROR',
@@ -180,7 +181,7 @@ export class ExtensionSecurityManager {
         ipAddress,
         userAgent,
         severity: 'HIGH',
-        details: { error: error.message }
+        details: { error: message }
       });
       
       console.error('❌ Failed to create secure session:', error);

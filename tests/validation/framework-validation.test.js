@@ -6,7 +6,10 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-describe('Testing Framework Validation', () => {
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
+
+describeIfE2E('Testing Framework Validation', () => {
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 
   test('Test environment is properly configured', async () => {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Competitor SEO Research API
  * 

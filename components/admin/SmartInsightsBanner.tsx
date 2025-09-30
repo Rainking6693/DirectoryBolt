@@ -167,18 +167,29 @@ const InsightCard = ({
 
     const getInsightIcon = () => {
         switch (insight.type) {
-            case 'opportunity': return <Target className="w-5 h-5 text-green-500" />
-            case 'alert': return <AlertTriangle className="w-5 h-5 text-red-500" />
-            case 'trend': return <TrendingUp className="w-5 h-5 text-blue-500" />
-            case 'recommendation': return <Lightbulb className="w-5 h-5 text-volt-500" />
+            case 'opportunity':
+                return <Target className="w-5 h-5 text-green-500" />
+            case 'alert':
+                return <AlertTriangle className="w-5 h-5 text-red-500" />
+            case 'trend':
+                return <TrendingUp className="w-5 h-5 text-blue-500" />
+            case 'recommendation':
+                return <Lightbulb className="w-5 h-5 text-volt-500" />
+            default:
+                return null
         }
     }
 
     const getImpactColor = () => {
         switch (insight.impact) {
-            case 'high': return 'border-red-200 bg-red-50'
-            case 'medium': return 'border-volt-200 bg-volt-50'
-            case 'low': return 'border-blue-200 bg-blue-50'
+            case 'high':
+                return 'border-red-200 bg-red-50'
+            case 'medium':
+                return 'border-volt-200 bg-volt-50'
+            case 'low':
+                return 'border-blue-200 bg-blue-50'
+            default:
+                return 'border-gray-200 bg-gray-50'
         }
     }
 
@@ -293,34 +304,35 @@ export default function SmartInsightsBanner({
 
     // Generate insights when data changes
     useEffect(() => {
-        if (systemMetrics && directoryStats && customerStats) {
-            setIsGenerating(true)
-            
-            // Simulate AI processing time
-            const timer = setTimeout(() => {
-                const analysis: InsightAnalysis = {
-                    totalDirectories: directoryStats.total || 0,
-                    activeMonitoring: directoryStats.monitoring || 0,
-                    errorRate: directoryStats.errors / Math.max(directoryStats.total, 1),
-                    avgResponseTime: systemMetrics.responseTime || 0,
-                    customerGrowth: Math.random() * 30, // Mock growth rate
-                    systemLoad: Math.max(systemMetrics.cpu, systemMetrics.memory) || 0
-                }
-
-                const newInsights = generateSmartInsights(analysis)
-                setInsights(prev => [
-                    ...newInsights,
-                    ...prev.filter(insight => 
-                        !newInsights.some(newInsight => newInsight.type === insight.type)
-                    )
-                ].slice(0, 5)) // Keep only top 5 insights
-                
-                setLastAnalysis(new Date())
-                setIsGenerating(false)
-            }, 1500)
-
-            return () => clearTimeout(timer)
+        if (!(systemMetrics && directoryStats && customerStats)) {
+            return
         }
+
+        setIsGenerating(true)
+
+        const timer = setTimeout(() => {
+            const analysis: InsightAnalysis = {
+                totalDirectories: directoryStats.total || 0,
+                activeMonitoring: directoryStats.monitoring || 0,
+                errorRate: directoryStats.errors / Math.max(directoryStats.total, 1),
+                avgResponseTime: systemMetrics.responseTime || 0,
+                customerGrowth: Math.random() * 30, // Mock growth rate
+                systemLoad: Math.max(systemMetrics.cpu, systemMetrics.memory) || 0
+            }
+
+            const newInsights = generateSmartInsights(analysis)
+            setInsights(prev => [
+                ...newInsights,
+                ...prev.filter(insight => 
+                    !newInsights.some(newInsight => newInsight.type === insight.type)
+                )
+            ].slice(0, 5)) // Keep only top 5 insights
+            
+            setLastAnalysis(new Date())
+            setIsGenerating(false)
+        }, 1500)
+
+        return () => clearTimeout(timer)
     }, [systemMetrics, directoryStats, customerStats])
 
     const handleDismissInsight = (id: string) => {

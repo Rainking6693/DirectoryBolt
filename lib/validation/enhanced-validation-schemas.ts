@@ -274,7 +274,7 @@ export const StripeCheckoutSchema = v.object({
 // API Response Schema for type safety
 export const APIResponseSchema = v.object({
   success: v.boolean('Success must be a boolean'),
-  data: v.optional(v.any('Data can be any type')),
+  data: v.optional(v.any()),
   error: v.optional(v.string('Error must be a string')),
   message: v.optional(v.string('Message must be a string')),
   timestamp: v.optional(v.pipe(

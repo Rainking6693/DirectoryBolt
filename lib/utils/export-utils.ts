@@ -188,7 +188,7 @@ export const generateCSVExport = (analysisData: any, businessName: string) => {
   // Build CSV content
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => 
+    ...rows.map((row: any[]) => 
       row.map(cell => 
         typeof cell === 'string' && cell.includes(',') 
           ? `"${cell}"` 

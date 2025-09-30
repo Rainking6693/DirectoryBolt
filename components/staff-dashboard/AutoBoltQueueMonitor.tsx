@@ -72,8 +72,21 @@ const toNumber = (value: unknown, fallback = 0): number => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : fallback;
   }
+  if (typeof value === "object" && value !== null && "value" in (value as Record<string, unknown>)) {
+    const inner = (value as { value?: unknown }).value;
+    return toNumber(inner, fallback);
+  }
   return fallback;
 };
+
+const readStat = (data: QueueStatsPayload, primary: keyof QueueStatsPayload | string, secondary: keyof QueueStatsPayload | string) => {
+  const first = (primary as keyof QueueStatsPayload) in data ? data[primary as keyof QueueStatsPayload] : (data as Record<string, unknown>)[primary]
+  if (typeof first !== 'undefined') {
+    return first
+  }
+  const second = (secondary as keyof QueueStatsPayload) in data ? data[secondary as keyof QueueStatsPayload] : (data as Record<string, unknown>)[secondary]
+  return second
+}
 
 type QueueItemStatus = QueueItem["status"];
 
@@ -149,42 +162,15 @@ const mapQueueStats = (payload?: QueueStatsPayload | null): QueueStats => {
     return stats;
   }
 
-  stats.totalJobs = toNumber(
-    payload.total_jobs ?? payload.totalJobs,
-    stats.totalJobs,
-  );
-  stats.pendingJobs = toNumber(
-    payload.total_queued ?? payload.pendingJobs,
-    stats.pendingJobs,
-  );
-  stats.inProgressJobs = toNumber(
-    payload.total_processing ?? payload.inProgressJobs,
-    stats.inProgressJobs,
-  );
-  stats.completedJobs = toNumber(
-    payload.total_completed ?? payload.completedJobs,
-    stats.completedJobs,
-  );
-  stats.failedJobs = toNumber(
-    payload.total_failed ?? payload.failedJobs,
-    stats.failedJobs,
-  );
-  stats.totalDirectories = toNumber(
-    payload.total_directories ?? payload.totalDirectories,
-    stats.totalDirectories,
-  );
-  stats.completedDirectories = toNumber(
-    payload.completed_directories ?? payload.completedDirectories,
-    stats.completedDirectories,
-  );
-  stats.failedDirectories = toNumber(
-    payload.failed_directories ?? payload.failedDirectories,
-    stats.failedDirectories,
-  );
-  stats.successRate = toNumber(
-    payload.success_rate ?? payload.successRate,
-    stats.successRate,
-  );
+  stats.totalJobs = toNumber(readStat(payload, 'total_jobs', 'totalJobs') ?? stats.totalJobs);
+  stats.pendingJobs = toNumber(readStat(payload, 'total_queued', 'pendingJobs') ?? stats.pendingJobs);
+  stats.inProgressJobs = toNumber(readStat(payload, 'total_processing', 'inProgressJobs') ?? stats.inProgressJobs);
+  stats.completedJobs = toNumber(readStat(payload, 'total_completed', 'completedJobs') ?? stats.completedJobs);
+  stats.failedJobs = toNumber(readStat(payload, 'total_failed', 'failedJobs') ?? stats.failedJobs);
+  stats.totalDirectories = toNumber(readStat(payload, 'total_directories', 'totalDirectories') ?? stats.totalDirectories);
+  stats.completedDirectories = toNumber(readStat(payload, 'completed_directories', 'completedDirectories') ?? stats.completedDirectories);
+  stats.failedDirectories = toNumber(readStat(payload, 'failed_directories', 'failedDirectories') ?? stats.failedDirectories);
+  stats.successRate = toNumber(readStat(payload, 'success_rate', 'successRate') ?? stats.successRate);
   return stats;
 };
 

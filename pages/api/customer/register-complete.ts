@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Complete Customer Registration Pipeline
 // Integrates Supabase database, AutoBolt extension, and directory submission
 

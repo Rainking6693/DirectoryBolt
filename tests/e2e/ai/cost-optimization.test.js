@@ -7,7 +7,10 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-describe('AI Cost Optimization Testing', () => {
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
+
+describeIfE2E('AI Cost Optimization Testing', () => {
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
   let costTrackingData = []
 

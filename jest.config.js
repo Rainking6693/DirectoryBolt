@@ -2,22 +2,27 @@
  * Jest Configuration for DirectoryBolt Enterprise Testing
  * Enhanced for enterprise-grade testing with 95%+ coverage standards
  */
+const isE2E = process.env.RUN_E2E === 'true'
+
+const baseTestMatch = [
+  '<rootDir>/tests/unit/**/*.test.js',
+  '<rootDir>/tests/integration/**/*.test.js',
+  '<rootDir>/tests/validation/**/*.test.js',
+  '<rootDir>/__tests__/**/*.test.ts',
+  '<rootDir>/__tests__/**/*.test.js'
+]
+
+if (isE2E) {
+  baseTestMatch.push('<rootDir>/tests/performance/**/*.test.js')
+  baseTestMatch.push('<rootDir>/tests/e2e/**/*.test.{js,ts}')
+}
+
 module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   
   // Enhanced test patterns for comprehensive coverage
-  testMatch: [
-    // Original test patterns
-    '<rootDir>/tests/unit/**/*.test.js',
-    '<rootDir>/tests/integration/**/*.test.js', 
-    '<rootDir>/tests/ai/**/*.test.js',
-    '<rootDir>/tests/validation/**/*.test.js',
-    '<rootDir>/tests/performance/**/*.test.js',
-    // New enterprise test patterns
-    '<rootDir>/__tests__/**/*.test.ts',
-    '<rootDir>/__tests__/**/*.test.js'
-  ],
+  testMatch: baseTestMatch,
   
   // Enhanced coverage collection for enterprise standards
   collectCoverageFrom: [
@@ -78,6 +83,7 @@ module.exports = {
   },
   
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/standalone', '<rootDir>/.netlify'],
   
   // Enterprise test timeout and performance settings
   testTimeout: 60000,

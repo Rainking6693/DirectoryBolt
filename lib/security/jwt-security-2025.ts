@@ -140,7 +140,8 @@ class JWTSecurityManager {
 
       return decoded;
     } catch (error) {
-      console.error('❌ Access token verification failed:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('❌ Access token verification failed:', message);
       return null;
     }
   }
@@ -186,7 +187,8 @@ class JWTSecurityManager {
       return this.generateTokenPair(customerData);
 
     } catch (error) {
-      console.error('❌ Refresh token verification failed:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('❌ Refresh token verification failed:', message);
       return null;
     }
   }

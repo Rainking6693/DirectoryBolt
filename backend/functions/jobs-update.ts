@@ -182,7 +182,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
         errorMessage ?? "Job failed without specific error message";
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("jobs")
       .update(updateData)
       .eq("id", actualJobId)

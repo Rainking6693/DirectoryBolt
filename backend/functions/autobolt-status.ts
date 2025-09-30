@@ -78,6 +78,24 @@ interface StatusResponse {
 const asNumber = (value: unknown): number | undefined =>
   typeof value === "number" && !Number.isNaN(value) ? value : undefined;
 
+const toMetadataRecord = (metadata: unknown): Record<string, unknown> | null => {
+  if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
+    return metadata as Record<string, unknown>;
+  }
+  return null;
+};
+
+const getMetadataNumber = (
+  metadata: unknown,
+  key: string,
+): number | undefined => {
+  const record = toMetadataRecord(metadata);
+  if (!record) {
+    return undefined;
+  }
+  return asNumber(record[key]);
+};
+
 const getWorkerId = (metadata: Record<string, unknown> | null): string => {
   if (
     metadata &&
@@ -146,10 +164,20 @@ const computeWorkerMetrics = (records: WorkerRecord[]): WorkerMetric[] => {
   const metricsMap = new Map<string, WorkerMetric>();
 
   for (const job of records) {
-    const workerId = getWorkerId(job.metadata);
-    const existing = metricsMap.get(workerId);
+    const metadataRecord = toMetadataRecord(job.metadata);
 
-    const progress = asNumber(job.metadata?.progress_percentage) ?? 0;
+    if (!metadataRecord) {
+      console.warn(
+        "Invalid metadata format for worker job:",
+        job.customer_id,
+        job.metadata,
+      );
+      continue;
+    }
+
+    const workerId = getWorkerId(metadataRecord);
+    const existing = metricsMap.get(workerId);
+    const progress = asNumber(metadataRecord["progress_percentage"]) ?? 0;
 
     if (existing) {
       existing.activeJobs += 1;
@@ -197,7 +225,7 @@ const computeCompletionStats = (
   }
 
   const processingTimes = records
-    .map((job) => asNumber(job.metadata?.processing_time_ms))
+    .map((job) => getMetadataNumber(job.metadata, "processing_time_ms"))
     .filter((value): value is number => typeof value === "number");
 
   if (processingTimes.length > 0) {
@@ -211,12 +239,12 @@ const computeCompletionStats = (
   }
 
   stats.totalSuccessfulSubmissions = records.reduce(
-    (sum, job) => sum + (asNumber(job.metadata?.successful_submissions) ?? 0),
+    (sum, job) => sum + (getMetadataNumber(job.metadata, "successful_submissions") ?? 0),
     0,
   );
 
   stats.totalFailedSubmissions = records.reduce(
-    (sum, job) => sum + (asNumber(job.metadata?.failed_submissions) ?? 0),
+    (sum, job) => sum + (getMetadataNumber(job.metadata, "failed_submissions") ?? 0),
     0,
   );
 

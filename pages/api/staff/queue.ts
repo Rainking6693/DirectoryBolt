@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Staff Dashboard Queue API
 // Provides real-time customer queue data from Supabase
 

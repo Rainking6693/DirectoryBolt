@@ -53,8 +53,11 @@ export function ExitIntentPopup({
       const timer = setInterval(() => {
         setTimeLeft(prev => prev - 1)
       }, 1000)
+
       return () => clearInterval(timer)
     }
+
+    return () => {}
   }, [isVisible, urgency, timeLeft])
 
   // Close on escape key

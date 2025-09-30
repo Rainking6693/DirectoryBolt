@@ -168,7 +168,8 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
       metadata: metadataUpdates,
     };
 
-    const { data: jobData, error: updateError } = await supabase
+    // TODO: Restore proper Supabase typings for jobs update after Stage 6.9 cleanup
+    const { data: jobData, error: updateError } = await (supabase as any)
       .from("jobs")
       .update(completionData)
       .eq("id", actualJobId)
@@ -226,7 +227,8 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
         response_log: logEntry as Json,
       };
 
-      const { error: logError } = await supabase
+      // TODO: Restore proper Supabase typings for job_results insert after Stage 6.9 cleanup
+      const { error: logError } = await (supabase as any)
         .from("job_results")
         .insert(completionLog);
 

@@ -184,12 +184,9 @@ export default function RealTimeDashboard({
     if (wsError && !isConnected && !isConnecting) {
       console.warn('WebSocket failed, falling back to HTTP polling')
       // Implement HTTP polling fallback here
-      const interval = setInterval(() => {
-        fetchDashboardDataHttp()
-      }, 5000)
-
-      return () => clearInterval(interval)
     }
+
+    return () => {}
   }, [wsError, isConnected, isConnecting])
 
   const fetchDashboardDataHttp = async () => {

@@ -83,8 +83,8 @@ export interface AccessCheckResult {
 export class SEOTierAccessControl {
   private static instance: SEOTierAccessControl
   private usageTracking: Map<string, UsageTracking> = new Map()
-  private tierConfigurations: Map<UserTier, TierConfiguration>
-  private seoFeatures: Map<string, SEOFeature>
+  private tierConfigurations: Map<UserTier, TierConfiguration> = new Map()
+  private seoFeatures: Map<string, SEOFeature> = new Map()
 
   constructor() {
     this.initializeTierConfigurations()
@@ -465,7 +465,7 @@ export class SEOTierAccessControl {
         allowed: false,
         reason: `Monthly usage limit reached (${currentUsage}/${limit})`,
         upgradeRequired: !!nextTier,
-        recommendedTier: nextTier
+        recommendedTier: nextTier || undefined
       }
     }
 
@@ -495,7 +495,7 @@ export class SEOTierAccessControl {
         allowed: false,
         reason: `${userTier} tier allows up to ${tierConfig.restrictions.maxCompetitorsPerAnalysis} competitors per analysis`,
         upgradeRequired: true,
-        recommendedTier: this.getNextTier(userTier)
+        recommendedTier: this.getNextTier(userTier) || undefined
       }
     }
 
@@ -505,7 +505,7 @@ export class SEOTierAccessControl {
         allowed: false,
         reason: `${userTier} tier allows up to ${tierConfig.restrictions.maxKeywordsPerAnalysis} keywords per analysis`,
         upgradeRequired: true,
-        recommendedTier: this.getNextTier(userTier)
+        recommendedTier: this.getNextTier(userTier) || undefined
       }
     }
 

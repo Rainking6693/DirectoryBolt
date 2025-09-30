@@ -32,7 +32,7 @@ export const TierUpgradePrompt: React.FC<TierUpgradePromptProps> = ({
   className = ''
 }) => {
   const [isVisible, setIsVisible] = useState(true)
-  const [timeLeft, setTimeLeft] = useState<number | null>(null)
+  const [timeLeft, setTimeLeft] = useState<string | null>(null)
 
   // Track prompt display
   useEffect(() => {
@@ -55,13 +55,15 @@ export const TierUpgradePrompt: React.FC<TierUpgradePromptProps> = ({
     if (upgradePrompt.discount?.validUntil) {
       const updateCountdown = () => {
         const now = new Date().getTime()
-        const validUntil = new Date(upgradePrompt.discount!.validUntil).getTime()
-        const difference = validUntil - now
+        const target = new Date(upgradePrompt.discount!.validUntil).getTime()
+        const diff = target - now
 
-        if (difference > 0) {
-          setTimeLeft(Math.floor(difference / 1000))
+        if (diff <= 0) {
+          setTimeLeft(null)
         } else {
-          setTimeLeft(0)
+          const minutes = Math.floor(diff / 1000 / 60)
+          const seconds = Math.floor((diff / 1000) % 60)
+          setTimeLeft(`${minutes}:${seconds.toString().padStart(2, '0')}`)
         }
       }
 
@@ -69,7 +71,9 @@ export const TierUpgradePrompt: React.FC<TierUpgradePromptProps> = ({
       const interval = setInterval(updateCountdown, 1000)
       return () => clearInterval(interval)
     }
-  }, [upgradePrompt.discount])
+
+    return () => {}
+  }, [upgradePrompt.discount?.validUntil])
 
   const handleUpgradeClick = () => {
     // Track conversion event
@@ -160,11 +164,11 @@ export const TierUpgradePrompt: React.FC<TierUpgradePromptProps> = ({
               </div>
               
               {/* Discount countdown */}
-              {upgradePrompt.discount && timeLeft !== null && timeLeft > 0 && (
+              {upgradePrompt.discount && timeLeft !== null && (
                 <div className="text-right">
                   <div className="bg-white bg-opacity-20 rounded-lg px-3 py-2">
                     <p className="text-xs font-medium">Limited Time</p>
-                    <p className="text-lg font-bold">{formatTimeLeft(timeLeft)}</p>
+                    <p className="text-lg font-bold tracking-wide">⏳ {timeLeft}</p>
                   </div>
                 </div>
               )}

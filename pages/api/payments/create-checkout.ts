@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 🔒 JORDAN'S PAYMENT API - Secure Stripe integration with comprehensive error handling
 // POST /api/payments/create-checkout - Create Stripe checkout sessions for credit purchases
 

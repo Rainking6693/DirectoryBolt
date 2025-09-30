@@ -46,6 +46,7 @@ export function withBuildTimeSafety<T = any>(
     
     try {
       await handler(req, res)
+      return
     } catch (error) {
       console.error('API handler error:', error)
       
@@ -65,6 +66,7 @@ export function withBuildTimeSafety<T = any>(
       } catch (responseError) {
         console.error('Failed to send error response:', responseError)
       }
+      return
     }
   }
 }

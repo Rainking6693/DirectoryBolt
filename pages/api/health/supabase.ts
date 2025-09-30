@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabaseClient } from '../../../lib/googleSheets';
 import { createSupabaseService } from '../../../lib/services/supabase';

@@ -32,23 +32,26 @@ export function SuccessState({
   compact = false
 }: SuccessStateProps) {
   const [isVisible, setIsVisible] = useState(true)
-  const [timeRemaining, setTimeRemaining] = useState(autoHide)
+  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(autoHide)
 
   useEffect(() => {
     if (autoHide && timeRemaining) {
       const interval = setInterval(() => {
         setTimeRemaining(prev => {
-          if (prev && prev <= 1) {
-            setIsVisible(false)
+          if (!prev) return prev
+          const next = prev - 1
+          if (next <= 0) {
             onClose?.()
             return undefined
           }
-          return prev ? prev - 1 : undefined
+          return next
         })
       }, 1000)
 
       return () => clearInterval(interval)
     }
+
+    return () => {}
   }, [autoHide, timeRemaining, onClose])
 
   // Confetti effect

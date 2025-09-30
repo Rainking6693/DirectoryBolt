@@ -13,12 +13,15 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3002'
 const STAFF_API_KEY = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
 const AUTOBOLT_API_KEY = process.env.AUTOBOLT_API_KEY || '8bcca50677940010e7be19a5922d074cd2217e048f46956f57a5612f39cb2076'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
 
-describe('DirectoryBolt Edge Cases and Error Handling', () => {
+describeIfE2E('DirectoryBolt Edge Cases and Error Handling', () => {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   beforeAll(async () => {
     console.log('🔥 Starting Edge Case Testing Suite')
     console.log('🎯 Testing failure scenarios and recovery mechanisms')

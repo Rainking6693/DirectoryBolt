@@ -109,7 +109,8 @@ export class EnterpriseCredentialManager {
 
     } catch (error) {
       console.error('❌ Failed to store customer credentials:', error);
-      this.logAccess(customerId, 'CREDENTIAL_STORAGE_FAILED', false, { error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      this.logAccess(customerId, 'CREDENTIAL_STORAGE_FAILED', false, { error: message });
       
       return { 
         success: false, 
@@ -197,7 +198,8 @@ export class EnterpriseCredentialManager {
 
     } catch (error) {
       console.error('❌ Credential validation error:', error);
-      this.logAccess(expectedCustomerId, 'CREDENTIAL_VALIDATION_ERROR', false, { error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      this.logAccess(expectedCustomerId, 'CREDENTIAL_VALIDATION_ERROR', false, { error: message });
       
       return {
         isValid: false,
@@ -242,7 +244,8 @@ export class EnterpriseCredentialManager {
 
     } catch (error) {
       console.error('❌ Credential retrieval error:', error);
-      this.logAccess(customerId, 'CREDENTIAL_RETRIEVAL_ERROR', false, { error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      this.logAccess(customerId, 'CREDENTIAL_RETRIEVAL_ERROR', false, { error: message });
       
       return { 
         success: false, 

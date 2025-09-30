@@ -145,25 +145,36 @@ export default function UserPreferencesManager({
   }
 
   const updatePreference = (section: keyof UserPreferences, key: string, value: any) => {
+    const sectionValue = preferences[section]
+    const updatedSection =
+      sectionValue && typeof sectionValue === 'object'
+        ? { ...sectionValue, [key]: value }
+        : value
+
     const updated = {
       ...preferences,
-      [section]: {
-        ...preferences[section],
-        [key]: value
-      }
+      [section]: updatedSection
     }
     savePreferences(updated)
   }
 
   const updateNestedPreference = (section: keyof UserPreferences, subsection: string, key: string, value: any) => {
+    const sectionValue = preferences[section]
+    const subsectionValue =
+      sectionValue && typeof sectionValue === 'object'
+        ? (sectionValue as Record<string, unknown>)[subsection]
+        : undefined
+
+    const updatedSubsection =
+      subsectionValue && typeof subsectionValue === 'object'
+        ? { ...subsectionValue, [key]: value }
+        : { [key]: value }
+
     const updated = {
       ...preferences,
       [section]: {
-        ...preferences[section],
-        [subsection]: {
-          ...(preferences[section] as any)[subsection],
-          [key]: value
-        }
+        ...(sectionValue && typeof sectionValue === 'object' ? sectionValue : {}),
+        [subsection]: updatedSubsection
       }
     }
     savePreferences(updated)
@@ -472,23 +483,28 @@ export default function UserPreferencesManager({
                   { key: 'highContrast', label: 'High Contrast', description: 'Increase color contrast for better visibility' },
                   { key: 'reducedMotion', label: 'Reduced Motion', description: 'Minimize animations and transitions' },
                   { key: 'screenReader', label: 'Screen Reader Support', description: 'Enhanced accessibility for screen readers' }
-                ].map(setting => (
-                  <div key={setting.key} className="flex items-center justify-between p-3 bg-secondary-700/50 rounded-lg">
-                    <div>
-                      <div className="font-medium text-white">{setting.label}</div>
-                      <div className="text-sm text-secondary-400">{setting.description}</div>
+                ].map(setting => {
+                  const currentValue = preferences.accessibility[setting.key as keyof typeof preferences.accessibility]
+                  const isChecked = typeof currentValue === 'boolean' ? currentValue : false
+
+                  return (
+                    <div key={setting.key} className="flex items-center justify-between p-3 bg-secondary-700/50 rounded-lg">
+                      <div>
+                        <div className="font-medium text-white">{setting.label}</div>
+                        <div className="text-sm text-secondary-400">{setting.description}</div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => updateNestedPreference('accessibility', setting.key, '', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-secondary-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-volt-500"></div>
+                      </label>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.accessibility[setting.key as keyof typeof preferences.accessibility]}
-                        onChange={(e) => updateNestedPreference('accessibility', setting.key, '', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-secondary-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-volt-500"></div>
-                    </label>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </motion.div>
           )}

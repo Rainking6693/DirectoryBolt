@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI-Enhanced Checkout API
  * Handles checkout sessions for the new AI-powered pricing tiers

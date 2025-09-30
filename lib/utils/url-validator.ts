@@ -262,7 +262,7 @@ export class URLValidator {
       result.isValid = result.errors.length === 0
 
       // Cache successful validations
-      if (result.isValid || result.errors.every(e => e.errorCode !== 'INTERNAL_NETWORK')) {
+      if (result.isValid || result.errors.every(e => (e as any).errorCode !== 'INTERNAL_NETWORK')) {
         this.cache.set(url, result)
       }
 

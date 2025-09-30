@@ -46,7 +46,14 @@ interface AdvancedReportingProps {
   className?: string
 }
 
-const REPORT_TEMPLATES = {
+const REPORT_TEMPLATES: Record<
+  'performance' | 'analytics' | 'competitive',
+  {
+    name: string
+    description: string
+    sections: Array<Pick<ReportSection, 'type' | 'title' | 'dataSource'> & { configuration?: Record<string, any> }>
+  }
+> = {
   performance: {
     name: 'Performance Dashboard',
     description: 'Comprehensive business performance metrics',
@@ -149,7 +156,7 @@ export default function AdvancedReporting({
         ...section,
         id: `section-${index}`,
         order: index,
-        configuration: {}
+        configuration: section.configuration ?? {}
       })),
       filters: [],
       branding: {

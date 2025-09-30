@@ -36,7 +36,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
     // Initialize enhanced analytics
     if (GA) {
-      enhancedGA4Config.initializeTracking()
+      enhancedGA4Config.initializeTracking?.()
     }
 
     // Inline critical CSS for performance

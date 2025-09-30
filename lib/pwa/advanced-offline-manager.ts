@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Progressive Web App 3.0 - Advanced Offline Manager
  * Implements next-generation PWA capabilities with intelligent caching

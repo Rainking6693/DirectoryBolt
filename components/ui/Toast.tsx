@@ -42,6 +42,8 @@ export function Toast({
 
       return () => clearTimeout(timer)
     }
+
+    return () => {}
   }, [duration, handleClose])
 
   const getToastStyles = () => {

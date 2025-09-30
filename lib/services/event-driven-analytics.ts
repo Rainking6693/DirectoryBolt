@@ -43,8 +43,8 @@ export class EventDrivenAnalytics extends EventEmitter {
     activeStreams: 0,
     memoryUsage: 0
   };
-  private metricsInterval: NodeJS.Timeout;
-  private bufferFlushInterval: NodeJS.Timeout;
+  private metricsInterval: NodeJS.Timeout | null = null;
+  private bufferFlushInterval: NodeJS.Timeout | null = null;
   
   // Netflix-inspired feature store for real-time features
   private featureStore = new Map<string, any>();

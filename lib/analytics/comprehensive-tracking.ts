@@ -356,7 +356,14 @@ class ComprehensiveAnalytics {
 
     // Calculate metrics
     const totalEvents = data.length
-    const uniqueSessions = new Set(data.map(e => e.session_id)).size
+    const sessionIds = data.map((e) => {
+      if (typeof (e as Record<string, unknown>).session_id !== 'undefined') {
+        const value = (e as Record<string, unknown>).session_id
+        return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
+      }
+      return `${e.event_type ?? 'unknown'}-${e.created_at ?? ''}`
+    })
+    const uniqueSessions = new Set(sessionIds.filter(Boolean)).size
     const conversions = data.filter(e => e.event_name.includes('completed')).length
     const errors = data.filter(e => e.event_type === 'error').length
 

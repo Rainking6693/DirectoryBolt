@@ -465,7 +465,7 @@ class QualityGatesFramework {
         measurements: [
           { metric: 'breaking-changes', value: compatibility.breakingChanges, unit: 'count', timestamp: new Date() }
         ],
-        issues: compatibility.changes.map(change => ({
+        issues: compatibility.changes.map((change: any) => ({
           severity: change.breaking ? 'critical' : 'low',
           category: 'compatibility',
           message: change.description

@@ -72,15 +72,19 @@ export default function ProfessionalReportLayout({
   const [isExporting, setIsExporting] = useState(false)
   const reportRef = useRef<HTMLDivElement>(null)
 
+  const lockedSections: Record<
+    ProfessionalReportLayoutProps['userTier'],
+    string[]
+  > = {
+    free: ['competitive-intelligence', 'financial-projections', 'action-plan', 'appendices'],
+    starter: ['financial-projections', 'action-plan', 'appendices'],
+    growth: ['appendices'],
+    professional: []
+  }
+
   const isLocked = (section: string) => {
-    const lockedSections = {
-      'free': ['competitive-intelligence', 'financial-projections', 'action-plan', 'appendices'],
-      'starter': ['financial-projections', 'action-plan', 'appendices'],
-      'growth': ['appendices'],
-      'professional': []
-    }
-    const sections = lockedSections[userTier as keyof typeof lockedSections] || []
-    return sections.includes(section)
+    const sectionsForTier = lockedSections[userTier]
+    return sectionsForTier ? sectionsForTier.includes(section) : false
   }
 
   const sections = [

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ENTERPRISE SECURITY MONITORING DASHBOARD API
  * DirectoryBolt Phase 3 Security Implementation

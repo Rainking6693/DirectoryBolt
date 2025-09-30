@@ -131,7 +131,7 @@ export class QueueManager {
       
       const pendingRecords = await supabaseService.findByStatus('pending')
       
-      const queueItems: QueueItem[] = pendingRecords.map(record => {
+      const queueItems: QueueItem[] = pendingRecords.map((record: any) => {
         const packageType = record.packageType || 'starter'
         const directoryLimit = this.getDirectoryLimit(packageType)
         
@@ -170,24 +170,25 @@ export class QueueManager {
    * Get mock pending queue for development/fallback
    */
   private getMockPendingQueue(): QueueItem[] {
-    const mockCustomers = [
+    const mockCustomers: QueueItem[] = [
       {
         recordId: 'rec001',
         customerId: 'DIR-2025-001234',
         businessName: 'TechStart Solutions',
         packageType: 'pro',
         directoryLimit: 200,
-        submissionStatus: 'pending' as const,
+        submissionStatus: 'pending',
         priority: 105,
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date().toISOString(),
         businessData: {
           businessName: 'TechStart Solutions',
-          email: 'contact@techstart.com',
-          website: 'https://techstart.com',
+          businessDescription: 'Enterprise technology solutions',
+          businessUrl: 'https://techstart.com',
           packageType: 'pro',
+          submissionStatus: 'pending',
           purchaseDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        }
+        } as BusinessSubmissionRecord
       },
       {
         recordId: 'rec002',
@@ -195,17 +196,18 @@ export class QueueManager {
         businessName: 'Local Cafe & Bistro',
         packageType: 'growth',
         directoryLimit: 100,
-        submissionStatus: 'pending' as const,
+        submissionStatus: 'pending',
         priority: 78,
-        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date().toISOString(),
         businessData: {
           businessName: 'Local Cafe & Bistro',
-          email: 'info@localcafe.com',
-          website: 'https://localcafe.com',
+          businessDescription: 'Neighborhood cafe and bistro',
+          businessUrl: 'https://localcafe.com',
           packageType: 'growth',
+          submissionStatus: 'pending',
           purchaseDate: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
-        }
+        } as BusinessSubmissionRecord
       },
       {
         recordId: 'rec003',
@@ -213,17 +215,18 @@ export class QueueManager {
         businessName: 'Fitness First Gym',
         packageType: 'starter',
         directoryLimit: 50,
-        submissionStatus: 'pending' as const,
+        submissionStatus: 'pending',
         priority: 52,
-        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date().toISOString(),
         businessData: {
           businessName: 'Fitness First Gym',
-          email: 'hello@fitnessfirst.com',
-          website: 'https://fitnessfirst.com',
+          businessDescription: 'Full service fitness center',
+          businessUrl: 'https://fitnessfirst.com',
           packageType: 'starter',
+          submissionStatus: 'pending',
           purchaseDate: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-        }
+        } as BusinessSubmissionRecord
       }
     ]
 

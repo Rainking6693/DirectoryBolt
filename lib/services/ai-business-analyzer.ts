@@ -543,7 +543,7 @@ export default AIBusinessAnalyzer
 
 // Export configuration and types
 export const DEFAULT_AI_ANALYSIS_CONFIG = {
-  model: 'gpt-4',
+  model: 'gpt-4' as const,
   temperature: 0.3,
   maxTokens: 1500,
   enableCache: true,

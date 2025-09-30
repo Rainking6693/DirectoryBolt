@@ -30,6 +30,8 @@ export function ErrorFeedback({ error, onDismiss, className = '' }: ErrorFeedbac
       }, error.autoHide)
       return () => clearTimeout(timer)
     }
+
+    return () => {}
   }, [error.autoHide, onDismiss])
 
   const getStyles = (type: ErrorState['type']) => {

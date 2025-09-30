@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AutoBolt Test Submissions API
  * 

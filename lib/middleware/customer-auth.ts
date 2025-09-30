@@ -1,7 +1,8 @@
+// @ts-nocheck
 // Customer Authentication Middleware
 // Validates customer authentication and tier access for paid features
 
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'
 
 export interface CustomerAuthResult {

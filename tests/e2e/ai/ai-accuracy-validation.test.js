@@ -7,7 +7,10 @@
 const axios = require('axios')
 const fs = require('fs').promises
 
-describe('AI Analysis Accuracy Validation', () => {
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
+
+describeIfE2E('AI Analysis Accuracy Validation', () => {
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
   
   // Test cases covering different business types and industries

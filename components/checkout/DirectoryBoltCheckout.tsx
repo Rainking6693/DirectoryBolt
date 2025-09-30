@@ -118,6 +118,7 @@ interface CheckoutState {
   step: 'package' | 'addons' | 'summary' | 'processing'
   selectedPackage: PackageId | null
   selectedAddOns: AddOnId[]
+  wantsSubscription?: boolean
   customerInfo: {
     email: string
     name: string
@@ -127,7 +128,9 @@ interface CheckoutState {
   pricing: {
     packagePrice: number
     addOnsPrice: number
+    subscriptionPrice?: number
     totalOneTime: number
+    monthlyRecurring?: number
   }
 }
 
@@ -138,6 +141,7 @@ export default function DirectoryBoltCheckout() {
     step: 'package',
     selectedPackage: null,
     selectedAddOns: [],
+    wantsSubscription: false,
     customerInfo: {
       email: '',
       name: '',
@@ -147,7 +151,9 @@ export default function DirectoryBoltCheckout() {
     pricing: {
       packagePrice: 0,
       addOnsPrice: 0,
-      totalOneTime: 0
+      subscriptionPrice: 0,
+      totalOneTime: 0,
+      monthlyRecurring: 0
     }
   })
 

@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - StartTrialButton is provided from a JS module
 import { StartTrialButton } from '../CheckoutButton'
 
 export default function PricingPreviewSection() {

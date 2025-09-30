@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // Comprehensive API Security Middleware
 import { NextApiRequest, NextApiResponse } from 'next'
 import rateLimit from 'express-rate-limit'

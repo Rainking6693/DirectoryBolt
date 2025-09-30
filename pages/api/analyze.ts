@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextApiRequest, NextApiResponse } from 'next'
 import type { BusinessIntelligenceResponse } from '../../lib/types/ai.types'
 import { createClient } from '@supabase/supabase-js'

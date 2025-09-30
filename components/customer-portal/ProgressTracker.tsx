@@ -32,6 +32,8 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
       const interval = setInterval(fetchProgressData, 30000);
       return () => clearInterval(interval);
     }
+
+    return () => {};
   }, [customerId]);
 
   const fetchProgressData = async () => {

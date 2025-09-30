@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 🚀 AI BUSINESS INTELLIGENCE ENGINE - USAGE EXAMPLES
 // Complete examples showing how to use the $299+ AI-powered analysis platform
 

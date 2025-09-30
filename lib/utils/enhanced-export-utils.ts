@@ -2,7 +2,7 @@
 // Advanced PDF and CSV export capabilities with AI-generated insights
 
 import jsPDF from 'jspdf'
-import { BusinessIntelligenceResponse } from '../../types/analysis'
+import type { BusinessIntelligenceResponse } from '../types/ai.types'
 
 export class EnhancedExportUtils {
   /**
@@ -49,8 +49,8 @@ export class EnhancedExportUtils {
       
       const businessInfo = [
         `Website: ${results.url}`,
-        `Analysis Date: ${new Date(results.timestamp).toLocaleDateString()}`,
-        `Analysis Tier: ${results.tier}`,
+        `Analysis Date: ${results.timestamp ? new Date(results.timestamp).toLocaleDateString() : 'N/A'}`,
+        `Analysis Tier: ${results.tier || 'standard'}`,
         `Report Type: ${results.aiAnalysis ? 'Complete AI Analysis' : 'Basic Analysis'}`
       ]
 
@@ -208,7 +208,7 @@ export class EnhancedExportUtils {
       csvData.push([])
       csvData.push(['ANALYSIS SUMMARY'])
       csvData.push(['Website', results.url])
-      csvData.push(['Analysis Date', new Date(results.timestamp).toLocaleDateString()])
+      csvData.push(['Analysis Date', results.timestamp ? new Date(results.timestamp).toLocaleDateString() : 'N/A'])
       csvData.push(['Analysis Tier', results.tier])
       csvData.push(['Visibility Score', `${results.visibility}%`])
       csvData.push(['SEO Score', `${results.seoScore}%`])

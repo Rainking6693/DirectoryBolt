@@ -156,7 +156,8 @@ const handler: Handler = async (
       metadata: jobMetadata,
     };
 
-    const { error: updateError } = await supabase
+    // TODO: Restore proper Supabase typings for jobs-next update after Stage 6.9 cleanup
+    const { error: updateError } = await (supabase as any)
       .from("jobs")
       .update(updatePayload)
       .eq("id", job.id)

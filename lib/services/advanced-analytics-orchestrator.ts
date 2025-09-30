@@ -321,9 +321,12 @@ export class AdvancedAnalyticsOrchestrator {
     recommendations: string[];
   }> {
     const dashboardData = {
-      performance: {},
-      business: {},
-      system: {},
+      performance: {
+        database: null as unknown,
+        events: null as unknown
+      },
+      business: {} as Record<string, unknown>,
+      system: {} as Record<string, unknown>,
       insights: [] as AnalyticsInsight[],
       recommendations: [] as string[]
     };

@@ -3,7 +3,7 @@
 
 import OpenAI from 'openai'
 import { logger } from '../utils/logger'
-import { BusinessProfile } from './ai-business-analyzer'
+import type { BusinessProfile } from '../types/ai.types'
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -438,7 +438,7 @@ export class DirectoryMatcher {
     const businessCategories = [
       businessProfile.industry.toLowerCase(),
       businessProfile.category.toLowerCase(),
-      ...businessProfile.keyServices.map(s => s.toLowerCase())
+      ...(businessProfile.keyServices ?? []).map(s => s.toLowerCase())
     ]
 
     const directoryCategory = directory.category.toLowerCase()

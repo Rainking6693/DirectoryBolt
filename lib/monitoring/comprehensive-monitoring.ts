@@ -212,19 +212,25 @@ class ComprehensiveMonitoring {
     }
 
     // Check queue backlog
-    const { data: queueBacklog } = await dbManager.getClient()
+    const client = dbManager.getClient()
+    const { count: backlogCount, error: backlogError } = await client
       .from('queue_history')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('status', 'pending')
 
-    const backlogSize = queueBacklog?.count || 0
+    if (backlogError) {
+      console.error('Failed to fetch backlog count:', backlogError)
+      return
+    }
+
+    const backlogSize = backlogCount ?? 0
     if (backlogSize > this.monitoringConfig.queue_size_threshold) {
       await this.createAlert({
         type: 'performance',
         severity: 'medium',
         title: 'Large Queue Backlog',
         message: `${backlogSize} customers waiting in queue`,
-        data: { 
+        data: {
           backlogSize,
           threshold: this.monitoringConfig.queue_size_threshold
         }
@@ -272,13 +278,19 @@ class ComprehensiveMonitoring {
   private async checkFailedLogins() {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
     
-    const { data: failedLogins } = await dbManager.getClient()
+    const client = dbManager.getClient()
+    const { count: failedCountRaw, error: failedCountError } = await client
       .from('analytics_events')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('event_name', 'login_failed')
       .gte('created_at', oneHourAgo)
 
-    const failedCount = failedLogins?.count || 0
+    if (failedCountError) {
+      console.error('Failed to fetch failed login count:', failedCountError)
+      return
+    }
+
+    const failedCount = failedCountRaw ?? 0
     if (failedCount > 20) {
       await this.createAlert({
         type: 'security',
@@ -402,38 +414,53 @@ class ComprehensiveMonitoring {
 
   private async getRecentFailedPayments(): Promise<number> {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-    
-    const { data } = await dbManager.getClient()
+
+    const { count, error } = await dbManager.getClient()
       .from('analytics_events')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('event_name', 'payment_failed')
       .gte('created_at', oneHourAgo)
 
-    return data?.count || 0
+    if (error) {
+      console.error('Failed to fetch failed payments count:', error)
+      return 0
+    }
+
+    return count ?? 0
   }
 
   private async getCurrentHourTraffic(): Promise<number> {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-    
-    const { data } = await dbManager.getClient()
+
+    const { count, error } = await dbManager.getClient()
       .from('analytics_events')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('event_type', 'pageview')
       .gte('created_at', oneHourAgo)
 
-    return data?.count || 0
+    if (error) {
+      console.error('Failed to fetch current hour traffic:', error)
+      return 0
+    }
+
+    return count ?? 0
   }
 
   private async getAverageHourlyTraffic(): Promise<number> {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-    
-    const { data } = await dbManager.getClient()
+
+    const { count, error } = await dbManager.getClient()
       .from('analytics_events')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('event_type', 'pageview')
       .gte('created_at', oneDayAgo)
 
-    return (data?.count || 0) / 24 // Average per hour
+    if (error) {
+      console.error('Failed to fetch average hourly traffic:', error)
+      return 0
+    }
+
+    return (count ?? 0) / 24
   }
 
   // Public methods

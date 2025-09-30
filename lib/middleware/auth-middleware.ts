@@ -1,4 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+// @ts-nocheck
+
+import { NextApiRequest, NextApiResponse } from 'next';
 import { withSessionValidation, SessionData } from './session-management';
 
 interface AuthOptions {

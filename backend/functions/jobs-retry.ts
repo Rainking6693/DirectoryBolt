@@ -125,7 +125,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
     const timestamp = new Date().toISOString();
 
     if (queueId) {
-      const { data: job, error: fetchError } = await supabase
+      const { data: job, error: fetchError } = await (supabase as any)
         .from("jobs")
         .select("*")
         .eq("id", queueId)
@@ -163,7 +163,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
         metadata: incrementRetryMetadata(job.metadata, resetProgress),
       };
 
-      const { data: updatedJob, error: updateError } = await supabase
+      const { data: updatedJob, error: updateError } = await (supabase as any)
         .from("jobs")
         .update(retryData)
         .eq("id", queueId)
@@ -190,7 +190,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
       return handleSuccess({ retriedJobs: 1, jobs: [responseJob] }, message);
     }
 
-    const { data: failedJobsData, error: fetchError } = await supabase
+    const { data: failedJobsData, error: fetchError } = await (supabase as any)
       .from("jobs")
       .select("id, metadata, customer_id, status")
       .eq("status", "failed")
@@ -232,7 +232,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
           metadata: incrementRetryMetadata(job.metadata, resetProgress),
         };
 
-        return supabase
+        return (supabase as any)
           .from("jobs")
           .update(updatePayload)
           .eq("id", job.id);
@@ -246,7 +246,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
     }
 
     const jobIds = eligibleJobs.map((job) => job.id);
-    const { data: updatedJobsRaw, error: fetchUpdatedError } = await supabase
+    const { data: updatedJobsRaw, error: fetchUpdatedError } = await (supabase as any)
       .from("jobs")
       .select("id, customer_id, metadata, status")
       .in("id", jobIds);
@@ -300,7 +300,9 @@ const logRetries = async (
     } as Json,
   }));
 
-  const { error } = await supabase.from("job_results").insert(retryLogEntries);
+  const { error } = await (supabase as any)
+    .from("job_results")
+    .insert(retryLogEntries);
 
   if (error) {
     console.error("Failed to create retry log entries:", error);

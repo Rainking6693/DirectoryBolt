@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * SEO Content Gap Analysis API
  * 

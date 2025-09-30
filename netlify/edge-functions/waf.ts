@@ -2,7 +2,10 @@
 // INFRA-001: Advanced security protection using Netlify Edge Functions
 // Protects against common attacks, implements rate limiting, and blocks malicious traffic
 
-import type { Context } from "https://edge.netlify.com";
+interface NetlifyEdgeContext {
+  ip: string
+  next(): Promise<Response>
+}
 
 // WAF Configuration
 const WAF_CONFIG = {
@@ -99,7 +102,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 // Blocked IPs storage
 const blockedIPs = new Set<string>();
 
-export default async function waf(request: Request, context: Context) {
+export default async function waf(request: Request, context: NetlifyEdgeContext) {
   const url = new URL(request.url);
   const clientIP = context.ip;
   const userAgent = request.headers.get('user-agent') || '';
@@ -126,7 +129,8 @@ export default async function waf(request: Request, context: Context) {
     if (WAF_CONFIG.rateLimiting.enabled) {
       const rateLimitCheck = checkRateLimit(clientIP, pathname, method);
       if (rateLimitCheck.blocked) {
-        return rateLimitResponse(clientIP, pathname, rateLimitCheck.resetTime);
+        const resetTime = rateLimitCheck.resetTime ?? Date.now() + 1000;
+        return rateLimitResponse(clientIP, pathname, resetTime);
       }
     }
     
@@ -168,7 +172,7 @@ export default async function waf(request: Request, context: Context) {
 
 // 🚫 IP Blocking Functions
 function isIPBlocked(ip: string): boolean {
-  return blockedIPs.has(ip) || WAF_CONFIG.ipBlocking.blockedIPs.includes(ip);
+  return blockedIPs.has(ip) || (WAF_CONFIG.ipBlocking.blockedIPs as string[]).includes(ip);
 }
 
 function blockIPTemporarily(ip: string, durationMs: number): void {

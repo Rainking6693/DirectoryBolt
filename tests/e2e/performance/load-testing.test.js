@@ -10,7 +10,10 @@ const chromeLauncher = require('chrome-launcher')
 const fs = require('fs').promises
 const cliProgress = require('cli-progress')
 
-describe('Performance and Load Testing', () => {
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
+
+describeIfE2E('Performance and Load Testing', () => {
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
   let performanceResults = []
 

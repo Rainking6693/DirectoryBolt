@@ -235,6 +235,8 @@ export function FormWizard({
       
       return () => clearTimeout(saveTimeout)
     }
+
+    return () => {}
   }, [formData, onSave])
 
   const validateField = (field: FormField, value: any): string | null => {

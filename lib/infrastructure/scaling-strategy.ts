@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Infrastructure Scaling Strategy for DirectoryBolt
 import { dbManager } from '../database/optimized-queries'
 import { queueManager } from '../queue/advanced-queue-manager'

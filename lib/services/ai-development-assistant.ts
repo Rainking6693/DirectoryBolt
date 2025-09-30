@@ -4,6 +4,7 @@
  * Provides code generation, testing assistance, and development insights
  */
 
+import * as React from 'react';
 import { featureFlagService, FeatureFlagContext } from './feature-flags';
 
 export interface CodeGenerationRequest {

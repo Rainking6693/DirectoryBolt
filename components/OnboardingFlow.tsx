@@ -443,7 +443,7 @@ export default function OnboardingFlow({
                     directoryCategories: customerData.directoryCategories.join(',')
                   }}
                   onSuccess={handlePaymentSuccess}
-                  onError={(error) => setError(error.message)}
+                  onError={(error: { message: string }) => setError(error.message)}
                   loading={loading}
                   className="w-full text-center justify-center"
                   successUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/success?session_id={CHECKOUT_SESSION_ID}&plan=${customerData.selectedPackage}&onboarding=true`}

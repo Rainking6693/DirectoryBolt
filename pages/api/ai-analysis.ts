@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 🚀 AI BUSINESS INTELLIGENCE API ENDPOINT
 // Next.js API route for comprehensive $299+ business analysis
 

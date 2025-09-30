@@ -118,7 +118,8 @@ export class ApiKeyDatabase {
         salt: salt.toString('hex')
       }
     } catch (error) {
-      logger.error('Encryption failed', { error: error.message })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Encryption failed', { error: message })
       return null
     }
   }
@@ -142,7 +143,8 @@ export class ApiKeyDatabase {
       
       return decrypted
     } catch (error) {
-      logger.error('Decryption failed', { error: error.message })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Decryption failed', { error: message })
       return null
     }
   }
@@ -224,9 +226,10 @@ export class ApiKeyDatabase {
       logger.info('API key created in database', { metadata: { keyId: apiKey.id, userId: apiKey.user_id } })
 
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
       logger.error('Failed to create API key in database', { 
         metadata: {
-          error: error instanceof Error ? error.message : String(error), 
+          error: message, 
           keyId: apiKey.id 
         }
       })
@@ -257,7 +260,8 @@ export class ApiKeyDatabase {
       return this.mapDatabaseRecordToApiKey(data)
 
     } catch (error) {
-      logger.error('Failed to get API key by hash', { error: error.message })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to get API key by hash', { error: message })
       return null
     }
   }
@@ -284,7 +288,8 @@ export class ApiKeyDatabase {
       return this.mapDatabaseRecordToApiKey(data)
 
     } catch (error) {
-      logger.error('Failed to get API key by ID', { metadata: { error: error instanceof Error ? error.message : String(error), keyId } })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to get API key by ID', { metadata: { error: message, keyId } })
       return null
     }
   }
@@ -305,14 +310,16 @@ export class ApiKeyDatabase {
         .order('created_at', { ascending: false })
 
       if (error) {
-        logger.error('Failed to get user API keys', { error: error.message, userId })
+        const message = error instanceof Error ? error.message : String(error)
+        logger.error('Failed to get user API keys', { error: message, userId })
         return []
       }
 
       return data?.map(record => this.mapDatabaseRecordToApiKey(record)) || []
 
     } catch (error) {
-      logger.error('Failed to get user API keys', { error: error.message, userId })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to get user API keys', { error: message, userId })
       return []
     }
   }
@@ -344,7 +351,8 @@ export class ApiKeyDatabase {
       logger.info('API key hash updated', { metadata: { keyId } })
 
     } catch (error) {
-      logger.error('Failed to update API key hash', { metadata: { error: error instanceof Error ? error.message : String(error), keyId } })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to update API key hash', { metadata: { error: message, keyId } })
       throw error
     }
   }
@@ -402,7 +410,8 @@ export class ApiKeyDatabase {
       logger.info('API key deactivated', { metadata: { keyId } })
 
     } catch (error) {
-      logger.error('Failed to deactivate API key', { metadata: { error: error instanceof Error ? error.message : String(error), keyId } })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to deactivate API key', { metadata: { error: message, keyId } })
       throw error
     }
   }
@@ -651,7 +660,8 @@ export class ApiKeyDatabase {
       return data as User
 
     } catch (error) {
-      logger.error('Failed to get user by ID', { error: error.message, userId })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to get user by ID', { error: message, userId })
       return null
     }
   }
@@ -674,13 +684,15 @@ export class ApiKeyDatabase {
         .neq('id', '') // Update all records
 
       if (error) {
-        logger.error('Failed to reset daily counters', { error: error.message })
+        const message = error instanceof Error ? error.message : String(error)
+        logger.error('Failed to reset daily counters', { error: message })
       } else {
         logger.info('Daily API key counters reset')
       }
 
     } catch (error) {
-      logger.error('Failed to reset daily counters', { error: error.message })
+      const message = error instanceof Error ? error.message : String(error)
+      logger.error('Failed to reset daily counters', { error: message })
     }
   }
 

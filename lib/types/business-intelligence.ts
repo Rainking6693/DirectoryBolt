@@ -617,6 +617,7 @@ export interface AIAnalysisConfig {
   enableCompetitorAnalysis: boolean
   enableRevenueProjections: boolean
   analysisDepth: 'basic' | 'standard' | 'comprehensive'
+  enableCache: boolean
 }
 
 export interface DirectoryAnalysisConfig {

@@ -303,67 +303,72 @@ export default function CustomDashboard({
                   isDragDisabled={!isEditing}
                 >
                   {(provided, snapshot) => (
-                    <motion.div
+                    <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      layout
-                      className={`bg-secondary-800 border border-secondary-700 rounded-xl relative ${
+                      style={provided.draggableProps.style}
+                      className={`${
                         gridLayout === 'fixed' ? getSizeClasses(widget.size) : ''
-                      } ${
-                        snapshot.isDragging ? 'shadow-2xl rotate-2' : ''
-                      } ${
-                        isEditing ? 'ring-2 ring-volt-500/50' : ''
                       }`}
                     >
-                      {/* Widget Header */}
-                      <div className="p-4 border-b border-secondary-700 flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-white text-sm">{widget.title}</h3>
-                          {widget.description && (
-                            <p className="text-xs text-secondary-400 mt-1">{widget.description}</p>
+                      <motion.div
+                        layout
+                        className={`bg-secondary-800 border border-secondary-700 rounded-xl relative ${
+                          snapshot.isDragging ? 'shadow-2xl rotate-2' : ''
+                        } ${
+                          isEditing ? 'ring-2 ring-volt-500/50' : ''
+                        }`}
+                      >
+                        {/* Widget Header */}
+                        <div className="p-4 border-b border-secondary-700 flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold text-white text-sm">{widget.title}</h3>
+                            {widget.description && (
+                              <p className="text-xs text-secondary-400 mt-1">{widget.description}</p>
+                            )}
+                          </div>
+
+                          {isEditing && (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedWidget(widget)}
+                                className="text-secondary-400 hover:text-white p-1"
+                                title="Settings"
+                              >
+                                ⚙️
+                              </button>
+                              <button
+                                onClick={() => duplicateWidget(widget)}
+                                className="text-secondary-400 hover:text-white p-1"
+                                title="Duplicate"
+                              >
+                                📋
+                              </button>
+                              <button
+                                onClick={() => removeWidget(widget.id)}
+                                className="text-secondary-400 hover:text-red-400 p-1"
+                                title="Remove"
+                              >
+                                🗑️
+                              </button>
+                            </div>
                           )}
                         </div>
 
-                        {isEditing && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setSelectedWidget(widget)}
-                              className="text-secondary-400 hover:text-white p-1"
-                              title="Settings"
-                            >
-                              ⚙️
-                            </button>
-                            <button
-                              onClick={() => duplicateWidget(widget)}
-                              className="text-secondary-400 hover:text-white p-1"
-                              title="Duplicate"
-                            >
-                              📋
-                            </button>
-                            <button
-                              onClick={() => removeWidget(widget.id)}
-                              className="text-secondary-400 hover:text-red-400 p-1"
-                              title="Remove"
-                            >
-                              🗑️
-                            </button>
+                        {/* Widget Content */}
+                        <div className="p-4">
+                          <WidgetRenderer widget={widget} userTier={userTier} />
+                        </div>
+
+                        {/* Last Updated */}
+                        {widget.lastUpdated && (
+                          <div className="absolute bottom-2 right-2 text-xs text-secondary-500">
+                            Updated {new Date(widget.lastUpdated).toLocaleTimeString()}
                           </div>
                         )}
-                      </div>
-
-                      {/* Widget Content */}
-                      <div className="p-4">
-                        <WidgetRenderer widget={widget} userTier={userTier} />
-                      </div>
-
-                      {/* Last Updated */}
-                      {widget.lastUpdated && (
-                        <div className="absolute bottom-2 right-2 text-xs text-secondary-500">
-                          Updated {new Date(widget.lastUpdated).toLocaleTimeString()}
-                        </div>
-                      )}
-                    </motion.div>
+                      </motion.div>
+                    </div>
                   )}
                 </Draggable>
               ))}

@@ -157,7 +157,7 @@ export interface TechAnalysisResult {
 
 export class EnhancedWebsiteAnalyzer {
   private config: EnhancedAnalysisConfig
-  private browser: Browser | null = null
+  private browser: any = null
 
   constructor(config: EnhancedAnalysisConfig) {
     this.config = config

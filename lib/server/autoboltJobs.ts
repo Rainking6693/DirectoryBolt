@@ -429,6 +429,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   }
 
   const queueJobs = (jobs || []).map((job) => {
+    const customerData = Array.isArray(job.customers) ? job.customers[0] : job.customers
     const stats = resultsByJob[job.id] || { completed: 0, failed: 0, total: 0 }
     const total = job.package_size || stats.total
     const processed = stats.total
@@ -438,8 +439,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
     return {
       id: job.id,
       customerId: job.customer_id,
-      businessName: job.customers?.business_name || null,
-      email: job.customers?.email || null,
+      businessName: customerData?.business_name ?? null,
+      email: customerData?.email ?? null,
       packageSize: job.package_size,
       priorityLevel: job.priority_level,
       status,

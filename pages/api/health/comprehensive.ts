@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Comprehensive Health Check API Endpoint
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbManager } from '../../../lib/database/optimized-queries'

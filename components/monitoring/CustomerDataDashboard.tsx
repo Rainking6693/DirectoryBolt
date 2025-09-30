@@ -67,11 +67,14 @@ export default function CustomerDataDashboard() {
     const interval = setInterval(loadCustomerData, 30000) // Update every 30 seconds
     
     // Listen for real-time alerts
-    window.addEventListener('customerDataAlert', handleRealTimeAlert)
+    const listener = (event: Event) => {
+      handleRealTimeAlert(event as CustomEvent)
+    }
+    window.addEventListener('customerDataAlert', listener as EventListener)
     
     return () => {
       clearInterval(interval)
-      window.removeEventListener('customerDataAlert', handleRealTimeAlert)
+      window.removeEventListener('customerDataAlert', listener as EventListener)
     }
   }, [])
 

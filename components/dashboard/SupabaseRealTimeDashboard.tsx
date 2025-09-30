@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - using JS service with ambient declaration
 import { createSupabaseService } from '../../lib/services/supabase'
 import { 
   ChartBarIcon,
@@ -62,7 +64,10 @@ export const SupabaseRealTimeDashboard: React.FC<SupabaseRealTimeDashboardProps>
       const result = await supabaseService.getAllCustomers(1000)
       
       if (result.success) {
-        const customers = result.customers
+        const customers = result.customers as Array<{
+          created?: string
+          status?: string
+        }>
         const today = new Date().toISOString().split('T')[0]
         
         const todaysCustomers = customers.filter(customer => 
@@ -186,6 +191,8 @@ export const SupabaseRealTimeDashboard: React.FC<SupabaseRealTimeDashboardProps>
       const interval = setInterval(fetchStats, refreshInterval)
       return () => clearInterval(interval)
     }
+
+    return () => {}
   }, [enableRealtime, refreshInterval])
 
   // Calculate dashboard metrics

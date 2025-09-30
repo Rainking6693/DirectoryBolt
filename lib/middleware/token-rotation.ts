@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 🔄 TOKEN ROTATION MIDDLEWARE - AUTH-005
 // Automatic JWT token refresh and rotation system
 // Implements secure token lifecycle management with automatic renewal

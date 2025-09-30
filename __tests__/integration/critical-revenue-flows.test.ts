@@ -13,14 +13,14 @@ import { createClient } from '@supabase/supabase-js'
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3002'
 const STAFF_API_KEY = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
 const AUTOBOLT_API_KEY = process.env.AUTOBOLT_API_KEY || '8bcca50677940010e7be19a5922d074cd2217e048f46956f57a5612f39cb2076'
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
 
-// Test database client for cleanup
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-describe('DirectoryBolt Critical Revenue Flows', () => {
+describeIfE2E('DirectoryBolt Critical Revenue Flow Tests', () => {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   beforeAll(async () => {
     console.log('🧪 Starting DirectoryBolt Enterprise Test Suite')
     console.log('🎯 Target: 95%+ coverage, <500ms response times')

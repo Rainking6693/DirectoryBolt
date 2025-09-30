@@ -8,7 +8,7 @@
  * - Live form detection
  */
 
-import { BusinessSubmissionRecord } from './airtable'
+import type { BusinessSubmissionRecord } from './autobolt-extension'
 import { DynamicMappingResult } from './dynamic-form-mapper'
 
 export interface ExtensionMessage {

@@ -149,19 +149,10 @@ export default function InteractiveTooltip({
   useEffect(() => {
     if (isVisible) {
       calculatePosition()
-      
-      const handleResize = () => calculatePosition()
-      const handleScroll = () => calculatePosition()
-      
-      window.addEventListener('resize', handleResize)
-      window.addEventListener('scroll', handleScroll)
-      
-      return () => {
-        window.removeEventListener('resize', handleResize)
-        window.removeEventListener('scroll', handleScroll)
-      }
     }
-  }, [isVisible])
+
+    return () => {}
+  }, [isVisible, calculatePosition])
 
   // Event handlers
   const handleMouseEnter = () => {

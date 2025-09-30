@@ -19,10 +19,8 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3002'
 const STAFF_API_KEY = process.env.STAFF_API_KEY || 'DirectoryBolt-Staff-2025-SecureKey'
 const AUTOBOLT_API_KEY = process.env.AUTOBOLT_API_KEY || '8bcca50677940010e7be19a5922d074cd2217e048f46956f57a5612f39cb2076'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const shouldRunE2E = process.env.RUN_E2E === 'true'
+const describeIfE2E = shouldRunE2E ? describe : describe.skip
 
 interface PerformanceMetric {
   name: string
@@ -36,7 +34,15 @@ interface PerformanceMetric {
 
 const performanceResults: PerformanceMetric[] = []
 
-describe('DirectoryBolt Enterprise Performance Benchmarks', () => {
+describeIfE2E('DirectoryBolt Enterprise Performance Benchmarks', () => {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('RUN_E2E=true requires Supabase environment variables')
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
   beforeAll(async () => {
     console.log('⚡ Starting Enterprise Performance Benchmark Suite')
     console.log('🎯 Targets: API <500ms, DB <200ms, P99 compliance')

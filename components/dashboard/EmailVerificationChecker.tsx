@@ -33,6 +33,8 @@ export function EmailVerificationChecker({
 
       return () => clearInterval(checkInterval)
     }
+
+    return () => {}
   }, [isEmailSent, verificationStatus])
 
   // Countdown timer for resend email
@@ -41,6 +43,8 @@ export function EmailVerificationChecker({
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
       return () => clearTimeout(timer)
     }
+
+    return () => {}
   }, [countdown])
 
   const validateEmail = (email: string) => {

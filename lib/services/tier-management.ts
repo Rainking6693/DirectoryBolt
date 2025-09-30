@@ -51,8 +51,7 @@ export class TierManagementService {
           canAccess: false,
           reason: hasFeatureAccess.reason,
           limitType: 'feature_access',
-          upgradeRequired: hasFeatureAccess.upgradeRequired,
-          usage: currentUsage
+          upgradeRequired: hasFeatureAccess.upgradeRequired
         }
       }
 
@@ -63,8 +62,7 @@ export class TierManagementService {
           canAccess: false,
           reason: `Monthly analysis limit of ${monthlyLimit} reached`,
           limitType: 'monthly_analyses',
-          upgradeRequired: getNextTier(user.subscription_tier as SubscriptionTier) || undefined,
-          usage: currentUsage
+          upgradeRequired: getNextTier(user.subscription_tier as SubscriptionTier) || undefined
         }
       }
 
@@ -75,14 +73,12 @@ export class TierManagementService {
           canAccess: false,
           reason: `Monthly AI cost limit of $${(costLimits.monthlyAiCostLimit / 100).toFixed(2)} reached`,
           limitType: 'monthly_cost',
-          upgradeRequired: getNextTier(user.subscription_tier as SubscriptionTier) || undefined,
-          usage: currentUsage
+          upgradeRequired: getNextTier(user.subscription_tier as SubscriptionTier) || undefined
         }
       }
 
       return { 
-        canAccess: true,
-        usage: currentUsage
+        canAccess: true
       }
 
     } catch (error) {

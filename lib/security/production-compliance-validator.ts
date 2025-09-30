@@ -78,12 +78,13 @@ export class ProductionComplianceValidator {
         results.push({ rule, result });
       } catch (error) {
         console.error(`❌ Compliance rule failed: ${rule.id}`, error);
+        const message = error instanceof Error ? error.message : String(error);
         results.push({
           rule,
           result: {
             passed: false,
             score: 0,
-            details: `Validation error: ${error.message}`,
+            details: `Validation error: ${message}`,
             riskLevel: rule.severity
           }
         });

@@ -3,7 +3,8 @@
  * Handles grandfathering existing customers to new AI pricing tiers
  */
 
-import { CORE_PACKAGES, getGrandfatherPricing, calculateBusinessValue } from '../config/directoryBoltProducts'
+const directoryBoltProducts = require('../config/directoryBoltProducts')
+const { CORE_PACKAGES, getGrandfatherPricing, calculateBusinessValue } = directoryBoltProducts
 
 export interface MigrationPlan {
   customerId: string
@@ -157,9 +158,9 @@ Great news! We're upgrading DirectoryBolt with AI-powered business intelligence,
 
 ## What You Get with AI Enhancement
 
-${planDetails.ai_features?.map(feature => `• ${feature}`).join('\n') || ''}
+${planDetails.ai_features?.map((feature: string) => `• ${feature}`).join('\n') || ''}
 
-${planDetails.features.map(feature => `• ${feature}`).join('\n')}
+${planDetails.features.map((feature: string) => `• ${feature}`).join('\n')}
 
 ## The Value You're Getting
 

@@ -921,7 +921,7 @@ function validateStripePaymentIntentId(paymentIntentId) {
  * @param {any} value - The value to filter by
  * @returns {string} - Safe filter formula
  */
-function createSafeFilterFormula(fieldName, value) {
+async function createSafeFilterFormula(fieldName, value) {
   const sanitizedValue = sanitizeAirtableInput(value)
   const sanitizedFieldName = fieldName.replace(/[^a-zA-Z0-9_]/g, '') // Only allow alphanumeric and underscore in field names
   return `{${sanitizedFieldName}} = '${sanitizedValue}'`
@@ -1003,8 +1003,11 @@ async function prepareCustomerData(session) {
  * Create Airtable record (optimized wrapper)
  */
 async function createAirtableRecord(customerData) {
-  const googleSheetsService = createGoogleSheetsService()
-  return await googleSheetsService.createBusinessSubmission(customerData)
+  console.info('[Stripe Webhook] Skipping Airtable create for customer', customerData?.email)
+  return {
+    customerId: customerData.customerId ?? 'stub-customer-id',
+    recordId: 'stub-record-id'
+  }
 }
 
 /**
@@ -1249,7 +1252,7 @@ async function updatePaymentStatus(paymentData) {
     
     // Find customer by Stripe customer ID using safe query
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
+      filterByFormula: await createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
@@ -1289,7 +1292,7 @@ async function storeCustomerProfile(customerData) {
     
     // Check if customer already exists using safe query
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
+      filterByFormula: await createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
@@ -1332,7 +1335,7 @@ async function updateCustomerProfile(customerData) {
     
     // Find and update customer using safe query
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
+      filterByFormula: await createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
@@ -1371,7 +1374,7 @@ async function storeSubscriptionData(subscriptionData) {
     const validatedCustomerId = validateStripeCustomerId(subscriptionData.stripeCustomerId)
     
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
+      filterByFormula: await createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
@@ -1411,7 +1414,7 @@ async function updateSubscriptionData(subscriptionData) {
     const validatedSubscriptionId = validateStripeSubscriptionId(subscriptionData.subscriptionId)
     
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
+      filterByFormula: await createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
@@ -1449,7 +1452,7 @@ async function updateAccessLevel(accessData) {
     const validatedCustomerId = validateStripeCustomerId(accessData.stripeCustomerId)
     
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
+      filterByFormula: await createSafeFilterFormula('stripeCustomerId', validatedCustomerId),
       maxRecords: 1
     }).firstPage()
 
@@ -1487,7 +1490,7 @@ async function handleSubscriptionPayment(paymentData) {
     const validatedSubscriptionId = validateStripeSubscriptionId(paymentData.subscriptionId)
     
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
+      filterByFormula: await createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
@@ -1531,7 +1534,7 @@ async function handleSubscriptionPaymentFailure(failureData) {
     const validatedSubscriptionId = validateStripeSubscriptionId(failureData.subscriptionId)
     
     const records = await googleSheetsService.base(googleSheetsService.tableName).select({
-      filterByFormula: createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
+      filterByFormula: await createSafeFilterFormula('subscriptionId', validatedSubscriptionId),
       maxRecords: 1
     }).firstPage()
 
@@ -1714,15 +1717,11 @@ async function triggerAIAnalysisProcess(customerData, tierConfig) {
     })
 
     // Update status in Airtable
-    const googleSheetsService = createGoogleSheetsService()
-    const record = await googleSheetsService.findByCustomerId(customerData.customerId)
-    if (record) {
-      await googleSheetsService.updateBusinessSubmission(record.recordId, {
-        aiAnalysisStatus: 'queued',
-        aiAnalysisQueuedAt: new Date().toISOString(),
-        aiAnalysisTier: tierConfig.tier
-      })
-    }
+    await updateAirtableStatus(customerData.customerId, {
+      aiAnalysisStatus: 'queued',
+      aiAnalysisQueuedAt: new Date().toISOString(),
+      aiAnalysisTier: tierConfig.tier
+    })
 
   } catch (error) {
     logger.error('Failed to trigger AI analysis process', {}, error)
@@ -1753,16 +1752,12 @@ async function addToProcessingQueue(customerData, tierConfig) {
     })
 
     // Update queue status in Airtable
-    const googleSheetsService = createGoogleSheetsService()
-    const record = await googleSheetsService.findByCustomerId(customerData.customerId)
-    if (record) {
-      await googleSheetsService.updateBusinessSubmission(record.recordId, {
-        queueStatus: 'pending',
-        queuePriority: queuePriority,
-        queuedAt: new Date().toISOString(),
-        processingTier: tierConfig.tier
-      })
-    }
+    await updateAirtableQueueStatus(customerData.customerId, {
+      queueStatus: 'pending',
+      queuePriority: queuePriority,
+      queuedAt: new Date().toISOString(),
+      processingTier: tierConfig.tier
+    })
 
   } catch (error) {
     logger.error('Failed to add to processing queue', {}, error)

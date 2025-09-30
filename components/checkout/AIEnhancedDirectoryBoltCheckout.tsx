@@ -25,6 +25,21 @@ import {
   DIRECTORYBOLT_ADD_ONS 
 } from './DirectoryBoltCheckout'
 
+// TODO: Replace with real service identifier or env var in Stage 7.x cleanup
+const SUBSCRIPTION_SERVICE = {
+  id: 'directorybolt-monitoring',
+  name: 'DirectoryBolt Monitoring & Updates',
+  price: 49,
+  billing: 'month',
+  description: 'Keep your directory listings active, accurate, and optimized with ongoing monitoring.',
+  features: [
+    'Automated listing monitoring',
+    'Monthly accuracy audits',
+    'Priority re-submission if listings drop',
+    'Quarterly optimization recommendations'
+  ],
+}
+
 interface EnhancedCheckoutState {
   step: 'package' | 'addons' | 'subscription' | 'business-form' | 'optimization' | 'summary' | 'processing'
   selectedPackage: PackageId | null

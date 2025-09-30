@@ -115,13 +115,9 @@ export class FeatureStoreManager {
     features.push(await this.computeCompetitivePosition(directoryId));
     
     // Traffic features
-    features.push(await this.computeSubmissionVolume(directoryId));
-    features.push(await this.computeSubmissionTrends(directoryId));
-    features.push(await this.computeSeasonalDemand(directoryId));
+    features.push(await this.computeSubmissionVelocity(directoryId));
     
     // Content features
-    features.push(await this.computeContentRelevance(directoryId));
-    features.push(await this.computeTopicClusters(directoryId));
 
     const featureGroup: FeatureGroup = {
       name: 'directory_features',
@@ -436,7 +432,7 @@ export class FeatureStoreManager {
     }, {} as Record<string, number>);
     
     const preferredCategory = Object.entries(categoryCount)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'general';
+      .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'general';
 
     return {
       name: 'preferred_directory_category',

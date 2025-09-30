@@ -4,9 +4,7 @@
 DirectoryBolt is a SaaS platform that automates submission of small business information across hundreds of online directories.  
 The system integrates **Stripe for payments**, **Supabase for database + auth**, **Netlify serverless functions for API endpoints**, and **Playwright workers** running in Docker for large-scale directory submission.  
 A React/Next.js **staff dashboard** provides visibility, retry control, and monitoring.
-
 ---
-
 ## 2. Core Components
 - **Customer Onboarding** → Signup, authentication, Stripe checkout, business details form.  
 - **Supabase Database** → Stores customer records, job queue entries, job results, and worker metadata.  
@@ -15,9 +13,7 @@ A React/Next.js **staff dashboard** provides visibility, retry control, and moni
 - **Proxy + Captcha Services** → Ensure reliable submissions at high volumes.  
 - **Staff Dashboard** → Real-time monitoring, job retry/pause, completion reporting.  
 - **Metrics + Health Endpoints** → Prometheus-compatible metrics, health checks, and scaling signals.
-
 ---
-
 ## 3. Data Flow
 1. **Customer Signs Up** → Registers, selects a plan (Starter 50 / Growth 100 / Professional 300 / Enterprise 500).  
 2. **Payment via Stripe** → Stripe Checkout confirms payment; webhook triggers job creation.  
@@ -43,7 +39,6 @@ A React/Next.js **staff dashboard** provides visibility, retry control, and moni
 - **Step 9. Completion** → Worker logs synced to Supabase; job marked `complete`; customer notified.
 
 ---
-
 ## 5. Infrastructure Components
 - **Netlify Functions**: Expose API endpoints for job queue (`jobs-next`, `jobs-update`, `jobs-retry`, `jobs-complete`, `autobolt-status`, `metrics`, `healthz`).  
 - **Supabase**: Database, auth, row-level security (RLS) policies, service role integration.  
@@ -53,23 +48,17 @@ A React/Next.js **staff dashboard** provides visibility, retry control, and moni
 - **Monitoring Dashboard**: Staff oversight, retry interface, and system health visualization.
 
 ---
-
 ## 6. Key Flows
 
 ### Customer Signup Flow
 - Frontend → Stripe Checkout → Webhook → Supabase entry → Job queue.
-
 ### Job Lifecycle
 - Supabase `jobs` → Orchestrator → Worker → Supabase updates → Dashboard.
-
 ### Retry Flow
 - Failed submissions are re-queued by staff (`/jobs/retry`) endpoint.
-
 ### Metrics Flow
 - Worker → Supabase → Prometheus endpoint → Staff dashboard + auto-scaler.
-
 ---
-
 ## 7. Constraints & Assumptions
 - All sensitive keys (Supabase, Stripe, captcha solvers, proxies) live in `.env.local` or Netlify Dashboard.  
 - Jobs must always pass through the orchestrator — workers never hit Supabase directly.  

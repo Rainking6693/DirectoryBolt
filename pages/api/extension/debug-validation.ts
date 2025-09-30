@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * DEBUG Extension Customer Validation API
  * Comprehensive debugging for extension authentication issues

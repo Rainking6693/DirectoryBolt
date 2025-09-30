@@ -5,7 +5,7 @@ interface CheckoutState {
   step: string
   selectedPackage: string | null
   selectedAddOns: string[]
-  wantsSubscription: boolean
+  wantsSubscription?: boolean
   customerInfo: {
     email: string
     name: string
@@ -15,9 +15,9 @@ interface CheckoutState {
   pricing: {
     packagePrice: number
     addOnsPrice: number
-    subscriptionPrice: number
+    subscriptionPrice?: number
     totalOneTime: number
-    monthlyRecurring: number
+    monthlyRecurring?: number
   }
 }
 
@@ -25,7 +25,7 @@ interface OrderSummaryProps {
   checkoutState: CheckoutState
   packages: any
   addOns: any
-  subscription: any
+  subscription?: any
   onCustomerInfoUpdate: (customerInfo: CheckoutState['customerInfo']) => void
   onCheckout: () => void
   onGoBack: () => void
@@ -45,6 +45,9 @@ export function OrderSummary({
 
   const selectedPackage = packages[checkoutState.selectedPackage!]
   const selectedAddOnsList = checkoutState.selectedAddOns.map(id => addOns[id])
+  const wantsSubscription = !!checkoutState.wantsSubscription && !!subscription
+  const subscriptionPrice = checkoutState.pricing.subscriptionPrice ?? 0
+  const monthlyRecurring = checkoutState.pricing.monthlyRecurring ?? subscriptionPrice
 
   const handleInputChange = (field: keyof CheckoutState['customerInfo'], value: string) => {
     const updatedInfo = { ...customerInfo, [field]: value }
@@ -195,7 +198,7 @@ export function OrderSummary({
           )}
 
           {/* Subscription */}
-          {checkoutState.wantsSubscription && (
+          {wantsSubscription && subscription && (
             <div className="mb-6 border-t border-secondary-600 pt-6">
               <div className="font-medium text-white mb-3">Subscription Service</div>
               <div className="flex items-center justify-between mb-2">
@@ -203,11 +206,21 @@ export function OrderSummary({
                   <span>🔄</span>
                   <span className="text-secondary-200 text-sm">{subscription.name}</span>
                 </div>
-                <div className="text-success-400 font-bold">${subscription.price}/month</div>
+                <div className="text-success-400 font-bold">${subscription.price}/{subscription.billing}</div>
               </div>
               <div className="text-xs text-secondary-400 bg-secondary-900/50 p-3 rounded">
-                Starts after your directory submissions are complete. Cancel anytime.
+                {subscription.description ?? 'Starts after your directory submissions are complete. Cancel anytime.'}
               </div>
+              {Array.isArray(subscription.features) && subscription.features.length > 0 && (
+                <ul className="mt-3 space-y-2 text-xs text-secondary-300">
+                  {subscription.features.map((feature: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-success-400 mt-0.5">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
@@ -218,10 +231,10 @@ export function OrderSummary({
                 <span>One-time Payment:</span>
                 <span className="font-bold">${checkoutState.pricing.totalOneTime}</span>
               </div>
-              {checkoutState.wantsSubscription && (
+              {wantsSubscription && (
                 <div className="flex justify-between text-secondary-200">
-                  <span>One-Time Service:</span>
-                  <span className="font-bold">${checkoutState.pricing.monthlyRecurring} ONE-TIME</span>
+                  <span>Recurring Service:</span>
+                  <span className="font-bold">${monthlyRecurring} / {subscription?.billing ?? 'month'}</span>
                 </div>
               )}
             </div>

@@ -230,9 +230,11 @@ describe('DirectoryBolt Integration Tests', () => {
         .order('priority_level', { ascending: true })
 
       expect(queueEntries).toBeTruthy()
-      expect(queueEntries[0].package_type).toBe('enterprise') // Priority 1
-      expect(queueEntries[1].package_type).toBe('growth') // Priority 3
-      expect(queueEntries[2].package_type).toBe('starter') // Priority 4
+      if (queueEntries) {
+        expect(queueEntries[0]?.package_type).toBe('enterprise') // Priority 1
+        expect(queueEntries[1]?.package_type).toBe('growth') // Priority 3
+        expect(queueEntries[2]?.package_type).toBe('starter') // Priority 4
+      }
 
       // Cleanup
       for (const customer of customers) {

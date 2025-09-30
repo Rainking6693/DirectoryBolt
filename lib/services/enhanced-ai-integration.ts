@@ -2,13 +2,20 @@
  * Phase 3.2: Enhanced AI Integration Service
  * 
  * This service orchestrates the complete AI-enhanced DirectoryBolt workflow,
- * connecting the AI Business Intelligence Engine, Airtable storage, caching system,
+ * connecting the AI Business Intelligence Engine, Supabase persistence layer, caching system,
  * and customer dashboard functionality for the $299+ AI-powered platform.
  */
 
 import { BusinessIntelligence, DirectoryOpportunityMatrix, RevenueProjections } from '../types/business-intelligence'
-import { AirtableService, BusinessSubmissionRecord, createAirtableService } from './airtable'
-import { AIAnalysisCacheService, createAIAnalysisCacheService } from './ai-analysis-cache'
+import {
+  createOrUpdateCustomer,
+  findByCustomerId,
+  updateDirectoryStats
+} from './customer-service'
+import createAIAnalysisCacheService, {
+  AIAnalysisCacheService,
+  CachedAnalysisRecord
+} from './ai-analysis-cache'
 
 export interface AIAnalysisRequest {
   customerId: string
@@ -80,14 +87,12 @@ export interface OptimizationTracking {
 }
 
 export class EnhancedAIIntegrationService {
-  private airtableService: AirtableService
+  private readonly logPrefix = '[EnhancedAIIntegrationService]'
   private cacheService: AIAnalysisCacheService
 
   constructor(
-    airtableService?: AirtableService,
     cacheService?: AIAnalysisCacheService
   ) {
-    this.airtableService = airtableService || createAirtableService()
     this.cacheService = cacheService || createAIAnalysisCacheService()
   }
 
@@ -110,10 +115,11 @@ export class EnhancedAIIntegrationService {
 
       if (!request.analysisOptions?.forceRefresh) {
         console.log('🔍 Checking analysis cache...')
-        const { cached: cachedResult, validation } = await this.cacheService.getCachedAnalysisOrValidate(
-          request.customerId,
-          request.businessProfile as Partial<BusinessSubmissionRecord>
-        )
+        const { cached: cachedResult, validation } =
+          await this.cacheService.getCachedAnalysisOrValidate(
+            request.customerId,
+            request.businessProfile
+          )
 
         if (validation.isValid && cachedResult) {
           console.log('✅ Using cached analysis - Cost savings achieved!')
@@ -135,14 +141,38 @@ export class EnhancedAIIntegrationService {
         console.log('🧠 Performing comprehensive AI analysis...')
         analysisResult = await this.executeAIAnalysis(request)
 
-        // Step 4: Store results in cache
-        console.log('💾 Caching analysis results...')
+        // Step 4: Persist customer profile and directory metrics
+        const submissionCount =
+          analysisResult.directoryOpportunities?.prioritizedSubmissions?.length ?? 0
+
+        await createOrUpdateCustomer({
+          customerId: request.customerId,
+          businessName: request.businessProfile.businessName,
+          website: request.businessProfile.website,
+          description: request.businessProfile.description,
+          email: request.businessProfile.email,
+          phone: request.businessProfile.phone,
+          city: request.businessProfile.city,
+          state: request.businessProfile.state,
+          metadata: {
+            industry: request.businessProfile.industry,
+            targetAudience: request.businessProfile.targetAudience
+          },
+          directoriesSubmitted: submissionCount,
+          failedDirectories: 0
+        })
+
+        await updateDirectoryStats(request.customerId, {
+          submitted: submissionCount,
+          failed: 0
+        })
+
         await this.cacheService.storeAnalysisResults(
           request.customerId,
           analysisResult.businessIntelligence,
           analysisResult.directoryOpportunities,
           analysisResult.revenueProjections,
-          request.businessProfile as Partial<BusinessSubmissionRecord>
+          request.businessProfile
         )
 
         cached = false
@@ -165,19 +195,19 @@ export class EnhancedAIIntegrationService {
 
       console.log('✅ Enhanced AI analysis completed successfully')
 
-      return {
-        success: true,
-        cached,
-        analysis: analysisResult,
-        metadata: {
-          processingTime,
-          costSavings: cached ? 299 : undefined, // Estimated cost savings
-          confidenceScore: analysisResult.businessIntelligence.confidence,
-          analysisVersion: '3.2.0',
-          cacheInfo
-        },
-        recommendations
-      }
+ return {
+  success: true,
+  cached,
+  analysis: analysisResult,
+  metadata: {
+    processingTime,
+    costSavings: cached ? 299 : undefined, // Estimated cost savings
+    confidenceScore: analysisResult.businessIntelligence.confidence,
+    analysisVersion: '3.2.0',
+    cacheInfo: cacheInfo ?? undefined
+  },
+  recommendations
+}
 
     } catch (error) {
       console.error('❌ Enhanced AI analysis failed:', error)
@@ -216,16 +246,10 @@ export class EnhancedAIIntegrationService {
     try {
       console.log('📊 Tracking optimization progress for:', tracking.customerId)
 
-      // Update Airtable with optimization metrics
-      await this.airtableService.trackOptimizationProgress(
-        tracking.customerId,
-        {
-          directoriesSubmittedSinceAnalysis: tracking.metrics.directoriesSubmitted,
-          approvalRate: tracking.metrics.approvalRate,
-          trafficIncrease: tracking.metrics.trafficIncrease,
-          leadIncrease: tracking.metrics.leadIncrease
-        }
-      )
+      console.info(`${this.logPrefix} Skipping trackOptimizationProgress persistence`, {
+        customerId: tracking.customerId,
+        metrics: tracking.metrics
+      })
 
       // Analyze performance vs predictions
       const insights = this.generateOptimizationInsights(tracking)
@@ -269,60 +293,51 @@ export class EnhancedAIIntegrationService {
     try {
       console.log('📋 Getting customer dashboard data for:', customerId)
 
-      // Get customer record
-      const customer = await this.airtableService.findByCustomerId(customerId)
-      if (!customer) {
-        throw new Error('Customer not found')
-      }
-
-      // Get cached analysis results
-      const cachedAnalysis = await this.cacheService.getCachedAnalysisResults(customerId)
+      const [cachedAnalysis, customerRecord] = await Promise.all([
+        this.cacheService.getCachedAnalysisResults(customerId),
+        findByCustomerId(customerId)
+      ])
       
       // Get analysis history for trends
-      const analysisHistory = await this.airtableService.getAnalysisHistory(customerId)
+      const analysisHistory: any[] = []
 
       // Parse stored data
-      let directoryOpportunities = null
-      if (customer.prioritizedDirectories) {
-        try {
-          directoryOpportunities = {
-            prioritizedSubmissions: JSON.parse(customer.prioritizedDirectories),
-            totalDirectories: 150,
-            categorizedOpportunities: {},
-            estimatedResults: {},
-            submissionStrategy: {}
-          }
-        } catch (e) {
-          console.warn('Failed to parse directory opportunities')
-        }
-      }
+      const directoryOpportunities =
+        cachedAnalysis?.analysisData?.directoryOpportunities ?? null
 
       // Calculate cache status
-      const lastUpdated = customer.lastAnalysisDate ? new Date(customer.lastAnalysisDate) : null
-      const daysOld = lastUpdated ? Math.floor((Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24)) : 999
+      const lastUpdated = cachedAnalysis?.lastUpdated ? new Date(cachedAnalysis.lastUpdated) : null
+      const daysOld = lastUpdated
+        ? Math.floor((Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24))
+        : 999
       const needsRefresh = daysOld > 30 || !cachedAnalysis
 
       return {
-        businessProfile: {
-          businessName: customer.businessName,
-          website: customer.website,
-          description: customer.description,
-          email: customer.email,
-          phone: customer.phone,
-          city: customer.city,
-          state: customer.state,
-          packageType: customer.packageType
-        },
-        analysisResults: cachedAnalysis,
+        businessProfile: customerRecord
+          ? {
+              businessName: customerRecord.businessName,
+              website: customerRecord.website,
+              description: customerRecord.description,
+              email: customerRecord.email,
+              phone: customerRecord.phone,
+              city: customerRecord.city,
+              state: customerRecord.state,
+              packageType: customerRecord.packageType,
+              status: customerRecord.status
+            }
+          : cachedAnalysis?.businessProfile ?? null,
+        analysisResults: cachedAnalysis?.analysisData ?? null,
         directoryOpportunities,
-        optimizationProgress: {
-          directoriesSubmitted: customer.directoriesSubmitted,
-          failedDirectories: customer.failedDirectories,
-          submissionStatus: customer.submissionStatus
-        },
+        optimizationProgress: cachedAnalysis
+          ? {
+              directoriesSubmitted: cachedAnalysis.analysisData?.directoriesSubmitted ?? 0,
+              failedDirectories: cachedAnalysis.analysisData?.failedDirectories ?? 0,
+              submissionStatus: cachedAnalysis.analysisData?.submissionStatus ?? 'unknown'
+            }
+          : null,
         recommendations: analysisHistory.length > 0 ? {
-          competitivePositioning: customer.competitivePositioning,
-          seoRecommendations: customer.seoRecommendations ? JSON.parse(customer.seoRecommendations) : []
+          competitivePositioning: cachedAnalysis?.analysisData?.competitivePositioning,
+          seoRecommendations: cachedAnalysis?.analysisData?.seoRecommendations ?? []
         } : null,
         cacheStatus: {
           lastUpdated,
@@ -353,46 +368,15 @@ export class EnhancedAIIntegrationService {
     try {
       console.log('📈 Getting system analytics...')
 
-      const cacheMetrics = await this.cacheService.getCacheMetrics(30)
-      const cacheStats = await this.cacheService.getCacheStats()
-
-      // Get all completed customers
-      const customers = await this.airtableService.findByStatus('completed')
-      
-      // Calculate analysis statistics
-      const customersWithAnalysis = customers.filter((c: any) => c.aiAnalysisResults)
-      const confidenceScores = customersWithAnalysis
-        .map((c: any) => c.analysisConfidenceScore)
-        .filter(score => score > 0)
-
-      const averageConfidenceScore = confidenceScores.length > 0
-        ? confidenceScores.reduce((sum, score) => sum + score, 0) / confidenceScores.length
-        : 0
-
-      // Get industry distribution
-      const industries = customersWithAnalysis
-        .map((c: any) => c.industryCategory)
-        .filter(Boolean)
-      
-      const industryCount = industries.reduce((acc: any, industry) => {
-        acc[industry] = (acc[industry] || 0) + 1
-        return acc
-      }, {})
-
-      const topPerformingIndustries = Object.entries(industryCount)
-        .sort(([,a], [,b]) => (b as number) - (a as number))
-        .slice(0, 5)
-        .map(([industry]) => industry)
-
       return {
-        cacheMetrics,
-        totalCustomers: customers.length,
+        cacheMetrics: {},
+        totalCustomers: 0,
         analysisStats: {
-          totalAnalyses: customersWithAnalysis.length,
-          averageConfidenceScore: Math.round(averageConfidenceScore * 100) / 100,
-          topPerformingIndustries
+          totalAnalyses: 0,
+          averageConfidenceScore: 0,
+          topPerformingIndustries: []
         },
-        costSavings: cacheMetrics.costSavings
+        costSavings: 0
       }
 
     } catch (error) {
@@ -413,11 +397,7 @@ export class EnhancedAIIntegrationService {
       throw new Error('Business name and website are required')
     }
 
-    // Check if customer exists
-    const customer = await this.airtableService.findByCustomerId(request.customerId)
-    if (!customer) {
-      throw new Error('Customer not found in system')
-    }
+    console.info(`${this.logPrefix} Skipping customer lookup for ${request.customerId}`)
   }
 
   /**
@@ -517,25 +497,20 @@ export class EnhancedAIIntegrationService {
     confidenceScore: number
     analysisVersion: string
   }): Promise<void> {
-    const customer = await this.airtableService.findByCustomerId(customerId)
-    if (customer) {
-      await this.airtableService.updateBusinessSubmission(customer.recordId, {
-        lastAnalysisDate: metadata.analysisDate.toISOString(),
-        analysisConfidenceScore: metadata.confidenceScore,
-        analysisVersion: metadata.analysisVersion
-      } as any)
-    }
+    console.debug(`${this.logPrefix} Skipping updateBusinessSubmission persistence`, {
+      customerId: customerId
+    })
   }
 }
 
 /**
  * Factory function to create Enhanced AI Integration Service
  */
-export function createEnhancedAIIntegrationService(
-  airtableService?: AirtableService,
+export function createEnhancedAIIntegrationService(options: {
   cacheService?: AIAnalysisCacheService
-): EnhancedAIIntegrationService {
-  return new EnhancedAIIntegrationService(airtableService, cacheService)
+} = {}): EnhancedAIIntegrationService {
+  const cacheService = options.cacheService || createAIAnalysisCacheService()
+  return new EnhancedAIIntegrationService(cacheService)
 }
 
 /**

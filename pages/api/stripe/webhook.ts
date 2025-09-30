@@ -39,7 +39,7 @@ const handleCheckoutSessionCompleted = async (session: Stripe.Checkout.Session) 
   // 2. Grant access to purchased plan
   // 3. Send welcome email
   // 4. Start directory submission process
-  // 5. Update Airtable with customer data
+  // 5. Update CRM/system of record with customer data (Airtable removed)
 
   try {
     // Example: Store purchase in database

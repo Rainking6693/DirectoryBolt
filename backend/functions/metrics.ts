@@ -9,7 +9,7 @@ const formatMetric = (name: string, value: number, help: string): string => {
 };
 
 const countJobsByStatus = async (status: string): Promise<number> => {
-  const { count = 0, error } = await supabase
+  const { count: rawCount, error } = await supabase
     .from("jobs")
     .select("id", { count: "exact", head: true })
     .eq("status", status);
@@ -19,11 +19,11 @@ const countJobsByStatus = async (status: string): Promise<number> => {
     throw error;
   }
 
-  return count;
+  return typeof rawCount === "number" ? rawCount : 0;
 };
 
 const countRetries = async (): Promise<number> => {
-  const { count = 0, error } = await supabase
+  const { count: rawCount, error } = await supabase
     .from("job_results")
     .select("id", { count: "exact", head: true })
     .eq("status", "retry");
@@ -33,7 +33,7 @@ const countRetries = async (): Promise<number> => {
     throw error;
   }
 
-  return count;
+  return typeof rawCount === "number" ? rawCount : 0;
 };
 
 const handler: Handler = async (event): Promise<HandlerResponse> => {

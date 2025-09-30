@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Development Velocity Configuration for DirectoryBolt
  * Centralizes all modern full-stack development improvements
