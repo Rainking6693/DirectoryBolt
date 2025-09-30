@@ -52,6 +52,7 @@
   "include": [
     "next-env.d.ts",
     "types/**/*.ts",
+    "types/**/*.d.ts",
     "lib/**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",

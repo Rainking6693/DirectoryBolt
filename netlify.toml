@@ -8,6 +8,7 @@
     NODE_OPTIONS = "--max-old-space-size=4096"
     NETLIFY_BUILD_DEBUG = "true"
     NEXT_DISABLE_ESLINT = "true"
+    CI = "true"
 
 [functions]
   directory = "netlify/functions"
