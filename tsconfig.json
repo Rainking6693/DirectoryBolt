@@ -47,7 +47,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["node", "validator"]
   },
   "include": [
     "next-env.d.ts",
