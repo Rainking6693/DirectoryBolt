@@ -23,7 +23,6 @@ interface LegacyExports {
   SupabaseService: new () => unknown
 }
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 const legacy: LegacyExports = require('./supabase.js')
 
 export interface SupabaseCustomer {

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - using JS service with ambient declaration
 import { createSupabaseService } from '../../lib/services/supabase'
 import { 

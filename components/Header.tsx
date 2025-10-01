@@ -1,7 +1,6 @@
 'use client'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - StartTrialButton is provided from a JS module
 import { StartTrialButton } from './CheckoutButton'
 
