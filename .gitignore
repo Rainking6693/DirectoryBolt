@@ -57,6 +57,7 @@ config/directorybolt-Googlesheetskey.json
 .netlify/**
 **/.netlify/
 /.netlify
+.netlify/
 
 # TypeScript
 *.tsbuildinfo
