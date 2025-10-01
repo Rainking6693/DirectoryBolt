@@ -1,0 +1,14 @@
+{
+  "type": "THRESHOLD_BREACH",
+  "timestamp": "2025-09-03T19:53:47.629Z",
+  "data": {
+    "suite": "Daily Smoke Tests",
+    "successRate": 50,
+    "threshold": 95,
+    "errors": [
+      "Basic functionality test failed: 25% success rate",
+      "Essential error handling failed: 0% handled"
+    ]
+  },
+  "severity": "MEDIUM"
+}

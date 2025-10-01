@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Bolt</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="icons/icon48.png" alt="Auto-Bolt" class="logo-icon">
+                <h1>Auto-Bolt</h1>
+            </div>
+            <div class="version">v1.0.0</div>
+        </div>
+
+        <div class="main-content">
+            <div class="status-section">
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Ready</span>
+                </div>
+            </div>
+
+            <div class="business-info-section">
+                <h2>Business Information</h2>
+                <div class="info-display" id="businessInfoDisplay">
+                    <div class="no-data">
+                        <p>No business data loaded</p>
+                        <p class="help-text">Click "Fetch Business Info" to load data from Airtable</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <button id="fetchButton" class="primary-button">
+                    <span class="button-icon">📊</span>
+                    Fetch Business Info
+                </button>
+                
+                <button id="fillFormsButton" class="secondary-button" disabled>
+                    <span class="button-icon">📝</span>
+                    Fill Current Form
+                </button>
+                
+                <button id="batchFillButton" class="batch-button" disabled>
+                    <span class="button-icon">🔄</span>
+                    Run Auto-Fill All
+                </button>
+                
+                <button id="clearDataButton" class="tertiary-button">
+                    <span class="button-icon">🗑️</span>
+                    Clear Data
+                </button>
+            </div>
+
+            <!-- Batch Progress Section -->
+            <div class="batch-progress-section" id="batchProgressSection" style="display: none;">
+                <div class="progress-header">
+                    <h3>Batch Processing Status</h3>
+                    <button id="cancelBatchButton" class="cancel-button">Cancel</button>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressText">0 / 0 records processed</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+                <div class="batch-status">
+                    <div class="status-item">
+                        <span class="status-label">Current Record:</span>
+                        <span id="currentRecordStatus">Waiting...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Success Count:</span>
+                        <span id="successCount">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Error Count:</span>
+                        <span id="errorCount">0</span>
+                    </div>
+                </div>
+                <div class="batch-log" id="batchLog">
+                    <div class="log-header">Processing Log:</div>
+                    <div class="log-content" id="logContent"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <details class="settings-accordion">
+                    <summary>Settings & Configuration</summary>
+                    <div class="settings-content">
+                        <div class="input-group">
+                            <label for="airtableKey">Airtable API Key:</label>
+                            <input type="password" id="airtableKey" placeholder="Enter your Airtable API key">
+                        </div>
+                        <div class="input-group">
+                            <label for="baseId">Base ID:</label>
+                            <input type="text" id="baseId" placeholder="Enter your Airtable Base ID">
+                        </div>
+                        <div class="input-group">
+                            <label for="tableId">Table ID:</label>
+                            <input type="text" id="tableId" placeholder="Enter your Airtable Table ID">
+                        </div>
+                        <button id="saveSettings" class="save-button">Save Settings</button>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="help-links">
+                <a href="#" id="helpLink">Help</a>
+                <span class="separator">•</span>
+                <a href="#" id="aboutLink">About</a>
+            </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading business data...</p>
+        </div>
+
+        <!-- Toast notifications -->
+        <div class="toast" id="toast" style="display: none;">
+            <span class="toast-message" id="toastMessage"></span>
+            <button class="toast-close" id="toastClose">&times;</button>
+        </div>
+    </div>
+
+    <script src="popup-content-bridge.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

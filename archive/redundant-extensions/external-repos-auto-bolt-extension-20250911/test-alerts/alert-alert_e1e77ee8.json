@@ -1,0 +1,24 @@
+{
+  "id": "alert_e1e77ee8",
+  "type": "TEST_SUITE_FAILURE",
+  "severity": "HIGH",
+  "data": {
+    "suite": "Daily Smoke Tests",
+    "successRate": 85,
+    "failedTests": [
+      "directory_access_test",
+      "form_mapping_test"
+    ]
+  },
+  "timestamp": "2025-09-03T19:54:25.766Z",
+  "status": "ACTIVE",
+  "escalationLevel": 0,
+  "notificationsSent": [],
+  "acknowledgments": [],
+  "resolutionActions": [
+    "Review test logs for specific failure details",
+    "Check if issue is environment-specific",
+    "Validate test data and configuration",
+    "Consider rolling back recent changes"
+  ]
+}

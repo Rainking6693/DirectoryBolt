@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Bolt Extension Messaging Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .test-form {
+            background: #f5f5f5;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Auto-Bolt Extension Messaging Test</h1>
+    
+    <div class="status">
+        <strong>Test Status:</strong> <span id="test-status">Loading...</span><br>
+        <strong>Page URL:</strong> <span id="page-url">...</span><br>
+        <strong>Protocol:</strong> <span id="page-protocol">...</span>
+    </div>
+
+    <h2>Test Forms</h2>
+    <p>These forms will test the Auto-Bolt extension's form-filling capabilities on different protocols (http://, https://, file://).</p>
+
+    <!-- Business Information Form -->
+    <form class="test-form" id="business-form">
+        <h3>📊 Business Information Form</h3>
+        
+        <div class="form-group">
+            <label for="company_name">Company Name:</label>
+            <input type="text" id="company_name" name="company_name" placeholder="Enter company name">
+        </div>
+        
+        <div class="form-group">
+            <label for="business_email">Email:</label>
+            <input type="email" id="business_email" name="email" placeholder="Enter email address">
+        </div>
+        
+        <div class="form-group">
+            <label for="business_phone">Phone:</label>
+            <input type="tel" id="business_phone" name="phone" placeholder="Enter phone number">
+        </div>
+        
+        <div class="form-group">
+            <label for="website">Website:</label>
+            <input type="url" id="website" name="website" placeholder="Enter website URL">
+        </div>
+        
+        <div class="form-group">
+            <label for="street_address">Address:</label>
+            <input type="text" id="street_address" name="address" placeholder="Enter street address">
+        </div>
+        
+        <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="Enter city">
+        </div>
+        
+        <div class="form-group">
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" placeholder="Enter state">
+        </div>
+        
+        <div class="form-group">
+            <label for="zip_code">ZIP Code:</label>
+            <input type="text" id="zip_code" name="zip" placeholder="Enter ZIP code">
+        </div>
+        
+        <button type="button" onclick="clearForm('business-form')">Clear Form</button>
+    </form>
+
+    <!-- Contact Form -->
+    <form class="test-form" id="contact-form">
+        <h3>👤 Contact Form</h3>
+        
+        <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" placeholder="Enter first name">
+        </div>
+        
+        <div class="form-group">
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Enter last name">
+        </div>
+        
+        <div class="form-group">
+            <label for="contact_email">Contact Email:</label>
+            <input type="email" id="contact_email" name="email_address" placeholder="Enter email">
+        </div>
+        
+        <div class="form-group">
+            <label for="telephone">Telephone:</label>
+            <input type="tel" id="telephone" name="telephone" placeholder="Enter phone">
+        </div>
+        
+        <div class="form-group">
+            <label for="organization">Organization:</label>
+            <input type="text" id="organization" name="organization" placeholder="Enter organization">
+        </div>
+        
+        <button type="button" onclick="clearForm('contact-form')">Clear Form</button>
+    </form>
+
+    <!-- Registration Form -->
+    <form class="test-form" id="registration-form">
+        <h3>📝 Registration Form</h3>
+        
+        <div class="form-group">
+            <label for="business_name">Business Name:</label>
+            <input type="text" id="business_name" name="business_name" placeholder="Enter business name">
+        </div>
+        
+        <div class="form-group">
+            <label for="contact_person">Contact Person:</label>
+            <input type="text" id="contact_person" name="contact_person" placeholder="Enter contact name">
+        </div>
+        
+        <div class="form-group">
+            <label for="email_address">Email Address:</label>
+            <input type="email" id="email_address" name="email_address" placeholder="Enter email">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone_number">Phone Number:</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="Enter phone">
+        </div>
+        
+        <div class="form-group">
+            <label for="mailing_address">Mailing Address:</label>
+            <textarea id="mailing_address" name="address" rows="3" placeholder="Enter full address"></textarea>
+        </div>
+        
+        <button type="button" onclick="clearForm('registration-form')">Clear Form</button>
+    </form>
+
+    <h2>📋 Test Results</h2>
+    <div id="test-log" class="log">
+        Test log will appear here...
+    </div>
+
+    <script>
+        // Test script to verify extension functionality
+        let testLog = [];
+        
+        function log(message) {
+            const timestamp = new Date().toISOString();
+            const logMessage = `[${timestamp}] ${message}`;
+            testLog.push(logMessage);
+            console.log(logMessage);
+            updateLogDisplay();
+        }
+        
+        function updateLogDisplay() {
+            const logElement = document.getElementById('test-log');
+            logElement.textContent = testLog.join('\n');
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function updatePageInfo() {
+            document.getElementById('page-url').textContent = window.location.href;
+            document.getElementById('page-protocol').textContent = window.location.protocol;
+            
+            const isFileProtocol = window.location.protocol === 'file:';
+            const status = isFileProtocol ? 
+                'File protocol detected - Testing extension messaging' : 
+                'HTTP protocol detected - Standard messaging should work';
+            document.getElementById('test-status').textContent = status;
+            
+            log(`Page loaded: ${window.location.href}`);
+            log(`Protocol: ${window.location.protocol}`);
+            log(`Extension messaging test initialized`);
+        }
+        
+        function clearForm(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.value = '';
+                input.style.cssText = '';
+            });
+            log(`Cleared form: ${formId}`);
+        }
+        
+        // Monitor form changes to detect extension activity
+        function monitorFormChanges() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach((form, index) => {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        log(`Form field changed: ${e.target.name || e.target.id} = ${e.target.value}`);
+                    });
+                    
+                    // Monitor style changes (extension highlighting)
+                    const observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                if (e.target.style.borderColor || e.target.style.backgroundColor) {
+                                    log(`Field highlighted by extension: ${e.target.name || e.target.id}`);
+                                }
+                            }
+                        });
+                    });
+                    
+                    observer.observe(input, {
+                        attributes: true,
+                        attributeFilter: ['style']
+                    });
+                });
+            });
+            
+            log(`Monitoring ${forms.length} forms for extension activity`);
+        }
+        
+        // Test extension communication
+        function testExtensionCommunication() {
+            // Test if content script is present
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                log('Chrome extension APIs available');
+                
+                // Try to send a test message
+                try {
+                    chrome.runtime.sendMessage({
+                        type: 'PING',
+                        from: 'test-page',
+                        timestamp: Date.now()
+                    }, (response) => {
+                        if (chrome.runtime.lastError) {
+                            log(`Extension communication error: ${chrome.runtime.lastError.message}`);
+                        } else {
+                            log(`Extension responded: ${JSON.stringify(response)}`);
+                        }
+                    });
+                } catch (error) {
+                    log(`Exception testing extension communication: ${error.message}`);
+                }
+            } else {
+                log('Chrome extension APIs not available (this is normal for web pages)');
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePageInfo();
+            monitorFormChanges();
+            testExtensionCommunication();
+            
+            log('✅ Test page initialization complete');
+            log('📋 Instructions:');
+            log('1. Install the Auto-Bolt extension');
+            log('2. Configure business data in the extension');
+            log('3. Click the extension icon and use "Fill Forms"');
+            log('4. Watch this log for extension activity');
+        });
+        
+        // Test window messaging (used by extension fallback)
+        window.addEventListener('message', (event) => {
+            log(`Window message received: ${JSON.stringify(event.data)}`);
+        });
+    </script>
+</body>
+</html>
