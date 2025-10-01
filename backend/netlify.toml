@@ -1,0 +1,140 @@
+[build]
+  functions = "functions"
+  command = "npm install"
+  publish = "../"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--prefix=/dev/null"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://www.googletagmanager.com https://airtable.com https://api.airtable.com wss:; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Worker-ID, X-API-Key"
+    Access-Control-Max-Age = "86400"
+
+# SEO redirects - WWW to non-WWW and HTTP to HTTPS (301 for SEO value)
+[[redirects]]
+  from = "https://www.directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.directorybolt.com/*"
+  to = "https://directorybolt.com/:splat"
+  status = 301
+  force = true
+
+# API redirects
+# AutoBolt Migration API Endpoints
+[[redirects]]
+  from = "/api/jobs-next"
+  to = "/.netlify/functions/jobs-next"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-update"
+  to = "/.netlify/functions/jobs-update"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-complete"
+  to = "/.netlify/functions/jobs-complete"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-retry"
+  to = "/.netlify/functions/jobs-retry"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt-status"
+  to = "/.netlify/functions/autobolt-status"
+  status = 200
+
+[[redirects]]
+  from = "/api/healthz"
+  to = "/.netlify/functions/healthz"
+  status = 200
+
+[[redirects]]
+  from = "/api/version"
+  to = "/.netlify/functions/version"
+  status = 200
+
+# Legacy API redirects
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health-check"
+  status = 200
+
+[[redirects]]
+  from = "/api/user/*"
+  to = "/.netlify/functions/user-management/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/analytics/*"
+  to = "/.netlify/functions/analytics-collector/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/directories/*"
+  to = "/.netlify/functions/directory-manager/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms-of-service"
+  to = "/terms.html"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["canvas", "sharp", "playwright-chromium"]
+  included_files = ["data/**", "../lib/**", "../backend/**"]
+  timeout = 300
+
+[[plugins]]
+  package = "@netlify/plugin-sitemap"
+
+[context.production]
+  environment = { NODE_ENV = "production", AUTOBOLT_ENVIRONMENT = "production" }
+
+[context.deploy-preview]
+  environment = { NODE_ENV = "development", AUTOBOLT_ENVIRONMENT = "staging" }
+
+[context.branch-deploy]
+  environment = { NODE_ENV = "development", AUTOBOLT_ENVIRONMENT = "development" }
+
+# AutoBolt Worker Environment Configuration
+[context.production.environment]
+  WORKER_TIMEOUT = "300000"
+  MAX_CONCURRENT_JOBS = "5"
+  ENABLE_PROXY_ROTATION = "true"
+  CAPTCHA_SOLVER_ENABLED = "true"
