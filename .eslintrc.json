@@ -8,7 +8,10 @@
     "tests/**",
     "__tests__/**",
     "pages-backup/**",
-    "lib/testing/**"
+    "lib/testing/**",
+    "worker/**",
+    "examples/**",
+    "*.config.js"
   ],
   "rules": {
     "react/no-unescaped-entities": "off",
