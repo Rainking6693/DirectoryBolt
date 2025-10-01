@@ -80,6 +80,9 @@ export default function RealTimeQueue(): JSX.Element {
   const [pushingCustomers, setPushingCustomers] = useState<Set<string>>(
     new Set(),
   );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'created_at' | 'package_size' | 'priority'>('priority');
   const { showSuccess, showError, showInfo } = useNotifications();
   const { notifyApiProgress, notifyApiSuccess, notifyApiError } =
     useApiNotifications();
@@ -393,7 +396,7 @@ export default function RealTimeQueue(): JSX.Element {
       {/* Customer Queue */}
       <div className="bg-secondary-800 rounded-xl border border-secondary-700">
         <div className="p-6 border-b border-secondary-700">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-white">
               Customer Processing Queue
             </h3>
@@ -416,9 +419,81 @@ export default function RealTimeQueue(): JSX.Element {
               </div>
             </div>
           </div>
-          <p className="text-secondary-400 text-sm mt-2">
-            Click on any customer row to view detailed information
-          </p>
+
+          {/* Search and Filter Controls */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            {/* Search Input */}
+            <div className="flex-1 min-w-[200px]">
+              <input
+                type="text"
+                placeholder="Search by customer ID, business name, or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 bg-secondary-900 border border-secondary-600 rounded-lg text-white placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-volt-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 bg-secondary-900 border border-secondary-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-volt-500 focus:border-transparent"
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </select>
+
+            {/* Sort By */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'created_at' | 'package_size' | 'priority')}
+              className="px-4 py-2 bg-secondary-900 border border-secondary-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-volt-500 focus:border-transparent"
+            >
+              <option value="priority">Sort by Priority</option>
+              <option value="created_at">Sort by Newest</option>
+              <option value="package_size">Sort by Package Size</option>
+            </select>
+
+            {/* Clear Filters Button */}
+            {(searchQuery || statusFilter !== 'all' || sortBy !== 'priority') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                  setSortBy('priority');
+                }}
+                className="px-4 py-2 bg-secondary-700 border border-secondary-600 rounded-lg text-secondary-300 hover:bg-secondary-600 hover:text-white transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+
+          {/* Results Count */}
+          <div className="flex items-center justify-between text-sm">
+            <p className="text-secondary-400">
+              Click on any customer row to view detailed information
+            </p>
+            <p className="text-secondary-300">
+              Showing {queueData.queue
+                .filter((customer) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    customer.customer_id.toLowerCase().includes(query) ||
+                    customer.business_name.toLowerCase().includes(query) ||
+                    customer.email.toLowerCase().includes(query)
+                  );
+                })
+                .filter((customer) => {
+                  if (statusFilter === 'all') return true;
+                  return customer.status === statusFilter;
+                }).length} of {queueData.queue.length} customers
+            </p>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -448,7 +523,34 @@ export default function RealTimeQueue(): JSX.Element {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-700">
-              {queueData.queue.map((customer) => (
+              {queueData.queue
+                // Apply search filter
+                .filter((customer) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    customer.customer_id.toLowerCase().includes(query) ||
+                    customer.business_name.toLowerCase().includes(query) ||
+                    customer.email.toLowerCase().includes(query)
+                  );
+                })
+                // Apply status filter
+                .filter((customer) => {
+                  if (statusFilter === 'all') return true;
+                  return customer.status === statusFilter;
+                })
+                // Apply sorting
+                .sort((a, b) => {
+                  if (sortBy === 'priority') {
+                    return a.priority_level - b.priority_level; // Lower priority number = higher priority
+                  } else if (sortBy === 'created_at') {
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // Newest first
+                  } else if (sortBy === 'package_size') {
+                    return b.directories_allocated - a.directories_allocated; // Largest first
+                  }
+                  return 0;
+                })
+                .map((customer) => (
                 <tr
                   key={customer.id}
                   className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
