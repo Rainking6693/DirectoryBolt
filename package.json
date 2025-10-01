@@ -3,7 +3,9 @@
   "version": "2.0.1-emergency-fix",
   "private": true,
   "scripts": {
-    "build": "node scripts/verify-build.js && cross-env NEXT_TELEMETRY_DISABLED=1 next build",
+    "prebuild": "npm run validate:guides",
+    "build": "cross-env NEXT_TELEMETRY_DISABLED=1 next build",
+    "validate:configs": "node scripts/validate-configs.js",
     "build:fast": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" next build",
     "build:minimal": "cross-env NEXT_CONFIG_FILE=\"next.config.minimal.js\" next build",
     "build:analyze": "cross-env ANALYZE=true next build",
@@ -66,7 +68,6 @@
     "qa:full-enterprise": "npm run test:enterprise-qa && echo '✅ Enterprise QA validation completed'",
     "qa:deployment-ready": "npm run test:quality-gates && npm run test:accessibility-compliance && echo '✅ Deployment readiness validated'",
     "validate:guides": "node scripts/validate-json-guides.js",
-    "prebuild": "npm run validate:guides",
     "debug:env": "node scripts/advanced-env-debug.js",
     "debug:env-production": "cross-env NODE_ENV=production node scripts/advanced-env-debug.js",
     "optimize:build": "node scripts/advanced-build-optimizer.js",
@@ -163,6 +164,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "@iarna/toml": "^2.2.5",
     "@jest/globals": "^30.2.0",
     "@netlify/plugin-nextjs": "^5.13.3",
     "@next/bundle-analyzer": "^14.0.0",
