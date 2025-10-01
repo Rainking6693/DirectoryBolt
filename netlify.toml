@@ -118,6 +118,10 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
+# Exclude worker directory from Netlify build
+[build.ignore]
+  files = ["worker/**"]
+
 [dev]
   # Next.js in this environment binds to port 3001; ensure Netlify Dev waits on that port
   targetPort = 3000
