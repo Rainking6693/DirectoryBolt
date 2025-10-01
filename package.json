@@ -3,9 +3,10 @@
   "version": "2.0.1-emergency-fix",
   "private": true,
   "scripts": {
-    "prebuild": "npm run validate:guides",
+    "prebuild": "node scripts/ensure-no-netlify-state.js && npm run validate:guides",
     "build": "cross-env NEXT_TELEMETRY_DISABLED=1 next build",
     "validate:configs": "node scripts/validate-configs.js",
+    "validate:no-netlify-state": "node scripts/ensure-no-netlify-state.js",
     "build:fast": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" next build",
     "build:minimal": "cross-env NEXT_CONFIG_FILE=\"next.config.minimal.js\" next build",
     "build:analyze": "cross-env ANALYZE=true next build",

@@ -52,8 +52,10 @@ config/directorybolt-Googlesheetskey.json
 # Vercel
 .vercel
 
-# Netlify
-.netlify
+# Netlify CLI local state (never commit)
+.netlify/
+.netlify/**
+**/.netlify/
 /.netlify
 
 # TypeScript
