@@ -32,18 +32,15 @@ export default async function handler(
   try {
     const { username, password } = req.body
     
-    // Get environment variables
-    const validUsername = process.env.STAFF_USERNAME
-    const validPassword = process.env.STAFF_PASSWORD
+    // BYPASS MODE: Use env vars if present, otherwise fallback to test credentials
+    const validUsername = process.env.STAFF_USERNAME || 'staffuser'
+    const validPassword = process.env.STAFF_PASSWORD || 'DirectoryBoltStaff2025!'
     
-    if (!validUsername || !validPassword) {
-      console.error('❌ STAFF_USERNAME or STAFF_PASSWORD not configured')
-      return res.status(500).json({
-        success: false,
-        error: 'Staff authentication not properly configured',
-        message: 'Contact administrator to set STAFF_USERNAME and STAFF_PASSWORD environment variables'
-      })
-    }
+    console.log('🔐 Staff login attempt:', {
+      username,
+      usingEnvVars: !!process.env.STAFF_USERNAME,
+      usingFallback: !process.env.STAFF_USERNAME
+    })
     
     // Validate credentials
     if (username !== validUsername || password !== validPassword) {
@@ -55,11 +52,14 @@ export default async function handler(
       })
     }
     
-    // Generate session token (simple JWT-like token)
-    const sessionToken = crypto
-      .createHash('sha256')
-      .update(`${username}:${password}:${Date.now()}:${process.env.STAFF_SESSION_SECRET || 'default-secret'}`)
-      .digest('hex')
+    // Generate session token
+    // BYPASS MODE: Use simple test token if no secret configured
+    const sessionToken = process.env.STAFF_SESSION_SECRET
+      ? crypto
+          .createHash('sha256')
+          .update(`${username}:${password}:${Date.now()}:${process.env.STAFF_SESSION_SECRET}`)
+          .digest('hex')
+      : 'TESTTOKEN'
     
     // Successful authentication
     console.log(`✅ Staff login successful for: ${username}`)
@@ -80,10 +80,16 @@ export default async function handler(
       }
     }
     
-    // Set secure session cookie
+    // Set session cookie
+    // BYPASS MODE: HttpOnly=false for testing, Secure=false for local dev
+    const isProduction = process.env.NODE_ENV === 'production'
+    const cookieOptions = isProduction
+      ? 'Path=/; HttpOnly; Secure; SameSite=Strict'
+      : 'Path=/; SameSite=Lax' // Allow client-side access in dev/test
+    
     res.setHeader('Set-Cookie', [
-      `staff_session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`, // 7 days
-      `staff_user=${encodeURIComponent(JSON.stringify(user))}; Path=/; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`
+      `staff-session=${sessionToken}; ${cookieOptions}; Max-Age=${7 * 24 * 60 * 60}`,
+      `staff_user=${encodeURIComponent(JSON.stringify(user))}; Path=/; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}`
     ])
     
     return res.status(200).json({

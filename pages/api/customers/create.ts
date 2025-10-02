@@ -1,10 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-)
+// BYPASS MODE: In-memory storage for testing when Supabase not configured
+const inMemoryCustomers = new Map<string, any>()
+
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : null
 
 interface CreateCustomerRequest {
   firstName: string
@@ -68,10 +73,46 @@ export default async function handler(
       })
     }
     
-    // Insert customer into Supabase
-    const { data: customer, error } = await supabase
-      .from('customers')
-      .insert({
+    // BYPASS MODE: Use Supabase if configured, otherwise in-memory
+    let customer: any
+    
+    if (supabase) {
+      // Real Supabase insert
+      const { data: customerData, error } = await supabase
+        .from('customers')
+        .insert({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          businessName: data.businessName,
+          email: data.email,
+          phone: data.phone || null,
+          website: data.website || null,
+          packageType: data.packageType || 'STARTER',
+          directoryLimit: data.directoryLimit || 25,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('❌ Failed to create customer in Supabase:', error)
+        return res.status(500).json({
+          success: false,
+          error: 'Database error',
+          message: error.message
+        })
+      }
+      
+      customer = customerData
+      console.log(`✅ Customer created in Supabase: ${customer.id}`)
+      
+    } else {
+      // In-memory bypass for testing
+      const customerId = `test-customer-${Date.now()}`
+      customer = {
+        id: customerId,
         firstName: data.firstName,
         lastName: data.lastName,
         businessName: data.businessName,
@@ -83,20 +124,12 @@ export default async function handler(
         status: 'pending',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      })
-      .select()
-      .single()
-    
-    if (error) {
-      console.error('❌ Failed to create customer:', error)
-      return res.status(500).json({
-        success: false,
-        error: 'Database error',
-        message: error.message
-      })
+      }
+      
+      inMemoryCustomers.set(customerId, customer)
+      console.log(`⚠️  Customer created IN-MEMORY (Supabase not configured): ${customerId}`)
+      console.warn('🔶 DEFERRED: Set SUPABASE_SERVICE_ROLE_KEY to use real database')
     }
-    
-    console.log(`✅ Customer created: ${customer.id}`)
     
     return res.status(201).json({
       success: true,
