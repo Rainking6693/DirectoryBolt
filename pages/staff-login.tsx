@@ -4,13 +4,14 @@ import { useRouter } from 'next/router'
 
 export default function StaffLogin() {
   const router = useRouter()
-  const [apiKey, setApiKey] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const existingKey = localStorage.getItem('staff_api_key')
-    if (existingKey) {
+    const existingSession = localStorage.getItem('staff_session_token')
+    if (existingSession) {
       router.push('/staff')
     }
   }, [router])
@@ -20,29 +21,36 @@ export default function StaffLogin() {
     setIsLoading(true)
     setError('')
 
-    if (!apiKey.trim()) {
-      setError('Please enter your staff API key')
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password')
       setIsLoading(false)
       return
     }
 
     try {
-      const response = await fetch('/api/staff/auth-check', {
+      // Send credentials as Basic Auth
+      const credentials = btoa(`${username}:${password}`)
+      
+      const response = await fetch('/api/staff/login', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${apiKey.trim()}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${credentials}`
         },
+        body: JSON.stringify({ username, password })
       })
 
       if (response.ok) {
         const data = await response.json()
-        if (data.authenticated) {
-          localStorage.setItem('staff_api_key', apiKey.trim())
+        if (data.success && data.sessionToken) {
+          localStorage.setItem('staff_session_token', data.sessionToken)
+          localStorage.setItem('staff_user', JSON.stringify(data.user))
           router.push('/staff')
         } else {
           setError('Authentication failed. Please check your credentials.')
         }
       } else if (response.status === 401) {
-        setError('Invalid staff API key. Please check your credentials.')
+        setError('Invalid username or password. Please check your credentials.')
       } else {
         setError('Authentication failed. Please try again.')
       }
@@ -76,25 +84,45 @@ export default function StaffLogin() {
               </svg>
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">DirectoryBolt Staff Portal</h2>
-            <p className="mt-2 text-center text-sm text-gray-600">Enter your staff API key to access the dashboard</p>
+            <p className="mt-2 text-center text-sm text-gray-600">Sign in with your staff credentials</p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="api-key" className="sr-only">
-                Staff API Key
-              </label>
-              <input
-                id="api-key"
-                name="api-key"
-                type="password"
-                required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Staff API Key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                disabled={isLoading}
-              />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="username" className="sr-only">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="username"
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                />
+              </div>
             </div>
 
             {error && (
