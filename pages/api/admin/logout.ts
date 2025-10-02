@@ -1,41 +1,33 @@
-// Admin Dashboard Logout API
-// Handles secure admin session termination
-
-import { NextApiRequest, NextApiResponse } from 'next'
-import { serialize } from 'cookie'
+import { NextApiRequest, NextApiResponse } from "next";
+import { serialize } from "cookie";
+import { ADMIN_SESSION_COOKIE } from "../../../lib/auth/constants";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    console.log('🔓 Admin logout requested')
-
-    // Clear the admin session cookie
-    const cookie = serialize('admin-session', '', {
+    const cookie = serialize(ADMIN_SESSION_COOKIE, "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 0, // Expire immediately
-      path: '/'
-    })
+      secure: true,
+      sameSite: "strict",
+      maxAge: 0,
+      path: "/",
+    });
 
-    res.setHeader('Set-Cookie', cookie)
-
-    console.log('✅ Admin logout successful')
+    res.setHeader("Set-Cookie", cookie);
 
     return res.status(200).json({
       success: true,
-      message: 'Logout successful',
-      redirectTo: '/admin-login'
-    })
-
+      message: "Logout successful",
+      redirectTo: "/admin-login",
+    });
   } catch (error) {
-    console.error('❌ Admin logout error:', error)
+    console.error("[admin.logout] unexpected error", error);
     return res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Logout failed'
-    })
+      error: "Internal Server Error",
+      message: "Logout failed",
+    });
   }
 }

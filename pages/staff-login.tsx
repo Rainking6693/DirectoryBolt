@@ -1,66 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 export default function StaffLogin() {
-  const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const existingSession = localStorage.getItem('staff_session_token')
-    if (existingSession) {
-      router.push('/staff')
-    }
-  }, [router])
+    let isMounted = true;
+
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/staff/auth-check', {
+          credentials: 'include',
+        });
+        if (isMounted && response.ok) {
+          router.replace('/staff-dashboard').catch(() => {
+            /* ignore */
+          });
+        }
+      } catch (sessionError) {
+        console.warn('[staff-login] session check skipped', sessionError);
+      }
+    };
+
+    checkSession().catch(() => {
+      /* ignored */
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
     if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password')
-      setIsLoading(false)
-      return
+      setError('Please enter both username and password');
+      setIsLoading(false);
+      return;
     }
 
     try {
-      // Send credentials as Basic Auth
-      const credentials = btoa(`${username}:${password}`)
-      
       const response = await fetch('/api/staff/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Basic ${credentials}`
         },
-        body: JSON.stringify({ username, password })
-      })
+        credentials: 'include',
+        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.sessionToken) {
-          localStorage.setItem('staff_session_token', data.sessionToken)
-          localStorage.setItem('staff_user', JSON.stringify(data.user))
-          router.push('/staff')
-        } else {
-          setError('Authentication failed. Please check your credentials.')
-        }
+        router.replace('/staff-dashboard').catch(() => {
+          /* ignore */
+        });
       } else if (response.status === 401) {
-        setError('Invalid username or password. Please check your credentials.')
+        setError('Invalid username or password. Please check your credentials.');
       } else {
-        setError('Authentication failed. Please try again.')
+        setError('Authentication failed. Please try again.');
       }
     } catch (err) {
-      console.error('Staff auth error:', err)
-      setError('Connection error. Please check your network and try again.')
+      console.error('[staff-login] authentication error', err);
+      setError('Connection error. Please check your network and try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -181,7 +193,7 @@ export default function StaffLogin() {
                 <p>Need help? Contact your supervisor or administrator.</p>
                 <p className="mt-2">
                   <a href="/" className="font-medium text-green-600 hover:text-green-500">
-                    ← Back to DirectoryBolt
+                    Back to DirectoryBolt
                   </a>
                 </p>
               </div>
@@ -210,6 +222,5 @@ export default function StaffLogin() {
         </div>
       </div>
     </>
-  )
+  );
 }
-

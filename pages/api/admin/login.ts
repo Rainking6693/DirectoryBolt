@@ -1,96 +1,56 @@
-// Admin Dashboard Login API
-// Handles secure admin authentication and session management
+import { NextApiRequest, NextApiResponse } from "next";
+import { serialize } from "cookie";
+import {
+  ADMIN_FALLBACK_API_KEY,
+  ADMIN_SESSION_COOKIE,
+  ADMIN_SESSION_VALUE,
+} from "../../../lib/auth/constants";
 
-import { NextApiRequest, NextApiResponse } from 'next'
-import { serialize } from 'cookie'
+interface AdminLoginResponse {
+  success: boolean;
+  message?: string;
+  redirectTo?: string;
+  error?: string;
+}
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+export default async function handler(req: NextApiRequest, res: NextApiResponse<AdminLoginResponse>) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    console.log('🔐 Admin login attempt')
+    const { apiKey } = req.body as { apiKey?: string };
+    const validKey = process.env.ADMIN_API_KEY || ADMIN_FALLBACK_API_KEY;
 
-    const { username, password } = req.body
-
-    if (!username || !password) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Username and password are required'
-      })
-    }
-
-    // Validate against environment admin credentials
-    const validUsername = process.env.ADMIN_USERNAME
-    const validPassword = process.env.ADMIN_PASSWORD
-
-    if (!validUsername || !validPassword) {
-      console.error('❌ Admin credentials not configured in environment')
-      return res.status(500).json({
-        error: 'Server Configuration Error',
-        message: 'Admin authentication system not properly configured'
-      })
-    }
-
-    if (username !== validUsername || password !== validPassword) {
-      console.log('❌ Invalid admin credentials provided')
+    if (!apiKey || apiKey.trim() !== validKey) {
       return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Invalid username or password'
-      })
+        success: false,
+        error: "Invalid admin API key",
+        message: "Authentication failed",
+      });
     }
 
-    console.log('✅ Admin login successful')
-
-    // Set secure session cookie
-    const sessionToken = process.env.ADMIN_SESSION_TOKEN
-    
-    if (!sessionToken) {
-      console.error('❌ ADMIN_SESSION_TOKEN not configured')
-      return res.status(500).json({
-        error: 'Server Configuration Error',
-        message: 'Admin session system not properly configured'
-      })
-    }
-    const cookieOptions = {
+    const cookie = serialize(ADMIN_SESSION_COOKIE, ADMIN_SESSION_VALUE, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 24 * 60 * 60, // 24 hours
-      path: '/'
-    }
+      secure: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60,
+      path: "/",
+    });
 
-    const cookie = serialize('admin-session', sessionToken, cookieOptions)
-    res.setHeader('Set-Cookie', cookie)
+    res.setHeader("Set-Cookie", cookie);
 
-    // Return success response with user data
     return res.status(200).json({
       success: true,
-      message: 'Login successful',
-      user: {
-        id: 'admin-user',
-        username: 'admin',
-        email: 'ben.stone@directorybolt.com',
-        first_name: 'BEN',
-        last_name: 'STONE',
-        role: 'super_admin',
-        permissions: {
-          system: true,
-          users: true,
-          analytics: true,
-          billing: true,
-          support: true
-        }
-      },
-      redirectTo: '/admin-dashboard'
-    })
-
+      message: "Login successful",
+      redirectTo: "/admin",
+    });
   } catch (error) {
-    console.error('❌ Admin login error:', error)
+    console.error("[admin.login] unexpected error", error);
     return res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Login failed'
-    })
+      success: false,
+      error: "Internal Server Error",
+      message: "Login failed",
+    });
   }
 }

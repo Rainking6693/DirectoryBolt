@@ -1,53 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
 
 export default function AdminLogin() {
-  const router = useRouter()
-  const [apiKey, setApiKey] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const router = useRouter();
+  const [apiKey, setApiKey] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const existingKey = localStorage.getItem('admin_api_key')
-    if (existingKey) {
-      router.push('/admin')
-    }
-  }, [router])
+    let isMounted = true;
+
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/admin/auth-check", {
+          credentials: "include",
+        });
+
+        if (isMounted && response.ok) {
+          router.replace("/admin").catch(() => {
+            /* ignore */
+          });
+        }
+      } catch (sessionError) {
+        console.warn("[admin-login] session check skipped", sessionError);
+      }
+    };
+
+    checkSession().catch(() => {
+      /* ignored */
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     if (!apiKey.trim()) {
-      setError('Please enter your admin API key')
-      setIsLoading(false)
-      return
+      setError("Please enter your admin API key");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch('/api/admin/config-check', {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey.trim()}`,
+          "Content-Type": "application/json",
         },
-      })
+        credentials: "include",
+        body: JSON.stringify({ apiKey: apiKey.trim() }),
+      });
 
       if (response.ok) {
-        localStorage.setItem('admin_api_key', apiKey.trim())
-        router.push('/admin')
+        router.replace("/admin").catch(() => {
+          /* ignore */
+        });
       } else if (response.status === 401) {
-        setError('Invalid admin API key. Please check your credentials.')
+        setError("Invalid admin API key. Please check your credentials.");
       } else {
-        setError('Authentication failed. Please try again.')
+        setError("Authentication failed. Please try again.");
       }
     } catch (err) {
-      console.error('Admin auth error:', err)
-      setError('Connection error. Please check your network and try again.')
+      console.error("[admin-login] authentication error", err);
+      setError("Connection error. Please check your network and try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -148,17 +173,17 @@ export default function AdminLogin() {
                 <p>Need help? Contact your system administrator.</p>
                 <p className="mt-2">
                   <a href="/" className="font-medium text-blue-600 hover:text-blue-500">
-                    ← Back to DirectoryBolt
+                    Back to DirectoryBolt
                   </a>
                 </p>
               </div>
             </div>
           </form>
 
-          <div className="mt-8 bg-volt-50 border border-volt-200 rounded-md p-4">
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-volt-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"
                     d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -167,9 +192,9 @@ export default function AdminLogin() {
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-volt-800">Security Notice</h3>
-                <div className="mt-2 text-sm text-volt-700">
-                  <p>This is a secure admin area. Your API key will be stored locally and used for authentication.</p>
+                <h3 className="text-sm font-medium text-blue-800">Security Notice</h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>This is a secure admin area. Your API key is validated against the DirectoryBolt configuration.</p>
                 </div>
               </div>
             </div>
@@ -177,6 +202,5 @@ export default function AdminLogin() {
         </div>
       </div>
     </>
-  )
+  );
 }
-

@@ -1,83 +1,82 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
-
-// BYPASS MODE: In-memory storage for testing when Supabase not configured
-const inMemoryCustomers = new Map<string, any>()
-
-const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-  : null
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { createClient } from '@supabase/supabase-js';
+import {
+  ADMIN_SESSION_COOKIE,
+  ADMIN_SESSION_VALUE,
+  STAFF_SESSION_COOKIE,
+  STAFF_SESSION_VALUE,
+} from '../../../lib/auth/constants';
+import {
+  getTestCustomerStore,
+  upsertTestCustomer,
+} from '../../../lib/testData/customers';
 
 interface CreateCustomerRequest {
-  firstName: string
-  lastName: string
-  businessName: string
-  email: string
-  phone?: string
-  website?: string
-  packageType?: string
-  directoryLimit?: number
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  email: string;
+  phone?: string;
+  website?: string;
+  packageType?: string;
+  directoryLimit?: number;
 }
 
 interface CreateCustomerResponse {
-  success: boolean
-  customer?: any
-  customerId?: string
-  error?: string
-  message?: string
+  success: boolean;
+  customer?: any;
+  customerId?: string;
+  error?: string;
+  message?: string;
+  notes?: string[];
 }
+
+const hasSupabaseConfig = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
+);
+
+const supabase = hasSupabaseConfig
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+      process.env.SUPABASE_SERVICE_ROLE_KEY as string,
+    )
+  : null;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<CreateCustomerResponse>
+  res: NextApiResponse<CreateCustomerResponse>,
 ) {
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST'])
+    res.setHeader('Allow', ['POST']);
     return res.status(405).json({
       success: false,
-      error: 'Method not allowed'
-    })
+      error: 'Method not allowed',
+    });
   }
 
   try {
-    // Check staff/admin authentication
-    const authHeader = req.headers.authorization
-    const staffSession = req.cookies.staff_session
-    const adminKey = req.headers['x-admin-key']
-    
-    const validStaffKey = process.env.STAFF_API_KEY
-    const validAdminKey = process.env.ADMIN_API_KEY
-    
-    const isStaffAuth = authHeader === `Bearer ${validStaffKey}` || !!staffSession
-    const isAdminAuth = adminKey === validAdminKey || authHeader === `Bearer ${validAdminKey}`
-    
-    if (!isStaffAuth && !isAdminAuth) {
+    const staffSession = req.cookies[STAFF_SESSION_COOKIE];
+    const adminSession = req.cookies[ADMIN_SESSION_COOKIE];
+
+    if (staffSession !== STAFF_SESSION_VALUE && adminSession !== ADMIN_SESSION_VALUE) {
       return res.status(401).json({
         success: false,
         error: 'Unauthorized',
-        message: 'Staff or admin authentication required'
-      })
+        message: 'Valid staff or admin session required',
+      });
     }
-    
-    const data: CreateCustomerRequest = req.body
-    
-    // Validate required fields
-    if (!data.firstName || !data.lastName || !data.businessName || !data.email) {
+
+    const data: CreateCustomerRequest = req.body;
+
+    if (!data?.firstName || !data?.lastName || !data?.businessName || !data?.email) {
       return res.status(400).json({
         success: false,
         error: 'Validation error',
-        message: 'First name, last name, business name, and email are required'
-      })
+        message: 'First name, last name, business name, and email are required',
+      });
     }
-    
-    // BYPASS MODE: Use Supabase if configured, otherwise in-memory
-    let customer: any
-    
+
     if (supabase) {
-      // Real Supabase insert
       const { data: customerData, error } = await supabase
         .from('customers')
         .insert({
@@ -91,59 +90,59 @@ export default async function handler(
           directoryLimit: data.directoryLimit || 25,
           status: 'pending',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         })
         .select()
-        .single()
-      
+        .single();
+
       if (error) {
-        console.error('❌ Failed to create customer in Supabase:', error)
+        console.error('[customers.create] supabase insert failed', error);
         return res.status(500).json({
           success: false,
           error: 'Database error',
-          message: error.message
-        })
+          message: error.message,
+        });
       }
-      
-      customer = customerData
-      console.log(`✅ Customer created in Supabase: ${customer.id}`)
-      
-    } else {
-      // In-memory bypass for testing
-      const customerId = `test-customer-${Date.now()}`
-      customer = {
-        id: customerId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        businessName: data.businessName,
-        email: data.email,
-        phone: data.phone || null,
-        website: data.website || null,
-        packageType: data.packageType || 'STARTER',
-        directoryLimit: data.directoryLimit || 25,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-      
-      inMemoryCustomers.set(customerId, customer)
-      console.log(`⚠️  Customer created IN-MEMORY (Supabase not configured): ${customerId}`)
-      console.warn('🔶 DEFERRED: Set SUPABASE_SERVICE_ROLE_KEY to use real database')
+
+      return res.status(201).json({
+        success: true,
+        customer: customerData,
+        customerId: customerData.id,
+      });
     }
-    
+
+    const store = getTestCustomerStore();
+    const customerId = 'test-customer-' + Date.now();
+    const customer = upsertTestCustomer({
+      id: customerId,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      businessName: data.businessName,
+      email: data.email,
+      phone: data.phone || null,
+      website: data.website || null,
+      packageType: data.packageType || 'STARTER',
+      directoryLimit: data.directoryLimit || 25,
+      status: 'pending',
+    });
+    store.set(customerId, customer);
+
     return res.status(201).json({
       success: true,
       customer,
-      customerId: customer.id
-    })
-    
+      customerId,
+      notes: [
+        'Supabase environment variables missing - using in-memory customer store.',
+        'DEFERRED: configure SUPABASE_SERVICE_ROLE_KEY for production data.',
+      ],
+    });
   } catch (error) {
-    console.error('❌ Customer creation error:', error)
+    console.error('[customers.create] unexpected error', error);
     return res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }
 

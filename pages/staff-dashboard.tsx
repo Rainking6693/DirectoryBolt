@@ -1,16 +1,24 @@
-import React, { useState } from 'react'
-import Layout from '../components/layout/Layout'
-import RealTimeQueue from '../components/staff-dashboard/RealTimeQueue'
-import RealTimeAnalytics from '../components/staff-dashboard/RealTimeAnalytics'
-import AutoBoltQueueMonitor from '../components/staff-dashboard/AutoBoltQueueMonitor'
-import JobProgressMonitor from '../components/staff/JobProgressMonitor'
-import { useRequireStaffAuth } from '../hooks/useStaffAuth'
+import React, { useState } from 'react';
+import Layout from '../components/layout/Layout';
+import RealTimeQueue from '../components/staff-dashboard/RealTimeQueue';
+import RealTimeAnalytics from '../components/staff-dashboard/RealTimeAnalytics';
+import AutoBoltQueueMonitor from '../components/staff-dashboard/AutoBoltQueueMonitor';
+import JobProgressMonitor from '../components/staff/JobProgressMonitor';
+import { useRequireStaffAuth } from '../hooks/useStaffAuth';
+
+type TabKey = 'queue' | 'jobs' | 'analytics' | 'autobolt';
+
+const TABS: Array<{ key: TabKey; label: string; fullLabel: string }> = [
+  { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue' },
+  { key: 'jobs', label: 'Jobs', fullLabel: 'Job Progress Monitor' },
+  { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics' },
+  { key: 'autobolt', label: 'AutoBolt', fullLabel: 'AutoBolt Monitor' },
+];
 
 export default function StaffDashboard() {
-  const { user, loading, isAuthenticated, logout } = useRequireStaffAuth()
-  const [activeTab, setActiveTab] = useState<'queue' | 'analytics' | 'autobolt' | 'jobs'>('queue')
+  const { user, loading, isAuthenticated, logout } = useRequireStaffAuth();
+  const [activeTab, setActiveTab] = useState<TabKey>('queue');
 
-  // SECURITY: Show authentication loading or access denied
   if (loading) {
     return (
       <div className="min-h-screen bg-secondary-900 flex items-center justify-center">
@@ -19,7 +27,7 @@ export default function StaffDashboard() {
           <p className="text-secondary-300">Checking staff access...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
@@ -28,91 +36,71 @@ export default function StaffDashboard() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Access Denied</h1>
           <p className="text-secondary-300 mb-4">You need staff privileges to access this dashboard.</p>
-          <div className="bg-volt-500/10 border border-volt-500/20 rounded-md p-4 mb-4">
-            <p className="text-sm text-volt-400">
-              <strong>Authentication Methods:</strong><br/>
-              • API Key: Add x-staff-key header<br/>
-              • Session Cookie: staff-session<br/>
-              • Basic Auth: staff / DirectoryBoltStaff2025!
-            </p>
-          </div>
           <button
-            onClick={() => window.location.href = '/staff-login'}
+            onClick={() => {
+              window.location.href = '/staff-login';
+            }}
             className="bg-volt-500 text-secondary-900 px-4 py-2 rounded-md hover:bg-volt-400 font-medium"
           >
             Go to Staff Login
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <Layout 
-      title="Staff Dashboard - DirectoryBolt" 
+    <Layout
+      title="Staff Dashboard - DirectoryBolt"
       description="Staff dashboard for managing customer queue and monitoring processing"
     >
       <div className="min-h-screen bg-secondary-900">
-        {/* Dashboard Header */}
         <header className="bg-secondary-800 border-b border-secondary-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between py-4 lg:h-20 space-y-4 lg:space-y-0">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-4">
-                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                  <h1 className="text-xl lg:text-2xl font-black text-white flex items-center">
-                    📊 Staff Dashboard
-                  </h1>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-secondary-300 text-sm">Live Data</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-secondary-300 text-sm">Welcome, {user?.username}</span>
-                  <button
-                    onClick={logout}
-                    className="text-secondary-400 hover:text-red-400 text-sm transition-colors"
-                  >
-                    Logout
-                  </button>
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <h1 className="text-xl lg:text-2xl font-black text-white">Staff Dashboard</h1>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-secondary-300 text-sm">Live Data</span>
                 </div>
               </div>
-
-                  {/* Navigation Tabs */}
-                  <nav className="flex space-x-2 sm:space-x-8 -mb-px overflow-x-auto">
-                    {[
-                      { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue', icon: '📋' },
-                      { key: 'jobs', label: 'Jobs', fullLabel: 'Job Progress Monitor', icon: '⚡' },
-                      { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics', icon: '📈' },
-                      { key: 'autobolt', label: 'AutoBolt', fullLabel: 'AutoBolt Monitor', icon: '🤖' }
-                    ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key as any)}
-                    className={`flex items-center space-x-2 px-3 py-3 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                      activeTab === tab.key
-                        ? 'border-volt-500 text-volt-400'
-                        : 'border-transparent text-secondary-400 hover:text-secondary-300 hover:border-secondary-300'
-                    }`}
-                  >
-                    <span>{tab.icon}</span>
-                    <span className="hidden sm:inline">{tab.fullLabel}</span>
-                    <span className="sm:hidden">{tab.label}</span>
-                  </button>
-                ))}
-              </nav>
+              <div className="flex items-center space-x-4">
+                <span className="text-secondary-300 text-sm">Welcome, {user?.username}</span>
+                <button
+                  onClick={() => { void logout(); }}
+                  className="text-secondary-400 hover:text-red-400 text-sm transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
+            <nav className="flex space-x-2 sm:space-x-8 -mb-px overflow-x-auto">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center space-x-2 px-3 py-3 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                    activeTab === tab.key
+                      ? 'border-volt-500 text-volt-400'
+                      : 'border-transparent text-secondary-400 hover:text-secondary-300 hover:border-secondary-300'
+                  }`}
+                >
+                  <span className="hidden sm:inline">{tab.fullLabel}</span>
+                  <span className="sm:hidden">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
           </div>
         </header>
 
-            {/* Dashboard Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              {activeTab === 'queue' && <RealTimeQueue />}
-              {activeTab === 'jobs' && <JobProgressMonitor />}
-              {activeTab === 'analytics' && <RealTimeAnalytics />}
-              {activeTab === 'autobolt' && <AutoBoltQueueMonitor />}
-            </main>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'queue' && <RealTimeQueue />}
+          {activeTab === 'jobs' && <JobProgressMonitor />}
+          {activeTab === 'analytics' && <RealTimeAnalytics />}
+          {activeTab === 'autobolt' && <AutoBoltQueueMonitor />}
+        </main>
       </div>
     </Layout>
-  )
+  );
 }
