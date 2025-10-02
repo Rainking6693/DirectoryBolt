@@ -14,8 +14,17 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["canvas", "sharp", "playwright-chromium"]
-  included_files = ["src/assets/**", "src/templates/**", "src/styles/**"]
+  included_files = [
+    "src/assets/**",
+    "src/templates/**",
+    "src/styles/**",
+    "netlify/functions/**"
+  ]
+  directory = "netlify/functions"
+
+[functions."*"]
   timeout = 300
+
 
 [[plugins]]
   package = "@netlify/plugin-sitemap"
