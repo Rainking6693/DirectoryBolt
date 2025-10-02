@@ -219,11 +219,14 @@ function isEUCountry(countryCode) {
 }
 
 // Export configuration for Netlify
-export const config = {
-  path: "/*",
-  cache: "manual",
-  excludedPath: [
-    "/api/auth/*",
-    "/api/stripe/*"
-  ]
-};
+// NOTE: DISABLED to prevent edge function conflicts causing parsing errors
+// Edge functions can cause issues during Netlify builds
+// To enable: uncomment this config and test thoroughly
+// export const config = {
+//   path: "/*",
+//   cache: "manual",
+//   excludedPath: [
+//     "/api/auth/*",
+//     "/api/stripe/*"
+//   ]
+// };

@@ -427,13 +427,15 @@ function generateRequestId(): string {
 }
 
 // WAF configuration for Netlify
-export const config = {
-  path: "/*",
-  excludedPath: [
-    "/_next/*",
-    "/images/*",
-    "/favicon.ico",
-    "/robots.txt",
-    "/sitemap.xml"
-  ]
-};
+// NOTE: DISABLED to prevent conflicts with performance-optimizer
+// To enable: uncomment and remove performance-optimizer.js
+// export const config = {
+//   path: "/*",
+//   excludedPath: [
+//     "/_next/*",
+//     "/images/*",
+//     "/favicon.ico",
+//     "/robots.txt",
+//     "/sitemap.xml"
+//   ]
+// };
