@@ -3,7 +3,7 @@ import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "../components/layout/Layout";
-import { authenticateAdmin } from "../lib/middleware/secure-admin-auth";
+import { authenticateAdminRequest } from "../lib/auth/guards";
 
 interface AdminUser {
   id: string;
@@ -209,20 +209,8 @@ export default function AdminDashboard() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  try {
-    const auth = await authenticateAdmin(context.req as any);
-
-    if (!auth?.authenticated) {
-      return {
-        redirect: {
-          destination: "/admin-login",
-          permanent: false,
-        },
-      };
-    }
-
-    return { props: {} };
-  } catch {
+  const auth = authenticateAdminRequest(context.req as any);
+  if (!auth.ok) {
     return {
       redirect: {
         destination: "/admin-login",
@@ -230,4 +218,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
+  return { props: {} };
 };
