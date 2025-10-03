@@ -58,9 +58,12 @@ export default function RealTimeAnalytics(): JSX.Element {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/staff/analytics");
+      const response = await fetch("/api/staff/analytics", { credentials: 'include' });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Unauthorized: Please sign in to the Staff Portal');
+        }
         throw new Error(`Failed to fetch analytics: ${response.status}`);
       }
 
