@@ -554,7 +554,9 @@ export default function RealTimeQueue(): JSX.Element {
                 <tr
                   key={customer.id}
                   className="hover:bg-secondary-700/50 cursor-pointer transition-colors"
-                  onClick={() => setSelectedCustomer(customer)}
+                  onClick={() => {
+                    window.location.href = `/customers/${encodeURIComponent(customer.customer_id)}`
+                  }}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
@@ -609,12 +611,12 @@ export default function RealTimeQueue(): JSX.Element {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => setSelectedCustomer(customer)}
+                      <a
+                        href={`/customers/${encodeURIComponent(customer.customer_id)}`}
                         className="text-volt-400 hover:text-volt-300"
                       >
                         View Details
-                      </button>
+                      </a>
                       {(customer.status === "pending" ||
                         customer.status === "active") &&
                         customer.directories_submitted === 0 && (
