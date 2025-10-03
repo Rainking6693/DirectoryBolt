@@ -2,6 +2,12 @@
 // Validates staff authentication for API endpoints with secure session-based auth
 
 import { NextApiRequest, NextApiResponse } from 'next'
+import {
+  resolveStaffApiKey,
+  resolveStaffCredentials,
+  STAFF_SESSION_COOKIE,
+  STAFF_SESSION_VALUE,
+} from '../auth/constants'
 
 export interface StaffAuthResult {
   isAuthenticated: boolean
@@ -29,17 +35,10 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
     
     // Check for staff API key in headers (highest priority)
     const staffKey = req.headers['x-staff-key'] || req.headers['authorization']
-    const validStaffKey = process.env.STAFF_API_KEY
+    const validStaffKey = resolveStaffApiKey()
     
-    if (!validStaffKey) {
-      console.error('❌ STAFF_API_KEY environment variable not configured')
-      return {
-        isAuthenticated: false,
-        error: 'Authentication system not properly configured'
-      }
-    }
-    
-    if (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`) {
+    // Only evaluate API key path if a key is configured (or TEST_MODE provides fallback)
+    if (validStaffKey && (staffKey === validStaffKey || staffKey === `Bearer ${validStaffKey}`)) {
       console.log('✅ Staff authenticated via API key')
       return {
         isAuthenticated: true,
@@ -62,18 +61,9 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
     }
 
     // Check for staff session cookie (secure session-based auth)
-    const staffSession = req.cookies['staff-session']
-    const validStaffSession = process.env.STAFF_SESSION_TOKEN
+    const staffSession = req.cookies[STAFF_SESSION_COOKIE]
     
-    if (!validStaffSession) {
-      console.error('❌ STAFF_SESSION_TOKEN environment variable not configured')
-      return {
-        isAuthenticated: false,
-        error: 'Session authentication not properly configured'
-      }
-    }
-    
-    if (staffSession === validStaffSession) {
+    if (staffSession === STAFF_SESSION_VALUE) {
       console.log('✅ Staff authenticated via secure session')
       return {
         isAuthenticated: true,
@@ -95,17 +85,18 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
       }
     }
 
-    // Check for basic auth credentials (using exact credentials specified)
+    // Check for basic auth credentials (using constants with TEST_MODE fallback)
     const authHeader = req.headers.authorization
     if (authHeader && authHeader.startsWith('Basic ')) {
       const credentials = Buffer.from(authHeader.slice(6), 'base64').toString()
       const [username, password] = credentials.split(':')
       
-      // Use exact credentials from environment variables
-      const validUsername = process.env.STAFF_USERNAME || 'staff'
-      const validPassword = process.env.STAFF_PASSWORD || 'DirectoryBoltStaff2025!'
+      // Resolve credentials via constants to support TEST_MODE fallbacks
+      const creds = resolveStaffCredentials()
+      const validUsername = creds?.username
+      const validPassword = creds?.password
       
-      if (username === validUsername && password === validPassword) {
+      if (validUsername && validPassword && username === validUsername && password === validPassword) {
         console.log('✅ Staff authenticated via basic auth')
         return {
           isAuthenticated: true,
