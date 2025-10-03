@@ -11,7 +11,10 @@
     "build:minimal": "cross-env NEXT_CONFIG_FILE=\"next.config.minimal.js\" next build",
     "build:analyze": "cross-env ANALYZE=true next build",
     "build:netlify": "next build",
-    "dev": "next dev",
+    "dev": "npm run sanitize && cross-env NEXT_WP_POLL_INTERVAL=0 next dev",
+    "dev:guarded": "npm run sanitize && cross-env LOG_LEVEL=INFO node diagnose-watchpack.js || exit 0 && cross-env NEXT_WP_POLL_INTERVAL=0 next dev",
+    "sanitize": "powershell -ExecutionPolicy Bypass -File .\\sanitize-repo-light.ps1 -Force",
+    "diagnose:watchpack": "cross-env LOG_LEVEL=DEBUG node diagnose-watchpack.js",
     "lint": "next lint",
     "start": "next start",
     "analyze": "npm run build:analyze",
@@ -75,7 +78,8 @@
     "optimize:pre-build": "npm run optimize:build && npm run debug:env",
     "build:optimized": "npm run optimize:pre-build && npm run build",
     "test:production": "node scripts/production-deployment-test.js",
-    "deploy:ready": "npm run test:production && echo '✅ Deployment ready for production'"
+    "deploy:ready": "npm run test:production && echo '✅ Deployment ready for production'",
+    "postinstall": "node -e \"if(process.platform==='win32'){require('child_process').spawnSync('powershell',['-ExecutionPolicy','Bypass','-File','./sanitize-repo-light.ps1','-Force'],{stdio:'inherit'})}\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
