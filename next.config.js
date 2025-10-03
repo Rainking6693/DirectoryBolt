@@ -35,32 +35,28 @@ const nextConfig = {
   },
 
   // Narrow the dev watcher to avoid Windows reserved filenames and repo junk
-  webpackDevMiddleware: (config) => {
-    // Preserve existing ignores while adding our guard function
-    const existingIgnored = config.watchOptions && config.watchOptions.ignored
-    config.watchOptions = {
-      ...(config.watchOptions || {}),
-      // AnyMatch supports function; return true to ignore
-      ignored: (p) => {
-        if (typeof existingIgnored === 'function' && existingIgnored(p)) return true
-        if (Array.isArray(existingIgnored)) {
-          // If previous ignored are globs, let anymatch evaluate them first
-          try {
-            const anymatch = require('anymatch')
-            if (anymatch(existingIgnored)(p)) return true
-          } catch (_) {
-            // noop if anymatch not available; Next/webpack will handle array
-          }
-        }
-        return isWindows ? shouldIgnore(p) : shouldIgnore(p)
-      },
-      // Slight debounce to reduce churn on Windows FS
-      aggregateTimeout: 300,
-      // Opt-in polling can help on some Windows setups; keep disabled by default
-      // Enable via env NEXT_WP_POLL_INTERVAL
-      ...(process.env.NEXT_WP_POLL_INTERVAL
-        ? { poll: Number(process.env.NEXT_WP_POLL_INTERVAL) || 1000 }
-        : {}),
+  webpack: (config, { dev }) => {
+    if (dev) {
+      const ignored = [
+        '**/node_modules/**',
+        '**/.next/**',
+        '**/.git/**',
+        '**/.cache/**',
+        // Root junk like "--date=iso"
+        '**/--*',
+      ]
+      if (isWindows) {
+        ignored.push('**/NUL', '**/CON', '**/PRN', '**/AUX')
+        ignored.push('**/COM[1-9]', '**/LPT[1-9]')
+      }
+      config.watchOptions = {
+        ...(config.watchOptions || {}),
+        ignored,
+        aggregateTimeout: 300,
+        ...(process.env.NEXT_WP_POLL_INTERVAL
+          ? { poll: Number(process.env.NEXT_WP_POLL_INTERVAL) || 1000 }
+          : {}),
+      }
     }
     return config
   },
