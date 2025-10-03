@@ -1,5 +1,6 @@
 // Optimized Database Queries and Connection Management
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { getSupabaseServerConfig } from '../server/supabaseEnv'
 
 class DatabaseManager {
   private static instance: DatabaseManager
@@ -8,17 +9,7 @@ class DatabaseManager {
   private connectionPool: SupabaseClient[] = []
 
   private constructor() {
-    const supabaseUrl =
-      process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-    const supabaseServiceKey =
-      process.env.SUPABASE_SERVICE_ROLE_KEY ??
-      process.env.SUPABASE_SERVICE_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-      ''
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Supabase environment variables are not configured')
-    }
+    const { url: supabaseUrl, serviceRoleKey: supabaseServiceKey } = getSupabaseServerConfig()
 
     this.client = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -229,3 +220,4 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_batch_operations_status ON batch_ope
 
 export const dbManager = DatabaseManager.getInstance()
 export default DatabaseManager
+

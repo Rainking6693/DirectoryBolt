@@ -1,10 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { serialize } from 'cookie';
 import {
-  STAFF_FALLBACK_PASSWORD,
-  STAFF_FALLBACK_USERNAME,
   STAFF_SESSION_COOKIE,
   STAFF_SESSION_VALUE,
+  createSessionCookie,
+  resolveStaffCredentials,
 } from '../../../lib/auth/constants';
 
 interface StaffLoginResponse {
@@ -23,6 +22,8 @@ interface StaffLoginResponse {
   message?: string;
 }
 
+const STAFF_SESSION_MAX_AGE = 7 * 24 * 60 * 60;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<StaffLoginResponse>,
@@ -36,15 +37,23 @@ export default async function handler(
   }
 
   try {
+    const credentials = resolveStaffCredentials();
+
+    if (!credentials) {
+      console.error('[staff.login] STAFF credentials missing while TEST_MODE disabled');
+      return res.status(500).json({
+        success: false,
+        error: 'Configuration error',
+        message: 'STAFF_USERNAME and STAFF_PASSWORD must be configured or TEST_MODE enabled.',
+      });
+    }
+
     const { username, password } = (req.body || {}) as {
       username?: string;
       password?: string;
     };
 
-    const validUsername = process.env.STAFF_USERNAME || STAFF_FALLBACK_USERNAME;
-    const validPassword = process.env.STAFF_PASSWORD || STAFF_FALLBACK_PASSWORD;
-
-    if (!username || !password || username !== validUsername || password !== validPassword) {
+    if (!username || !password || username !== credentials.username || password !== credentials.password) {
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials',
@@ -54,7 +63,7 @@ export default async function handler(
 
     const user = {
       id: 'staff-user',
-      username: validUsername,
+      username: credentials.username,
       email: 'ben.stone@directorybolt.com',
       first_name: 'Staff',
       last_name: 'User',
@@ -68,13 +77,7 @@ export default async function handler(
       },
     };
 
-    const cookie = serialize(STAFF_SESSION_COOKIE, STAFF_SESSION_VALUE, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    });
+    const cookie = createSessionCookie(STAFF_SESSION_COOKIE, STAFF_SESSION_VALUE, STAFF_SESSION_MAX_AGE);
 
     res.setHeader('Set-Cookie', cookie);
 

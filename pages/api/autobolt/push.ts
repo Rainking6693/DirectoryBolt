@@ -1,11 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createClient } from "@supabase/supabase-js";
-import {
-  ADMIN_SESSION_COOKIE,
-  ADMIN_SESSION_VALUE,
-  STAFF_SESSION_COOKIE,
-  STAFF_SESSION_VALUE,
-} from "../../../lib/auth/constants";
+import { authenticateStaffRequest } from "../../../lib/auth/guards";
+import { TEST_MODE_ENABLED } from "../../../lib/auth/constants";
+import { getSupabaseAdminClient } from "../../../lib/server/supabaseAdmin";
 
 interface PushToAutoBoltRequest {
   customerId: string;
@@ -22,17 +18,6 @@ interface PushToAutoBoltResponse {
   notes?: string[];
 }
 
-const hasSupabaseConfig = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
-
-const supabase = hasSupabaseConfig
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.SUPABASE_SERVICE_ROLE_KEY as string,
-    )
-  : null;
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<PushToAutoBoltResponse>,
@@ -46,14 +31,14 @@ export default async function handler(
   }
 
   try {
-    const staffSession = req.cookies[STAFF_SESSION_COOKIE];
-    const adminSession = req.cookies[ADMIN_SESSION_COOKIE];
+    const auth = authenticateStaffRequest(req);
 
-    if (staffSession !== STAFF_SESSION_VALUE && adminSession !== ADMIN_SESSION_VALUE) {
-      return res.status(401).json({
+    if (!auth.ok) {
+      const status = auth.reason === 'CONFIG' ? 500 : 401;
+      return res.status(status).json({
         success: false,
-        error: "Unauthorized",
-        message: "Valid staff or admin session required",
+        error: auth.reason === 'CONFIG' ? 'Configuration error' : 'Unauthorized',
+        message: auth.message ?? 'Valid staff or admin authentication required',
       });
     }
 
@@ -66,6 +51,8 @@ export default async function handler(
         message: "Customer ID is required",
       });
     }
+
+    const supabase = getSupabaseAdminClient();
 
     if (supabase) {
       const { data: customerData, error: customerError } = await supabase
@@ -119,6 +106,14 @@ export default async function handler(
       });
     }
 
+    if (!TEST_MODE_ENABLED) {
+      return res.status(500).json({
+        success: false,
+        error: "Configuration error",
+        message: "Supabase integration is not configured. Enable TEST_MODE for local queue testing.",
+      });
+    }
+
     return res.status(201).json({
       success: true,
       queueId: "test123",
@@ -132,8 +127,8 @@ export default async function handler(
       },
       jobId: "test123",
       notes: [
-        "Supabase environment variables missing - returning bypass queue response.",
-        "DEFERRED: configure Supabase and AutoBolt orchestrator integration.",
+        "TEST_MODE enabled – returning in-memory AutoBolt queue response.",
+        "Configure Supabase and AutoBolt orchestrator integration for production queues.",
       ],
     });
   } catch (error) {
@@ -145,4 +140,3 @@ export default async function handler(
     });
   }
 }
-

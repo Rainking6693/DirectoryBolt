@@ -1,14 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServerConfig } from './supabaseEnv'
 
 import type { DirectoryBoltDatabase, DirectoryBoltSupabaseClient } from '../../types/supabase'
 
-export function createSupabaseAdminClient(): DirectoryBoltSupabaseClient {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+let cachedClient: DirectoryBoltSupabaseClient | null = null
 
-  if (!supabaseUrl || !serviceKey) {
-    throw new Error('Missing Supabase admin configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')
-  }
+export function createSupabaseAdminClient(): DirectoryBoltSupabaseClient {
+  const { url: supabaseUrl, serviceRoleKey: serviceKey } = getSupabaseServerConfig()
 
   return createClient<DirectoryBoltDatabase, 'public'>(supabaseUrl, serviceKey, {
     auth: {
@@ -16,4 +14,18 @@ export function createSupabaseAdminClient(): DirectoryBoltSupabaseClient {
       persistSession: false
     }
   })
+}
+
+export function getSupabaseAdminClient(): DirectoryBoltSupabaseClient | null {
+  if (cachedClient) {
+    return cachedClient
+  }
+
+  try {
+    cachedClient = createSupabaseAdminClient()
+    return cachedClient
+  } catch (error) {
+    console.warn('Supabase admin client unavailable:', error)
+    return null
+  }
 }

@@ -1,11 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { authenticateStaffRequest } from '../../../lib/auth/guards';
 import {
-  ADMIN_SESSION_COOKIE,
-  ADMIN_SESSION_VALUE,
-  STAFF_SESSION_COOKIE,
-  STAFF_SESSION_VALUE,
+  TEST_MODE_ENABLED,
 } from '../../../lib/auth/constants';
+import { getSupabaseAdminClient } from '../../../lib/server/supabaseAdmin';
 import {
   getTestCustomerStore,
   upsertTestCustomer,
@@ -31,17 +29,6 @@ interface CreateCustomerResponse {
   notes?: string[];
 }
 
-const hasSupabaseConfig = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
-
-const supabase = hasSupabaseConfig
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.SUPABASE_SERVICE_ROLE_KEY as string,
-    )
-  : null;
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<CreateCustomerResponse>,
@@ -55,14 +42,14 @@ export default async function handler(
   }
 
   try {
-    const staffSession = req.cookies[STAFF_SESSION_COOKIE];
-    const adminSession = req.cookies[ADMIN_SESSION_COOKIE];
+    const auth = authenticateStaffRequest(req);
 
-    if (staffSession !== STAFF_SESSION_VALUE && adminSession !== ADMIN_SESSION_VALUE) {
-      return res.status(401).json({
+    if (!auth.ok) {
+      const status = auth.reason === 'CONFIG' ? 500 : 401;
+      return res.status(status).json({
         success: false,
-        error: 'Unauthorized',
-        message: 'Valid staff or admin session required',
+        error: auth.reason === 'CONFIG' ? 'Configuration error' : 'Unauthorized',
+        message: auth.message ?? 'Valid staff or admin authentication required',
       });
     }
 
@@ -75,6 +62,8 @@ export default async function handler(
         message: 'First name, last name, business name, and email are required',
       });
     }
+
+    const supabase = getSupabaseAdminClient();
 
     if (supabase) {
       const { data: customerData, error } = await supabase
@@ -111,6 +100,14 @@ export default async function handler(
       });
     }
 
+    if (!TEST_MODE_ENABLED) {
+      return res.status(500).json({
+        success: false,
+        error: 'Configuration error',
+        message: 'Supabase credentials are missing. Enable TEST_MODE for local in-memory testing.',
+      });
+    }
+
     const store = getTestCustomerStore();
     const customerId = 'test-customer-' + Date.now();
     const customer = upsertTestCustomer({
@@ -132,8 +129,8 @@ export default async function handler(
       customer,
       customerId,
       notes: [
-        'Supabase environment variables missing - using in-memory customer store.',
-        'DEFERRED: configure SUPABASE_SERVICE_ROLE_KEY for production data.',
+        'TEST_MODE enabled – using in-memory customer store.',
+        'Configure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to persist customers.',
       ],
     });
   } catch (error) {
@@ -145,4 +142,3 @@ export default async function handler(
     });
   }
 }
-

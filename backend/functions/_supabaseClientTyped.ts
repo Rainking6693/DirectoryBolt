@@ -1,5 +1,6 @@
 import type { HandlerEvent, HandlerResponse } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseServerConfig } from "../../lib/server/supabaseEnv";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const client = require("./_supabaseClient.js");
@@ -41,15 +42,7 @@ type HelperShape = {
 
 const helperClient = client as HelperShape;
 
-const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_KEY;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error(
-    "Missing Supabase admin configuration: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required",
-  );
-}
+const { url: supabaseUrl, serviceRoleKey: supabaseServiceKey } = getSupabaseServerConfig();
 
 export const supabase = createClient<DirectoryBoltDatabase, "public">(
   supabaseUrl,
@@ -89,5 +82,4 @@ export type {
   JobStatus,
   Json,
 } from "../../types/supabase";
-
 

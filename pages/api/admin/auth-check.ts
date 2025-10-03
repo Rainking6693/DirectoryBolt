@@ -1,11 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import {
-  ADMIN_FALLBACK_API_KEY,
-  ADMIN_SESSION_COOKIE,
-  ADMIN_SESSION_VALUE,
-  STAFF_SESSION_COOKIE,
-  STAFF_SESSION_VALUE,
-} from "../../../lib/auth/constants";
+import { authenticateAdminRequest } from "../../../lib/auth/guards";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -13,30 +7,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const adminSession = req.cookies[ADMIN_SESSION_COOKIE];
-    const staffSession = req.cookies[STAFF_SESSION_COOKIE];
-    const authHeader = req.headers.authorization;
-    const bearerToken = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const validKey = process.env.ADMIN_API_KEY || ADMIN_FALLBACK_API_KEY;
+    const auth = authenticateAdminRequest(req);
 
-    const hasSession = adminSession === ADMIN_SESSION_VALUE || staffSession === STAFF_SESSION_VALUE;
-    const hasKey = bearerToken === validKey;
-
-    if (!hasSession && !hasKey) {
-      return res.status(401).json({
-        error: "Unauthorized",
-        message: "Admin authentication required",
+    if (!auth.ok) {
+      const status = auth.reason === 'CONFIG' ? 500 : 401;
+      return res.status(status).json({
+        error: auth.reason === 'CONFIG' ? 'Configuration error' : 'Unauthorized',
+        message: auth.message ?? 'Admin authentication required',
       });
     }
 
     return res.status(200).json({
       authenticated: true,
+      via: auth.via,
       user: {
         id: "admin-user",
         username: "admin",
         email: "ben.stone@directorybolt.com",
-        first_name: "BEN",
-        last_name: "STONE",
+        first_name: "Ben",
+        last_name: "Stone",
         role: "super_admin",
         permissions: {
           system: true,

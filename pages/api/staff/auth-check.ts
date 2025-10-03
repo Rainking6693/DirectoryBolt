@@ -1,9 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  STAFF_SESSION_COOKIE,
-  STAFF_SESSION_VALUE,
-  STAFF_FALLBACK_USERNAME,
-} from '../../../lib/auth/constants';
+import { authenticateStaffRequest } from '../../../lib/auth/guards';
+import { resolveStaffCredentials, STAFF_FALLBACK_USERNAME } from '../../../lib/auth/constants';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -11,32 +8,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const session = req.cookies[STAFF_SESSION_COOKIE];
+    const auth = authenticateStaffRequest(req);
 
-    if (session === STAFF_SESSION_VALUE) {
-      return res.status(200).json({
-        authenticated: true,
-        user: {
-          id: 'staff-user',
-          username: process.env.STAFF_USERNAME || STAFF_FALLBACK_USERNAME,
-          email: 'ben.stone@directorybolt.com',
-          first_name: 'Staff',
-          last_name: 'User',
-          role: 'staff_manager',
-          permissions: {
-            queue: true,
-            processing: true,
-            analytics: true,
-            support: true,
-            customers: true,
-          },
-        },
+    if (!auth.ok) {
+      const status = auth.reason === 'CONFIG' ? 500 : 401;
+      return res.status(status).json({
+        error: auth.reason === 'CONFIG' ? 'Configuration error' : 'Unauthorized',
+        message: auth.message ?? 'Staff session not found or expired',
       });
     }
 
-    return res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Staff session not found or expired',
+    const credentials = resolveStaffCredentials();
+
+    return res.status(200).json({
+      authenticated: true,
+      via: auth.via,
+      user: {
+        id: `${auth.role ?? 'staff'}-user`,
+        username: credentials?.username ?? STAFF_FALLBACK_USERNAME,
+        email: 'ben.stone@directorybolt.com',
+        first_name: auth.role === 'admin' ? 'Admin' : 'Staff',
+        last_name: auth.role === 'admin' ? 'User' : 'User',
+        role: auth.role === 'admin' ? 'admin_manager' : 'staff_manager',
+        permissions: {
+          queue: true,
+          processing: true,
+          analytics: true,
+          support: true,
+          customers: true,
+        },
+      },
     });
   } catch (error) {
     console.error('[staff.auth-check] unexpected error', error);

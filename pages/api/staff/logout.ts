@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { serialize } from 'cookie';
-import { STAFF_SESSION_COOKIE } from '../../../lib/auth/constants';
+import { clearSessionCookie, STAFF_SESSION_COOKIE } from '../../../lib/auth/constants';
 
 interface StaffLogoutResponse {
   success: boolean;
@@ -18,13 +17,7 @@ export default async function handler(
   }
 
   try {
-    const cookie = serialize(STAFF_SESSION_COOKIE, '', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 0,
-      path: '/',
-    });
+    const cookie = clearSessionCookie(STAFF_SESSION_COOKIE);
 
     res.setHeader('Set-Cookie', cookie);
 

@@ -9,6 +9,7 @@
 const { exec } = require("child_process");
 const { promisify } = require("util");
 const { createClient } = require("@supabase/supabase-js");
+const { getSupabaseServerConfig } = require('../../../lib/server/supabaseEnv');
 
 const execAsync = promisify(exec);
 
@@ -31,14 +32,9 @@ class AutoScaler {
   }
 
   createSupabaseClient() {
-    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    const { url, serviceRoleKey } = getSupabaseServerConfig();
 
-    if (!url || !key) {
-      throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured for auto-scaler");
-    }
-
-    return createClient(url, key, {
+    return createClient(url, serviceRoleKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,

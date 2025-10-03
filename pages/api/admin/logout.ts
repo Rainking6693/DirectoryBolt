@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { serialize } from "cookie";
-import { ADMIN_SESSION_COOKIE } from "../../../lib/auth/constants";
+import { clearSessionCookie, ADMIN_SESSION_COOKIE } from "../../../lib/auth/constants";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -8,13 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const cookie = serialize(ADMIN_SESSION_COOKIE, "", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 0,
-      path: "/",
-    });
+    const cookie = clearSessionCookie(ADMIN_SESSION_COOKIE);
 
     res.setHeader("Set-Cookie", cookie);
 

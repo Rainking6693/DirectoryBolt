@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { authenticateAdminRequest } from '../../../lib/auth/guards';
 import fs from 'fs';
 import path from 'path';
 
@@ -49,22 +50,6 @@ function checkFileExists(filePath: string, description: string): ConfigStatus {
   }
 }
 
-function authenticateAdmin(req: NextApiRequest): boolean {
-  const authHeader = req.headers.authorization;
-  const adminKey = process.env.ADMIN_API_KEY;
-  
-  if (!adminKey) {
-    return false;
-  }
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return false;
-  }
-  
-  const token = authHeader.substring(7);
-  return token === adminKey;
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -84,12 +69,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
-  // Check admin authentication
-  if (!authenticateAdmin(req)) {
-    return res.status(401).json({
+  const auth = authenticateAdminRequest(req);
+
+  if (!auth.ok) {
+    const status = auth.reason === 'CONFIG' ? 500 : 401;
+    return res.status(status).json({
       ok: false,
-      code: 'UNAUTHORIZED',
-      message: 'Admin authentication required'
+      code: auth.reason === 'CONFIG' ? 'CONFIG_ERROR' : 'UNAUTHORIZED',
+      message: auth.message ?? 'Admin authentication required'
     });
   }
 
