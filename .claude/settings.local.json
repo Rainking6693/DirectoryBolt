@@ -65,7 +65,11 @@
       "Bash(rm:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx next:*)",
+      "Bash(rd:*)",
+      "Bash(where yarn)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

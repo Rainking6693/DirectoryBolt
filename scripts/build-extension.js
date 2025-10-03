@@ -254,7 +254,7 @@ class ExtensionBuilder {
     for (const file of files) {
       const content = fs.readFileSync(file);
       const hash = crypto.createHash('sha256').update(content).digest('hex');
-      const relativePath = path.relative(this.packageDir, file);
+      const relativePath = (file && this.packageDir) ? path.relative(this.packageDir, file) : (file || 'unknown file');
       checksums[relativePath] = hash;
     }
     
