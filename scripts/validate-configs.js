@@ -65,7 +65,8 @@ for (const f of jsonFiles) {
     
     // Check for truncated JSON (common sign of corruption)
     if (txt.trim().endsWith(',') || txt.trim().endsWith('{') || txt.trim().endsWith('[')) {
-      console.error(`✖ Truncated JSON: ${path.relative(process.cwd(), f)}`);
+      const safePath = (f && process.cwd()) ? path.relative(process.cwd(), f) : (f || 'unknown file');
+      console.error(`✖ Truncated JSON: ${safePath}`);
       console.error(`  File appears to be incomplete or corrupted`);
       hadError = true;
       continue;
@@ -74,7 +75,7 @@ for (const f of jsonFiles) {
     JSON.parse(txt);
     validatedCount++;
   } catch (e) {
-    const relativePath = path.relative(process.cwd(), f);
+    const relativePath = (f && process.cwd()) ? path.relative(process.cwd(), f) : (f || 'unknown file');
     console.error(`✖ Invalid JSON: ${relativePath}`);
     console.error(`  ${e.message}`);
     

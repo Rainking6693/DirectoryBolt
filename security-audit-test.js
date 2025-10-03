@@ -482,7 +482,8 @@ class SecurityAuditSuite {
                     if (stat.isDirectory()) {
                         scan(fullPath);
                     } else if (item.endsWith('.js') || item.endsWith('.ts')) {
-                        files.push(path.relative(this.projectRoot, fullPath));
+                        const relativePath = (fullPath && this.projectRoot) ? path.relative(this.projectRoot, fullPath) : (fullPath || 'unknown file');
+                        files.push(relativePath);
                     }
                 }
             };
@@ -507,7 +508,7 @@ class SecurityAuditSuite {
                 } else if (stat.isFile() && (item.endsWith('.js') || item.endsWith('.ts') || item.endsWith('.json'))) {
                     try {
                         const content = fs.readFileSync(fullPath, 'utf8');
-                        const relativePath = path.relative(this.projectRoot, fullPath);
+                        const relativePath = (fullPath && this.projectRoot) ? path.relative(this.projectRoot, fullPath) : (fullPath || 'unknown file');
                         
                         for (const pattern of patterns) {
                             const matches = content.match(pattern.pattern);

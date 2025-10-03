@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
+import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "../components/layout/Layout";
+import { authenticateAdminRequest } from "../lib/auth/guards";
 
 interface AdminUser {
   id: string;
@@ -205,3 +207,16 @@ export default function AdminDashboard() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const auth = authenticateAdminRequest(context.req as any);
+  if (!auth.ok) {
+    return {
+      redirect: {
+        destination: "/admin-login",
+        permanent: false,
+      },
+    };
+  }
+  return { props: {} };
+};
