@@ -2,6 +2,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { rateLimit } from '../../../lib/utils/rate-limit'
 import { queueManager } from '../../../lib/services/queue-manager'
+import { getSupabaseAdminClient } from '../../../lib/server/supabaseAdmin'
+import { enqueueCustomerForAutoBolt } from '../../../lib/server/autoboltQueueSync'
 import type { AutoBoltResponse } from '../../../types/api'
 import {
   findPendingCustomerBySessionOrEmail,
@@ -111,8 +113,22 @@ export default async function handler(
     // Add to queue for processing (this marks them for AutoBolt processing)
     console.log(`🔄 Adding customer ${customerRecord.customerId} to AutoBolt processing queue`)
     
-    // The customer is already in Airtable with 'pending' status
-    // Queue manager will pick them up when processQueue() is called
+    // Enqueue into Supabase-backed AutoBolt processing queue
+    const supabase = getSupabaseAdminClient()
+    if (supabase) {
+      const result = await enqueueCustomerForAutoBolt(supabase as any, {
+        customer_id: customerRecord.customerId,
+        business_name: customerRecord.businessName,
+        email: customerRecord.email,
+        package_type: customerRecord.packageType
+      } as any)
+      if (!result.success) {
+        console.warn('[autobolt.queue] enqueue failed/deferred:', result.message)
+      }
+    } else {
+      console.warn('[autobolt.queue] Supabase not configured; enqueue deferred')
+    }
+
     const queueId = `queue-${Date.now()}-${customerRecord.customerId}`
     
     // Estimate completion time based on package type

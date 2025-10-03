@@ -4,6 +4,7 @@ import {
   TEST_MODE_ENABLED,
 } from '../../../lib/auth/constants';
 import { getSupabaseAdminClient } from '../../../lib/server/supabaseAdmin';
+import { enqueueCustomerForAutoBolt } from '../../../lib/server/autoboltQueueSync';
 import {
   getTestCustomerStore,
   upsertTestCustomer,
@@ -93,10 +94,20 @@ export default async function handler(
         });
       }
 
+      // AutoBolt enqueue (server-side) — logs success/failure
+      const enqueue = await enqueueCustomerForAutoBolt(supabase as any, customerData as any)
+      if (!enqueue.success) {
+        console.warn('[customers.create] AutoBolt enqueue deferred/failed:', enqueue.message)
+      }
+
       return res.status(201).json({
         success: true,
         customer: customerData,
         customerId: customerData.id,
+        notes: enqueue.success ? ['Enqueued to AutoBolt processing queue'] : [
+          'AutoBolt enqueue deferred or failed',
+          enqueue.message,
+        ],
       });
     }
 
