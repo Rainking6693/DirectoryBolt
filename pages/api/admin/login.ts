@@ -5,17 +5,11 @@ import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_VALUE,
 } from "../../../lib/auth/constants";
-
-interface AdminLoginResponse {
-  success: boolean;
-  message?: string;
-  redirectTo?: string;
-  error?: string;
-}
+import type { AdminLoginResponse } from "../../../types/auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<AdminLoginResponse>) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ success: false, error: "Method not allowed" });
   }
 
   try {
@@ -26,7 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       return res.status(401).json({
         success: false,
         error: "Invalid admin API key",
-        message: "Authentication failed",
       });
     }
 
@@ -50,7 +43,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(500).json({
       success: false,
       error: "Internal Server Error",
-      message: "Login failed",
     });
   }
 }
