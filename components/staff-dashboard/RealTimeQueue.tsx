@@ -117,95 +117,45 @@ export default function RealTimeQueue(): JSX.Element {
     }
   };
 
-  const pushToAutoBolt = async (customerId: string) => {
-    // Prevent multiple simultaneous pushes for the same customer
-    if (pushingCustomers.has(customerId)) {
-      showInfo("Customer is already being pushed to AutoBolt", {
-        title: "Already in Progress",
-        autoHide: 3000,
-      });
+  const pushJobNow = async (jobId: string) => {
+    if (pushingCustomers.has(jobId)) {
+      showInfo("Job is already being pushed", { title: "Already in Progress", autoHide: 2000 });
       return;
     }
-
     try {
-      // Mark customer as being pushed
-      setPushingCustomers((prev) => new Set(prev).add(customerId));
-
-      // Show progress notification
-      const progressId = showInfo("Initiating AutoBolt processing...", {
-        title: "Pushing to AutoBolt",
-        autoHide: 2000,
-      });
-
-
-      // Get CSRF token
-      const csrfResponse = await fetch("/api/csrf-token");
-      const csrfData = await csrfResponse.json();
-
-      if (!csrfData.success) {
-        throw new Error("Failed to get CSRF token");
-      }
-
-      // Show validation progress
-      showInfo("Validating customer data and preparing for AutoBolt...", {
-        title: "Processing",
-        autoHide: 1500,
-      });
-
-      const response = await fetch("/api/staff/push-to-autobolt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfData.csrfToken,
-          Origin: window.location.origin,
-        },
+      setPushingCustomers(prev => new Set(prev).add(jobId));
+      const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+      const csrfData = await csrfResponse.json()
+      if (!csrfData.success) throw new Error('Failed to get CSRF token')
+      const response = await fetch('/api/staff/jobs/push-to-autobolt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfData.csrfToken },
         credentials: 'include',
-        body: JSON.stringify({ customer_id: customerId }),
-      });
-
+        body: JSON.stringify({ job_id: jobId })
+      })
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to push to AutoBolt");
+        const text = await response.text()
+        throw new Error(text || `HTTP ${response.status}`)
       }
-
-      const result = await response.json();
-      console.log("✅ Customer pushed to AutoBolt:", result);
-
-      // Show success with detailed information
-      notifyApiSuccess("Customer pushed to AutoBolt", [
-        `Customer ID: ${customerId}`,
-        `Business: ${result.data?.business_name || "Unknown"}`,
-        `Package: ${result.data?.package_type || "Unknown"}`,
-        `Directories: ${result.data?.directory_limit || "Unknown"}`,
-        `Priority: P${result.data?.priority_level || "Unknown"}`,
-        `Status: ${result.data?.status || "queued"}`,
-      ]);
-
-      // Refresh queue data to show updated status
-      await fetchQueueData();
+      notifyApiSuccess('Job pushed', [`Job ID: ${jobId}`])
+      await fetchQueueData()
     } catch (err) {
-      console.error("Push to AutoBolt error:", err);
-      notifyApiError(
-        "Push to AutoBolt",
-        err instanceof Error ? err.message : "Unknown error occurred",
-      );
+      console.error('Push job error:', err)
+      notifyApiError('Push Now', err instanceof Error ? err.message : 'Unknown error')
     } finally {
-      // Remove customer from pushing set
-      setPushingCustomers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(customerId);
-        return newSet;
-      });
+      setPushingCustomers(prev => { const s = new Set(prev); s.delete(jobId); return s })
     }
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    const s = (status || '').toLowerCase().replace('_','-')
+    switch (s) {
       case "pending":
         return "text-volt-400 bg-volt-400/20";
       case "in-progress":
         return "text-blue-400 bg-blue-400/20";
       case "completed":
+      case "complete":
         return "text-green-400 bg-green-400/20";
       case "failed":
         return "text-red-400 bg-red-400/20";
@@ -617,51 +567,27 @@ export default function RealTimeQueue(): JSX.Element {
                       >
                         View Details
                       </a>
-                      {(customer.status === "pending" ||
-                        customer.status === "active") &&
-                        customer.directories_submitted === 0 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              pushToAutoBolt(customer.customer_id);
-                            }}
-                            disabled={pushingCustomers.has(
-                              customer.customer_id,
-                            )}
-                            className={`${
-                              pushingCustomers.has(customer.customer_id)
-                                ? "text-gray-400 bg-gray-500/10 cursor-not-allowed"
-                                : "text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20"
-                            } px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1`}
-                          >
-                            {pushingCustomers.has(customer.customer_id) ? (
-                              <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
-                                <span>Pushing...</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>Push to AutoBolt</span>
-                                <svg
-                                  className="w-3 h-3"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                                  />
-                                </svg>
-                              </>
-                            )}
-                          </button>
-                        )}
+                      {customer.status === 'pending' && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); pushJobNow(customer.id); }}
+                          disabled={pushingCustomers.has(customer.id)}
+                          className={`${pushingCustomers.has(customer.id) ? 'text-gray-400 bg-gray-500/10 cursor-not-allowed' : 'text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20'} px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1`}
+                        >
+                          {pushingCustomers.has(customer.id) ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
+                              <span>Pushing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Push Now</span>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   </td>
-                </tr>
               ))}
             </tbody>
           </table>

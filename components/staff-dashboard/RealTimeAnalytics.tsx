@@ -49,6 +49,9 @@ export default function RealTimeAnalytics(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
+  const [detailItems, setDetailItems] = useState<any[] | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     fetchAnalytics();
@@ -130,24 +133,17 @@ export default function RealTimeAnalytics(): JSX.Element {
           </span>
         </div>
       </div>
-      {detail && (
+{detail && (
         <div className="bg-secondary-800 rounded-lg border border-secondary-700 p-4 mb-4">
           <div className="flex justify-between items-center mb-2">
             <div className="text-secondary-200 font-medium">Details: {detail}</div>
-            <button onClick={() => setDetail(null)} className="text-secondary-400 hover:text-white text-sm">Close</button>
+            <button onClick={() => { setDetail(null); setDetailItems(null); setPage(1); }} className="text-secondary-400 hover:text-white text-sm">Close</button>
           </div>
-          {/* Simple detail content based on the selected card */}
-          {detail === 'Total Customers' && (
-            <div className="text-secondary-300 text-sm">Total customers in the system: {analytics.overview.total_customers}</div>
+          {(['Total Customers','Active Customers','Completed','Success Rate'].includes(detail)) && (
+            <DetailList detail={detail} items={detailItems} setItems={setDetailItems} page={page} setPage={setPage} pageSize={pageSize} />
           )}
-          {detail === 'Active Customers' && (
-            <div className="text-secondary-300 text-sm">Customers currently in progress or active: {analytics.overview.active_customers}</div>
-          )}
-          {detail === 'Completed' && (
-            <div className="text-secondary-300 text-sm">Customers completed: {analytics.overview.completed_customers}</div>
-          )}
-          {detail === 'Success Rate' && (
-            <div className="text-secondary-300 text-sm">Overall success rate derived from directory submissions: {analytics.directory_stats.success_rate}%</div>
+          {!(['Total Customers','Active Customers','Completed','Success Rate'].includes(detail)) && (
+            <div className="text-secondary-300 text-sm">No list available for this tile yet.</div>
           )}
         </div>
       )}
@@ -295,4 +291,72 @@ export default function RealTimeAnalytics(): JSX.Element {
       </div>
     </div>
   );
+}
+
+function DetailList({ detail, items, setItems, page, setPage, pageSize }:{ detail: string, items: any[] | null, setItems: (v:any[] | null)=>void, page:number, setPage:(n:number)=>void, pageSize:number }){
+  React.useEffect(() => {
+    const map: Record<string,string> = {
+      'Total Customers': 'total_customers',
+      'Active Customers': 'active_customers',
+      'Completed': 'completed_customers',
+      'Success Rate': 'total_customers'
+    }
+    const key = map[detail]
+    if (!key) return
+    ;(async () => {
+      try {
+        setItems(null)
+        const res = await fetch(`/api/staff/analytics?detail=${encodeURIComponent(key)}`, { credentials: 'include' })
+        const json = await res.json()
+        if (res.ok && json.success !== false) {
+          setItems(json.data || [])
+        } else {
+          setItems([])
+        }
+      } catch { setItems([]) }
+    })()
+  }, [detail, setItems])
+
+  const total = items?.length || 0
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const start = (page - 1) * pageSize
+  const pageItems = (items || []).slice(start, start + pageSize)
+
+  return (
+    <div>
+      {!items && <div className="text-secondary-400 text-sm">Loading...</div>}
+      {items && items.length === 0 && <div className="text-secondary-400 text-sm">No records.</div>}
+      {items && items.length > 0 && (
+        <>
+          <table className="w-full text-sm mb-2">
+            <thead>
+              <tr className="text-secondary-400">
+                <th className="text-left py-1">Business</th>
+                <th className="text-left py-1">Email</th>
+                <th className="text-left py-1">Status</th>
+                <th className="text-left py-1">Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageItems.map((r:any, idx:number) => (
+                <tr key={idx} className="text-secondary-200">
+                  <td className="py-1">{r.business_name || 'N/A'}</td>
+                  <td className="py-1">{r.email || ''}</td>
+                  <td className="py-1">{r.status || ''}</td>
+                  <td className="py-1">{r.updated_at ? new Date(r.updated_at).toLocaleString() : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex items-center justify-between text-xs text-secondary-400">
+            <span>Page {page} / {totalPages} ({total} total)</span>
+            <div className="space-x-2">
+              <button disabled={page<=1} onClick={()=>setPage(Math.max(1, page-1))} className="px-2 py-1 bg-secondary-800 border border-secondary-700 rounded disabled:opacity-50">Prev</button>
+              <button disabled={page>=totalPages} onClick={()=>setPage(Math.min(totalPages, page+1))} className="px-2 py-1 bg-secondary-800 border border-secondary-700 rounded disabled:opacity-50">Next</button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
 }

@@ -1012,6 +1012,8 @@ function ProcessableDirectoriesWidget() {
   const [size, setSize] = React.useState<number>(50)
   const [count, setCount] = React.useState<number | null>(null)
   const [loading, setLoading] = React.useState(false)
+  const [previewOpen, setPreviewOpen] = React.useState(false)
+  const [previewItems, setPreviewItems] = React.useState<any[] | null>(null)
 
   const check = async () => {
     try {
@@ -1019,13 +1021,28 @@ function ProcessableDirectoriesWidget() {
       setCount(null)
       const res = await fetch(`/api/autobolt/directories?limit=${size}`)
       const json = await res.json()
-      if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
+      if (!res.ok && json.success === false) throw new Error(json.error || `HTTP ${res.status}`)
       setCount(json.data?.processableDirectories ?? json.data?.directories?.length ?? null)
     } catch (e) {
       setCount(null)
       console.error('Processable directories check failed:', e)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const preview = async () => {
+    try {
+      setPreviewOpen(true)
+      setPreviewItems(null)
+      const res = await fetch(`/api/autobolt/directories?limit=${size}`)
+      const json = await res.json()
+      if (!res.ok && json.success === false) throw new Error(json.error || `HTTP ${res.status}`)
+      // API returns directories array when using limit
+      setPreviewItems(json.data?.directories || [])
+    } catch (e) {
+      console.error('Preview fetch failed:', e)
+      setPreviewItems([])
     }
   }
 
@@ -1039,9 +1056,47 @@ function ProcessableDirectoriesWidget() {
         <option value={500}>500</option>
       </select>
       <button onClick={check} className="px-2 py-1 bg-secondary-800 hover:bg-secondary-700 rounded text-secondary-100 border border-secondary-700">Check</button>
+      <button onClick={preview} className="px-2 py-1 bg-secondary-800 hover:bg-secondary-700 rounded text-secondary-100 border border-secondary-700">Preview</button>
       {loading && <span className="text-secondary-400">...</span>}
       {typeof count === 'number' && (
         <span className="text-secondary-300">{count} directories</span>
+      )}
+
+      {previewOpen && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-secondary-900 border border-secondary-700 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between p-3 border-b border-secondary-800">
+              <div className="text-secondary-200 text-sm">Processable Directories (Top {size})</div>
+              <button className="text-secondary-400 hover:text-white text-sm" onClick={()=> setPreviewOpen(false)}>Close</button>
+            </div>
+            <div className="p-3">
+              {!previewItems && <div className="text-secondary-400 text-sm">Loading...</div>}
+              {previewItems && previewItems.length === 0 && <div className="text-secondary-400 text-sm">No entries.</div>}
+              {previewItems && previewItems.length > 0 && (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-secondary-400">
+                      <th className="text-left py-1">Name</th>
+                      <th className="text-left py-1">URL</th>
+                      <th className="text-left py-1">Category</th>
+                      <th className="text-left py-1">Priority</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewItems.slice(0, size).map((d:any, idx:number) => (
+                      <tr key={idx} className="text-secondary-200">
+                        <td className="py-1">{d.name}</td>
+                        <td className="py-1"><a className="text-volt-300 hover:text-volt-200" href={d.url} target="_blank" rel="noreferrer">{d.url}</a></td>
+                        <td className="py-1">{d.category}</td>
+                        <td className="py-1">{d.priority}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
