@@ -95,21 +95,8 @@ export default function RealTimeQueue(): JSX.Element {
 
   const fetchQueueData = async () => {
     try {
-      // Get stored staff auth from localStorage
-      const storedAuth = localStorage.getItem("staffAuth");
-
-      if (!storedAuth) {
-        throw new Error("Staff authentication required");
-      }
-
-      const headers: HeadersInit = {
-        Authorization: `Bearer ${storedAuth}`,
-        Origin: window.location.origin,
-      };
-
-      const response = await fetch("/api/staff/queue", {
-        headers,
-      });
+      // Use same-origin cookie; no localStorage token required
+      const response = await fetch("/api/staff/queue", { credentials: 'include' });
       if (!response.ok) {
         throw new Error("Failed to fetch queue data");
       }
@@ -150,11 +137,6 @@ export default function RealTimeQueue(): JSX.Element {
         autoHide: 2000,
       });
 
-      const storedAuth = localStorage.getItem("staffAuth");
-
-      if (!storedAuth) {
-        throw new Error("Staff authentication required");
-      }
 
       // Get CSRF token
       const csrfResponse = await fetch("/api/csrf-token");
@@ -174,10 +156,10 @@ export default function RealTimeQueue(): JSX.Element {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${storedAuth}`,
           "X-CSRF-Token": csrfData.csrfToken,
           Origin: window.location.origin,
         },
+        credentials: 'include',
         body: JSON.stringify({ customer_id: customerId }),
       });
 

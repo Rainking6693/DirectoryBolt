@@ -190,22 +190,18 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [showExtensionComponents, setShowExtensionComponents] = useState(true);
 
-  const baseApiUrl = useMemo(
-    () =>
-      process.env.NEXT_PUBLIC_API_URL?.trim() ||
-      "https://directorybolt.netlify.app",
-    [],
-  );
+  // Use same-origin API to ensure cookies are sent; avoid cross-origin defaults
+  const baseApiUrl = useMemo(() => '', []);
 
   const fetchQueueData = useCallback(async () => {
     try {
-      const authResponse = await fetch("/api/staff/auth-check");
+      const authResponse = await fetch("/api/staff/auth-check", { credentials: 'include' });
       if (!authResponse.ok) {
         throw new Error("Staff authentication expired or invalid");
       }
 
-      const authData: { isAuthenticated?: boolean } = await authResponse.json();
-      if (!authData?.isAuthenticated) {
+      const authData: { isAuthenticated?: boolean; authenticated?: boolean } = await authResponse.json();
+      if (!(authData?.isAuthenticated ?? authData?.authenticated)) {
         throw new Error("Staff authentication required");
       }
 
@@ -218,6 +214,7 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
         {
           headers,
           method: "GET",
+          credentials: 'include',
           cache: "no-store",
         },
       );

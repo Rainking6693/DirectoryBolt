@@ -22,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({
       authenticated: true,
+      isAuthenticated: true,
       via: auth.via,
       user: {
         id: `${auth.role ?? 'staff'}-user`,

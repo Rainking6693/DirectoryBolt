@@ -68,22 +68,11 @@ export default function JobProgressMonitor() {
 
   const fetchJobProgress = async () => {
     try {
-      // Get stored staff auth from localStorage (following existing pattern)
-      const storedAuth = localStorage.getItem('staffAuth')
-      
-      if (!storedAuth) {
-        throw new Error('Staff authentication required')
-      }
-      
-      const headers: HeadersInit = {
-        'Authorization': `Bearer ${storedAuth}`,
-        'Origin': window.location.origin,
-        'Content-Type': 'application/json'
-      }
-
+      // Use same-origin cookie; no localStorage token required
       const response = await fetch('/api/staff/jobs/progress', {
         method: 'GET',
-        headers
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
       })
 
       if (!response.ok) {
@@ -126,11 +115,6 @@ export default function JobProgressMonitor() {
         autoHide: 2000
       })
 
-      const storedAuth = localStorage.getItem('staffAuth')
-      
-      if (!storedAuth) {
-        throw new Error('Staff authentication required')
-      }
 
       // Get CSRF token (following existing pattern)
       const csrfResponse = await fetch('/api/csrf-token')
@@ -150,10 +134,10 @@ export default function JobProgressMonitor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedAuth}`,
           'X-CSRF-Token': csrfData.csrfToken,
           'Origin': window.location.origin
         },
+        credentials: 'include',
         body: JSON.stringify({ job_id: jobId })
       })
 

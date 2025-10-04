@@ -69,10 +69,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   } catch (error) {
     console.error('❌ Staff queue error:', error)
+
+    // Graceful handling when Supabase isn’t configured
+    const message = error instanceof Error ? error.message : String(error)
+    if (message.includes('Missing Supabase server configuration')) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Supabase is not configured on this environment',
+        details: message,
+      })
+    }
+
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to retrieve queue data',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: message
     })
   }
 }

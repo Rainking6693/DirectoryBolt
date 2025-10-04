@@ -6,20 +6,6 @@ import { createClient } from '@supabase/supabase-js'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { withRateLimit, rateLimitConfigs } from '../../../lib/middleware/rate-limit'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase configuration')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
-
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -27,6 +13,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     console.log('📊 Staff requesting analytics data')
+
+    // Build Supabase client at request time; return 503 if not configured
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Supabase is not configured on this environment',
+        details: 'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY',
+      })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
 
     // Get customer statistics
     const { data: customers, error: customerError } = await supabase

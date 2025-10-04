@@ -5,8 +5,11 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import {
   resolveStaffApiKey,
   resolveStaffCredentials,
+  resolveAdminApiKey,
   STAFF_SESSION_COOKIE,
   STAFF_SESSION_VALUE,
+  ADMIN_SESSION_COOKIE,
+  ADMIN_SESSION_VALUE,
 } from '../auth/constants'
 
 export interface StaffAuthResult {
@@ -62,9 +65,8 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
 
     // Check for staff session cookie (secure session-based auth)
     const staffSession = req.cookies[STAFF_SESSION_COOKIE]
-    
     if (staffSession === STAFF_SESSION_VALUE) {
-      console.log('✅ Staff authenticated via secure session')
+      console.log('✅ Staff authenticated via secure session (staff)')
       return {
         isAuthenticated: true,
         user: {
@@ -73,14 +75,48 @@ export function validateStaffAuth(req: NextApiRequest): StaffAuthResult {
           email: 'ben.stone@directorybolt.com',
           first_name: 'BEN',
           last_name: 'STONE',
-          role: 'manager',
-          permissions: {
-            queue: true,
-            processing: true,
-            analytics: true,
-            support: true
-          },
+          role: 'staff_manager',
+          permissions: { queue: true, processing: true, analytics: true, support: true },
           method: 'session'
+        }
+      }
+    }
+
+    // Accept admin session as a superset for staff dashboard parity
+    const adminSession = req.cookies[ADMIN_SESSION_COOKIE]
+    if (adminSession === ADMIN_SESSION_VALUE) {
+      console.log('✅ Staff authenticated via secure session (admin)')
+      return {
+        isAuthenticated: true,
+        user: {
+          id: 'admin-user',
+          username: 'admin',
+          email: 'ben.stone@directorybolt.com',
+          first_name: 'Admin',
+          last_name: 'User',
+          role: 'admin_manager',
+          permissions: { queue: true, processing: true, analytics: true, support: true },
+          method: 'session_admin'
+        }
+      }
+    }
+
+    // Accept admin API key as alternative (parity with guards.ts)
+    const providedAdminKey = (req.headers['x-admin-key'] as string) || (req.headers['authorization'] as string)
+    const validAdminKey = resolveAdminApiKey()
+    if (validAdminKey && (providedAdminKey === validAdminKey || providedAdminKey === `Bearer ${validAdminKey}`)) {
+      console.log('✅ Staff authenticated via admin API key')
+      return {
+        isAuthenticated: true,
+        user: {
+          id: 'admin-user',
+          username: 'admin',
+          email: 'ben.stone@directorybolt.com',
+          first_name: 'Admin',
+          last_name: 'User',
+          role: 'admin_manager',
+          permissions: { queue: true, processing: true, analytics: true, support: true },
+          method: 'api_key_admin'
         }
       }
     }
