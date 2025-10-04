@@ -404,6 +404,32 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
     }
   }, [baseApiUrl, fetchQueueData, queueItems]);
 
+  const pushJobNow = useCallback(
+    async (jobId: string) => {
+      try {
+        // CSRF token
+        const csrfRes = await fetch('/api/csrf-token', { credentials: 'include' })
+        const csrf = await csrfRes.json()
+
+        const res = await fetch('/api/staff/jobs/push-to-autobolt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf?.csrfToken || '' },
+          credentials: 'include',
+          body: JSON.stringify({ job_id: jobId })
+        })
+        if (!res.ok) {
+          const t = await res.text()
+          throw new Error(`Push failed: ${res.status} ${t}`)
+        }
+        await fetchQueueData()
+      } catch (err) {
+        console.error('Push job failed:', err)
+        setError(err instanceof Error ? err.message : 'Failed to push job')
+      }
+    },
+    [fetchQueueData]
+  )
+
   const retrySpecificJob = useCallback(
     async (jobId: string) => {
       try {
@@ -726,7 +752,15 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
                         )}
                       </div>
                     </Td>
-                    <Td>
+                    <Td className="space-x-2">
+                      {item.status === "pending" && (
+                        <button
+                          onClick={() => pushJobNow(item.id)}
+                          className="px-3 py-1 text-xs bg-volt-500/20 hover:bg-volt-500/30 rounded border border-volt-500/40 text-volt-200"
+                        >
+                          Push Now
+                        </button>
+                      )}
                       {item.status === "failed" && (
                         <button
                           onClick={() => retrySpecificJob(item.id)}

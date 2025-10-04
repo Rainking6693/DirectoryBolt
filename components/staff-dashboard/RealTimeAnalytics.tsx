@@ -48,6 +48,7 @@ export default function RealTimeAnalytics(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAnalytics();
@@ -129,10 +130,31 @@ export default function RealTimeAnalytics(): JSX.Element {
           </span>
         </div>
       </div>
+      {detail && (
+        <div className="bg-secondary-800 rounded-lg border border-secondary-700 p-4 mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-secondary-200 font-medium">Details: {detail}</div>
+            <button onClick={() => setDetail(null)} className="text-secondary-400 hover:text-white text-sm">Close</button>
+          </div>
+          {/* Simple detail content based on the selected card */}
+          {detail === 'Total Customers' && (
+            <div className="text-secondary-300 text-sm">Total customers in the system: {analytics.overview.total_customers}</div>
+          )}
+          {detail === 'Active Customers' && (
+            <div className="text-secondary-300 text-sm">Customers currently in progress or active: {analytics.overview.active_customers}</div>
+          )}
+          {detail === 'Completed' && (
+            <div className="text-secondary-300 text-sm">Customers completed: {analytics.overview.completed_customers}</div>
+          )}
+          {detail === 'Success Rate' && (
+            <div className="text-secondary-300 text-sm">Overall success rate derived from directory submissions: {analytics.directory_stats.success_rate}%</div>
+          )}
+        </div>
+      )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-secondary-800 rounded-xl p-6 border border-secondary-700">
+        <button onClick={() => setDetail('Total Customers')} className="bg-secondary-800 rounded-xl p-6 border border-secondary-700 text-left">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-secondary-400 text-sm">Total Customers</p>
@@ -144,9 +166,9 @@ export default function RealTimeAnalytics(): JSX.Element {
               <span className="text-2xl">👥</span>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div className="bg-secondary-800 rounded-xl p-6 border border-secondary-700">
+        <button onClick={() => setDetail('Active Customers')} className="bg-secondary-800 rounded-xl p-6 border border-secondary-700 text-left">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-secondary-400 text-sm">Active Customers</p>
@@ -158,9 +180,9 @@ export default function RealTimeAnalytics(): JSX.Element {
               <span className="text-2xl">✅</span>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div className="bg-secondary-800 rounded-xl p-6 border border-secondary-700">
+        <button onClick={() => setDetail('Completed')} className="bg-secondary-800 rounded-xl p-6 border border-secondary-700 text-left">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-secondary-400 text-sm">Completed</p>
@@ -172,9 +194,9 @@ export default function RealTimeAnalytics(): JSX.Element {
               <span className="text-2xl">📊</span>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div className="bg-secondary-800 rounded-xl p-6 border border-secondary-700">
+        <button onClick={() => setDetail('Success Rate')} className="bg-secondary-800 rounded-xl p-6 border border-secondary-700 text-left">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-secondary-400 text-sm">Success Rate</p>
@@ -186,7 +208,7 @@ export default function RealTimeAnalytics(): JSX.Element {
               <span className="text-2xl">🎯</span>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Directory Statistics */}
