@@ -89,7 +89,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'STRIPE_SECRET_KEY',
       'OPENAI_API_KEY',
       'ADMIN_API_KEY',
-      'STAFF_API_KEY'
+      'STAFF_API_KEY',
+      // Supabase (server + public)
+      'SUPABASE_URL',
+      'SUPABASE_SERVICE_ROLE_KEY',
+      'NEXT_PUBLIC_SUPABASE_URL',
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
     ];
 
     envVars.forEach(envVar => {
