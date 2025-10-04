@@ -127,10 +127,15 @@ export class AutoBoltExtensionService {
    * 3.2.6: Skip login/captcha-protected sites
    */
   private getProcessableDirectories(directoryLimit: number): DirectoryEntry[] {
-    // Filter out directories that require login or have CAPTCHA (3.2.6)
+    // Filter based on login/captcha; allow captcha if 2Captcha key is configured
+    const captchaKey = process.env.CAPTCHA_API_KEY || process.env.TWOCAPTCHA_API_KEY || (process.env as any)['2CAPTCHA_API_KEY']
     const processableDirectories = this.directoryList.filter(directory => {
-      if (directory.requiresLogin || directory.hasCaptcha) {
-        console.log(`⏭️ Skipping ${directory.name}: ${directory.skipReason || 'Login/CAPTCHA required'}`)
+      if (directory.requiresLogin) {
+        console.log(`⏭️ Skipping ${directory.name}: Requires login`)
+        return false
+      }
+      if (directory.hasCaptcha && !captchaKey) {
+        console.log(`⏭️ Skipping ${directory.name}: CAPTCHA present and no CAPTCHA_API_KEY configured`)
         return false
       }
       return true

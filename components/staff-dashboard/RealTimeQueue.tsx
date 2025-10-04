@@ -263,13 +263,31 @@ export default function RealTimeQueue(): JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white">Customer Queue</h2>
-        <div className="flex items-center space-x-2 text-secondary-300">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-sm">
-            {lastUpdated
-              ? `Updated ${lastUpdated.toLocaleTimeString()}`
-              : "Live"}
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2 text-secondary-300">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm">
+              {lastUpdated
+                ? `Updated ${lastUpdated.toLocaleTimeString()}`
+                : "Live"}
+            </span>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/staff/create-test-customer', { method: 'POST', credentials: 'include' })
+                const json = await res.json()
+                if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
+                alert(`✅ Test customer created. Customer ID: ${json.data?.customer_id}\nJob ID: ${json.data?.job_id}`)
+                await fetchQueueData()
+              } catch (e) {
+                alert(`Failed to create test customer: ${e instanceof Error ? e.message : String(e)}`)
+              }
+            }}
+            className="px-3 py-2 text-xs bg-volt-500/10 border border-volt-500/40 text-volt-300 rounded hover:bg-volt-500/15"
+          >
+            + Create Test Customer
+          </button>
         </div>
       </div>
 

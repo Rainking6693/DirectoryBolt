@@ -217,30 +217,30 @@ export default function RealTimeAnalytics(): JSX.Element {
           Directory Performance
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="text-center">
+          <button onClick={() => setDetail('Total Allocated')} className="text-center">
             <p className="text-2xl font-bold text-white">
               {analytics.directory_stats.total_allocated.toLocaleString()}
             </p>
             <p className="text-secondary-400 text-sm">Total Allocated</p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button onClick={() => setDetail('Submitted')} className="text-center">
             <p className="text-2xl font-bold text-green-400">
               {analytics.directory_stats.total_submitted.toLocaleString()}
             </p>
             <p className="text-secondary-400 text-sm">Submitted</p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button onClick={() => setDetail('Failed')} className="text-center">
             <p className="text-2xl font-bold text-red-400">
               {analytics.directory_stats.total_failed.toLocaleString()}
             </p>
             <p className="text-secondary-400 text-sm">Failed</p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button onClick={() => setDetail('Completion Rate')} className="text-center">
             <p className="text-2xl font-bold text-volt-400">
               {analytics.directory_stats.completion_rate}%
             </p>
             <p className="text-secondary-400 text-sm">Completion Rate</p>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -252,14 +252,14 @@ export default function RealTimeAnalytics(): JSX.Element {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(analytics.package_breakdown).map(
             ([packageType, count]) => (
-              <div key={packageType} className="text-center">
+              <button key={packageType} onClick={() => setDetail(`Package: ${packageType}`)} className="text-center">
                 <p className="text-2xl font-bold text-volt-400">
                   {count as number}
                 </p>
                 <p className="text-secondary-400 text-sm capitalize">
                   {packageType}
                 </p>
-              </div>
+              </button>
             ),
           )}
         </div>
@@ -271,26 +271,26 @@ export default function RealTimeAnalytics(): JSX.Element {
           Performance Metrics
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
+          <button onClick={() => setDetail('Recent Updates (24h)')} className="text-center">
             <p className="text-2xl font-bold text-green-400">
               {analytics.overview.recent_activity}
             </p>
             <p className="text-secondary-400 text-sm">Recent Updates (24h)</p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button onClick={() => setDetail('Avg Directories/Customer')} className="text-center">
             <p className="text-2xl font-bold text-blue-400">
               {analytics.performance_metrics.avg_directories_per_customer}
             </p>
             <p className="text-secondary-400 text-sm">
               Avg Directories/Customer
             </p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button onClick={() => setDetail('Customer Satisfaction')} className="text-center">
             <p className="text-2xl font-bold text-volt-400">
               {analytics.performance_metrics.customer_satisfaction}%
             </p>
             <p className="text-secondary-400 text-sm">Customer Satisfaction</p>
-          </div>
+          </button>
         </div>
       </div>
     </div>

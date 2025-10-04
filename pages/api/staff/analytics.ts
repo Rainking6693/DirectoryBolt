@@ -29,17 +29,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // Get customer statistics
+    // Get customer statistics (list used for both aggregates and drilldown)
     const { data: customers, error: customerError } = await supabase
       .from('customers')
       .select(`
         id,
-        customer_id,
         business_name,
+        email,
         package_type,
         status,
-        directories_submitted,
-        failed_directories,
         created_at,
         updated_at
       `)
@@ -54,6 +52,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     console.log(`✅ Retrieved ${customers?.length || 0} customers for analytics`)
+
+    // Optional: drilldown lists based on query param
+    const detail = (req.query.detail as string | undefined)?.toLowerCase()
+    if (detail) {
+      const lists = buildDrilldownLists(customers || [])
+      const allowed = ['total_customers','active_customers','completed_customers','pending_customers']
+      if (!allowed.includes(detail)) {
+        return res.status(400).json({ error: 'Invalid detail parameter', message: `Use one of: ${allowed.join(', ')}` })
+      }
+      return res.status(200).json({ success: true, data: (lists as any)[detail], retrieved_at: new Date().toISOString() })
+    }
 
     // Calculate analytics from customers data
     const analytics = calculateSimpleAnalytics(customers || [])
@@ -73,6 +82,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       message: 'Failed to retrieve analytics data',
       details: error instanceof Error ? error.message : 'Unknown error'
     })
+  }
+}
+
+function buildDrilldownLists(customers: any[]) {
+  const active = customers.filter((c: any) => ['active','in-progress','in_progress'].includes((c.status||'').toLowerCase()))
+  const completed = customers.filter((c: any) => ['completed','complete'].includes((c.status||'').toLowerCase()))
+  const pending = customers.filter((c: any) => ['pending'].includes((c.status||'').toLowerCase()))
+  return {
+    total_customers: customers,
+    active_customers: active,
+    completed_customers: completed,
+    pending_customers: pending,
   }
 }
 

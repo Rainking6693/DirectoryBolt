@@ -562,6 +562,8 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
               ? `Last updated ${lastUpdated.toLocaleTimeString()}`
               : "Awaiting updates..."}
           </div>
+          {/* Quick check: processable directories by package size */}
+          <ProcessableDirectoriesWidget />
           <button
             onClick={fetchQueueData}
             disabled={loading}
@@ -1004,6 +1006,45 @@ function StatCard({
       </div>
     </div>
   );
+}
+
+function ProcessableDirectoriesWidget() {
+  const [size, setSize] = React.useState<number>(50)
+  const [count, setCount] = React.useState<number | null>(null)
+  const [loading, setLoading] = React.useState(false)
+
+  const check = async () => {
+    try {
+      setLoading(true)
+      setCount(null)
+      const res = await fetch(`/api/autobolt/directories?limit=${size}`)
+      const json = await res.json()
+      if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
+      setCount(json.data?.processableDirectories ?? json.data?.directories?.length ?? null)
+    } catch (e) {
+      setCount(null)
+      console.error('Processable directories check failed:', e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="text-secondary-400">Processable for</span>
+      <select value={size} onChange={(e)=> setSize(Number(e.target.value))} className="bg-secondary-800 text-secondary-100 px-2 py-1 rounded border border-secondary-700">
+        <option value={50}>50</option>
+        <option value={100}>100</option>
+        <option value={300}>300</option>
+        <option value={500}>500</option>
+      </select>
+      <button onClick={check} className="px-2 py-1 bg-secondary-800 hover:bg-secondary-700 rounded text-secondary-100 border border-secondary-700">Check</button>
+      {loading && <span className="text-secondary-400">...</span>}
+      {typeof count === 'number' && (
+        <span className="text-secondary-300">{count} directories</span>
+      )}
+    </div>
+  )
 }
 
 function Th({ children }: { children: React.ReactNode }) {
