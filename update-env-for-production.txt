@@ -1,0 +1,40 @@
+DirectoryBolt Local Development Fix
+===================================
+
+PROBLEM: Your local .env.local is pointing to localhost:54321 (local Supabase) 
+but you don't have a local Supabase instance running.
+
+SOLUTION: Update your .env.local to use your production Supabase credentials
+
+STEPS:
+------
+
+1. Go to your Supabase dashboard (supabase.com)
+2. Select your DirectoryBolt project  
+3. Go to Settings > API
+4. Copy these values:
+
+   - Project URL (starts with https://...)
+   - anon/public key (starts with eyJhbGci...)  
+   - service_role key (starts with eyJhbGci...)
+
+5. Update your .env.local file with these values:
+
+   SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+   NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...YOUR_ANON_KEY...
+   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...YOUR_SERVICE_ROLE_KEY...
+
+6. Restart your development server:
+   npm run dev
+
+7. Test the staff dashboard:
+   http://localhost:3000/staff-dashboard
+
+IMPORTANT: 
+- Use the SAME credentials that work in your Netlify production environment
+- The service_role key is the most important one for the staff dashboard to work
+- Keep TEST_MODE=true for local development
+
+Your production site works fine because Netlify has the correct environment variables.
+This fix will make your local development environment work the same way.

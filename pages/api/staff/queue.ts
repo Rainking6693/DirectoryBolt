@@ -1,25 +1,10 @@
-// @ts-nocheck
 // Staff Dashboard Queue API
-// Provides real-time customer queue data from Supabase
+// Provides real-time job queue data using the proper job queue system
 
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { withRateLimit, rateLimitConfigs } from '../../../lib/middleware/rate-limit'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase configuration')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+import { getQueueSnapshot } from '../../../lib/server/autoboltJobs'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -27,41 +12,54 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    console.log('📋 Staff requesting queue data')
+    console.log('📋 Staff requesting queue data from job queue system')
 
-    // Get all customers with their current status
-    const { data: customers, error: customerError } = await supabase
-      .from('customers')
-      .select(`
-        id,
-        customer_id,
-        business_name,
-        email,
-        package_type,
-        status,
-        directories_submitted,
-        failed_directories,
-        created_at,
-        updated_at,
-        processing_metadata
-      `)
-      .order('created_at', { ascending: true })
-
-    if (customerError) {
-      console.error('❌ Failed to get customers:', customerError)
-      return res.status(500).json({
-        error: 'Database Error',
-        message: 'Failed to retrieve customer data',
-        details: customerError.message
-      })
+    // Use the proper job queue system
+    const snapshot = await getQueueSnapshot()
+    
+    // Transform to match the expected staff dashboard format
+    const queueData = {
+      stats: {
+        pending: snapshot.stats.pendingJobs,
+        processing: snapshot.stats.inProgressJobs, 
+        completed: snapshot.stats.completedJobs,
+        failed: snapshot.stats.failedJobs,
+        total: snapshot.stats.totalJobs,
+        completedToday: snapshot.jobs.filter(job => {
+          const completedDate = new Date(job.completedAt || '')
+          const today = new Date()
+          return job.completedAt && completedDate.toDateString() === today.toDateString()
+        }).length
+      },
+      queue: snapshot.jobs.map(job => ({
+        id: job.id,
+        customer_id: job.customerId,
+        business_name: job.businessName || 'Unknown Business',
+        email: job.email || '',
+        package_type: mapPackageType(job.packageSize),
+        status: job.status,
+        priority_level: job.priorityLevel,
+        directories_allocated: job.directoriesTotal,
+        directories_submitted: job.directoriesCompleted,
+        directories_failed: job.directoriesFailed,
+        progress_percentage: job.progressPercentage,
+        estimated_completion: job.completedAt,
+        created_at: job.createdAt,
+        updated_at: job.startedAt || job.createdAt,
+        recent_activity: [],
+        current_submissions: []
+      })),
+      alerts: generateJobAlerts(snapshot.jobs),
+      recent_activity: [],
+      processing_summary: {
+        total_directories_allocated: snapshot.stats.totalDirectories,
+        total_directories_submitted: snapshot.stats.completedDirectories,
+        total_directories_failed: snapshot.stats.failedDirectories,
+        overall_completion_rate: snapshot.stats.successRate
+      }
     }
 
-    console.log(`✅ Retrieved ${customers?.length || 0} customers`)
-
-    // Process queue data
-    const queueData = processQueueData(customers || [])
-
-    console.log('✅ Staff queue data retrieved successfully')
+    console.log(`✅ Retrieved ${snapshot.jobs.length} jobs from queue system`)
 
     res.status(200).json({
       success: true,
@@ -79,180 +77,55 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-function processQueueData(customers: any[]) {
-  const now = new Date()
-  
-  // Categorize customers by status
-  const pendingCustomers = customers.filter(c => c.status === 'pending')
-  const processingCustomers = customers.filter(c => c.status === 'in-progress')
-  const completedCustomers = customers.filter(c => c.status === 'completed')
-  const failedCustomers = customers.filter(c => c.status === 'failed')
-
-  // Calculate queue statistics
-  const stats = {
-    pending: pendingCustomers.length,
-    processing: processingCustomers.length,
-    completed: completedCustomers.length,
-    failed: failedCustomers.length,
-    total: customers.length,
-    completedToday: completedCustomers.filter(c => {
-      const completedDate = new Date(c.updated_at)
-      return completedDate.toDateString() === now.toDateString()
-    }).length
+function mapPackageType(packageSize: number): string {
+  const packageMap: Record<number, string> = {
+    50: 'starter',
+    100: 'growth', 
+    300: 'professional',
+    500: 'enterprise'
   }
-
-  // Process customer queue with additional data
-  const customerQueue = customers.map(customer => {
-    // Get directory limits based on package type
-    const directoryLimits = getDirectoryLimits(customer.package_type)
-    const progressPercentage = directoryLimits > 0 
-      ? Math.round((customer.directories_submitted / directoryLimits) * 100)
-      : 0
-
-    const estimatedCompletion = calculateEstimatedCompletion(customer, directoryLimits)
-    
-    return {
-      id: customer.id,
-      customer_id: customer.customer_id,
-      business_name: customer.business_name,
-      email: customer.email,
-      package_type: customer.package_type,
-      status: customer.status,
-      priority_level: getPriorityLevel(customer.package_type),
-      directories_allocated: directoryLimits,
-      directories_submitted: customer.directories_submitted,
-      directories_failed: customer.failed_directories,
-      progress_percentage: progressPercentage,
-      estimated_completion: estimatedCompletion,
-      created_at: customer.created_at,
-      updated_at: customer.updated_at,
-      recent_activity: [],
-      current_submissions: []
-    }
-  })
-
-  // Get processing alerts
-  const alerts = generateAlerts(customers)
-
-  return {
-    stats,
-    queue: customerQueue,
-    alerts,
-    recent_activity: [],
-    processing_summary: {
-      total_directories_allocated: customers.reduce((sum, c) => sum + getDirectoryLimits(c.package_type), 0),
-      total_directories_submitted: customers.reduce((sum, c) => sum + (c.directories_submitted || 0), 0),
-      total_directories_failed: customers.reduce((sum, c) => sum + (c.failed_directories || 0), 0),
-      overall_completion_rate: calculateOverallCompletionRate(customers)
-    }
-  }
+  return packageMap[packageSize] || 'custom'
 }
 
-function getDirectoryLimits(packageType: string): number {
-  const limits: Record<string, number> = {
-    starter: 50,
-    growth: 150,
-    professional: 300,
-    pro: 500,
-    enterprise: 1000
-  }
-  return limits[packageType] || 50
-}
-
-function getPriorityLevel(packageType: string): number {
-  const priorities: Record<string, number> = {
-    starter: 4,
-    growth: 3,
-    professional: 2,
-    pro: 1,
-    enterprise: 1
-  }
-  return priorities[packageType] || 4
-}
-
-function calculateEstimatedCompletion(customer: any, directoryLimits: number): string | null {
-  if (customer.status === 'completed') {
-    return customer.updated_at
-  }
-
-  const remainingDirectories = directoryLimits - customer.directories_submitted
-  if (remainingDirectories <= 0) {
-    return null
-  }
-
-  // Estimate based on package type and current progress
-  const avgTimePerDirectory = getAverageTimePerDirectory(customer.package_type)
-  const estimatedMinutes = remainingDirectories * avgTimePerDirectory
-  const estimatedCompletion = new Date(Date.now() + estimatedMinutes * 60 * 1000)
-  
-  return estimatedCompletion.toISOString()
-}
-
-function getAverageTimePerDirectory(packageType: string): number {
-  const timeMap: Record<string, number> = {
-    starter: 3,      // 3 minutes per directory
-    growth: 2,       // 2 minutes per directory
-    professional: 1.5, // 1.5 minutes per directory
-    pro: 1,          // 1 minute per directory
-    enterprise: 0.5  // 30 seconds per directory
-  }
-  
-  return timeMap[packageType] || 2
-}
-
-function calculateOverallCompletionRate(customers: any[]): number {
-  const totalAllocated = customers.reduce((sum, c) => sum + getDirectoryLimits(c.package_type), 0)
-  const totalSubmitted = customers.reduce((sum, c) => sum + (c.directories_submitted || 0), 0)
-  
-  return totalAllocated > 0 ? Math.round((totalSubmitted / totalAllocated) * 10000) / 100 : 0
-}
-
-function generateAlerts(customers: any[]): any[] {
+function generateJobAlerts(jobs: any[]): any[] {
   const alerts = []
   const now = new Date()
-  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
-
-  // Check for stuck customers (no activity in the last 4 hours for active customers)
   const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000)
-  const stuckCustomers = customers.filter(customer => {
-    // Only check customers that are actively being processed
-    if (customer.status !== 'in-progress' && customer.status !== 'active') return false
+
+  // Check for stuck jobs (in progress but no recent activity)
+  const stuckJobs = jobs.filter(job => {
+    if (job.status !== 'in_progress') return false
+    if (!job.startedAt) return false
     
-    // Don't flag customers who haven't started processing yet
-    if (customer.directories_submitted === 0) return false
-    
-    const lastActivity = new Date(customer.updated_at)
-    return lastActivity < fourHoursAgo
+    const lastActivity = new Date(job.startedAt)
+    return lastActivity < fourHoursAgo && job.progressPercentage > 0
   })
 
-  stuckCustomers.forEach(customer => {
+  stuckJobs.forEach(job => {
     alerts.push({
       type: 'warning',
-      title: 'Stuck Customer',
-      message: `${customer.business_name} has no activity in the last 4 hours`,
-      customer_id: customer.customer_id,
+      title: 'Stuck Job',
+      message: `${job.businessName || 'Job'} has no progress in the last 4 hours`,
+      customer_id: job.customerId,
       priority: 'medium'
     })
   })
 
   // Check for high failure rates
-  const highFailureCustomers = customers.filter(customer => {
-    const directoryLimits = getDirectoryLimits(customer.package_type)
-    const failureRate = directoryLimits > 0 
-      ? (customer.failed_directories / directoryLimits) * 100
+  const highFailureJobs = jobs.filter(job => {
+    const failureRate = job.directoriesTotal > 0 
+      ? (job.directoriesFailed / job.directoriesTotal) * 100
       : 0
-    
     return failureRate > 20 // More than 20% failure rate
   })
 
-  highFailureCustomers.forEach(customer => {
-    const directoryLimits = getDirectoryLimits(customer.package_type)
-    const failureRate = Math.round((customer.failed_directories / directoryLimits) * 100)
+  highFailureJobs.forEach(job => {
+    const failureRate = Math.round((job.directoriesFailed / job.directoriesTotal) * 100)
     alerts.push({
       type: 'error',
       title: 'High Failure Rate',
-      message: `${customer.business_name} has ${failureRate}% failure rate`,
-      customer_id: customer.customer_id,
+      message: `${job.businessName || 'Job'} has ${failureRate}% failure rate`,
+      customer_id: job.customerId,
       priority: 'high'
     })
   })
