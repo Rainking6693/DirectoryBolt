@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2025-09-25T22:27:41.984Z",
+  "timestamp": "2025-10-04T13:17:01.181Z",
   "environment": "production",
   "platform": "local",
   "fingerprints": {
-    "package.json": "a935ad6a905eb2e0",
-    "package-lock.json": "3ece32fd447b65b3",
-    "next.config.js": "45234e8724d447c0",
+    "package.json": "af842c08b8f62d38",
+    "package-lock.json": "2a3cd4723ae80654",
+    "next.config.js": "3819ece33cb51b43",
     "tailwind.config.js": "c57972f377c60c0e",
-    "tsconfig.json": "14407394da2ce82e"
+    "tsconfig.json": "6edff4158d94afa9"
   }
 }

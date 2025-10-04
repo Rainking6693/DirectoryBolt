@@ -1,17 +1,17 @@
 {
   "summary": {
     "totalOptimizations": 2,
-    "totalRecommendations": 1,
-    "buildScore": 80,
-    "overallHealth": "excellent"
+    "totalRecommendations": 4,
+    "buildScore": 50,
+    "overallHealth": "needs-improvement"
   },
   "details": {
     "optimizations": [
       {
         "name": "Dependency Analysis",
-        "startTime": 51.7153,
+        "startTime": 37.9985,
         "results": {
-          "totalDependencies": 86,
+          "totalDependencies": 111,
           "heavyPackages": [
             "puppeteer",
             "playwright",
@@ -22,18 +22,15 @@
           "duplicates": [],
           "outdated": []
         },
-        "duration": 0.028199999999998226
+        "duration": 0.026200000000002888
       },
       {
         "name": "Next.js Config Optimization",
-        "startTime": 52.1949,
+        "startTime": 38.3402,
         "applied": [
-          "SWC Minification",
-          "Experimental Features",
-          "CSS Optimization",
-          "Bundle Splitting"
+          "SWC Minification"
         ],
-        "duration": 0.24980000000000047
+        "duration": 0.2335999999999956
       }
     ],
     "recommendations": [
@@ -42,49 +39,77 @@
         "priority": "high",
         "recommendation": "Consider using only @sparticuz/chromium in production to reduce bundle size",
         "potentialSavings": "~50MB"
+      },
+      {
+        "category": "Configuration",
+        "priority": "medium",
+        "recommendation": "Enable Experimental Features in next.config.js",
+        "benefit": "Latest performance optimizations"
+      },
+      {
+        "category": "Configuration",
+        "priority": "medium",
+        "recommendation": "Enable CSS Optimization in next.config.js",
+        "benefit": "Smaller CSS bundles"
+      },
+      {
+        "category": "Configuration",
+        "priority": "medium",
+        "recommendation": "Enable Bundle Splitting in next.config.js",
+        "benefit": "Better caching, faster loads"
       }
     ],
     "performance": {
-      "buildDuration": 16.557499999999997,
+      "buildDuration": 22.537000000000003,
       "memoryUsage": {
-        "rss": 48271360,
-        "heapTotal": 7176192,
-        "heapUsed": 4983456,
-        "external": 2647211,
-        "arrayBuffers": 16659
+        "rss": 43016192,
+        "heapTotal": 6250496,
+        "heapUsed": 4771536,
+        "external": 2693030,
+        "arrayBuffers": 978899
       },
-      "nodeVersion": "v22.19.0",
+      "nodeVersion": "v20.17.0",
       "platform": "win32",
       "cpuUsage": {
         "user": 46000,
-        "system": 31000
+        "system": 15000
       },
       "comparison": {
-        "durationChange": "-0.0s",
-        "memoryChange": "-0.5MB",
+        "durationChange": "+0.0s",
+        "memoryChange": "-0.2MB",
         "trend": "stable"
       }
     },
     "bundleAnalysis": {
       "name": "Bundle Analysis",
-      "startTime": 52.6314,
+      "startTime": 38.7485,
       "results": {
-        "totalSize": 1158595,
+        "totalSize": 1166604,
         "files": [
           {
-            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
-            "size": 288392,
+            "path": "chunks\\fd9d1056-749e5812300142af.js",
+            "size": 172834,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main-701879ce832108bc.js",
-            "size": 271604,
-            "type": "javascript"
-          },
-          {
-            "path": "css\\b3b9e63db2b5f5ff.css",
-            "size": 142657,
+            "path": "css\\ab889a165558faa8.css",
+            "size": 142939,
             "type": "stylesheet"
+          },
+          {
+            "path": "chunks\\framework-0555f00ea0408df7.js",
+            "size": 140017,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\main-app-36b53551484fa448.js",
+            "size": 116444,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\main-281a4dec4ddfeb6d.js",
+            "size": 116398,
+            "type": "javascript"
           },
           {
             "path": "chunks\\polyfills-42372ed130431b0a.js",
@@ -92,53 +117,68 @@
             "type": "javascript"
           },
           {
-            "path": "chunks\\common-844d905ff5c9f38a.js",
-            "size": 97434,
+            "path": "chunks\\pages\\staff-dashboard-b6b0c8aa89126e4c.js",
+            "size": 80815,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
-            "size": 88031,
+            "path": "chunks\\95-3a7177662a4464ee.js",
+            "size": 55004,
             "type": "javascript"
           },
           {
-            "path": "chunks\\564.c1dfa36b8203fac0.js",
-            "size": 46601,
+            "path": "chunks\\pages\\_app-b94119635d9eabeb.js",
+            "size": 50650,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
-            "size": 41281,
+            "path": "chunks\\564.b019e1cd4a73a032.js",
+            "size": 46613,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
-            "size": 19148,
+            "path": "chunks\\9-ae927b9809047ec0.js",
+            "size": 46553,
             "type": "javascript"
           },
           {
-            "path": "chunks\\871.979e53b691a67bbd.js",
+            "path": "chunks\\pages\\index-2a3cc65adb1e7779.js",
+            "size": 19154,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\972-b4983e7a7d11a485.js",
+            "size": 10726,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\871.1c71715bdb87176d.js",
             "size": 10389,
             "type": "javascript"
           },
           {
-            "path": "chunks\\671-56f89135b3ff6d47.js",
-            "size": 9621,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\675.998edcef657e914f.js",
+            "path": "chunks\\675.3ce9c691e6ab5aff.js",
             "size": 9521,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-login-46f43010e270524d.js",
-            "size": 5940,
+            "path": "chunks\\pages\\staff-login-272064d76a760d1e.js",
+            "size": 6743,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\admin-login-b1d04baebaa7067e.js",
-            "size": 5738,
+            "path": "chunks\\pages\\admin-6d69edee3388d31c.js",
+            "size": 6449,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\admin-login-f2860a6a51fd2b02.js",
+            "size": 6001,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\customers\\[id]-c36575875454fd4e.js",
+            "size": 5437,
             "type": "javascript"
           },
           {
@@ -147,22 +187,32 @@
             "type": "javascript"
           },
           {
-            "path": "chunks\\webpack-4a53010a6980477f.js",
-            "size": 3388,
+            "path": "chunks\\webpack-8e41332793e45500.js",
+            "size": 3266,
             "type": "javascript"
           },
           {
-            "path": "ljXpJYblwE0ur4EkQmhlF\\_buildManifest.js",
-            "size": 741,
+            "path": "S6JQHKfMqYUS7BjohoOwG\\_buildManifest.js",
+            "size": 1040,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_error-9998ac99de8d5718.js",
+            "path": "chunks\\pages\\staff-16cbaccbe8a2570d.js",
+            "size": 859,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\admin-dashboard-3ffc63dd437f4e1d.js",
+            "size": 643,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\_error-7ba65e1336b92748.js",
             "size": 247,
             "type": "javascript"
           },
           {
-            "path": "ljXpJYblwE0ur4EkQmhlF\\_ssgManifest.js",
+            "path": "S6JQHKfMqYUS7BjohoOwG\\_ssgManifest.js",
             "size": 88,
             "type": "javascript"
           }
@@ -175,67 +225,102 @@
             "type": "javascript"
           },
           {
-            "path": "chunks\\564.c1dfa36b8203fac0.js",
-            "size": 46601,
+            "path": "chunks\\564.b019e1cd4a73a032.js",
+            "size": 46613,
             "type": "javascript"
           },
           {
-            "path": "chunks\\671-56f89135b3ff6d47.js",
-            "size": 9621,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\675.998edcef657e914f.js",
+            "path": "chunks\\675.3ce9c691e6ab5aff.js",
             "size": 9521,
             "type": "javascript"
           },
           {
-            "path": "chunks\\871.979e53b691a67bbd.js",
+            "path": "chunks\\871.1c71715bdb87176d.js",
             "size": 10389,
             "type": "javascript"
           },
           {
-            "path": "chunks\\common-844d905ff5c9f38a.js",
-            "size": 97434,
+            "path": "chunks\\9-ae927b9809047ec0.js",
+            "size": 46553,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main-701879ce832108bc.js",
-            "size": 271604,
+            "path": "chunks\\95-3a7177662a4464ee.js",
+            "size": 55004,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
-            "size": 288392,
+            "path": "chunks\\972-b4983e7a7d11a485.js",
+            "size": 10726,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\admin-login-b1d04baebaa7067e.js",
-            "size": 5738,
+            "path": "chunks\\fd9d1056-749e5812300142af.js",
+            "size": 172834,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
-            "size": 19148,
+            "path": "chunks\\framework-0555f00ea0408df7.js",
+            "size": 140017,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
-            "size": 88031,
+            "path": "chunks\\main-281a4dec4ddfeb6d.js",
+            "size": 116398,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-login-46f43010e270524d.js",
-            "size": 5940,
+            "path": "chunks\\main-app-36b53551484fa448.js",
+            "size": 116444,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
-            "size": 41281,
+            "path": "chunks\\pages\\admin-6d69edee3388d31c.js",
+            "size": 6449,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_error-9998ac99de8d5718.js",
+            "path": "chunks\\pages\\admin-dashboard-3ffc63dd437f4e1d.js",
+            "size": 643,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\admin-login-f2860a6a51fd2b02.js",
+            "size": 6001,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\customers\\[id]-c36575875454fd4e.js",
+            "size": 5437,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\index-2a3cc65adb1e7779.js",
+            "size": 19154,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\staff-16cbaccbe8a2570d.js",
+            "size": 859,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\staff-dashboard-b6b0c8aa89126e4c.js",
+            "size": 80815,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\staff-login-272064d76a760d1e.js",
+            "size": 6743,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\_app-b94119635d9eabeb.js",
+            "size": 50650,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\pages\\_error-7ba65e1336b92748.js",
             "size": 247,
             "type": "javascript"
           },
@@ -245,41 +330,51 @@
             "type": "javascript"
           },
           {
-            "path": "chunks\\webpack-4a53010a6980477f.js",
-            "size": 3388,
+            "path": "chunks\\webpack-8e41332793e45500.js",
+            "size": 3266,
             "type": "javascript"
           },
           {
-            "path": "css\\b3b9e63db2b5f5ff.css",
-            "size": 142657,
+            "path": "css\\ab889a165558faa8.css",
+            "size": 142939,
             "type": "stylesheet"
           },
           {
-            "path": "ljXpJYblwE0ur4EkQmhlF\\_buildManifest.js",
-            "size": 741,
+            "path": "S6JQHKfMqYUS7BjohoOwG\\_buildManifest.js",
+            "size": 1040,
             "type": "javascript"
           },
           {
-            "path": "ljXpJYblwE0ur4EkQmhlF\\_ssgManifest.js",
+            "path": "S6JQHKfMqYUS7BjohoOwG\\_ssgManifest.js",
             "size": 88,
             "type": "javascript"
           }
         ],
         "largestFiles": [
           {
-            "path": "chunks\\main-app-585d9df5eeb86e8b.js",
-            "size": 288392,
+            "path": "chunks\\fd9d1056-749e5812300142af.js",
+            "size": 172834,
             "type": "javascript"
           },
           {
-            "path": "chunks\\main-701879ce832108bc.js",
-            "size": 271604,
-            "type": "javascript"
-          },
-          {
-            "path": "css\\b3b9e63db2b5f5ff.css",
-            "size": 142657,
+            "path": "css\\ab889a165558faa8.css",
+            "size": 142939,
             "type": "stylesheet"
+          },
+          {
+            "path": "chunks\\framework-0555f00ea0408df7.js",
+            "size": 140017,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\main-app-36b53551484fa448.js",
+            "size": 116444,
+            "type": "javascript"
+          },
+          {
+            "path": "chunks\\main-281a4dec4ddfeb6d.js",
+            "size": 116398,
+            "type": "javascript"
           },
           {
             "path": "chunks\\polyfills-42372ed130431b0a.js",
@@ -287,43 +382,39 @@
             "type": "javascript"
           },
           {
-            "path": "chunks\\common-844d905ff5c9f38a.js",
-            "size": 97434,
+            "path": "chunks\\pages\\staff-dashboard-b6b0c8aa89126e4c.js",
+            "size": 80815,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\staff-dashboard-28c45d8a559474ad.js",
-            "size": 88031,
+            "path": "chunks\\95-3a7177662a4464ee.js",
+            "size": 55004,
             "type": "javascript"
           },
           {
-            "path": "chunks\\564.c1dfa36b8203fac0.js",
-            "size": 46601,
+            "path": "chunks\\pages\\_app-b94119635d9eabeb.js",
+            "size": 50650,
             "type": "javascript"
           },
           {
-            "path": "chunks\\pages\\_app-506d620f83ed2cf3.js",
-            "size": 41281,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\pages\\index-2bc29a57328c248f.js",
-            "size": 19148,
-            "type": "javascript"
-          },
-          {
-            "path": "chunks\\871.979e53b691a67bbd.js",
-            "size": 10389,
+            "path": "chunks\\564.b019e1cd4a73a032.js",
+            "size": 46613,
             "type": "javascript"
           }
         ],
         "scripts": [
+          "prebuild",
           "build",
+          "validate:configs",
+          "validate:no-netlify-state",
           "build:fast",
           "build:minimal",
           "build:analyze",
           "build:netlify",
           "dev",
+          "dev:guarded",
+          "sanitize",
+          "diagnose:watchpack",
           "lint",
           "start",
           "analyze",
@@ -353,6 +444,10 @@
           "test:regression",
           "test:all-enterprise",
           "test:cost-optimization",
+          "test:worker-smoke",
+          "test:smoke",
+          "verify:deployment",
+          "docker:build-worker",
           "test:e2e",
           "test:e2e-headed",
           "test:mobile",
@@ -377,29 +472,29 @@
           "qa:full-enterprise",
           "qa:deployment-ready",
           "validate:guides",
-          "prebuild",
           "debug:env",
           "debug:env-production",
           "optimize:build",
           "optimize:pre-build",
           "build:optimized",
           "test:production",
-          "deploy:ready"
+          "deploy:ready",
+          "postinstall"
         ],
         "hasAnalyzeScript": true
       },
-      "duration": 4.353400000000001
+      "duration": 8.753599999999999
     },
     "cacheStats": {
       "name": "Build Cache Optimization",
-      "startTime": 57.5484,
+      "startTime": 47.8285,
       "strategy": "intelligent-fingerprinting",
       "results": {
         "manifestCreated": true,
         "fingerprintedFiles": 5,
         "cacheDirectory": "C:\\Users\\Ben\\OneDrive\\Documents\\GitHub\\DirectoryBolt\\.build-cache"
       },
-      "duration": 4.5901
+      "duration": 5.726199999999999
     }
   },
   "nextSteps": [
