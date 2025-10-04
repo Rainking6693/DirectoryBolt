@@ -87,17 +87,12 @@ export default function BatchProcessingMonitor({
     onBatchStart?.();
 
     try {
-      const storedAuth = localStorage.getItem("staffAuth");
-      if (!storedAuth) {
-        throw new Error("Staff authentication required");
-      }
-
       const response = await fetch("/api/autobolt/start-batch", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${storedAuth}`,
           "Content-Type": "application/json",
         },
+        credentials: 'include',
         body: JSON.stringify({ customerId }),
       });
 
@@ -135,17 +130,12 @@ export default function BatchProcessingMonitor({
 
   const stopBatchProcessing = async () => {
     try {
-      const storedAuth = localStorage.getItem("staffAuth");
-      if (!storedAuth) {
-        throw new Error("Staff authentication required");
-      }
-
       const response = await fetch("/api/autobolt/stop-batch", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${storedAuth}`,
           "Content-Type": "application/json",
         },
+        credentials: 'include',
         body: JSON.stringify({ customerId }),
       });
 
@@ -163,15 +153,14 @@ export default function BatchProcessingMonitor({
   const monitorBatchProgress = () => {
     const interval = setInterval(async () => {
       try {
-        const storedAuth = localStorage.getItem("staffAuth");
-        if (!storedAuth) return;
-
         const response = await fetch(
           `/api/autobolt/batch-progress?customerId=${encodeURIComponent(customerId || "")}`,
           {
             headers: {
-              Authorization: `Bearer ${storedAuth}`,
+              // Same-origin cookie auth; explicit credentials for clarity
+              'Accept': 'application/json',
             },
+            credentials: 'include',
           },
         );
 
