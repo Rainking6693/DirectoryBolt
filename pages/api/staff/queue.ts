@@ -87,8 +87,18 @@ function mapPackageType(packageSize: number): string {
   return packageMap[packageSize] || 'custom'
 }
 
-function generateJobAlerts(jobs: any[]): any[] {
-  const alerts = []
+// Types for alerts returned to the staff dashboard
+type AlertPriority = 'high' | 'medium' | 'low'
+interface Alert {
+  type: 'warning' | 'error' | 'info'
+  title: string
+  message: string
+  customer_id: string
+  priority: AlertPriority
+}
+
+function generateJobAlerts(jobs: any[]): Alert[] {
+  const alerts: Alert[] = []
   const now = new Date()
   const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000)
 
