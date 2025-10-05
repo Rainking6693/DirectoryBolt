@@ -83,6 +83,9 @@ export default function RealTimeQueue(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'created_at' | 'package_size' | 'priority'>('priority');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ business_name: '', email: '', phone: '', website: '', address: '', city: '', state: '', zip: '', package_size: 50 });
   const { showSuccess, showError, showInfo } = useNotifications();
   const { notifyApiProgress, notifyApiSuccess, notifyApiError } =
     useApiNotifications();
@@ -223,20 +226,10 @@ export default function RealTimeQueue(): JSX.Element {
             </span>
           </div>
           <button
-            onClick={async () => {
-              try {
-                const res = await fetch('/api/staff/create-test-customer', { method: 'POST', credentials: 'include' })
-                const json = await res.json()
-                if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
-                alert(`✅ Test customer created. Customer ID: ${json.data?.customer_id}\nJob ID: ${json.data?.job_id}`)
-                await fetchQueueData()
-              } catch (e) {
-                alert(`Failed to create test customer: ${e instanceof Error ? e.message : String(e)}`)
-              }
-            }}
+            onClick={() => setShowCreateModal(true)}
             className="px-3 py-2 text-xs bg-volt-500/10 border border-volt-500/40 text-volt-300 rounded hover:bg-volt-500/15"
           >
-            + Create Test Customer
+            + Add Customer
           </button>
         </div>
       </div>
@@ -586,6 +579,23 @@ export default function RealTimeQueue(): JSX.Element {
                           )}
                         </button>
                       )}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!confirm('Delete this customer and all their jobs? This cannot be undone.')) return;
+                          try {
+                            const r = await fetch('/api/staff/customers/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: customer.id, customer_id: customer.customer_id }) })
+                            const j = await r.json()
+                            if (!r.ok || !j.success) throw new Error(j.error || `HTTP ${r.status}`)
+                            await fetchQueueData()
+                          } catch (err) {
+                            alert(err instanceof Error ? err.message : 'Delete failed')
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2 py-1 rounded text-xs font-medium"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -718,6 +728,69 @@ export default function RealTimeQueue(): JSX.Element {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Customer Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-secondary-900 border border-secondary-700 rounded-lg max-w-xl w-full mx-4">
+            <div className="flex items-center justify-between p-4 border-b border-secondary-800">
+              <div className="text-secondary-200 font-medium">Add Customer</div>
+              <button className="text-secondary-400 hover:text-white" onClick={()=> setShowCreateModal(false)}>Close</button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  setCreating(true)
+                  const res = await fetch('/api/staff/customers/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(form)
+                  })
+                  const json = await res.json()
+                  if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
+                  setShowCreateModal(false)
+                  setForm({ business_name: '', email: '', phone: '', website: '', address: '', city: '', state: '', zip: '', package_size: 50 })
+                  await fetchQueueData()
+                } catch (err) {
+                  alert(err instanceof Error ? err.message : 'Create failed')
+                } finally {
+                  setCreating(false)
+                }
+              }}
+            >
+              <div className="p-4 grid grid-cols-1 gap-3">
+                <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Business Name" value={form.business_name} onChange={e=> setForm({ ...form, business_name: e.target.value })} required />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Email" value={form.email} onChange={e=> setForm({ ...form, email: e.target.value })} />
+                  <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Phone" value={form.phone} onChange={e=> setForm({ ...form, phone: e.target.value })} />
+                </div>
+                <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Website" value={form.website} onChange={e=> setForm({ ...form, website: e.target.value })} />
+                <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Address" value={form.address} onChange={e=> setForm({ ...form, address: e.target.value })} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="City" value={form.city} onChange={e=> setForm({ ...form, city: e.target.value })} />
+                  <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="State" value={form.state} onChange={e=> setForm({ ...form, state: e.target.value })} />
+                  <input className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" placeholder="Zip" value={form.zip} onChange={e=> setForm({ ...form, zip: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  <label className="text-secondary-300 text-sm">Package Size</label>
+                  <select className="bg-secondary-800 border border-secondary-700 rounded px-3 py-2 text-secondary-100" value={form.package_size} onChange={e=> setForm({ ...form, package_size: Number(e.target.value) })}>
+                    <option value={50}>Starter (50)</option>
+                    <option value={75}>Growth (75)</option>
+                    <option value={150}>Professional (150)</option>
+                    <option value={500}>Enterprise (500)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="p-4 border-t border-secondary-800 flex items-center justify-end gap-3">
+                <button type="button" onClick={()=> setShowCreateModal(false)} className="px-4 py-2 bg-secondary-800 hover:bg-secondary-700 rounded text-secondary-100">Cancel</button>
+                <button type="submit" disabled={creating || !form.business_name} className="px-4 py-2 bg-volt-500/20 hover:bg-volt-500/30 rounded text-volt-200 border border-volt-500/40 disabled:opacity-50">{creating ? 'Saving...' : 'Save Customer'}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

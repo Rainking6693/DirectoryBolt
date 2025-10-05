@@ -216,8 +216,8 @@ export default function JobProgressMonitor() {
   }
 
   const handleJobClick = (job: JobProgressData) => {
-    // Navigate to detailed view of job
-    router.push(`/staff-dashboard/job/${job.id}`)
+    // Open in-place details instead of navigating to a non-existent route
+    setSelectedJob(job)
   }
 
   const getFilteredJobs = () => {

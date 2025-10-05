@@ -65,10 +65,11 @@ export default async function handler(
 
   try {
     if (supabase) {
+      // Support lookup by internal id (UUID) or public customer_id (e.g., DB-YYYY-XXXXXX)
       const { data: customer, error } = await supabase
         .from("customers")
         .select("*")
-        .eq("id", id)
+        .or(`id.eq.${id},customer_id.eq.${id}`)
         .single();
 
       if (error || !customer) {
