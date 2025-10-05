@@ -41,10 +41,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       package_size = 50,
     } = (req.body || {}) as Record<string, any>
 
-    // Insert customer
+    // Generate a required customer_id per DB schema (e.g., DB-YYYY-XXXXXX)
+    const rand = Math.random().toString(36).slice(2, 8).toUpperCase()
+    const year = new Date().getFullYear()
+    const customer_id = `DB-${year}-${rand}`
+
+    // Insert customer (ensure customer_id satisfies NOT NULL constraint)
     const { data: customer, error: custErr } = await supabase
       .from('customers')
       .insert({
+        customer_id, // required business identifier
         business_name: name,
         email,
         phone,
@@ -57,7 +63,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .select('id')
+      .select('id, customer_id')
       .single()
 
     if (custErr || !customer) {
@@ -82,7 +88,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       return res.status(500).json({ success: false, error: `Failed to create job: ${jobErr?.message || 'Unknown error'}` })
     }
 
-    return res.status(200).json({ success: true, data: { customer_id: customer.id, job_id: job.id }, message: 'Test customer and job created' })
+    return res.status(200).json({ success: true, data: { customer_id: customer.customer_id || customer.id, job_id: job.id }, message: 'Test customer and job created' })
   } catch (error) {
     console.error('[staff.create-test-customer] error', error)
     return res.status(500).json({ success: false, error: 'Internal server error' })

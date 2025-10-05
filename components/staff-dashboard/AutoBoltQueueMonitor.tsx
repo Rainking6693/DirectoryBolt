@@ -8,8 +8,6 @@ import BatchProcessingMonitor from "./BatchProcessingMonitor";
 
 import type {
   AutoBoltStatusResponse,
-  ExtensionStatus,
-  ExtensionStatusResponse,
   QueueItem,
   QueueItemPayload,
   QueueSnapshotResponse,
@@ -177,7 +175,6 @@ const mapQueueStats = (payload?: QueueStatsPayload | null): QueueStats => {
 export default function AutoBoltQueueMonitor(): JSX.Element {
   const router = useRouter();
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
-  const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus[]>([]);
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus[]>([]);
   const [queueStats, setQueueStats] = useState<QueueStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -265,28 +262,6 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
         console.warn("Worker status fetch failed:", workerError);
       }
 
-      try {
-        const extensionResponse = await fetch(
-          "/api/staff/autobolt-extensions",
-          { headers },
-        );
-        if (extensionResponse.ok) {
-          const extensionResult: ExtensionStatusResponse =
-            await extensionResponse.json();
-          if (extensionResult.success) {
-            const data = extensionResult.data;
-            const extensions = Array.isArray(data)
-              ? data
-              : Array.isArray(data?.extensions)
-                ? data.extensions
-                : [];
-            setExtensionStatus(extensions || []);
-          }
-        }
-      } catch (extensionError) {
-        console.warn("Extension status fetch failed:", extensionError);
-        setExtensionStatus([]);
-      }
 
       setLastUpdated(new Date());
       setLoading(false);
@@ -490,15 +465,13 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
             <div className="flex items-center gap-2">
               <div
                 className={`w-3 h-3 rounded-full ${
-                  workerStatus.some((w) => w.status === "online") ||
-                  extensionStatus.some((e) => e.status === "online")
+                  workerStatus.some((w) => w.status === "online")
                     ? "bg-green-400 animate-pulse"
                     : "bg-red-400"
                 }`}
               ></div>
               <span className="text-secondary-200 font-medium">
-                {workerStatus.some((w) => w.status === "online") ||
-                extensionStatus.some((e) => e.status === "online")
+                {workerStatus.some((w) => w.status === "online")
                   ? "AutoBolt Active"
                   : "AutoBolt Offline"}
               </span>
@@ -506,8 +479,6 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
             <div className="text-secondary-400 text-sm">
               {workerStatus.length > 0 &&
                 `${workerStatus.length} backend workers`}
-              {extensionStatus.length > 0 &&
-                ` • ${extensionStatus.length} legacy extensions`}
               {error && (
                 <span className="text-red-300 ml-2">
                   • Backend Connection Issue
@@ -860,91 +831,12 @@ export default function AutoBoltQueueMonitor(): JSX.Element {
         </div>
       </div>
 
-      {/* Legacy Extension Status - Will be removed after migration */}
-      <div className="bg-secondary-900/60 border border-secondary-800 rounded-lg overflow-hidden">
-        <div className="px-4 py-3 border-b border-secondary-800">
-          <h3 className="text-secondary-200 font-medium">
-            Extension Status (Legacy)
-          </h3>
-          <p className="text-secondary-500 text-sm">
-            Chrome extension instances - will be deprecated after backend
-            migration
-          </p>
-        </div>
-        <div className="divide-y divide-secondary-800">
-          {extensionStatus.length === 0 ? (
-            <div className="p-4 text-secondary-400 text-sm">
-              No active AutoBolt extension heartbeats detected.
-            </div>
-          ) : (
-            extensionStatus.map((extension) => (
-              <div
-                key={extension.extension_id}
-                className="p-4 flex items-center justify-between"
-              >
-                <div>
-                  <div className="text-secondary-100 font-medium">
-                    Extension {extension.extension_id}
-                  </div>
-                  <div className="text-secondary-400 text-xs">
-                    Last heartbeat:{" "}
-                    {new Date(extension.last_heartbeat).toLocaleString()}
-                  </div>
-                  {extension.error_message && (
-                    <div className="text-red-300 text-xs mt-1">
-                      Error: {extension.error_message}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-6">
-                  <div>
-                    <div className="text-secondary-200 text-sm">Processing</div>
-                    <div className="text-secondary-400 text-xs">
-                      {extension.directories_processed} directories
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-secondary-200 text-sm">Failed</div>
-                    <div className="text-red-300 text-xs">
-                      {extension.directories_failed}
-                    </div>
-                  </div>
-                  <StatusBadge status={extension.status} />
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
     </div>
   );
 }
 
-type StatusBadgeStatus = ExtensionStatus["status"];
 type WorkerStatusBadgeStatus = WorkerStatus["status"];
 type StatusPillStatus = QueueStatus;
-
-function StatusBadge({ status }: { status: StatusBadgeStatus }) {
-  const colors: Record<StatusBadgeStatus, string> = {
-    online: "bg-green-500/20 text-green-300 border-green-400/40",
-    offline: "bg-secondary-800 text-secondary-300 border-secondary-700",
-    processing: "bg-volt-500/10 text-volt-300 border-volt-500/40",
-    error: "bg-red-500/10 text-red-300 border-red-500/40",
-  };
-
-  const labels: Record<StatusBadgeStatus, string> = {
-    online: "Online",
-    offline: "Offline",
-    processing: "Processing",
-    error: "Error",
-  };
-
-  return (
-    <span className={`px-3 py-1 text-xs rounded-full border ${colors[status]}`}>
-      {labels[status]}
-    </span>
-  );
-}
 
 function WorkerStatusBadge({ status }: { status: WorkerStatusBadgeStatus }) {
   const colors: Record<WorkerStatusBadgeStatus, string> = {
