@@ -588,6 +588,7 @@ export default function RealTimeQueue(): JSX.Element {
                       )}
                     </div>
                   </td>
+                </tr>
               ))}
             </tbody>
           </table>
