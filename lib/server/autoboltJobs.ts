@@ -486,11 +486,51 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   return { jobs: queueJobs, stats }
 }
 
+// Mark a job in progress explicitly (idempotent if already in_progress)
+export async function markJobInProgress(jobId: string) {
+  const supabase = createSupabaseAdminClient()
+  const startedAt = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('jobs')
+    .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
+    .eq('id', jobId)
+    .select('id, status, started_at')
+    .maybeSingle()
+  if (error) {
+    throw new Error(`Failed to mark job in progress: ${error.message}`)
+  }
+  return data
+}
 
+// Reset a failed job back to pending for retry
+export async function retryFailedJob(jobId: string) {
+  const supabase = createSupabaseAdminClient()
+  const now = new Date().toISOString()
 
+  // Only allow retry from failed or in_progress with error
+  const { data: job, error: fetchErr } = await supabase
+    .from('jobs')
+    .select('id, status')
+    .eq('id', jobId)
+    .maybeSingle()
+  if (fetchErr) {
+    throw new Error(`Failed to fetch job for retry: ${fetchErr.message}`)
+  }
+  if (!job) {
+    throw new Error('Job not found')
+  }
 
+  const { data: updated, error: updateErr } = await supabase
+    .from('jobs')
+    .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
+    .eq('id', jobId)
+    .select('id, status')
+    .maybeSingle()
 
-
-
+  if (updateErr) {
+    throw new Error(`Failed to reset job for retry: ${updateErr.message}`)
+  }
+  return updated
+}
 
 
