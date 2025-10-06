@@ -148,7 +148,7 @@ export default function RealTimeQueue(): JSX.Element {
   };
 
   const getStatusColor = (status: string) => {
-    const s = (status || '').toLowerCase().replace('_','-')
+    const s = (status || '').toLowerCase().replace(/_/g, '-')
     switch (s) {
       case "pending":
         return "text-volt-400 bg-volt-400/20";
