@@ -15,7 +15,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
 
-
 interface PushJobResponse {
   success: boolean
   data?: {
@@ -108,7 +107,15 @@ async function handler(
       })
     }
 
-    console.log(`🚀 Staff pushing job ${job_id} to AutoBolt from IP:`, req.headers['x-forwarded-for'] || req.connection.remoteAddress)
+    console.log(`dYs? Staff pushing job ${job_id} to AutoBolt from IP:`, req.headers['x-forwarded-for'] || (req.socket as any)?.remoteAddress)
+
+    // Create Supabase client lazily
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(503).json({ success: false, error: 'Supabase is not configured on this environment' })
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Get the pending job and mark it in_progress (doc model)
     const { data: jobRow, error: jobErr } = await supabase
