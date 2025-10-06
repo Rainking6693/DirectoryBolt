@@ -33,7 +33,9 @@ async function ensureRecaptchaSolved(page, opts = {}) {
   if (!siteKey) throw new Error('Unable to locate reCAPTCHA sitekey on page')
 
   const url = page.url()
-  const token = await solveCaptcha({ apiKey, siteKey, url, pollingIntervalMs: pollingMs, timeoutMs })
+  const token = await solveCaptcha({ apiKey, siteKey, url, pollingIntervalMs: pollingMs, timeoutMs }).catch((err) => {
+    throw new Error(`CAPTCHA solving failed: ${err.message}`)
+  })
 
   // Inject token (v2 compatible)
   await page.evaluate((t) => {
