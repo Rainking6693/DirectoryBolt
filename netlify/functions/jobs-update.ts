@@ -36,7 +36,18 @@ const handler: Handler = async (event) => {
     const body = JSON.parse(event.body || '{}') as {
       jobId?: string
       queueId?: string
-      directoryResults?: Array<{ directoryName: string; status: any; listingUrl?: string; message?: string; directoryUrl?: string; responseLog?: any; }>
+      directoryResults?: Array<{
+        directoryName: string
+        status: any
+        listingUrl?: string
+        message?: string
+        directoryUrl?: string
+        category?: string
+        tier?: string | number
+        responseLog?: any
+        rejectionReason?: string
+        processingTimeSeconds?: number
+      }>
       status?: string
       errorMessage?: string
     }
@@ -46,9 +57,22 @@ const handler: Handler = async (event) => {
       return { statusCode: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders() }, body: JSON.stringify({ error: 'jobId is required' }) }
     }
 
+    const directoryResults = (body.directoryResults || []).map((r) => ({
+      directoryName: r.directoryName,
+      status: r.status,
+      submissionResult: r.message,
+      listingUrl: r.listingUrl,
+      directoryUrl: r.directoryUrl,
+      directoryCategory: r.category,
+      directoryTier: r.tier ?? undefined,
+      responseLog: r.responseLog,
+      rejectionReason: r.rejectionReason,
+      processingTimeSeconds: r.processingTimeSeconds
+    }))
+
     const result = await updateJobProgress({
       jobId,
-      directoryResults: body.directoryResults || [],
+      directoryResults,
       status: body.status,
       errorMessage: body.errorMessage
     })
