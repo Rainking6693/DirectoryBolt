@@ -9,12 +9,14 @@ interface DeleteCustomerResponse {
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse<DeleteCustomerResponse>) {
+  console.log('[staff.customers.delete] start', { method: req.method })
   if (req.method !== 'POST' && req.method !== 'DELETE') {
     res.setHeader('Allow', ['POST', 'DELETE'])
     return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
   const { id, customer_id } = (req.body || {}) as { id?: string; customer_id?: string }
+  console.log('[staff.customers.delete] payload', { id, customer_id })
   if (!id && !customer_id) {
     return res.status(400).json({ success: false, error: 'id or customer_id is required' })
   }
@@ -22,6 +24,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<DeleteCustomerR
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   if (!supabaseUrl || !serviceKey) {
+    console.error('[staff.customers.delete] missing supabase env', { hasUrl: !!supabaseUrl, hasKey: !!serviceKey })
     return res.status(503).json({ success: false, error: 'Supabase not configured' })
   }
 
@@ -30,13 +33,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse<DeleteCustomerR
 
     // Resolve internal UUID id from either provided id or customer_id
     let internalId: string | null = id || null
+
     if (!internalId && customer_id) {
+      console.log('[staff.customers.delete] resolving by customer_id')
       const { data: c, error } = await supabase
         .from('customers')
         .select('id')
         .eq('customer_id', customer_id)
-        .single()
-      if (error || !c) {
+        .maybeSingle()
+      if (error) {
+        console.error('[staff.customers.delete] lookup error', error)
+      }
+      if (!c) {
         return res.status(404).json({ success: false, error: 'Customer not found' })
       }
       internalId = c.id
@@ -46,19 +54,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse<DeleteCustomerR
       return res.status(404).json({ success: false, error: 'Customer not found' })
     }
 
-    // Delete related jobs first
-    await supabase.from('jobs').delete().eq('customer_id', internalId)
+    console.log('[staff.customers.delete] deleting jobs', { customerId: internalId })
+    const { error: jobsErr } = await supabase.from('jobs').delete().eq('customer_id', internalId)
+    if (jobsErr) {
+      console.error('[staff.customers.delete] jobs delete error', jobsErr)
+      return res.status(500).json({ success: false, error: jobsErr.message })
+    }
 
-    // Delete customer
-    const { error: delErr } = await supabase.from('customers').delete().eq('id', internalId)
+    console.log('[staff.customers.delete] deleting customer', { customerId: internalId })
+    const { error: delErr, count } = await supabase.from('customers').delete({ count: 'exact' }).eq('id', internalId)
     if (delErr) {
+      console.error('[staff.customers.delete] customer delete error', delErr)
       return res.status(500).json({ success: false, error: delErr.message })
     }
 
+    console.log('[staff.customers.delete] success', { customerId: internalId, count })
     return res.status(200).json({ success: true, data: { deleted_customer_id: internalId } })
-  } catch (e) {
-    console.error('[staff.customers.delete] error', e)
-    return res.status(500).json({ success: false, error: 'Internal server error' })
+  } catch (e:any) {
+    console.error('[staff.customers.delete] error', { message: e?.message, stack: e?.stack })
+    return res.status(500).json({ success: false, error: e?.message || 'Internal server error' })
   }
 }
 

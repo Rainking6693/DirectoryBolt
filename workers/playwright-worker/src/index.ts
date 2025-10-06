@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { logger } from './logger'
 import { getNextJob, updateProgress, completeJob } from './apiClient'
 import { processJob } from './jobProcessor'

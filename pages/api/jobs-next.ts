@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getNextPendingJob, markJobInProgress } from '../../lib/server/autoboltJobs'
 
 function authorize(authHeader?: string): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false
@@ -19,6 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    console.log('[jobs-next] dynamic import orchestrator')
+    const { getNextPendingJob, markJobInProgress } = await import('../../lib/server/autoboltJobs')
     console.log('[jobs-next] calling getNextPendingJob')
     const next = await getNextPendingJob()
     console.log('[jobs-next] getNextPendingJob result', { hasJob: !!next })

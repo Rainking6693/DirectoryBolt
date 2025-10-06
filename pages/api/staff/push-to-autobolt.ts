@@ -7,19 +7,7 @@ import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { withRateLimit, rateLimitConfigs } from '../../../lib/middleware/rate-limit'
 import { withCSRFProtection } from '../../../lib/middleware/csrf-protection'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase configuration')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+// IMPORTANT: Do not create Supabase client at module scope in dev. Lazy-create inside the handler.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -27,7 +15,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    console.log('🚀 Staff requesting to push customer to AutoBolt')
+    console.log('dYs? Staff requesting to push customer to AutoBolt')
 
     const { customer_id, action } = req.body
 
@@ -37,6 +25,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         message: 'Customer ID is required'
       })
     }
+
+    // Create Supabase client lazily
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(503).json({ error: 'Service Unavailable', message: 'Supabase is not configured on this environment' })
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
 
     // Get customer data from Supabase
     const { data: customer, error: customerError } = await supabase
@@ -57,7 +55,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .single()
 
     if (customerError || !customer) {
-      console.error('❌ Customer not found:', customerError)
+      console.error('??O Customer not found:', customerError)
       return res.status(404).json({
         error: 'Not Found',
         message: 'Customer not found'
@@ -97,7 +95,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .single()
 
     if (queueError) {
-      console.error('❌ Failed to add to processing queue:', queueError)
+      console.error('??O Failed to add to processing queue:', queueError)
       return res.status(500).json({
         error: 'Database Error',
         message: 'Failed to add customer to AutoBolt processing queue',
@@ -115,12 +113,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .eq('customer_id', customer_id)
 
     if (updateError) {
-      console.error('❌ Failed to update customer status:', updateError)
+      console.error('??O Failed to update customer status:', updateError)
       // Don't fail the request, just log the error
     }
 
     // Log the action
-    console.log(`✅ Customer ${customer.customer_id} pushed to AutoBolt processing queue`)
+    console.log(`?o. Customer ${customer.customer_id} pushed to AutoBolt processing queue`)
 
     // Return success response
     res.status(200).json({
@@ -138,7 +136,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
 
   } catch (error) {
-    console.error('❌ Push to AutoBolt error:', error)
+    console.error('??O Push to AutoBolt error:', error)
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to push customer to AutoBolt',

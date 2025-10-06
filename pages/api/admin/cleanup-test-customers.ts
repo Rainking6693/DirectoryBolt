@@ -5,19 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase configuration')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+// IMPORTANT: Supabase client must be created lazily inside the handler
 
 // Comprehensive patterns to identify fake/test data
 const FAKE_DATA_PATTERNS = {
@@ -33,7 +21,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    console.log('🚨 CRITICAL CLEANUP: Starting comprehensive removal of ALL fake/test customers')
+    console.log('dYs" CRITICAL CLEANUP: Starting comprehensive removal of ALL fake/test customers')
+
+    // Lazy supabase
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(503).json({ error: 'Service Unavailable', message: 'Supabase is not configured on this environment' })
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
 
     // Step 1: Get ALL customers to identify test patterns
     const { data: allCustomers, error: fetchError } = await supabase
@@ -41,14 +39,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .select('id, customer_id, business_name, email, status, package_type, directories_submitted, failed_directories, created_at, updated_at')
 
     if (fetchError) {
-      console.error('❌ Failed to fetch customers:', fetchError)
+      console.error('??O Failed to fetch customers:', fetchError)
       return res.status(500).json({
         error: 'Database Error',
         message: 'Failed to fetch customers for cleanup'
       })
     }
 
-    console.log(`📊 Found ${allCustomers?.length || 0} total customers to analyze`)
+    console.log(`dY"S Found ${allCustomers?.length || 0} total customers to analyze`)
 
     // Step 2: Identify ALL fake/test customers using comprehensive patterns
     const testCustomers = allCustomers?.filter(customer => {
@@ -78,7 +76,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       )
     }) || []
 
-    console.log(`🔍 IDENTIFIED ${testCustomers.length} fake/test customers for removal:`)
+    console.log(`dY"? IDENTIFIED ${testCustomers.length} fake/test customers for removal:`)
     testCustomers.forEach((customer, index) => {
       console.log(`   ${index + 1}. ${customer.customer_id} - ${customer.business_name} (${customer.email})`)
     })
@@ -96,93 +94,93 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const testCustomerIds = testCustomers.map(c => c.customer_id)
       
       // Step 3: Remove from customers table (cascades to related tables)
-      console.log('🗑️ Removing fake customers from main customers table...')
+      console.log('dY-`?,? Removing fake customers from main customers table...')
       const { error: deleteCustomersError } = await supabase
         .from('customers')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteCustomersError) {
-        console.error('❌ Failed to delete test customers:', deleteCustomersError)
+        console.error('??O Failed to delete test customers:', deleteCustomersError)
         cleanupResults.errors.push(`Customers table: ${deleteCustomersError.message}`)
       } else {
         cleanupResults.customers_removed = testCustomers.length
-        console.log(`✅ Removed ${testCustomers.length} fake customers from customers table`)
+        console.log(`?o. Removed ${testCustomers.length} fake customers from customers table`)
       }
 
       // Step 4: Remove from autobolt_processing_queue
-      console.log('🗑️ Cleaning autobolt processing queue...')
+      console.log('dY-`?,? Cleaning autobolt processing queue...')
       const { error: deleteQueueError } = await supabase
         .from('autobolt_processing_queue')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteQueueError) {
-        console.error('❌ Failed to cleanup autobolt queue:', deleteQueueError)
+        console.error('??O Failed to cleanup autobolt queue:', deleteQueueError)
         cleanupResults.errors.push(`AutoBolt queue: ${deleteQueueError.message}`)
       } else {
-        console.log(`✅ Cleaned autobolt processing queue`)
+        console.log(`?o. Cleaned autobolt processing queue`)
       }
 
       // Step 5: Remove from directory_submissions
-      console.log('🗑️ Cleaning directory submissions...')
+      console.log('dY-`?,? Cleaning directory submissions...')
       const { error: deleteSubmissionsError } = await supabase
         .from('directory_submissions')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteSubmissionsError) {
-        console.error('❌ Failed to cleanup directory submissions:', deleteSubmissionsError)
+        console.error('??O Failed to cleanup directory submissions:', deleteSubmissionsError)
         cleanupResults.errors.push(`Directory submissions: ${deleteSubmissionsError.message}`)
       } else {
-        console.log(`✅ Cleaned directory submissions`)
+        console.log(`?o. Cleaned directory submissions`)
       }
 
       // Step 6: Remove from customer_notifications
-      console.log('🗑️ Cleaning customer notifications...')
+      console.log('dY-`?,? Cleaning customer notifications...')
       const { error: deleteNotificationsError } = await supabase
         .from('customer_notifications')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteNotificationsError) {
-        console.error('❌ Failed to cleanup notifications:', deleteNotificationsError)
+        console.error('??O Failed to cleanup notifications:', deleteNotificationsError)
         cleanupResults.errors.push(`Notifications: ${deleteNotificationsError.message}`)
       } else {
-        console.log(`✅ Cleaned customer notifications`)
+        console.log(`?o. Cleaned customer notifications`)
       }
 
       // Step 7: Remove from queue_history
-      console.log('🗑️ Cleaning queue history...')
+      console.log('dY-`?,? Cleaning queue history...')
       const { error: deleteHistoryError } = await supabase
         .from('queue_history')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteHistoryError) {
-        console.error('❌ Failed to cleanup queue history:', deleteHistoryError)
+        console.error('??O Failed to cleanup queue history:', deleteHistoryError)
         cleanupResults.errors.push(`Queue history: ${deleteHistoryError.message}`)
       } else {
-        console.log(`✅ Cleaned queue history`)
+        console.log(`?o. Cleaned queue history`)
       }
 
       // Step 8: Remove from analytics_events
-      console.log('🗑️ Cleaning analytics events...')
+      console.log('dY-`?,? Cleaning analytics events...')
       const { error: deleteAnalyticsError } = await supabase
         .from('analytics_events')
         .delete()
         .in('customer_id', testCustomerIds)
 
       if (deleteAnalyticsError) {
-        console.error('❌ Failed to cleanup analytics:', deleteAnalyticsError)
+        console.error('??O Failed to cleanup analytics:', deleteAnalyticsError)
         cleanupResults.errors.push(`Analytics events: ${deleteAnalyticsError.message}`)
       } else {
-        console.log(`✅ Cleaned analytics events`)
+        console.log(`?o. Cleaned analytics events`)
       }
     }
 
     // Step 9: Reset any stuck AutoBolt extension statuses
-    console.log('🔄 Resetting stuck AutoBolt extension statuses...')
+    console.log('dY", Resetting stuck AutoBolt extension statuses...')
     const { error: resetExtensionError } = await supabase
       .from('autobolt_extension_status')
       .update({ 
@@ -196,10 +194,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .neq('status', 'offline')
 
     if (resetExtensionError) {
-      console.error('❌ Failed to reset extension statuses:', resetExtensionError)
+      console.error('??O Failed to reset extension statuses:', resetExtensionError)
       cleanupResults.errors.push(`Extension reset: ${resetExtensionError.message}`)
     } else {
-      console.log(`✅ Reset stuck AutoBolt extension statuses`)
+      console.log(`?o. Reset stuck AutoBolt extension statuses`)
     }
 
     // NO TEST CUSTOMERS WILL BE CREATED - COMPLETE CLEANUP
@@ -218,9 +216,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .from('autobolt_processing_queue')
       .select('id', { count: 'exact' })
 
-    console.log('🎉 CRITICAL CLEANUP COMPLETED SUCCESSFULLY!')
-    console.log(`📊 Final Stats: ${finalCount} customers remaining, ${activeCount} active, ${inProgressCount} in-progress`)
-    console.log(`🔗 AutoBolt queue: ${queueCount?.length || 0} entries remaining`)
+    console.log('dYZ% CRITICAL CLEANUP COMPLETED SUCCESSFULLY!')
+    console.log(`dY"S Final Stats: ${finalCount} customers remaining, ${activeCount} active, ${inProgressCount} in-progress`)
+    console.log(`dY"- AutoBolt queue: ${queueCount?.length || 0} entries remaining`)
 
     return res.status(200).json({
       success: true,
@@ -243,7 +241,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
 
   } catch (error) {
-    console.error('🚨 CRITICAL CLEANUP ERROR:', error)
+    console.error('dYs" CRITICAL CLEANUP ERROR:', error)
     return res.status(500).json({
       error: 'Critical Cleanup Failed',
       message: 'Failed to complete comprehensive fake customer cleanup',

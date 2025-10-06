@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { completeJob } from '../../lib/server/autoboltJobs'
 
 function authorize(authHeader?: string): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false
@@ -26,6 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'jobId is required' })
     }
 
+    const { completeJob } = await import('../../lib/server/autoboltJobs')
     const result = await completeJob({
       jobId: payload.jobId,
       finalStatus: payload.finalStatus,
