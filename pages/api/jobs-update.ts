@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { updateJobProgress } from '../../lib/server/autoboltJobs'
 
 function authorize(authHeader?: string): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false
@@ -36,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       directoryTier: (r.tier as any) || undefined
     }))
 
+    const { updateJobProgress } = await import('../../lib/server/autoboltJobs')
     const progress = await updateJobProgress({ jobId: payload.jobId, directoryResults: results, status: payload.status, errorMessage: payload.errorMessage })
     console.log('[jobs-update] responded', { jobId: payload.jobId, resultsCount: results.length })
 
