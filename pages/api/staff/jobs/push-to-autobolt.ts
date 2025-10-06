@@ -15,10 +15,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit'
 
-// Initialize Supabase client with service role
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY)!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 interface PushJobResponse {
   success: boolean
