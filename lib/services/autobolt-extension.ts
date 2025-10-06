@@ -128,7 +128,7 @@ export class AutoBoltExtensionService {
    */
   private getProcessableDirectories(directoryLimit: number): DirectoryEntry[] {
     // Filter based on login/captcha; allow captcha if 2Captcha key is configured
-    const captchaKey = process.env.CAPTCHA_API_KEY || process.env.TWOCAPTCHA_API_KEY || (process.env as any)['2CAPTCHA_API_KEY']
+    const captchaKey = process.env.CAPTCHA_API_KEY || process.env.TWOCAPTCHA_API_KEY || process.env['2CAPTCHA_API_KEY']
     const processableDirectories = this.directoryList.filter(directory => {
       if (directory.requiresLogin) {
         console.log(`⏭️ Skipping ${directory.name}: Requires login`)
