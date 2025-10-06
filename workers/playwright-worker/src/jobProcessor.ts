@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { chromium, Browser, Page } from 'playwright'
 import { logger } from './logger'
+import { submitWithMapper } from './directorySubmitter'
 
 interface JobPayload {
   id: string
@@ -115,33 +116,29 @@ function computeLimit(pkg:any): number {
 export async function submitToDirectory(page: Page, directory: DirectoryConfig, job: JobPayload){
   const started = new Date().toISOString()
   try {
-    await page.goto(directory.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-
-    if (directory.formMapping) {
+    // Prefer explicit mapping from directory config; otherwise fall back to dynamic mapper
+    if (directory.formMapping && Object.keys(directory.formMapping).length > 0) {
+      await page.goto(directory.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
       for (const [selector, field] of Object.entries(directory.formMapping)) {
         const value = pickField(job, field)
         if (typeof value === 'string' && value.length) {
-          try {
-            await page.fill(selector, value, { timeout: 15000 })
-          } catch {}
+          try { await page.fill(selector, value, { timeout: 15000 }) } catch {}
         }
       }
+      const submitSelectors = ['button[type="submit"]','input[type="submit"]','button:has-text("Submit")','button:has-text("Create")','button:has-text("Add")']
+      for (const sel of submitSelectors) {
+        const el = await page.$(sel)
+        if (el) { await el.click({ timeout: 10000 }).catch(()=>{}) }
+      }
+      await page.waitForTimeout(2000)
+      const content = (await page.content()).toLowerCase()
+      const success = /success|thank you|received|submitted/.test(content)
+      return { directoryName: directory.name, status: success ? 'submitted' : 'failed', message: success ? 'OK' : 'No success indicator', timestamp: started }
     }
 
-    // best-effort submit button click
-    const submitSelectors = ['button[type="submit"]','input[type="submit"]','button:has-text("Submit")','button:has-text("Create")','button:has-text("Add")']
-    for (const sel of submitSelectors) {
-      const el = await page.$(sel)
-      if (el) { await el.click({ timeout: 10000 }).catch(()=>{}) }
-    }
-
-    await page.waitForTimeout(2000)
-
-    // simple success heuristics
-    const content = (await page.content()).toLowerCase()
-    const success = /success|thank you|received|submitted/.test(content)
-
-    return { directoryName: directory.name, status: success ? 'submitted' : 'failed', message: success ? 'OK' : 'No success indicator', timestamp: started }
+    // Dynamic mapping path
+    const mapped = await submitWithMapper(page, directory.url, directory.name, job)
+    return mapped
   } catch (e:any) {
     return { directoryName: directory.name, status: 'failed', message: e?.message || 'Navigation/submit error', timestamp: started }
   }
