@@ -13,7 +13,11 @@ function corsHeaders() {
 function authorize(authHeader?: string): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false
   const token = authHeader.slice(7)
-  const expected = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.WORKER_AUTH_TOKEN || ''
+  const expected = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.WORKER_AUTH_TOKEN
+  if (!expected) {
+    console.error('Missing required auth token environment variable')
+    return false
+  }
   return !!expected && token === expected
 }
 
