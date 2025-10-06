@@ -1,4 +1,4 @@
-import type { Handler } from '@netlify/functions'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { getNextPendingJob, markJobInProgress } from '../../lib/server/autoboltJobs'
 
 function authorize(authHeader?: string): boolean {
@@ -8,24 +8,27 @@ function authorize(authHeader?: string): boolean {
   return token === expected
 }
 
-const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[jobs-next] handler start', { method: req.method, hasAuth: !!req.headers.authorization })
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
   }
-  if (!authorize(event.headers.authorization)) {
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) }
+  if (!authorize(req.headers.authorization)) {
+    console.warn('[jobs-next] unauthorized')
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
   try {
+    console.log('[jobs-next] calling getNextPendingJob')
     const next = await getNextPendingJob()
+    console.log('[jobs-next] getNextPendingJob result', { hasJob: !!next })
     if (!next) {
-      return { statusCode: 200, body: JSON.stringify({ job: null }) }
+      return res.status(200).json({ job: null })
     }
 
-    // Claim explicitly (getNextPendingJob may already set to in_progress; this makes it idempotent)
+    console.log('[jobs-next] markJobInProgress', { jobId: next.job.id })
     await markJobInProgress(next.job.id)
 
-    // Build response object enriched with customer fields
     const directoryLimitByPackage: Record<string, number> = {
       starter: 50,
       growth: 150,
@@ -42,7 +45,6 @@ const handler: Handler = async (event) => {
       status: next.job.status,
       created_at: next.job.createdAt,
       started_at: next.job.startedAt,
-      // customer fields
       business_name: (next.customer as any)?.business_name || null,
       email: (next.customer as any)?.email || null,
       phone: (next.customer as any)?.phone || null,
@@ -53,15 +55,14 @@ const handler: Handler = async (event) => {
       zip: (next.customer as any)?.zip || null,
       description: (next.customer as any)?.description || null,
       category: (next.customer as any)?.category || null,
-      package_type: next.job.packageSize, // kept for compatibility
+      package_type: next.job.packageSize,
       directory_limit: directoryLimitByPackage[String(next.job.packageSize).toLowerCase()] || next.job.packageSize || 50
     }
 
-    return { statusCode: 200, body: JSON.stringify({ job: jobPayload }) }
+    console.log('[jobs-next] responding success', { jobId: jobPayload.id })
+    return res.status(200).json({ job: jobPayload })
   } catch (e:any) {
-    console.error('jobs-next error:', e)
-    return { statusCode: 500, body: JSON.stringify({ error: e.message || 'Internal error' }) }
+    console.error('[jobs-next] error', { message: e?.message, stack: e?.stack })
+    return res.status(500).json({ error: e?.message || 'Internal error' })
   }
 }
-
-export { handler }

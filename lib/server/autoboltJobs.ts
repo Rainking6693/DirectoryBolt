@@ -117,8 +117,14 @@ function mapDirectoryStatus(status: DirectoryResultInput['status']): 'pending' |
 }
 
 export async function getNextPendingJob(): Promise<NextJobResponse | null> {
+  console.log('[autoboltJobs.getNextPendingJob] start')
   const supabase = createSupabaseAdminClient()
+  if (!supabase) {
+    console.error('[autoboltJobs.getNextPendingJob] supabase client not available')
+    throw new Error('Supabase client unavailable')
+  }
 
+  console.log('[autoboltJobs.getNextPendingJob] querying jobs where status=pending')
   const { data: pendingJob, error: pendingError } = await supabase
     .from('jobs')
     .select('id, customer_id, package_size, priority_level, status, metadata, created_at')
@@ -129,14 +135,17 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     .maybeSingle()
 
   if (pendingError) {
+    console.error('[autoboltJobs.getNextPendingJob] pendingError', pendingError)
     throw new Error(`Failed to fetch pending job: ${pendingError.message}`)
   }
 
   if (!pendingJob) {
+    console.log('[autoboltJobs.getNextPendingJob] no pending jobs')
     return null
   }
 
   const startedAt = new Date().toISOString()
+  console.log('[autoboltJobs.getNextPendingJob] marking in_progress', { jobId: pendingJob.id })
   const { error: updateError, data: updatedJob } = await supabase
     .from('jobs')
     .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
@@ -146,14 +155,16 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     .maybeSingle()
 
   if (updateError) {
+    console.error('[autoboltJobs.getNextPendingJob] updateError', updateError)
     throw new Error(`Failed to mark job in progress: ${updateError.message}`)
   }
 
-  // Race condition: another worker may have claimed job in between
   if (!updatedJob) {
+    console.warn('[autoboltJobs.getNextPendingJob] job was claimed by another worker; retrying')
     return await getNextPendingJob()
   }
 
+  console.log('[autoboltJobs.getNextPendingJob] fetching customer', { customerId: updatedJob.customer_id })
   const { data: customer, error: customerError } = await supabase
     .from('customers')
     .select(`
@@ -175,9 +186,11 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     .maybeSingle()
 
   if (customerError) {
+    console.error('[autoboltJobs.getNextPendingJob] customerError', customerError)
     throw new Error(`Failed to fetch customer for job ${updatedJob.id}: ${customerError.message}`)
   }
 
+  console.log('[autoboltJobs.getNextPendingJob] success', { jobId: updatedJob.id })
   return {
     job: {
       id: updatedJob.id,

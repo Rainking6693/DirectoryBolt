@@ -6,7 +6,13 @@ import type { DirectoryBoltDatabase, DirectoryBoltSupabaseClient } from '../../t
 let cachedClient: DirectoryBoltSupabaseClient | null = null
 
 export function createSupabaseAdminClient(): DirectoryBoltSupabaseClient {
+  console.log('[supabaseAdmin] createSupabaseAdminClient')
   const { url: supabaseUrl, serviceRoleKey: serviceKey } = getSupabaseServerConfig()
+  if (!supabaseUrl || !serviceKey) {
+    console.error('[supabaseAdmin] missing config', { hasUrl: !!supabaseUrl, hasKey: !!serviceKey })
+  } else {
+    console.log('[supabaseAdmin] config ok', { urlHost: tryParseHost(supabaseUrl) })
+  }
 
   return createClient<DirectoryBoltDatabase, 'public'>(supabaseUrl, serviceKey, {
     auth: {
@@ -14,6 +20,10 @@ export function createSupabaseAdminClient(): DirectoryBoltSupabaseClient {
       persistSession: false
     }
   })
+}
+
+function tryParseHost(u?: string) {
+  try { const { host } = new URL(u || ''); return host } catch { return undefined }
 }
 
 export function getSupabaseAdminClient(): DirectoryBoltSupabaseClient | null {
