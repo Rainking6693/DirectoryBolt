@@ -140,18 +140,27 @@ GRANT SELECT, INSERT, UPDATE ON autobolt_processing_queue TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON autobolt_test_logs TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON job_results TO authenticated;
 
--- Grant sequence permissions
-GRANT USAGE ON SEQUENCE autobolt_processing_queue_id_seq TO authenticated;
-GRANT USAGE ON SEQUENCE autobolt_test_logs_id_seq TO authenticated;
-GRANT USAGE ON SEQUENCE job_results_id_seq TO authenticated;
+-- Grant sequence permissions (only if sequences exist)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'autobolt_processing_queue_id_seq') THEN
+        GRANT USAGE ON SEQUENCE autobolt_processing_queue_id_seq TO authenticated;
+        GRANT ALL ON SEQUENCE autobolt_processing_queue_id_seq TO service_role;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'autobolt_test_logs_id_seq') THEN
+        GRANT USAGE ON SEQUENCE autobolt_test_logs_id_seq TO authenticated;
+        GRANT ALL ON SEQUENCE autobolt_test_logs_id_seq TO service_role;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'job_results_id_seq') THEN
+        GRANT USAGE ON SEQUENCE job_results_id_seq TO authenticated;
+        GRANT ALL ON SEQUENCE job_results_id_seq TO service_role;
+    END IF;
+END $$;
 
 -- Grant permissions to service role (for API calls)
 GRANT ALL ON autobolt_processing_queue TO service_role;
 GRANT ALL ON autobolt_test_logs TO service_role;
 GRANT ALL ON job_results TO service_role;
 GRANT ALL ON customers TO service_role;
-
--- Grant sequence permissions to service role
-GRANT ALL ON SEQUENCE autobolt_processing_queue_id_seq TO service_role;
-GRANT ALL ON SEQUENCE autobolt_test_logs_id_seq TO service_role;
-GRANT ALL ON SEQUENCE job_results_id_seq TO service_role;

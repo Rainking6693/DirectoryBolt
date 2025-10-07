@@ -308,57 +308,31 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   logInfo(fn, 'Returning job for worker', { jobId: updatedJob.id })
   return {
     job: {
-      id: updatedJob.id
-      customerId: coerceString(updatedJob.customer_id)
-      packageSize: coerceNumber(updatedJob.package_size, 0)
-      priorityLevel: coerceNumber(updatedJob.priority_level, 0)
-      businessName
-      email
-      phone
-      website
-      address
-      city
-      state
-      zip
-      description
-      category
-      packageType
-      directoryLimit
-      status: 'in_progress'
-      createdAt: coerceString(updatedJob.created_at)
-      updatedAt
-      metadata: updatedJob.metadata || null
-      startedAt: startedAt
+      id: updatedJob.id,
+      customerId: coerceString(updatedJob.customer_id),
+      packageSize: coerceNumber(updatedJob.package_size, 0),
+      priorityLevel: coerceNumber(updatedJob.priority_level, 0),
+      businessName,
+      email,
+      phone,
+      website,
+      address,
+      city,
+      state,
+      zip,
+      description,
+      category,
+      packageType,
+      directoryLimit,
+      status: 'in_progress',
+      createdAt: coerceString(updatedJob.created_at),
+      updatedAt,
+      metadata: updatedJob.metadata || null,
+      startedAt: startedAt,
     },
-    customer: customer ?? null
+    customer: customer ?? null,
   }
 }
-}
-
-export async function updateJobProgress(options: {
-  jobId: string
-  directoryResults?: DirectoryResultInput[]
-  status?: string
-  errorMessage?: string
-}) {
-  const fn = 'autoboltJobs.updateJobProgress'
-  const { jobId, directoryResults = [], status, errorMessage } = options
-  logFunctionStart(fn, {
-    jobId,
-    directoryResultCount: directoryResults.length,
-    status
-  })
-
-  const canonicalStatus = normalizeJobStatus(status)
-  const supabase = getClientOrThrow(fn)
-
-  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select single for progress update', () =>
-    supabase
-      .from('jobs')
-      .select('id, package_size, status')
-      .eq('id', jobId)
-      .single()
-  )
 
   const { data: job, error: jobError } = jobResponse
   if (jobError || !job) {
