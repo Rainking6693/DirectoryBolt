@@ -112,29 +112,29 @@ export interface JobSummary {
 
 export interface NextJobResponse {
   job: {
-    id: string
-    customerId: string
-    packageSize: number
-    priorityLevel: number
-    businessName: string
-    email: string
-    phone: string
-    website: string
-    address: string
-    city: string
-    state: string
-    zip: string
-    description: string
-    category: string
-    packageType: string
-    directoryLimit: number
-    status: JobStatus
-    createdAt: string
-    startedAt: string
-    updatedAt: string
-    metadata: Record<string, unknown> | null
-  }
-  customer: Record<string, unknown> | null
+    id: string;
+    customerId: string;
+    businessName: string;
+    email: string;
+    phone: string;
+    website: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    description: string;
+    category: string;
+    packageType: string;
+    directoryLimit: number;
+    packageSize: number;
+    priorityLevel: number;
+    status: JobStatus;
+    createdAt: string;
+    updatedAt: string;
+    startedAt: string;
+    metadata: Record<string, unknown> | null;
+  };
+  customer: Record<string, unknown> | null;
 }
 
 export interface JobProgressSnapshot {
@@ -333,6 +333,26 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     customer: customer ?? null,
   }
 }
+
+export async function updateJobProgress(options: {
+  jobId: string
+  directoryResults: DirectoryResultInput[]
+  canonicalStatus?: JobStatus | null
+  errorMessage?: string | null
+}) {
+  const fn = 'autoboltJobs.updateJobProgress'
+  const { jobId, directoryResults, canonicalStatus, errorMessage } = options
+  logFunctionStart(fn, { jobId, resultsCount: directoryResults.length, status: canonicalStatus })
+
+  const supabase = getClientOrThrow(fn)
+
+  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select for progress update', () =>
+    supabase
+      .from('jobs')
+      .select('id, status, package_size')
+      .eq('id', jobId)
+      .maybeSingle()
+  )
 
   const { data: job, error: jobError } = jobResponse
   if (jobError || !job) {

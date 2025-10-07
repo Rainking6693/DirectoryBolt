@@ -52,14 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pro: 500
     }
 
-    const directoryLimitByPackage: Record<string, number> = {
-      starter: 50,
-      growth: 150,
-      professional: 300,
-      enterprise: 500,
-      pro: 500
-    }
-
     const packageLimitKey = next.job.packageType.toLowerCase()
     const normalizedDirectoryLimit =
       next.job.directoryLimit > 0
