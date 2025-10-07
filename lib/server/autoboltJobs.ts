@@ -214,8 +214,8 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', () =>
-    supabase
+  const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', async () =>
+    await supabase
       .from('jobs')
       .select('id, customer_id, package_size, priority_level, status, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
       .eq('status', 'pending')
@@ -237,8 +237,8 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   }
 
   const startedAt = new Date().toISOString()
-  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update set in_progress', () =>
-    supabase
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update set in_progress', async () =>
+    await supabase
       .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', pendingJob.id)
@@ -258,8 +258,8 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     return await getNextPendingJob()
   }
 
-  const customerResponse = await executeSupabaseQuery(fn, 'customers.select by id', () =>
-    supabase
+  const customerResponse = await executeSupabaseQuery(fn, 'customers.select by id', async () =>
+    await supabase
       .from('customers')
       .select(`
         id,
@@ -346,8 +346,8 @@ export async function updateJobProgress(options: {
 
   const supabase = getClientOrThrow(fn)
 
-  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select for progress update', () =>
-    supabase
+  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select for progress update', async () =>
+    await supabase
       .from('jobs')
       .select('id, status, package_size')
       .eq('id', jobId)
@@ -400,15 +400,15 @@ export async function updateJobProgress(options: {
         job_id: jobId,
         directory_name: result.directoryName,
         status: normalizedResultStatus,
-        response_log: Object.keys(responseLog).length > 0 ? responseLog : null,
+        response_log: Object.keys(responseLog).length > 0 ? (responseLog as any) : null,
         submitted_at: normalizedResultStatus === 'submitted' ? nowIso : null,
         retry_count: normalizedResultStatus === 'retry' ? 1 : 0,
         updated_at: nowIso
       }
     })
 
-    await executeSupabaseQuery(fn, 'job_results.upsert directory results', () =>
-      supabase.from('job_results').upsert(rows, { onConflict: 'job_id,directory_name' })
+    await executeSupabaseQuery(fn, 'job_results.upsert directory results', async () =>
+      await supabase.from('job_results').upsert(rows, { onConflict: 'job_id,directory_name' })
     )
     logInfo(fn, 'Directory results upserted', { count: rows.length })
   }
@@ -426,14 +426,14 @@ export async function updateJobProgress(options: {
       updateData['error_message'] = errorMessage
     }
 
-    await executeSupabaseQuery(fn, 'jobs.update progress status/error', () =>
-      supabase.from('jobs').update(updateData).eq('id', jobId)
+    await executeSupabaseQuery(fn, 'jobs.update progress status/error', async () =>
+      await supabase.from('jobs').update(updateData).eq('id', jobId)
     )
     logInfo(fn, 'Job metadata updated', { jobId, status: canonicalStatus, hasError: Boolean(errorMessage) })
   }
 
-  const progressResponse = await executeSupabaseQuery(fn, 'job_results.select progress summary', () =>
-    supabase
+  const progressResponse = await executeSupabaseQuery(fn, 'job_results.select progress summary', async () =>
+    await supabase
       .from('job_results')
       .select('status')
       .eq('job_id', jobId)
@@ -486,8 +486,8 @@ export async function completeJob(options: {
     updatePayload['error_message'] = errorMessage
   }
 
-  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update complete job', () =>
-    supabase
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update complete job', async () =>
+    await supabase
       .from('jobs')
       .update(updatePayload)
       .eq('id', jobId)
@@ -507,8 +507,8 @@ export async function completeJob(options: {
     throw new Error('Job not found or not in progress')
   }
 
-  const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select for completion', () =>
-    supabase
+  const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select for completion', async () =>
+    await supabase
       .from('job_results')
       .select('status')
       .eq('job_id', jobId)
@@ -549,8 +549,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', () =>
-    supabase
+  const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
+    await supabase
       .from('jobs')
       .select(`
         id,
@@ -577,8 +577,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   let resultsByJob: Record<string, { completed: number; failed: number; total: number }> = {}
 
   if (jobIds.length > 0) {
-    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', () =>
-      supabase
+    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', async () =>
+      await supabase
         .from('job_results')
         .select('job_id, status')
         .in('job_id', jobIds)
@@ -670,8 +670,8 @@ export async function markJobInProgress(jobId: string) {
   const supabase = getClientOrThrow(fn)
   const startedAt = new Date().toISOString()
 
-  const response = await executeSupabaseQuery(fn, 'jobs.update mark in progress', () =>
-    supabase
+  const response = await executeSupabaseQuery(fn, 'jobs.update mark in progress', async () =>
+    await supabase
       .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', jobId)
@@ -695,8 +695,8 @@ export async function retryFailedJob(jobId: string) {
   const supabase = getClientOrThrow(fn)
   const now = new Date().toISOString()
 
-  const fetchResponse = await executeSupabaseQuery(fn, 'jobs.select for retry', () =>
-    supabase
+  const fetchResponse = await executeSupabaseQuery(fn, 'jobs.select for retry', async () =>
+    await supabase
       .from('jobs')
       .select('id, status')
       .eq('id', jobId)
@@ -713,8 +713,8 @@ export async function retryFailedJob(jobId: string) {
     throw new Error('Job not found')
   }
 
-  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update reset status to pending', () =>
-    supabase
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update reset status to pending', async () =>
+    await supabase
       .from('jobs')
       .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
       .eq('id', jobId)
