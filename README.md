@@ -223,3 +223,8 @@ The project includes a custom design system with:
 **Built with enterprise infrastructure. Deployed with confidence. Monitored 24/7.** 🚀
 
 *Infrastructure Status: Production Ready | Monitoring: Active | Auto-scaling: Enabled*
+
+## Jobs Table Reference
+
+The AutoBolt worker expects enriched job records. See  \\ SCHEMA.md \\  for the full column reference. Use  \\ /api/jobs-seed \\  (or Supabase) to create test jobs that include business profile fields so the worker receives complete data.
+

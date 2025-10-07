@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from './supabaseAdmin'
+import { logInfo, logWarn, logError, serializeError } from './logging'
 
 import type {
   DirectoryBoltSupabaseClient,
@@ -9,6 +10,67 @@ import type {
 } from '../../types/supabase'
 
 export type { JobStatus } from '../../types/supabase'
+
+const QUERY_TIMEOUT_MS = 10_000
+
+type QueryExecutor<T> = () => Promise<T>
+
+function getClientOrThrow(functionName: string): DirectoryBoltSupabaseClient {
+  const client = createSupabaseAdminClient()
+  if (!client) {
+    logError(functionName, 'Supabase client unavailable')
+    throw new Error('Supabase client unavailable')
+  }
+  return client
+}
+
+async function executeSupabaseQuery<T>(
+  functionName: string,
+  label: string,
+  executor: QueryExecutor<T>
+): Promise<T> {
+  const started = Date.now()
+  logInfo(functionName, `Executing query: ${label}`)
+  let timeoutHandle: ReturnType<typeof setTimeout> | null = null
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutHandle = setTimeout(() => {
+      reject(new Error(`Query timeout after ${QUERY_TIMEOUT_MS}ms (${label})`))
+    }, QUERY_TIMEOUT_MS)
+  })
+
+  try {
+    const result = await Promise.race([executor(), timeoutPromise])
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle)
+    }
+    const duration = Date.now() - started
+    const meta: Record<string, unknown> = { durationMs: duration }
+    if (result && typeof result === 'object' && 'data' in (result as Record<string, unknown>)) {
+      const data = (result as Record<string, unknown>).data
+      if (Array.isArray(data)) {
+        meta.rows = data.length
+      } else {
+        meta.hasData = Boolean(data)
+      }
+    }
+    logInfo(functionName, `Query completed: ${label}`, meta)
+    return result as T
+  } catch (error) {
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle)
+    }
+    const duration = Date.now() - started
+    logError(functionName, `Query failed: ${label}`, {
+      durationMs: duration,
+      error: serializeError(error)
+    })
+    throw error
+  }
+}
+
+function logFunctionStart(functionName: string, meta?: Record<string, unknown>) {
+  logInfo(functionName, 'Started', meta)
+}
 
 export interface DirectoryResultInput {
   directoryName: string
@@ -30,19 +92,7 @@ export interface JobSummary {
   processingTimeSeconds?: number
 }
 
-export interface NextJobResponse {
-  job: {
-    id: string
-    customerId: string
-    packageSize: number
-    priorityLevel: number
-    status: JobStatus
-    metadata: Record<string, unknown> | null
-    createdAt: string
-    startedAt: string
-  }
-  customer: Record<string, unknown> | null
-}
+export interface NextJobResponse {\r\n  job: {\r\n    id: string\r\n    customerId: string\r\n    packageSize: number\r\n    priorityLevel: number\r\n    status: JobStatus\r\n    metadata: Record<string, unknown> | null\r\n    createdAt: string\r\n    startedAt: string\r\n    businessName: string | null\r\n    email: string | null\r\n    phone: string | null\r\n    website: string | null\r\n    address: string | null\r\n    city: string | null\r\n    state: string | null\r\n    zip: string | null\r\n    description: string | null\r\n    category: string | null\r\n    packageType: string | null\r\n    directoryLimit: number | null\r\n  }\r\n  customer: Record<string, unknown> | null\r\n}
 
 export interface JobProgressSnapshot {
   jobs: Array<{
@@ -117,80 +167,86 @@ function mapDirectoryStatus(status: DirectoryResultInput['status']): 'pending' |
 }
 
 export async function getNextPendingJob(): Promise<NextJobResponse | null> {
-  console.log('[autoboltJobs.getNextPendingJob] start')
-  const supabase = createSupabaseAdminClient()
-  if (!supabase) {
-    console.error('[autoboltJobs.getNextPendingJob] supabase client not available')
-    throw new Error('Supabase client unavailable')
-  }
+  const fn = 'autoboltJobs.getNextPendingJob'
+  logFunctionStart(fn)
+  const supabase = getClientOrThrow(fn)
 
-  console.log('[autoboltJobs.getNextPendingJob] querying jobs where status=pending')
-  const { data: pendingJob, error: pendingError } = await supabase
-    .from('jobs')
-    .select('id, customer_id, package_size, priority_level, status, metadata, created_at')
-    .eq('status', 'pending')
-    .order('priority_level', { ascending: true })
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', () =>
+    supabase
+      .from('jobs')
+      .select('id, customer_id, package_size, priority_level, status, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
+      .eq('status', 'pending')
+      .order('priority_level', { ascending: true })
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+  )
 
+  const { data: pendingJob, error: pendingError } = pendingResponse
   if (pendingError) {
-    console.error('[autoboltJobs.getNextPendingJob] pendingError', pendingError)
+    logError(fn, 'Error selecting pending job', { error: serializeError(pendingError) })
     throw new Error(`Failed to fetch pending job: ${pendingError.message}`)
   }
 
   if (!pendingJob) {
-    console.log('[autoboltJobs.getNextPendingJob] no pending jobs')
+    logInfo(fn, 'No pending jobs available')
     return null
   }
 
   const startedAt = new Date().toISOString()
-  console.log('[autoboltJobs.getNextPendingJob] marking in_progress', { jobId: pendingJob.id })
-  const { error: updateError, data: updatedJob } = await supabase
-    .from('jobs')
-    .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
-    .eq('id', pendingJob.id)
-    .eq('status', 'pending')
-    .select('id, customer_id, package_size, priority_level, metadata, created_at')
-    .maybeSingle()
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update set in_progress', () =>
+    supabase
+      .from('jobs')
+      .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
+      .eq('id', pendingJob.id)
+      .eq('status', 'pending')
+      .select('id, customer_id, package_size, priority_level, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
+      .maybeSingle()
+  )
 
+  const { data: updatedJob, error: updateError } = updateResponse
   if (updateError) {
-    console.error('[autoboltJobs.getNextPendingJob] updateError', updateError)
+    logError(fn, 'Error updating job status', { error: serializeError(updateError), jobId: pendingJob.id })
     throw new Error(`Failed to mark job in progress: ${updateError.message}`)
   }
 
   if (!updatedJob) {
-    console.warn('[autoboltJobs.getNextPendingJob] job was claimed by another worker; retrying')
+    logWarn(fn, 'Job already claimed by another worker, retrying', { jobId: pendingJob.id })
     return await getNextPendingJob()
   }
 
-  console.log('[autoboltJobs.getNextPendingJob] fetching customer', { customerId: updatedJob.customer_id })
-  const { data: customer, error: customerError } = await supabase
-    .from('customers')
-    .select(`
-      id,
-      business_name,
-      email,
-      phone,
-      address,
-      city,
-      state,
-      zip,
-      website,
-      description,
-      facebook,
-      instagram,
-      linkedin
-    `)
-    .eq('id', updatedJob.customer_id)
-    .maybeSingle()
+  const customerResponse = await executeSupabaseQuery(fn, 'customers.select by id', () =>
+    supabase
+      .from('customers')
+      .select(`
+        id,
+        business_name,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zip,
+        website,
+        description,
+        facebook,
+        instagram,
+        linkedin
+      `)
+      .eq('id', updatedJob.customer_id)
+      .maybeSingle()
+  )
 
+  const { data: customer, error: customerError } = customerResponse
   if (customerError) {
-    console.error('[autoboltJobs.getNextPendingJob] customerError', customerError)
+    logError(fn, 'Error fetching customer for job', {
+      jobId: updatedJob.id,
+      error: serializeError(customerError)
+    })
     throw new Error(`Failed to fetch customer for job ${updatedJob.id}: ${customerError.message}`)
   }
 
-  console.log('[autoboltJobs.getNextPendingJob] success', { jobId: updatedJob.id })
+  logInfo(fn, 'Returning job for worker', { jobId: updatedJob.id })
   return {
     job: {
       id: updatedJob.id,
@@ -212,27 +268,39 @@ export async function updateJobProgress(options: {
   status?: string
   errorMessage?: string
 }) {
+  const fn = 'autoboltJobs.updateJobProgress'
   const { jobId, directoryResults = [], status, errorMessage } = options
+  logFunctionStart(fn, {
+    jobId,
+    directoryResultCount: directoryResults.length,
+    status
+  })
+
   const canonicalStatus = normalizeJobStatus(status)
-  const supabase = createSupabaseAdminClient()
+  const supabase = getClientOrThrow(fn)
 
-  const { data: job, error: jobError } = await supabase
-    .from('jobs')
-    .select('id, package_size, status')
-    .eq('id', jobId)
-    .single()
+  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select single for progress update', () =>
+    supabase
+      .from('jobs')
+      .select('id, package_size, status')
+      .eq('id', jobId)
+      .single()
+  )
 
+  const { data: job, error: jobError } = jobResponse
   if (jobError || !job) {
+    logError(fn, 'Job not found during progress update', { jobId, error: serializeError(jobError) })
     throw new Error('Job not found')
   }
 
   if (job.status !== 'in_progress' && job.status !== 'pending') {
+    logWarn(fn, 'Job status not eligible for progress update', { jobId, status: job.status })
     throw new Error(`Job status is ${job.status}, expected in_progress or pending`)
   }
 
   if (directoryResults.length > 0) {
     const nowIso = new Date().toISOString()
-    const rows = directoryResults.map((result) => {
+    const rows: JobResultsInsert[] = directoryResults.map((result) => {
       const responseLog: Record<string, unknown> = {}
       if (result.responseLog && typeof result.responseLog === 'object') {
         Object.assign(responseLog, result.responseLog)
@@ -272,13 +340,10 @@ export async function updateJobProgress(options: {
       }
     })
 
-    const { error: insertError } = await supabase
-      .from('job_results')
-      .upsert(rows, { onConflict: 'job_id,directory_name' })
-
-    if (insertError) {
-      throw new Error(`Failed to upsert job results: ${insertError.message}`)
-    }
+    await executeSupabaseQuery(fn, 'job_results.upsert directory results', () =>
+      supabase.from('job_results').upsert(rows, { onConflict: 'job_id,directory_name' })
+    )
+    logInfo(fn, 'Directory results upserted', { count: rows.length })
   }
 
   if (canonicalStatus || errorMessage) {
@@ -294,22 +359,22 @@ export async function updateJobProgress(options: {
       updateData['error_message'] = errorMessage
     }
 
-    const { error: updateError } = await supabase
-      .from('jobs')
-      .update(updateData)
-      .eq('id', jobId)
-
-    if (updateError) {
-      throw new Error(`Failed to update job: ${updateError.message}`)
-    }
+    await executeSupabaseQuery(fn, 'jobs.update progress status/error', () =>
+      supabase.from('jobs').update(updateData).eq('id', jobId)
+    )
+    logInfo(fn, 'Job metadata updated', { jobId, status: canonicalStatus, hasError: Boolean(errorMessage) })
   }
 
-  const { data: progressRows, error: progressError } = await supabase
-    .from('job_results')
-    .select('status')
-    .eq('job_id', jobId)
+  const progressResponse = await executeSupabaseQuery(fn, 'job_results.select progress summary', () =>
+    supabase
+      .from('job_results')
+      .select('status')
+      .eq('job_id', jobId)
+  )
 
+  const { data: progressRows, error: progressError } = progressResponse
   if (progressError) {
+    logError(fn, 'Failed to compute job progress', { jobId, error: serializeError(progressError) })
     throw new Error(`Failed to compute job progress: ${progressError.message}`)
   }
 
@@ -319,24 +384,30 @@ export async function updateJobProgress(options: {
   const total = job.package_size || 0
   const progressPercentage = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0
 
-  return {
+  const summary = {
     jobId,
     progressPercentage,
     directoriesCompleted: completed,
     directoriesFailed: failed,
     resultsAdded: directoryResults.length
   }
+
+  logInfo(fn, 'Progress computation complete', summary)
+  return summary
 }
+
 export async function completeJob(options: {
   jobId: string
   finalStatus?: string
   errorMessage?: string
   summary?: JobSummary
 }) {
+  const fn = 'autoboltJobs.completeJob'
   const { jobId, finalStatus, errorMessage, summary } = options
-  const canonicalStatus = normalizeJobStatus(finalStatus) ?? 'complete'
-  const supabase = createSupabaseAdminClient()
+  logFunctionStart(fn, { jobId, finalStatus, hasSummary: Boolean(summary) })
 
+  const canonicalStatus = normalizeJobStatus(finalStatus) ?? 'complete'
+  const supabase = getClientOrThrow(fn)
   const completedAt = new Date().toISOString()
   const updatePayload: Record<string, unknown> = {
     status: canonicalStatus,
@@ -348,28 +419,37 @@ export async function completeJob(options: {
     updatePayload['error_message'] = errorMessage
   }
 
-  const { data: updatedJob, error: updateError } = await supabase
-    .from('jobs')
-    .update(updatePayload)
-    .eq('id', jobId)
-    .eq('status', 'in_progress')
-    .select('id, customer_id, package_size, started_at, created_at')
-    .maybeSingle()
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update complete job', () =>
+    supabase
+      .from('jobs')
+      .update(updatePayload)
+      .eq('id', jobId)
+      .eq('status', 'in_progress')
+      .select('id, customer_id, package_size, started_at, created_at')
+      .maybeSingle()
+  )
 
+  const { data: updatedJob, error: updateError } = updateResponse
   if (updateError) {
+    logError(fn, 'Failed to complete job', { jobId, error: serializeError(updateError) })
     throw new Error(`Failed to complete job: ${updateError.message}`)
   }
 
   if (!updatedJob) {
+    logError(fn, 'Job not found or not in progress', { jobId })
     throw new Error('Job not found or not in progress')
   }
 
-  const { data: results, error: resultsError } = await supabase
-    .from('job_results')
-    .select('status')
-    .eq('job_id', jobId)
+  const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select for completion', () =>
+    supabase
+      .from('job_results')
+      .select('status')
+      .eq('job_id', jobId)
+  )
 
+  const { data: results, error: resultsError } = resultsResponse
   if (resultsError) {
+    logError(fn, 'Failed to fetch job results during completion', { jobId, error: serializeError(resultsError) })
     throw new Error(`Failed to fetch job results: ${resultsError.message}`)
   }
 
@@ -377,10 +457,9 @@ export async function completeJob(options: {
   const failed = results?.filter((row) => row.status === 'failed').length || 0
   const total = updatedJob.package_size || summary?.totalDirectories || 0
   const totalProcessingTime = summary?.processingTimeSeconds || 0
-
   const successRate = total > 0 ? Math.round((completed / total) * 100) : 0
 
-  return {
+  const payload = {
     jobId,
     customerId: updatedJob.customer_id,
     finalStatus: canonicalStatus,
@@ -393,28 +472,37 @@ export async function completeJob(options: {
       successRate
     }
   }
+
+  logInfo(fn, 'Job completion summary prepared', payload)
+  return payload
 }
 
 export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
-  const supabase = createSupabaseAdminClient()
+  const fn = 'autoboltJobs.getQueueSnapshot'
+  logFunctionStart(fn)
+  const supabase = getClientOrThrow(fn)
 
-  const { data: jobs, error: jobsError } = await supabase
-    .from('jobs')
-    .select(`
-      id,
-      customer_id,
-      package_size,
-      priority_level,
-      status,
-      created_at,
-      started_at,
-      completed_at,
-      error_message,
-      customers ( business_name, email )
-    `)
-    .order('created_at', { ascending: true })
+  const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', () =>
+    supabase
+      .from('jobs')
+      .select(`
+        id,
+        customer_id,
+        package_size,
+        priority_level,
+        status,
+        created_at,
+        started_at,
+        completed_at,
+        error_message,
+        customers ( business_name, email )
+      `)
+      .order('created_at', { ascending: true })
+  )
 
+  const { data: jobs, error: jobsError } = jobsResponse
   if (jobsError) {
+    logError(fn, 'Failed to load jobs for snapshot', { error: serializeError(jobsError) })
     throw new Error(`Failed to load jobs: ${jobsError.message}`)
   }
 
@@ -422,12 +510,16 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   let resultsByJob: Record<string, { completed: number; failed: number; total: number }> = {}
 
   if (jobIds.length > 0) {
-    const { data: results, error: resultsError } = await supabase
-      .from('job_results')
-      .select('job_id, status')
-      .in('job_id', jobIds)
+    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', () =>
+      supabase
+        .from('job_results')
+        .select('job_id, status')
+        .in('job_id', jobIds)
+    )
 
+    const { data: results, error: resultsError } = resultsResponse
     if (resultsError) {
+      logError(fn, 'Failed to load job results for snapshot', { error: serializeError(resultsError) })
       throw new Error(`Failed to load job results: ${resultsError.message}`)
     }
 
@@ -496,54 +588,80 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
     ? Math.round((stats.completedDirectories / stats.totalDirectories) * 100)
     : 0
 
-  return { jobs: queueJobs, stats }
+  const snapshot = { jobs: queueJobs, stats }
+  logInfo(fn, 'Queue snapshot prepared', {
+    jobCount: queueJobs.length,
+    pendingJobs: stats.pendingJobs,
+    inProgressJobs: stats.inProgressJobs
+  })
+  return snapshot
 }
 
-// Mark a job in progress explicitly (idempotent if already in_progress)
 export async function markJobInProgress(jobId: string) {
-  const supabase = createSupabaseAdminClient()
+  const fn = 'autoboltJobs.markJobInProgress'
+  logFunctionStart(fn, { jobId })
+  const supabase = getClientOrThrow(fn)
   const startedAt = new Date().toISOString()
-  const { data, error } = await supabase
-    .from('jobs')
-    .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
-    .eq('id', jobId)
-    .select('id, status, started_at')
-    .maybeSingle()
+
+  const response = await executeSupabaseQuery(fn, 'jobs.update mark in progress', () =>
+    supabase
+      .from('jobs')
+      .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
+      .eq('id', jobId)
+      .select('id, status, started_at')
+      .maybeSingle()
+  )
+
+  const { data, error } = response
   if (error) {
+    logError(fn, 'Failed to mark job in progress', { jobId, error: serializeError(error) })
     throw new Error(`Failed to mark job in progress: ${error.message}`)
   }
+
+  logInfo(fn, 'Job marked in progress', { jobId })
   return data
 }
 
-// Reset a failed job back to pending for retry
 export async function retryFailedJob(jobId: string) {
-  const supabase = createSupabaseAdminClient()
+  const fn = 'autoboltJobs.retryFailedJob'
+  logFunctionStart(fn, { jobId })
+  const supabase = getClientOrThrow(fn)
   const now = new Date().toISOString()
 
-  // Only allow retry from failed or in_progress with error
-  const { data: job, error: fetchErr } = await supabase
-    .from('jobs')
-    .select('id, status')
-    .eq('id', jobId)
-    .maybeSingle()
+  const fetchResponse = await executeSupabaseQuery(fn, 'jobs.select for retry', () =>
+    supabase
+      .from('jobs')
+      .select('id, status')
+      .eq('id', jobId)
+      .maybeSingle()
+  )
+
+  const { data: job, error: fetchErr } = fetchResponse
   if (fetchErr) {
+    logError(fn, 'Failed to fetch job for retry', { jobId, error: serializeError(fetchErr) })
     throw new Error(`Failed to fetch job for retry: ${fetchErr.message}`)
   }
   if (!job) {
+    logWarn(fn, 'Job not found for retry', { jobId })
     throw new Error('Job not found')
   }
 
-  const { data: updated, error: updateErr } = await supabase
-    .from('jobs')
-    .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
-    .eq('id', jobId)
-    .select('id, status')
-    .maybeSingle()
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update reset status to pending', () =>
+    supabase
+      .from('jobs')
+      .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
+      .eq('id', jobId)
+      .select('id, status')
+      .maybeSingle()
+  )
 
+  const { data: updated, error: updateErr } = updateResponse
   if (updateErr) {
+    logError(fn, 'Failed to reset job for retry', { jobId, error: serializeError(updateErr) })
     throw new Error(`Failed to reset job for retry: ${updateErr.message}`)
   }
+
+  logInfo(fn, 'Job reset for retry', { jobId, status: updated?.status })
   return updated
 }
-
 

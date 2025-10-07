@@ -1,33 +1,47 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { getNextPendingJob, markJobInProgress } from '../../lib/server/autoboltJobs'
+import { logInfo, logWarn, logError, serializeError } from '../../lib/server/logging'
+
+logInfo('jobs-next.module', 'Autobolt jobs helpers loaded', {
+  exports: ['getNextPendingJob', 'markJobInProgress']
+})
 
 function authorize(authHeader?: string): boolean {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
-  const token = authHeader.slice(7)
-  const expected = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  return token === expected
+  const fn = 'jobs-next.authorize'
+  const isValid = Boolean(authHeader && authHeader.startsWith('Bearer ') &&
+    authHeader.slice(7) === (process.env.SUPABASE_SERVICE_ROLE_KEY || ''))
+  logInfo(fn, 'Authorization evaluated', {
+    hasHeader: Boolean(authHeader),
+    isValid
+  })
+  return isValid
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('[jobs-next] handler start', { method: req.method, hasAuth: !!req.headers.authorization })
+  const fn = 'jobs-next.handler'
+  logInfo(fn, 'Handler invoked', { method: req.method, url: req.url })
+
   if (req.method !== 'POST') {
+    logWarn(fn, 'Method not allowed', { method: req.method })
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
   if (!authorize(req.headers.authorization)) {
-    console.warn('[jobs-next] unauthorized')
+    logWarn(fn, 'Unauthorized request rejected')
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
   try {
-    console.log('[jobs-next] dynamic import orchestrator')
-    const { getNextPendingJob, markJobInProgress } = await import('../../lib/server/autoboltJobs')
-    console.log('[jobs-next] calling getNextPendingJob')
+    logInfo(fn, 'Request authorized, fetching next job')
     const next = await getNextPendingJob()
-    console.log('[jobs-next] getNextPendingJob result', { hasJob: !!next })
+    logInfo(fn, 'getNextPendingJob completed', { hasJob: Boolean(next) })
+
     if (!next) {
+      logInfo(fn, 'No jobs available, returning empty payload')
       return res.status(200).json({ job: null })
     }
 
-    console.log('[jobs-next] markJobInProgress', { jobId: next.job.id })
+    logInfo(fn, 'Marking job in progress', { jobId: next.job.id })
     await markJobInProgress(next.job.id)
 
     const directoryLimitByPackage: Record<string, number> = {
@@ -60,10 +74,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       directory_limit: directoryLimitByPackage[String(next.job.packageSize).toLowerCase()] || next.job.packageSize || 50
     }
 
-    console.log('[jobs-next] responding success', { jobId: jobPayload.id })
+    logInfo(fn, 'Responding with job payload', { jobId: jobPayload.id })
     return res.status(200).json({ job: jobPayload })
-  } catch (e:any) {
-    console.error('[jobs-next] error', { message: e?.message, stack: e?.stack })
-    return res.status(500).json({ error: e?.message || 'Internal error' })
+  } catch (error) {
+    logError(fn, 'Unhandled error', { error: serializeError(error) })
+    return res.status(500).json({ error: (error as Error)?.message || 'Internal error' })
   }
 }
