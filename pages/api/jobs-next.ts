@@ -52,6 +52,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pro: 500
     }
 
+    const directoryLimitByPackage: Record<string, number> = {
+      starter: 50,
+      growth: 150,
+      professional: 300,
+      enterprise: 500,
+      pro: 500
+    }
+
+    const packageLimitKey = next.job.packageType.toLowerCase()
+    const normalizedDirectoryLimit =
+      next.job.directoryLimit > 0
+        ? next.job.directoryLimit
+        : directoryLimitByPackage[packageLimitKey] ?? 50
+
+
     const jobPayload = {
       id: next.job.id,
       customer_id: next.job.customerId,
@@ -60,20 +75,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status: next.job.status,
       created_at: next.job.createdAt,
       started_at: next.job.startedAt,
-      business_name: (next.customer as any)?.business_name || null,
-      email: (next.customer as any)?.email || null,
-      phone: (next.customer as any)?.phone || null,
-      website: (next.customer as any)?.website || null,
-      address: (next.customer as any)?.address || null,
-      city: (next.customer as any)?.city || null,
-      state: (next.customer as any)?.state || null,
-      zip: (next.customer as any)?.zip || null,
-      description: (next.customer as any)?.description || null,
-      category: (next.customer as any)?.category || null,
-      package_type: next.job.packageSize,
-      directory_limit: directoryLimitByPackage[String(next.job.packageSize).toLowerCase()] || next.job.packageSize || 50
+      updated_at: next.job.updatedAt,
+      business_name: next.job.businessName,
+      email: next.job.email,
+      phone: next.job.phone,
+      website: next.job.website,
+      address: next.job.address,
+      city: next.job.city,
+      state: next.job.state,
+      zip: next.job.zip,
+      description: next.job.description,
+      category: next.job.category,
+      package_type: next.job.packageType,
+      directory_limit: normalizedDirectoryLimit,
+      metadata: next.job.metadata ?? null,
     }
-
     logInfo(fn, 'Responding with job payload', { jobId: jobPayload.id })
     return res.status(200).json({ job: jobPayload })
   } catch (error) {

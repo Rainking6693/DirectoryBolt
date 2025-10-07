@@ -27,3 +27,9 @@
 | error_message    | text     | yes      |            | Last error message |
 
 Refer to `supabase/migrations/20251007_add_business_fields_to_jobs.sql` for the authoritative migration script.
+
+## job_results Table Design Decision
+- Purpose: Outcome tracking for directory submissions; jobs table remains source of business metadata.
+- Business fields stored: Not duplicated (joins to jobs table when needed).
+- Reasoning: Keeps data normalized and avoids synchronization overhead; business profile changes remain authoritative in jobs.
+

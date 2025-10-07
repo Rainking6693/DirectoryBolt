@@ -71,6 +71,24 @@ async function executeSupabaseQuery<T>(
 function logFunctionStart(functionName: string, meta?: Record<string, unknown>) {
   logInfo(functionName, 'Started', meta)
 }
+function coerceString(value: unknown, fallback = ''): string {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value === null || value === undefined) {
+    return fallback
+  }
+  return String(value)
+}
+
+function coerceNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
 
 export interface DirectoryResultInput {
   directoryName: string
@@ -92,7 +110,32 @@ export interface JobSummary {
   processingTimeSeconds?: number
 }
 
-export interface NextJobResponse {\r\n  job: {\r\n    id: string\r\n    customerId: string\r\n    packageSize: number\r\n    priorityLevel: number\r\n    status: JobStatus\r\n    metadata: Record<string, unknown> | null\r\n    createdAt: string\r\n    startedAt: string\r\n    businessName: string | null\r\n    email: string | null\r\n    phone: string | null\r\n    website: string | null\r\n    address: string | null\r\n    city: string | null\r\n    state: string | null\r\n    zip: string | null\r\n    description: string | null\r\n    category: string | null\r\n    packageType: string | null\r\n    directoryLimit: number | null\r\n  }\r\n  customer: Record<string, unknown> | null\r\n}
+export interface NextJobResponse {
+  job: {
+    id: string
+    customerId: string
+    packageSize: number
+    priorityLevel: number
+    businessName: string
+    email: string
+    phone: string
+    website: string
+    address: string
+    city: string
+    state: string
+    zip: string
+    description: string
+    category: string
+    packageType: string
+    directoryLimit: number
+    status: JobStatus
+    createdAt: string
+    startedAt: string
+    updatedAt: string
+    metadata: Record<string, unknown> | null
+  }
+  customer: Record<string, unknown> | null
+}
 
 export interface JobProgressSnapshot {
   jobs: Array<{
@@ -200,7 +243,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', pendingJob.id)
       .eq('status', 'pending')
-      .select('id, customer_id, package_size, priority_level, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
+      .select('id, customer_id, package_size, priority_level, metadata, created_at, updated_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
       .maybeSingle()
   )
 
@@ -246,20 +289,50 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     throw new Error(`Failed to fetch customer for job ${updatedJob.id}: ${customerError.message}`)
   }
 
+  const customerRecord = (customer ?? {}) as Record<string, unknown>
+  const businessName = coerceString((updatedJob as any).business_name ?? customerRecord['business_name'])
+  const email = coerceString((updatedJob as any).email ?? customerRecord['email'])
+  const phone = coerceString((updatedJob as any).phone ?? customerRecord['phone'])
+  const website = coerceString((updatedJob as any).website ?? customerRecord['website'])
+  const address = coerceString((updatedJob as any).address ?? customerRecord['address'])
+  const city = coerceString((updatedJob as any).city ?? customerRecord['city'])
+  const state = coerceString((updatedJob as any).state ?? customerRecord['state'])
+  const zip = coerceString((updatedJob as any).zip ?? customerRecord['zip'])
+  const description = coerceString((updatedJob as any).description ?? customerRecord['description'])
+  const category = coerceString((updatedJob as any).category ?? customerRecord['category'])
+  const packageType = coerceString((updatedJob as any).package_type ?? 'starter') || 'starter'
+  const directoryLimit = Math.max(1, coerceNumber((updatedJob as any).directory_limit, 50))
+  const updatedAt = coerceString((updatedJob as any).updated_at ?? startedAt)
+
+  logInfo(fn, 'Job row normalized', { jobId: updatedJob.id, packageType, directoryLimit })
   logInfo(fn, 'Returning job for worker', { jobId: updatedJob.id })
   return {
     job: {
-      id: updatedJob.id,
-      customerId: updatedJob.customer_id,
-      packageSize: updatedJob.package_size,
-      priorityLevel: updatedJob.priority_level,
-      status: 'in_progress',
-      metadata: updatedJob.metadata || null,
-      createdAt: updatedJob.created_at,
-      startedAt
+      id: updatedJob.id
+      customerId: coerceString(updatedJob.customer_id)
+      packageSize: coerceNumber(updatedJob.package_size, 0)
+      priorityLevel: coerceNumber(updatedJob.priority_level, 0)
+      businessName
+      email
+      phone
+      website
+      address
+      city
+      state
+      zip
+      description
+      category
+      packageType
+      directoryLimit
+      status: 'in_progress'
+      createdAt: coerceString(updatedJob.created_at)
+      updatedAt
+      metadata: updatedJob.metadata || null
+      startedAt: startedAt
     },
     customer: customer ?? null
   }
+}
 }
 
 export async function updateJobProgress(options: {
@@ -664,4 +737,6 @@ export async function retryFailedJob(jobId: string) {
   logInfo(fn, 'Job reset for retry', { jobId, status: updated?.status })
   return updated
 }
+
+
 

@@ -23,6 +23,15 @@ export interface JobsRow {
   completed_at: string | null
   error_message: string | null
   metadata: Json | null
+  business_name: string | null
+  business_address: string | null
+  business_city: string | null
+  business_state: string | null
+  business_zip: string | null
+  business_phone: string | null
+  business_email: string | null
+  business_website: string | null
+  business_description: string | null
 }
 
 export type JobsInsert = {
@@ -37,6 +46,15 @@ export type JobsInsert = {
   completed_at?: string | null
   error_message?: string | null
   metadata?: Json | null
+  business_name?: string | null
+  business_address?: string | null
+  business_city?: string | null
+  business_state?: string | null
+  business_zip?: string | null
+  business_phone?: string | null
+  business_email?: string | null
+  business_website?: string | null
+  business_description?: string | null
 }
 
 export type JobsUpdate = {
@@ -51,6 +69,15 @@ export type JobsUpdate = {
   completed_at?: string | null
   error_message?: string | null
   metadata?: Json | null
+  business_name?: string | null
+  business_address?: string | null
+  business_city?: string | null
+  business_state?: string | null
+  business_zip?: string | null
+  business_phone?: string | null
+  business_email?: string | null
+  business_website?: string | null
+  business_description?: string | null
 }
 
 export interface JobResultsRow {
