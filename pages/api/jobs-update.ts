@@ -64,12 +64,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       directoryResults: results,
       status: payload.status as string | undefined,
       errorMessage: payload.errorMessage as string | undefined
-    })
+    });
 
-    logInfo(fn, 'Progress updated successfully', { jobId: payload.jobId, progressPercentage: progress.progressPercentage })
-    return res.status(200).json({ success: true, progress })
+    if (progress) {
+      logInfo(fn, 'Progress updated successfully', { jobId: payload.jobId });
+      return res.status(200).json({ success: true, data: progress });
+    } else {
+      logWarn(fn, 'Progress update returned null');
+      return res.status(200).json({ success: true, data: null });
+    }
   } catch (error) {
-    logError(fn, 'Unhandled error', { error: serializeError(error) })
-    return res.status(500).json({ error: (error as Error)?.message || 'Internal error' })
+    logError(fn, 'Unhandled error', { error: serializeError(error) });
+    return res.status(500).json({ success: false, error: 'Failed to update job progress' });
   }
 }
