@@ -5,7 +5,9 @@ import type {
   DirectoryBoltSupabaseClient,
   JobResultsInsert,
   JobResultsRow,
+  Json,
   JobsRow,
+  JobsUpdate,
   JobStatus,
 } from '../../types/supabase'
 
@@ -334,30 +336,43 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   }
 }
 
-export interface UpdateJobParams {
-  jobId: string;
-  directoryResults: DirectoryResultInput[];
-  status?: string;
-  errorMessage?: string;
+export interface UpdateJobProgressParams {
+  jobId: string
+  directoryResults: DirectoryResultInput[]
+  status?: JobStatus
+  errorMessage?: string
 }
 
-export async function updateJobProgress(params: UpdateJobParams) {
-  const supabase = getClientOrThrow('autoboltJobs.updateJobProgress');
-  const { jobId, directoryResults, status, errorMessage } = params;
-  
-  const updateData: any = { updated_at: new Date().toISOString() };
-  
-  if (status) updateData.status = status;
-  if (errorMessage) updateData.error_message = errorMessage;
-  if (directoryResults) updateData.metadata = { directoryResults };
-  
+type JobProgressUpdatePayload = Pick<JobsUpdate, 'status' | 'error_message' | 'metadata' | 'updated_at'>
+
+export async function updateJobProgress(params: UpdateJobProgressParams) {
+  const supabase = getClientOrThrow('autoboltJobs.updateJobProgress')
+  const { jobId, directoryResults, status, errorMessage } = params
+
+  const updateData: JobProgressUpdatePayload = {
+    updated_at: new Date().toISOString()
+  }
+
+  if (directoryResults.length > 0) {
+    const metadata = JSON.parse(JSON.stringify({ directoryResults })) as Json
+    updateData.metadata = metadata
+  }
+
+  if (status) {
+    updateData.status = status
+  }
+
+  if (errorMessage) {
+    updateData.error_message = errorMessage
+  }
+
   const { data, error } = await supabase
     .from('jobs')
     .update(updateData)
-    .eq('id', jobId);
-  
-  if (error) throw error;
-  return data;
+    .eq('id', jobId)
+
+  if (error) throw error
+  return data
 }
 
 export async function completeJob(options: {

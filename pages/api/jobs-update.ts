@@ -1,5 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { updateJobProgress } from '../../lib/server/autoboltJobs'
+import {
+  updateJobProgress,
+  normalizeJobStatus,
+  type UpdateJobProgressParams
+} from '../../lib/server/autoboltJobs'
 import { logInfo, logWarn, logError, serializeError } from '../../lib/server/logging'
 
 logInfo('jobs-update.module', 'Autobolt jobs helpers loaded', {
@@ -45,9 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'jobId is required' })
     }
 
-    const results = directoryResults.map((result: any) => ({
+    const results: UpdateJobProgressParams['directoryResults'] = directoryResults.map((result: any) => ({
       directoryName: result.directoryName,
-      status: result.status as any,
+      status: result.status as UpdateJobProgressParams['directoryResults'][number]['status'],
       submissionResult: result.message,
       listingUrl: result.listingUrl,
       directoryUrl: result.directoryUrl,
@@ -59,12 +63,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }))
 
     logInfo(fn, 'Calling updateJobProgress', { jobId: payload.jobId })
-    const progress = await updateJobProgress({
+    const normalizedStatus = typeof payload.status === 'string'
+      ? normalizeJobStatus(payload.status)
+      : null;
+
+    const progressPayload: UpdateJobProgressParams = {
       jobId: payload.jobId as string,
       directoryResults: results,
-      status: payload.status as string | undefined,
-      errorMessage: payload.errorMessage as string | undefined
-    });
+      status: normalizedStatus ?? undefined,
+      errorMessage: typeof payload.errorMessage === 'string' && payload.errorMessage.trim().length > 0
+        ? payload.errorMessage.trim()
+        : undefined
+    };
+
+    const progress = await updateJobProgress(progressPayload);
 
     if (progress) {
       logInfo(fn, 'Progress updated successfully', { jobId: payload.jobId });
