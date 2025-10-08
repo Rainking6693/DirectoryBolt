@@ -334,133 +334,30 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   }
 }
 
-export async function updateJobProgress(options: {
-  jobId: string
-  directoryResults: DirectoryResultInput[]
-  canonicalStatus?: JobStatus | null
-  errorMessage?: string | null
-}) {
-  const fn = 'autoboltJobs.updateJobProgress'
-  const { jobId, directoryResults, canonicalStatus, errorMessage } = options
-  logFunctionStart(fn, { jobId, resultsCount: directoryResults.length, status: canonicalStatus })
+export interface UpdateJobParams {
+  jobId: string;
+  directoryResults: DirectoryResultInput[];
+  status?: string;
+  errorMessage?: string;
+}
 
-  const supabase = getClientOrThrow(fn)
-
-  const jobResponse = await executeSupabaseQuery(fn, 'jobs.select for progress update', async () =>
-    await supabase
-      .from('jobs')
-      .select('id, status, package_size')
-      .eq('id', jobId)
-      .maybeSingle()
-  )
-
-  const { data: job, error: jobError } = jobResponse
-  if (jobError || !job) {
-    logError(fn, 'Job not found during progress update', { jobId, error: serializeError(jobError) })
-    throw new Error('Job not found')
-  }
-
-  if (job.status !== 'in_progress' && job.status !== 'pending') {
-    logWarn(fn, 'Job status not eligible for progress update', { jobId, status: job.status })
-    throw new Error(`Job status is ${job.status}, expected in_progress or pending`)
-  }
-
-  if (directoryResults.length > 0) {
-    const nowIso = new Date().toISOString()
-    const rows: JobResultsInsert[] = directoryResults.map((result) => {
-      const responseLog: Record<string, unknown> = {}
-      if (result.responseLog && typeof result.responseLog === 'object') {
-        Object.assign(responseLog, result.responseLog)
-      }
-      if (result.submissionResult) {
-        responseLog['submission_result'] = result.submissionResult
-      }
-      if (result.listingUrl) {
-        responseLog['listing_url'] = result.listingUrl
-      }
-      if (result.directoryUrl) {
-        responseLog['directory_url'] = result.directoryUrl
-      }
-      if (result.directoryCategory) {
-        responseLog['directory_category'] = result.directoryCategory
-      }
-      if (result.directoryTier) {
-        responseLog['directory_tier'] = result.directoryTier
-      }
-      if (result.rejectionReason) {
-        responseLog['rejection_reason'] = result.rejectionReason
-      }
-      if (typeof result.processingTimeSeconds === 'number') {
-        responseLog['processing_time_seconds'] = result.processingTimeSeconds
-      }
-
-      const normalizedResultStatus = mapDirectoryStatus(result.status)
-
-      return {
-        job_id: jobId,
-        directory_name: result.directoryName,
-        status: normalizedResultStatus,
-        response_log: Object.keys(responseLog).length > 0 ? (responseLog as any) : null,
-        submitted_at: normalizedResultStatus === 'submitted' ? nowIso : null,
-        retry_count: normalizedResultStatus === 'retry' ? 1 : 0,
-        updated_at: nowIso
-      }
-    })
-
-    await executeSupabaseQuery(fn, 'job_results.upsert directory results', async () =>
-      await supabase.from('job_results').upsert(rows, { onConflict: 'job_id,directory_name' })
-    )
-    logInfo(fn, 'Directory results upserted', { count: rows.length })
-  }
-
-  if (canonicalStatus || errorMessage) {
-    const updateTimestamp = new Date().toISOString()
-    const updateData: Record<string, unknown> = {
-      updated_at: updateTimestamp
-    }
-
-    if (canonicalStatus) {
-      updateData['status'] = canonicalStatus
-    }
-    if (errorMessage) {
-      updateData['error_message'] = errorMessage
-    }
-
-    await executeSupabaseQuery(fn, 'jobs.update progress status/error', async () =>
-      await supabase.from('jobs').update(updateData).eq('id', jobId)
-    )
-    logInfo(fn, 'Job metadata updated', { jobId, status: canonicalStatus, hasError: Boolean(errorMessage) })
-  }
-
-  const progressResponse = await executeSupabaseQuery(fn, 'job_results.select progress summary', async () =>
-    await supabase
-      .from('job_results')
-      .select('status')
-      .eq('job_id', jobId)
-  )
-
-  const { data: progressRows, error: progressError } = progressResponse
-  if (progressError) {
-    logError(fn, 'Failed to compute job progress', { jobId, error: serializeError(progressError) })
-    throw new Error(`Failed to compute job progress: ${progressError.message}`)
-  }
-
-  const completed = progressRows?.filter((row) => row.status === 'submitted').length || 0
-  const failed = progressRows?.filter((row) => row.status === 'failed').length || 0
-  const processed = progressRows?.length || 0
-  const total = job.package_size || 0
-  const progressPercentage = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0
-
-  const summary = {
-    jobId,
-    progressPercentage,
-    directoriesCompleted: completed,
-    directoriesFailed: failed,
-    resultsAdded: directoryResults.length
-  }
-
-  logInfo(fn, 'Progress computation complete', summary)
-  return summary
+export async function updateJobProgress(params: UpdateJobParams) {
+  const supabase = getClientOrThrow('autoboltJobs.updateJobProgress');
+  const { jobId, directoryResults, status, errorMessage } = params;
+  
+  const updateData: any = { updated_at: new Date().toISOString() };
+  
+  if (status) updateData.status = status;
+  if (errorMessage) updateData.error_message = errorMessage;
+  if (directoryResults) updateData.metadata = { directoryResults };
+  
+  const { data, error } = await supabase
+    .from('jobs')
+    .update(updateData)
+    .eq('id', jobId);
+  
+  if (error) throw error;
+  return data;
 }
 
 export async function completeJob(options: {
