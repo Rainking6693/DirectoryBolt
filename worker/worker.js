@@ -27,6 +27,36 @@ const { solveCaptcha } = require("./utils/captchaSolver");
 const DirectoryConfiguration = require("./directory-config.js");
 require("dotenv").config();
 
+console.log("");
+console.log("🔍 Environment Variables Check:");
+console.log(
+  "  AUTOBOLT_API_KEY:",
+  process.env.AUTOBOLT_API_KEY
+    ? `SET (${String(process.env.AUTOBOLT_API_KEY).substring(0, 10)}...)`
+    : "NOT SET",
+);
+console.log(
+  "  WORKER_AUTH_TOKEN:",
+  process.env.WORKER_AUTH_TOKEN
+    ? `SET (${String(process.env.WORKER_AUTH_TOKEN).substring(0, 10)}...)`
+    : "NOT SET",
+);
+console.log(
+  "  TWOCAPTCHA_API_KEY:",
+  process.env.TWOCAPTCHA_API_KEY
+    ? `SET (${String(process.env.TWOCAPTCHA_API_KEY).substring(0, 10)}...)`
+    : "NOT SET",
+);
+console.log(
+  "  TWO_CAPTCHA_KEY:",
+  process.env.TWO_CAPTCHA_KEY
+    ? `SET (${String(process.env.TWO_CAPTCHA_KEY).substring(0, 10)}...)`
+    : "NOT SET",
+);
+console.log("  ORCHESTRATOR_URL:", process.env.ORCHESTRATOR_URL);
+console.log("  SUPABASE_URL:", process.env.SUPABASE_URL);
+console.log("");
+
 /** @typedef {import('playwright').Page} PlaywrightPage */
 /** @typedef {import('playwright').Browser} PlaywrightBrowser */
 /** @typedef {import('playwright').BrowserContext} PlaywrightContext */
@@ -50,7 +80,7 @@ class DirectoryBoltWorker {
     this.page = null;
     this.config = {
       // 2Captcha Configuration - NO HARDCODED FALLBACK FOR SECURITY
-      twoCaptchaApiKey: process.env.TWO_CAPTCHA_KEY,
+      twoCaptchaApiKey: process.env.TWO_CAPTCHA_KEY || process.env.TWOCAPTCHA_API_KEY,
 
       // HTTP Proxy Configuration
       proxyEnabled:
@@ -140,10 +170,13 @@ class DirectoryBoltWorker {
     }
 
     // 2Captcha key is optional for many directories; warn if missing but don't block startup
-    if (!this.config.twoCaptchaApiKey || this.config.twoCaptchaApiKey.trim() === "") {
-      console.warn("⚠️  TWO_CAPTCHA_KEY not set. Captcha-protected directories may fail until configured.");
-    } else if (this.config.twoCaptchaApiKey.length < 32) {
-      console.warn("⚠️  TWO_CAPTCHA_KEY appears to be short. Please verify your API key.");
+    const captchaKey = (this.config.twoCaptchaApiKey || "").trim();
+    if (!captchaKey) {
+      console.warn("⚠️  TWO_CAPTCHA_KEY/TWOCAPTCHA_API_KEY not set. Captcha-protected directories may fail until configured.");
+    } else if (captchaKey.length < 32) {
+      console.warn("⚠️  2Captcha key appears to be short. Please verify your API key.");
+    } else {
+      console.log("✅ 2Captcha configured");
     }
 
     // Validate auth token length
@@ -432,32 +465,57 @@ class DirectoryBoltWorker {
    * Get next job from orchestrator
    */
   async getNextJob() {
+    console.log('🔐 DEBUG: Authentication details');
+    console.log('  AUTOBOLT_API_KEY exists:', !!process.env.AUTOBOLT_API_KEY);
+    console.log('  AUTOBOLT_API_KEY length:', process.env.AUTOBOLT_API_KEY ? String(process.env.AUTOBOLT_API_KEY).length : 0);
+    console.log('  AUTOBOLT_API_KEY first 10 chars:', process.env.AUTOBOLT_API_KEY ? String(process.env.AUTOBOLT_API_KEY).substring(0, 10) + '...' : '');
+    console.log('  WORKER_AUTH_TOKEN exists:', !!process.env.WORKER_AUTH_TOKEN);
+    console.log('  Using token from:', process.env.AUTOBOLT_API_KEY ? 'AUTOBOLT_API_KEY' : 'WORKER_AUTH_TOKEN');
+
+    const token = process.env.AUTOBOLT_API_KEY || process.env.WORKER_AUTH_TOKEN;
+
+    if (!token) {
+      console.error('❌ No authentication token found in environment!');
+      throw new Error('Missing authentication token');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'X-Worker-ID': process.env.WORKER_ID || 'worker-001',
+      'User-Agent': 'DirectoryBolt-Worker/1.0.0',
+      'Content-Type': 'application/json',
+    };
+
+    const url = `${this.config.orchestratorBaseUrl}/jobs/next`;
+    console.log('📤 Request details:');
+    console.log('  URL:', url);
+    console.log('  Headers:', JSON.stringify({ ...headers, Authorization: `Bearer ${String(token).substring(0, 10)}...` }, null, 2));
+
     try {
-      console.log("➡️  Requesting next job...");
-      const response = await axios.get(
-        `${this.config.orchestratorBaseUrl}/jobs/next`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.config.workerAuthToken}`,
-            "X-Worker-ID": process.env.WORKER_ID || "worker-001",
-            "User-Agent": "DirectoryBolt-Worker/1.0.0",
-          },
-          timeout: 10000,
-        },
-      );
+      const response = await axios.get(url, { headers, timeout: 15000 });
+      console.log('✅ Response status:', response.status);
+      console.log('✅ Response data (truncated):', JSON.stringify(response.data, null, 2).substring(0, 500));
 
       if (response.data?.data) {
-        console.log("✅ Received job payload", { jobId: response.data.data.jobId || response.data.data.id });
+        console.log('✅ Received job payload', { jobId: response.data.data.jobId || response.data.data.id });
       } else {
-        console.log("ℹ️  No jobs available");
+        console.log('ℹ️  No jobs available');
       }
       return response.data?.data || null;
     } catch (error) {
+      console.error('❌ Request failed');
+      console.error('  Status:', error?.response?.status);
+      console.error('  Status text:', error?.response?.statusText);
+      try {
+        console.error('  Response data:', JSON.stringify(error?.response?.data, null, 2));
+        console.error('  Response headers:', JSON.stringify(error?.response?.headers, null, 2));
+      } catch {}
+
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
-        throw new Error("Authentication/authorization failed while getting job. Check AUTOBOLT_API_KEY.");
+        throw new Error('Authentication/authorization failed while getting job. Check AUTOBOLT_API_KEY.');
       }
-      console.error("❌ Failed to get next job:", error.message || error);
+      console.error('❌ Failed to get next job:', error.message || error);
       return null;
     }
   }

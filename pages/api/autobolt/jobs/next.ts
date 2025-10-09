@@ -74,19 +74,46 @@ function getStringField(record: Record<string, unknown> | null, field: string): 
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, error: 'Method not allowed' });
-  }
+  // Authentication diagnostics
+  try {
+    console.log('');
+    console.log('🔐 /api/jobs/next - Authentication Debug');
+    console.log('  Method:', req.method);
+    console.log('  Headers received:', JSON.stringify(req.headers, null, 2));
 
-  const expectedKey = process.env[WORKER_API_ENV_KEY];
-  if (!expectedKey) {
-    console.error('[autobolt:jobs:next] Missing AUTOBOLT_API_KEY environment variable');
-    return res.status(500).json({ success: false, error: 'Worker authentication not configured' });
-  }
+    const rawAuth = (Array.isArray(req.headers.authorization) ? req.headers.authorization[0] : req.headers.authorization) ||
+                    (Array.isArray((req.headers as any)['Authorization']) ? (req.headers as any)['Authorization'][0] : (req.headers as any)['Authorization']);
+    const rawApiKey = (Array.isArray((req.headers as any)['x-api-key']) ? (req.headers as any)['x-api-key'][0] : (req.headers as any)['x-api-key']) ||
+                      (Array.isArray((req.headers as any)['X-API-Key']) ? (req.headers as any)['X-API-Key'][0] : (req.headers as any)['X-API-Key']);
 
-  const providedKey = extractApiKey(req);
-  if (!providedKey || providedKey !== expectedKey) {
-    return res.status(403).json({ success: false, error: 'Unauthorized' });
+    console.log('  Authorization header:', rawAuth ? `${String(rawAuth).substring(0, 20)}...` : 'NOT PRESENT');
+    console.log('  X-API-Key header:', rawApiKey ? `${String(rawApiKey).substring(0, 20)}...` : 'NOT PRESENT');
+
+    const expectedKey = process.env[WORKER_API_ENV_KEY];
+    console.log('  Expected AUTOBOLT_API_KEY set:', !!expectedKey);
+    console.log('  Expected key length:', expectedKey ? expectedKey.length : 0);
+
+    const providedKey = extractApiKey(req);
+    console.log('  Extracted token length:', providedKey ? providedKey.length : 0);
+    if (providedKey && expectedKey) {
+      console.log('  Tokens match (first 10 chars):', String(providedKey).substring(0, 10) === String(expectedKey).substring(0, 10));
+    }
+
+    if (req.method !== 'GET') {
+      return res.status(405).json({ success: false, error: 'Method not allowed' });
+    }
+
+    if (!expectedKey) {
+      console.error('[autobolt:jobs:next] Missing AUTOBOLT_API_KEY environment variable');
+      return res.status(500).json({ success: false, error: 'Worker authentication not configured' });
+    }
+
+    if (!providedKey || providedKey !== expectedKey) {
+      console.error('[autobolt:jobs:next] Unauthorized request');
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+  } catch (e) {
+    console.error('[autobolt:jobs:next] Auth debug logging error:', (e as any)?.message || e);
   }
 
   try {
