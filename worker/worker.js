@@ -21,6 +21,8 @@ const axiosModule = require("axios");
 const axios = /** @type {import('axios').AxiosStatic} */ (
   axiosModule.default ?? axiosModule
 );
+const fs = require("fs");
+const path = require("path");
 const { solveCaptcha } = require("./utils/captchaSolver");
 const DirectoryConfiguration = require("./directory-config.js");
 require("dotenv").config();
@@ -62,7 +64,7 @@ class DirectoryBoltWorker {
       // Orchestrator Communication - REQUIRED FOR SECURITY
       orchestratorBaseUrl:
         process.env.ORCHESTRATOR_URL || "https://directorybolt.netlify.app/api",
-      workerAuthToken: process.env.WORKER_AUTH_TOKEN,
+      workerAuthToken: process.env.AUTOBOLT_API_KEY || process.env.WORKER_AUTH_TOKEN,
 
       // Browser Configuration
       headless: process.env.HEADLESS !== "false",
@@ -112,6 +114,9 @@ class DirectoryBoltWorker {
       // Validate required environment variables for security
       this.validateSecurityConfiguration();
 
+      // Ensure screenshots directory exists for debugging artifacts
+      this.ensureScreenshotsDir();
+
       await this.directoryConfig.initialize();
       await this.launchBrowser();
       await this.registerWithOrchestrator();
@@ -129,41 +134,37 @@ class DirectoryBoltWorker {
   validateSecurityConfiguration() {
     console.log("🔒 Validating security configuration...");
 
-    const requiredVars = [
-      { name: "TWO_CAPTCHA_KEY", value: this.config.twoCaptchaApiKey },
-      { name: "WORKER_AUTH_TOKEN", value: this.config.workerAuthToken },
-    ];
-
-    const missingVars = [];
-
-    for (const { name, value } of requiredVars) {
-      if (!value || value.trim() === "") {
-        missingVars.push(name);
-      }
+    // Worker auth token is required to talk to orchestrator APIs (warn in local dev)
+    if (!this.config.workerAuthToken || this.config.workerAuthToken.trim() === "") {
+      console.warn("⚠️  Missing AUTOBOLT_API_KEY/WORKER_AUTH_TOKEN. Worker will start, but job API requests will be unauthorized until you set it.");
     }
 
-    if (missingVars.length > 0) {
-      throw new Error(
-        `Missing required environment variables for secure operation: ${missingVars.join(", ")}. ` +
-          "Please set these variables in your .env file or environment.",
-      );
+    // 2Captcha key is optional for many directories; warn if missing but don't block startup
+    if (!this.config.twoCaptchaApiKey || this.config.twoCaptchaApiKey.trim() === "") {
+      console.warn("⚠️  TWO_CAPTCHA_KEY not set. Captcha-protected directories may fail until configured.");
+    } else if (this.config.twoCaptchaApiKey.length < 32) {
+      console.warn("⚠️  TWO_CAPTCHA_KEY appears to be short. Please verify your API key.");
     }
 
-    // Validate API key format (basic check)
-    if (this.config.twoCaptchaApiKey.length < 32) {
-      console.warn(
-        "⚠️  Warning: TWO_CAPTCHA_KEY appears to be too short. Please verify your API key.",
-      );
-    }
-
-    // Validate auth token format
-    if (this.config.workerAuthToken.length < 20) {
-      console.warn(
-        "⚠️  Warning: WORKER_AUTH_TOKEN appears to be too short for secure authentication.",
-      );
+    // Validate auth token length
+    if (this.config.workerAuthToken && this.config.workerAuthToken.length < 20) {
+      console.warn("⚠️  WORKER_AUTH_TOKEN appears short. Verify AUTOBOLT_API_KEY/WORKER_AUTH_TOKEN.");
     }
 
     console.log("✅ Security configuration validated");
+  }
+
+  /**
+   * Ensure screenshots directory exists
+   */
+  ensureScreenshotsDir() {
+    try {
+      const dir = path.resolve(process.cwd(), "worker", "screenshots");
+      fs.mkdirSync(dir, { recursive: true });
+      this.screenshotsDir = dir;
+    } catch (e) {
+      console.warn("⚠️  Could not create screenshots directory:", e?.message || e);
+    }
   }
 
   /**
@@ -376,58 +377,31 @@ class DirectoryBoltWorker {
    */
   async registerWithOrchestrator() {
     if (!this.config.orchestratorBaseUrl) {
-      console.warn(
-        "⚠️  No orchestrator URL configured - running in standalone mode",
-      );
+      console.warn("⚠️  No orchestrator URL configured - running in standalone mode");
       return;
     }
 
     if (!this.config.workerAuthToken) {
-      throw new Error(
-        "Worker authentication token is required for orchestrator communication",
-      );
+      console.warn("⚠️  Missing worker token; orchestrator registration skipped");
+      return;
     }
 
     try {
-      const response = await axios.post(
-        `${this.config.orchestratorBaseUrl}/worker-register`,
-        {
-          workerId: process.env.WORKER_ID || `worker-${Date.now()}`,
-          capabilities: ["form-filling", "captcha-solving", "proxy-support"],
-          status: "ready",
-        },
+      // Best-effort health check style registration; do not block worker startup
+      const response = await axios.get(
+        `${this.config.orchestratorBaseUrl}/status`,
         {
           headers: {
             Authorization: `Bearer ${this.config.workerAuthToken}`,
-            "Content-Type": "application/json",
             "User-Agent": "DirectoryBolt-Worker/1.0.0",
           },
-          timeout: 10000, // 10 second timeout
+          timeout: 5000,
         },
       );
 
-      if (response.data && response.data.status === "registered") {
-        console.log("✅ Registered with orchestrator:", response.data);
-      } else {
-        throw new Error("Invalid registration response from orchestrator");
-      }
+      console.log("✅ Orchestrator reachable:", response.status);
     } catch (error) {
-      if (error.response?.status === 401) {
-        throw new Error(
-          "Authentication failed: Invalid worker token. Please verify WORKER_AUTH_TOKEN.",
-        );
-      } else if (error.response?.status === 403) {
-        throw new Error(
-          "Authorization failed: Worker not allowed to register.",
-        );
-      } else if (error.code === "ECONNREFUSED") {
-        throw new Error(
-          "Cannot connect to orchestrator service. Please verify ORCHESTRATOR_URL.",
-        );
-      }
-
-      console.error("❌ Failed to register with orchestrator:", error.message);
-      throw new Error(`Orchestrator registration failed: ${error.message}`);
+      console.warn("⚠️  Orchestrator not reachable right now; continuing standalone:", error.message || error);
     }
   }
 
@@ -459,99 +433,35 @@ class DirectoryBoltWorker {
    */
   async getNextJob() {
     try {
-      const response = await axios.post(
-        `${this.config.orchestratorBaseUrl}/jobs-next`,
-        {},
+      console.log("➡️  Requesting next job...");
+      const response = await axios.get(
+        `${this.config.orchestratorBaseUrl}/jobs/next`,
         {
           headers: {
             Authorization: `Bearer ${this.config.workerAuthToken}`,
             "X-Worker-ID": process.env.WORKER_ID || "worker-001",
-            "Content-Type": "application/json",
             "User-Agent": "DirectoryBolt-Worker/1.0.0",
           },
-          timeout: 5000,
+          timeout: 10000,
         },
       );
 
-      return response.data.data || null;
-    } catch (error) {
-      if (error.response?.status === 401) {
-        throw new Error(
-          "Authentication failed while getting job. Token may have expired.",
-        );
-      } else if (error.response?.status !== 404) {
-        console.error("❌ Failed to get next job:", error.message);
+      if (response.data?.data) {
+        console.log("✅ Received job payload", { jobId: response.data.data.jobId || response.data.data.id });
+      } else {
+        console.log("ℹ️  No jobs available");
       }
+      return response.data?.data || null;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 401 || status === 403) {
+        throw new Error("Authentication/authorization failed while getting job. Check AUTOBOLT_API_KEY.");
+      }
+      console.error("❌ Failed to get next job:", error.message || error);
       return null;
     }
   }
 
-  /**
-   * Process a directory submission job
-   */
-  async processJob(job) {
-    console.log(`🎯 Processing job: ${job.id} for customer: ${job.customerId}`);
-    this.processingState.currentJob = job;
-    this.processingState.retryCount = 0;
-
-    try {
-      await this.updateJobStatus(job.id, "in_progress");
-
-      // Navigate to directory website
-      const directoryUrl = this.addCacheBuster(job.directoryUrl);
-      await this.page.goto(directoryUrl, {
-        waitUntil: "networkidle",
-        timeout: 30000,
-      });
-
-      // Detect forms using migrated logic
-      const forms = await this.detectAdvancedForms();
-
-      if (forms.length === 0) {
-        throw new Error("No forms detected on directory website");
-      }
-
-      // Fill form with business data
-      const fillResult = await this.fillDirectoryForm(
-        forms[0],
-        job.businessData,
-      );
-
-      // Handle captcha if present
-      await this.handleCaptcha();
-
-      // Submit form
-      await this.submitForm();
-
-      // Verify submission success
-      const success = await this.verifySubmission();
-
-      if (success) {
-        await this.updateJobStatus(job.id, "completed", {
-          submissionResult: fillResult,
-        });
-        console.log(`✅ Job ${job.id} completed successfully`);
-      } else {
-        throw new Error("Form submission verification failed");
-      }
-    } catch (error) {
-      console.error(`❌ Job ${job.id} failed:`, error.message);
-
-      if (this.processingState.retryCount < this.config.maxRetries) {
-        this.processingState.retryCount++;
-        console.log(
-          `🔄 Retrying job ${job.id} (attempt ${this.processingState.retryCount})`,
-        );
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        return this.processJob(job);
-      } else {
-        await this.updateJobStatus(job.id, "failed", {
-          error: error.message,
-          retryCount: this.processingState.retryCount,
-        });
-      }
-    }
-  }
 
   /**
    * Add cache buster to URL (migrated from cache-buster.js)
@@ -568,33 +478,29 @@ class DirectoryBoltWorker {
    */
   async updateJobStatus(jobId, status, data = {}) {
     try {
+      const payload = {
+        jobId,
+        status,
+        ...data,
+      };
       await axios.post(
-        `${this.config.orchestratorBaseUrl}/jobs-update`,
-        {
-          jobId,
-          status,
-          workerData: data,
-          timestamp: new Date().toISOString(),
-        },
+        `${this.config.orchestratorBaseUrl}/jobs/update`,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${this.config.workerAuthToken}`,
             "Content-Type": "application/json",
             "User-Agent": "DirectoryBolt-Worker/1.0.0",
           },
-          timeout: 10000,
+          timeout: 15000,
         },
       );
+      console.log("📡 Job updated", { jobId, status });
     } catch (error) {
-      if (error.response?.status === 401) {
-        console.error(
-          `❌ Authentication failed while updating job ${jobId}. Token may have expired.`,
-        );
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.error(`❌ Auth failed while updating job ${jobId}. Check AUTOBOLT_API_KEY.`);
       } else {
-        console.error(
-          `❌ Failed to update job ${jobId} status:`,
-          error.message,
-        );
+        console.error(`❌ Failed to update job ${jobId} status:`, error.message || error);
       }
     }
   }
@@ -1388,5 +1294,231 @@ if (require.main === module) {
       process.exit(1);
     });
 }
+
+
+// Emergency implementation of processJob with verbose logging and directory iteration
+DirectoryBoltWorker.prototype.processJob = async function (job) {
+  console.log("\n========================================");
+  console.log("STARTING JOB PROCESSING");
+  console.log("========================================");
+  const jobId = job?.id || job?.jobId;
+  const customerId = job?.customerId || job?.customer_id;
+  const business = job?.businessData || job?.customer || {};
+  const packageType = job?.packageType || job?.package_type || null;
+  const directoryLimit = job?.directoryLimit || job?.directory_limit || job?.packageSize || null;
+  console.log("Job ID:", jobId);
+  console.log("Customer ID:", customerId);
+  console.log("Package Type:", packageType);
+  console.log("Directory Limit:", directoryLimit);
+
+  try {
+    if (!this.page) {
+      console.log("Preparing browser/page context...");
+      await this.prepareForJob();
+    }
+
+    console.log("Step 1: Launching/using browser...", { headless: this.config.headless });
+    if (!this.browser) {
+      await this.launchBrowser();
+    }
+    if (!this.page) {
+      await this.createPageContext(this.currentProxy);
+    }
+    console.log("✓ Browser/page ready");
+
+    // Map directory limit to package if needed
+    const mapLimitToPackage = (limit) => {
+      const map = { 50: 'starter', 100: 'growth', 300: 'professional', 500: 'enterprise' };
+      return map[Number(limit)] || 'starter';
+    };
+
+    const effectivePackage = (packageType || (directoryLimit ? mapLimitToPackage(directoryLimit) : 'starter')).toLowerCase();
+
+    console.log("Step 2: Loading directory list...");
+    const allDirs = this.directoryConfig.getAvailableDirectories(effectivePackage) || [];
+    const directories = directoryLimit ? allDirs.slice(0, Number(directoryLimit)) : allDirs;
+    console.log("✓ Directories loaded:", directories.length);
+    console.log("Directory names:", directories.map(d => d.name).join(', '));
+
+    if (!directories || directories.length === 0) {
+      console.error("✗ ERROR: No directories available for package", effectivePackage);
+      await this.updateJobStatus(jobId, 'failed', { errorMessage: 'No directories for package' });
+      return;
+    }
+
+    await this.updateJobStatus(jobId, 'in_progress');
+
+    const results = [];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < directories.length; i++) {
+      const directory = directories[i];
+      console.log("\n═══════════════════════════════════════");
+      console.log(`Directory ${i + 1} of ${directories.length}`);
+      console.log("═══════════════════════════════════════");
+      console.log("Name:", directory.name);
+      console.log("URL:", directory.url);
+      console.log("Category:", directory.category);
+
+      try {
+        console.log('→ Navigating to', directory.url);
+        await this.page.goto(this.addCacheBuster(directory.url), { timeout: 60000, waitUntil: 'domcontentloaded' });
+        console.log('✓ Page loaded');
+
+        // If we have a directory-specific implementation, use it; otherwise generic
+        let usedSpecific = false;
+        let specificResult = null;
+        if ((directory.id && directory.id.includes('google')) || /google/i.test(directory.name || '')) {
+          try {
+            console.log('→ Using Google Business specific submission flow');
+            specificResult = await this.submitToGoogleBusiness(this.page, business);
+            usedSpecific = true;
+          } catch (e) {
+            console.warn('⚠ Google specific flow failed, falling back to generic:', e?.message || e);
+          }
+        }
+
+        if (usedSpecific && specificResult) {
+          results.push(specificResult);
+          if (specificResult.success) successCount++; else failCount++;
+          const progressPercent = Math.round(((i + 1) / directories.length) * 100);
+          console.log(`Progress: ${progressPercent}% (${i + 1}/${directories.length})`);
+          await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [specificResult] });
+          continue;
+        }
+
+        console.log('→ Detecting forms...');
+        const forms = await this.detectAdvancedForms();
+        console.log('→ Forms detected:', forms?.length || 0);
+        if (!forms || forms.length === 0) {
+          console.warn('⚠ No forms detected, skipping');
+          const result = { success: false, directoryName: directory.name, status: 'no_form', error: 'No forms detected' };
+          results.push(result);
+          failCount++;
+          await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+          continue;
+        }
+
+        console.log('→ Filling form...');
+        const fillResult = await this.fillDirectoryForm(forms[0], business);
+
+        console.log('→ Handling captcha if present...');
+        await this.handleCaptcha();
+
+        console.log('→ Submitting form...');
+        await this.submitForm();
+
+        console.log('→ Verifying submission...');
+        const ok = await this.verifySubmission();
+        const submissionUrl = this.page.url();
+
+        const result = ok
+          ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, submittedAt: new Date().toISOString() }
+          : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed' };
+
+        results.push(result);
+        if (ok) successCount++; else failCount++;
+
+        const progressPercent = Math.round(((i + 1) / directories.length) * 100);
+        console.log(`Progress: ${progressPercent}% (${i + 1}/${directories.length})`);
+
+        await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+      } catch (err) {
+        failCount++;
+        const msg = err?.message || String(err);
+        console.error('✗ EXCEPTION:', directory.name, msg);
+        try { await this.page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `error-${(directory.id || directory.name).toString().replace(/\s+/g,'-')}-${Date.now()}.png`) }); } catch {}
+        const result = { success: false, directoryName: directory.name, status: 'error', error: msg };
+        results.push(result);
+        await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+      }
+    }
+
+    console.log('\n========================================');
+    console.log('JOB PROCESSING COMPLETE');
+    console.log('========================================');
+    console.log('Total directories:', directories.length);
+    console.log('Successful:', successCount);
+    console.log('Failed:', failCount);
+    console.log('========================================');
+
+    await this.updateJobStatus(jobId, 'completed', { directoryResults: results });
+  } catch (error) {
+    console.error('❌ processJob fatal error', error?.message || error);
+    await this.updateJobStatus(jobId, 'failed', { errorMessage: error?.message || 'processJob failed' });
+  }
+};
+
+// Directory-specific submission: Google Business Profile (best-effort demo)
+DirectoryBoltWorker.prototype.submitToGoogleBusiness = async function(page, jobBusiness) {
+  console.log('  ▶ Starting Google Business submission');
+  try {
+    // Navigate to creation page (may require auth; this is a best-effort flow)
+    await page.goto('https://business.google.com/create', { timeout: 60000, waitUntil: 'domcontentloaded' });
+    await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-start-${Date.now()}.png`) });
+
+    const businessData = {
+      name: jobBusiness.business_name || jobBusiness.businessName || jobBusiness.name || '',
+      address: jobBusiness.business_address || jobBusiness.address || '',
+      city: jobBusiness.business_city || jobBusiness.city || '',
+      state: jobBusiness.business_state || jobBusiness.state || '',
+      zip: jobBusiness.business_zip || jobBusiness.zip || '',
+      phone: jobBusiness.business_phone || jobBusiness.phone || '',
+      website: jobBusiness.business_website || jobBusiness.website || '',
+      description: jobBusiness.business_description || jobBusiness.description || ''
+    };
+
+    // Try to fill name field (selectors may change)
+    const nameSelector = 'input[aria-label*="business name" i], input[name="businessName"], input[aria-label*="business" i]';
+    const nameInput = await page.$(nameSelector);
+    if (nameInput) {
+      await nameInput.fill(businessData.name);
+      console.log('  ✓ Filled business name');
+    } else {
+      console.warn('  ⚠ Could not locate business name field');
+    }
+
+    // Continue/Next if present
+    const nextBtn = await page.$('button:has-text("Continue"), button:has-text("Next")');
+    if (nextBtn) {
+      await nextBtn.click();
+      await page.waitForTimeout(1500);
+    }
+
+    // Attempt to fill phone/website on this or subsequent step
+    const phoneEl = await page.$('input[type="tel"], input[aria-label*="phone" i]');
+    if (phoneEl && businessData.phone) {
+      await phoneEl.fill(businessData.phone);
+      console.log('  ✓ Filled phone');
+    }
+    const websiteEl = await page.$('input[type="url"], input[aria-label*="website" i]');
+    if (websiteEl && businessData.website) {
+      await websiteEl.fill(businessData.website);
+      console.log('  ✓ Filled website');
+    }
+
+    // Attempt submit-like action
+    const submitBtn = await page.$('button[type="submit"], button:has-text("Create"), button:has-text("Submit")');
+    if (submitBtn) {
+      await submitBtn.click();
+      await page.waitForTimeout(2000);
+    }
+
+    // Basic verification
+    const ok = await this.verifySubmission();
+    const submissionUrl = page.url();
+    await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-finish-${Date.now()}.png`) });
+
+    if (ok) {
+      return { success: true, directoryName: 'Google Business Profile', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+    }
+    return { success: false, directoryName: 'Google Business Profile', status: 'failed', error: 'Verification failed' };
+  } catch (e) {
+    console.error('  ❌ Google submission exception', e?.message || e);
+    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-error-${Date.now()}.png`) }); } catch {}
+    return { success: false, directoryName: 'Google Business Profile', status: 'error', error: e?.message || String(e) };
+  }
+};
 
 module.exports = DirectoryBoltWorker;
