@@ -13,6 +13,20 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# Increase default timeout for background function (max ~900 seconds)
+[[functions]]
+  name = "process-job-background"
+  timeout = 900
+  included_files = [
+    "worker/**",
+    "netlify/functions/**"
+  ]
+  external_node_modules = [
+    "playwright",
+    "@supabase/supabase-js"
+  ]
+  node_bundler = "esbuild"
   external_node_modules = ["canvas", "sharp", "playwright-chromium"]
   included_files = [
     "src/assets/**",

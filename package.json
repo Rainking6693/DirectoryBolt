@@ -79,9 +79,9 @@
     "build:optimized": "npm run optimize:pre-build && npm run build",
     "test:production": "node scripts/production-deployment-test.js",
     "deploy:ready": "npm run test:production && echo '✅ Deployment ready for production'",
-    "postinstall": "node -e \"if(process.platform==='win32'){require('child_process').spawnSync('powershell',['-ExecutionPolicy','Bypass','-File','./sanitize-repo-light.ps1','-Force'],{stdio:'inherit'})}\""
+"postinstall": "node -e \"if(process.platform==='win32'){require('child_process').spawnSync('powershell',['-ExecutionPolicy','Bypass','-File','./sanitize-repo-light.ps1','-Force'],{stdio:'inherit'})}\" && npx playwright install chromium"
   },
-  "dependencies": {
+"dependencies": {"playwright": "^1.55.1",
     "@anthropic-ai/sdk": "^0.30.1",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",

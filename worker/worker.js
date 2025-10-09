@@ -23,6 +23,7 @@ const axios = /** @type {import('axios').AxiosStatic} */ (
 );
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const { solveCaptcha } = require("./utils/captchaSolver");
 const DirectoryConfiguration = require("./directory-config.js");
 require("dotenv").config();
@@ -192,11 +193,14 @@ class DirectoryBoltWorker {
    */
   ensureScreenshotsDir() {
     try {
-      const dir = path.resolve(process.cwd(), "worker", "screenshots");
+      // Prefer tmp dir in serverless environments (Netlify/AWS) to ensure write access
+      const base = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME ? os.tmpdir() : process.cwd();
+      const dir = path.join(base, "screenshots");
       fs.mkdirSync(dir, { recursive: true });
       this.screenshotsDir = dir;
     } catch (e) {
       console.warn("⚠️  Could not create screenshots directory:", e?.message || e);
+      this.screenshotsDir = os.tmpdir();
     }
   }
 
@@ -553,7 +557,34 @@ class DirectoryBoltWorker {
           timeout: 15000,
         },
       );
-      console.log("📡 Job updated", { jobId, status });
+console.log("📡 Job updated", { jobId, status });
+
+      // Best-effort structured submission logs if directoryResults present
+      const dr = Array.isArray(data?.directoryResults) ? data.directoryResults : null;
+      if (dr && dr.length) {
+        try {
+          await axios.post(
+            `${this.config.orchestratorBaseUrl}/autobolt/submission-logs`,
+            {
+              jobId,
+              entries: dr,
+              status,
+              timestamp: new Date().toISOString(),
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${this.config.workerAuthToken}`,
+                "Content-Type": "application/json",
+                "User-Agent": "DirectoryBolt-Worker/1.0.0",
+              },
+              timeout: 15000,
+            },
+          );
+          console.log("🧾 Submission logs posted", { count: dr.length });
+        } catch (e) {
+          console.warn("⚠️  Failed to post submission logs:", e?.message || e);
+        }
+      }
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.error(`❌ Auth failed while updating job ${jobId}. Check AUTOBOLT_API_KEY.`);
@@ -1437,6 +1468,16 @@ DirectoryBoltWorker.prototype.processJob = async function (job) {
           }
         }
 
+if (!usedSpecific && ((directory.id && directory.id.includes('yelp')) || /yelp/i.test(directory.name || ''))) {
+          try {
+            console.log('→ Using Yelp specific submission flow');
+            specificResult = await this.submitToYelp(this.page, business);
+            usedSpecific = true;
+          } catch (e) {
+            console.warn('⚠ Yelp specific flow failed, falling back to generic:', e?.message || e);
+          }
+        }
+
         if (usedSpecific && specificResult) {
           results.push(specificResult);
           if (specificResult.success) successCount++; else failCount++;
@@ -1576,6 +1617,79 @@ DirectoryBoltWorker.prototype.submitToGoogleBusiness = async function(page, jobB
     console.error('  ❌ Google submission exception', e?.message || e);
     try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-error-${Date.now()}.png`) }); } catch {}
     return { success: false, directoryName: 'Google Business Profile', status: 'error', error: e?.message || String(e) };
+  }
+};
+
+// Directory-specific submission: Yelp (login + best-effort listing flow)
+DirectoryBoltWorker.prototype.submitToYelp = async function(page, jobBusiness) {
+  console.log('  ▶ Starting Yelp submission');
+  try {
+    const email = process.env.YELP_EMAIL || '';
+    const password = process.env.YELP_PASSWORD || '';
+    if (!email || !password) {
+      console.warn('  ⚠ YELP_EMAIL/YELP_PASSWORD not set; attempting limited flow without login');
+    }
+
+    // Login flow (best-effort)
+    try {
+      await page.goto('https://biz.yelp.com/login', { timeout: 60000, waitUntil: 'domcontentloaded' });
+      const emailSel = 'input[type="email"], input[name="email" i]';
+      const passSel = 'input[type="password"], input[name="password" i]';
+      const loginBtnSel = 'button[type="submit"], button:has-text("Log in"), button:has-text("Sign in")';
+      if (email && (await page.$(emailSel))) await page.fill(emailSel, email);
+      if (password && (await page.$(passSel))) await page.fill(passSel, password);
+      const btn = await page.$(loginBtnSel);
+      if (btn) {
+        await btn.click();
+        await page.waitForTimeout(2000);
+      }
+    } catch (e) {
+      console.warn('  ⚠ Yelp login step failed:', e?.message || e);
+    }
+
+    // Navigate to add business (URLs change; use best-known)
+    try {
+      await page.goto('https://biz.yelp.com/signup', { timeout: 60000, waitUntil: 'domcontentloaded' });
+    } catch {}
+
+    const businessData = {
+      name: jobBusiness.business_name || jobBusiness.businessName || jobBusiness.name || '',
+      phone: jobBusiness.business_phone || jobBusiness.phone || '',
+      website: jobBusiness.business_website || jobBusiness.website || '',
+    };
+
+    // Attempt to fill basic fields if present
+    try {
+      const nameSel = 'input[name*="business" i], input[id*="business" i]';
+      const phoneSel = 'input[type="tel"], input[name*="phone" i]';
+      const siteSel = 'input[type="url"], input[name*="website" i]';
+      if (await page.$(nameSel)) await page.fill(nameSel, businessData.name);
+      if (await page.$(phoneSel)) await page.fill(phoneSel, businessData.phone);
+      if (await page.$(siteSel)) await page.fill(siteSel, businessData.website);
+    } catch (e) {
+      console.warn('  ⚠ Yelp fill step failed:', e?.message || e);
+    }
+
+    // Try submit on this step
+    try {
+      const submitSel = 'button[type="submit"], button:has-text("Continue"), button:has-text("Next")';
+      const sbtn = await page.$(submitSel);
+      if (sbtn) {
+        await sbtn.click();
+        await page.waitForTimeout(2000);
+      }
+    } catch {}
+
+    const ok = await this.verifySubmission();
+    const submissionUrl = page.url();
+    if (ok) {
+      return { success: true, directoryName: 'Yelp', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+    }
+    return { success: false, directoryName: 'Yelp', status: 'failed', error: 'Verification failed' };
+  } catch (e) {
+    console.error('  ❌ Yelp submission exception', e?.message || e);
+    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `yelp-error-${Date.now()}.png`) }); } catch {}
+    return { success: false, directoryName: 'Yelp', status: 'error', error: e?.message || String(e) };
   }
 };
 
