@@ -12,6 +12,7 @@ class DirectoryConfiguration {
     this.initialized = false;
     this.filterCache = new Map();
     this.version = "2.0.0"; // Worker version
+    this.overridesApplied = false;
     this.maxCacheSize = 100;
 
     // Centralized tier hierarchy for consistency (migrated from extension)
@@ -197,6 +198,9 @@ class DirectoryConfiguration {
         url: "https://www.yelp.com/signup",
         category: "general",
         tier: "starter",
+        enabled: true,
+        pacing: { minDelayMs: 1200, maxDelayMs: 3000 },
+        maxRetries: 2,
         formSelectors: {
           businessName: ["#business-name", 'input[name="businessName"]'],
           email: ['input[type="email"]'],
@@ -214,6 +218,9 @@ class DirectoryConfiguration {
         url: "https://business.google.com/",
         category: "search-engines",
         tier: "growth",
+        enabled: true,
+        pacing: { minDelayMs: 1500, maxDelayMs: 3500 },
+        maxRetries: 2,
         formSelectors: {
           businessName: ['input[aria-label*="Business name"]'],
           email: ['input[type="email"]'],
@@ -231,6 +238,9 @@ class DirectoryConfiguration {
         url: "https://www.facebook.com/business/pages/create",
         category: "social-media",
         tier: "professional",
+        enabled: true,
+        pacing: { minDelayMs: 1500, maxDelayMs: 4000 },
+        maxRetries: 2,
         formSelectors: {
           businessName: ['input[name="page_name"]'],
           email: ['input[type="email"]'],
@@ -261,6 +271,10 @@ class DirectoryConfiguration {
    * Get directories by tier
    */
   getDirectoriesByTier(tier) {
+    // When overrides are applied, some directories may be disabled
+    if (typeof this.applyOverrides === 'function' && !this.overridesApplied) {
+      // No-op placeholder: worker will call applyOverrides
+    }
     const tierLevel = this.tierHierarchy[tier.toLowerCase()] || 1;
 
     return this.directories.filter((dir) => {
@@ -303,6 +317,41 @@ class DirectoryConfiguration {
    */
   getAvailableDirectories(customerTier) {
     return this.getDirectoriesByTier(customerTier);
+  }
+
+  /**
+   * Apply overrides fetched from database.
+   * overrides: Array<{ directory_id, enabled, pacing_min_ms, pacing_max_ms, max_retries }>
+   */
+  applyOverrides(overrides) {
+    try {
+      if (!Array.isArray(overrides) || overrides.length === 0) return false;
+      const map = new Map();
+      for (const o of overrides) {
+        if (o && o.directory_id) {
+          map.set(String(o.directory_id), o);
+        }
+      }
+      this.directories = this.directories.map((dir) => {
+        const ov = map.get(dir.id);
+        if (!ov) return dir;
+        const pacing = { ...dir.pacing };
+        if (typeof ov.pacing_min_ms === 'number') pacing.minDelayMs = ov.pacing_min_ms;
+        if (typeof ov.pacing_max_ms === 'number') pacing.maxDelayMs = ov.pacing_max_ms;
+        const merged = {
+          ...dir,
+          enabled: typeof ov.enabled === 'boolean' ? ov.enabled : (dir.enabled !== false),
+          pacing,
+          maxRetries: typeof ov.max_retries === 'number' ? ov.max_retries : dir.maxRetries,
+        };
+        return merged;
+      });
+      this.overridesApplied = true;
+      return true;
+    } catch (e) {
+      console.warn('DirectoryConfiguration.applyOverrides failed:', e?.message || e);
+      return false;
+    }
   }
 
   /**

@@ -52,26 +52,66 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SubmissionLogsResponse>
 ) {
-  // Only allow GET method
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.'
-    })
-  }
-
   try {
-    // Authenticate using API key or staff session
-    const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '')
-    
-    // For now, require API key (can extend to support staff session later)
+    // Authenticate using API key (extendable to staff session)
+    const apiKey = (req.headers['x-api-key'] as string) || (req.headers.authorization?.replace('Bearer ', '') as string)
     if (!apiKey || apiKey !== process.env.AUTOBOLT_API_KEY) {
-      return res.status(401).json({
-        success: false,
-        error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.'
-      })
+      return res.status(401).json({ success: false, error: 'Unauthorized. Valid AUTOBOLT_API_KEY required.' })
     }
 
+    if (req.method === 'POST') {
+      // Ingest structured submission logs in batch
+      try {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        const { jobId, entries, status, timestamp } = body || {}
+        if (!jobId || !Array.isArray(entries) || entries.length === 0) {
+          return res.status(400).json({ success: false, error: 'jobId and non-empty entries[] are required' })
+        }
+
+        // Lookup customer_id for this job
+        const { data: jobRow, error: jobErr } = await supabase
+          .from('jobs')
+          .select('id, customer_id')
+          .eq('id', jobId)
+          .maybeSingle()
+        if (jobErr) {
+          console.error('[submission-logs POST] job lookup error', jobErr)
+        }
+        const customerId = jobRow?.customer_id || null
+
+        // Map worker directoryResults to logs rows
+        const rows = entries.map((e: any) => ({
+          customer_id: customerId,
+          job_id: jobId,
+          directory_name: e.directoryName || e.directory || 'unknown',
+          action: e.status === 'success' ? 'submit' : e.status === 'manual_required' ? 'verify' : e.status === 'error' ? 'error' : 'submit',
+          timestamp: new Date().toISOString(),
+          details: e.status || 'unknown',
+          screenshot_url: e.errorScreenshot || e.screenshot || null,
+          success: Boolean(e.success),
+          processing_time_ms: e.processingTimeMs || null,
+          error_message: e.error || null,
+          form_data: e.formData || null,
+          response_data: e.submissionUrl ? { submissionUrl: e.submissionUrl } : null,
+        }))
+
+        const { error: insErr } = await supabase
+          .from('autobolt_submission_logs')
+          .insert(rows)
+
+        if (insErr) {
+          console.error('❌ Failed to insert submission logs:', insErr)
+          return res.status(500).json({ success: false, error: 'Failed to insert logs' })
+        }
+
+        return res.status(200).json({ success: true, data: { logs: [], total_count: rows.length, filters_applied: { limit: rows.length } } })
+      } catch (e: any) {
+        console.error('[submission-logs POST] error', e?.message || e)
+        return res.status(500).json({ success: false, error: 'Internal server error' })
+      }
+    }
+
+    // GET handler follows below
     // Parse query parameters
     const {
       customer_id,

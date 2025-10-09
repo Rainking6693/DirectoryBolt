@@ -1,0 +1,15 @@
+^Cnode:internal/child_process:509
+      throw new ErrnoException(err, 'kill');
+      ^
+
+Error: kill ENOSYS
+    at ChildProcess.kill (node:internal/child_process:509:13)
+    at process.<anonymous> (C:\Users\Ben\OneDrive\Documents\GitHub\DirectoryBolt\node_modules\cross-env\src\index.js:27:37)
+    at process.emit (node:events:519:28) {
+  errno: -4054,
+  code: 'ENOSYS',
+  syscall: 'kill'
+}
+
+Node.js v20.17.0
+^C

@@ -3,16 +3,22 @@ import Layout from '../components/layout/Layout';
 import RealTimeQueue from '../components/staff-dashboard/RealTimeQueue';
 import RealTimeAnalytics from '../components/staff-dashboard/RealTimeAnalytics';
 import AutoBoltQueueMonitor from '../components/staff-dashboard/AutoBoltQueueMonitor';
+import SubmissionLogsWidget from '../components/staff-dashboard/SubmissionLogsWidget';
+import DirectorySettings from '../components/staff-dashboard/DirectorySettings';
+import TwoFAQueueWidget from '../components/staff-dashboard/TwoFAQueueWidget';
 import JobProgressMonitor from '../components/staff/JobProgressMonitor';
 import { useRequireStaffAuth } from '../hooks/useStaffAuth';
 
-type TabKey = 'queue' | 'jobs' | 'analytics' | 'autobolt';
+type TabKey = 'queue' | 'jobs' | 'analytics' | 'autobolt' | 'activity' | 'manual' | 'settings';
 
 const TABS: Array<{ key: TabKey; label: string; fullLabel: string }> = [
   { key: 'queue', label: 'Queue', fullLabel: 'Customer Queue' },
   { key: 'jobs', label: 'Jobs', fullLabel: 'Job Progress Monitor' },
   { key: 'analytics', label: 'Analytics', fullLabel: 'Real-Time Analytics' },
   { key: 'autobolt', label: 'AutoBolt', fullLabel: 'AutoBolt Monitor' },
+  { key: 'activity', label: 'Activity', fullLabel: 'Submission Activity' },
+  { key: 'manual', label: '2FA Queue', fullLabel: 'Manual / 2FA Queue' },
+  { key: 'settings', label: 'Settings', fullLabel: 'Directory Settings' },
 ];
 
 export default function StaffDashboard() {
@@ -117,6 +123,9 @@ export default function StaffDashboard() {
           {activeTab === 'jobs' && <JobProgressMonitor />}
           {activeTab === 'analytics' && <RealTimeAnalytics />}
           {activeTab === 'autobolt' && <AutoBoltQueueMonitor />}
+          {activeTab === 'activity' && <SubmissionLogsWidget />}
+          {activeTab === 'manual' && <TwoFAQueueWidget />}
+          {activeTab === 'settings' && <DirectorySettings />}
         </main>
       </div>
     </Layout>

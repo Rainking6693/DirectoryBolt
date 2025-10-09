@@ -26,6 +26,7 @@ const path = require("path");
 const os = require("os");
 const { solveCaptcha } = require("./utils/captchaSolver");
 const DirectoryConfiguration = require("./directory-config.js");
+const { createClient } = require('@supabase/supabase-js');
 require("dotenv").config();
 
 console.log("");
@@ -148,7 +149,29 @@ class DirectoryBoltWorker {
       // Ensure screenshots directory exists for debugging artifacts
       this.ensureScreenshotsDir();
 
+      // Initialize storage client if available
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || null;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || null;
+      this.supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
       await this.directoryConfig.initialize();
+
+      // Fetch and apply directory overrides from Supabase
+      try {
+        if (this.supabase) {
+          const { data: overrides, error } = await this.supabase
+            .from('directory_overrides')
+            .select('directory_id, enabled, pacing_min_ms, pacing_max_ms, max_retries');
+          if (error) {
+            console.warn('[worker] failed to fetch directory_overrides', error.message || error);
+          } else if (Array.isArray(overrides) && overrides.length > 0 && typeof this.directoryConfig.applyOverrides === 'function') {
+            this.directoryConfig.applyOverrides(overrides);
+            console.log(`[worker] Applied ${overrides.length} directory overrides`);
+          }
+        }
+      } catch (e) {
+        console.warn('[worker] overrides fetch/apply error:', e?.message || e);
+      }
       await this.launchBrowser();
       await this.registerWithOrchestrator();
       console.log("✅ Worker service initialized successfully");
@@ -201,6 +224,46 @@ class DirectoryBoltWorker {
     } catch (e) {
       console.warn("⚠️  Could not create screenshots directory:", e?.message || e);
       this.screenshotsDir = os.tmpdir();
+    }
+  }
+
+  /**
+   * Upload a screenshot buffer to Supabase Storage and return public URL
+   * @param {Buffer} buffer
+   * @param {string} pathKey
+   * @returns {Promise<string|null>}
+   */
+  async uploadScreenshotBuffer(buffer, pathKey) {
+    try {
+      if (!this.supabase) return null;
+      const bucket = process.env.SCREENSHOTS_BUCKET || 'screenshots';
+      const { error } = await this.supabase.storage.from(bucket).upload(pathKey, buffer, { contentType: 'image/png', upsert: true });
+      if (error) {
+        console.warn('⚠️  Supabase upload failed:', error.message || error);
+        return null;
+      }
+      const { data } = this.supabase.storage.from(bucket).getPublicUrl(pathKey);
+      return data?.publicUrl || null;
+    } catch (e) {
+      console.warn('⚠️  uploadScreenshotBuffer error:', e?.message || e);
+      return null;
+    }
+  }
+
+  /**
+   * Capture and upload page screenshot; returns URL or null
+   */
+  async captureAndUpload(page, jobId, directoryName, tag) {
+    try {
+      const buffer = await page.screenshot({ type: 'png' });
+      const safeDir = String(directoryName || 'unknown').toLowerCase().replace(/[^a-z0-9-_]+/g, '-');
+      const ts = Date.now();
+      const key = `screenshots/${jobId}/${safeDir}-${tag}-${ts}.png`;
+      const url = await this.uploadScreenshotBuffer(buffer, key);
+      return url;
+    } catch (e) {
+      console.warn('⚠️  captureAndUpload failed:', e?.message || e);
+      return null;
     }
   }
 
@@ -303,9 +366,13 @@ class DirectoryBoltWorker {
     }
 
     /** @type {import('playwright').BrowserContextOptions} */
+    // User-Agent rotation per context when enabled
+    const uaPool = (process.env.USER_AGENT_POOL || '').split(',').map(s => s.trim()).filter(Boolean);
+    const rotateUA = process.env.USER_AGENT_ROTATE_PER_DIRECTORY === 'true';
+
     const contextOptions = {
       viewport: this.config.viewport,
-      userAgent: this.config.userAgent,
+      userAgent: (rotateUA && uaPool.length > 0) ? uaPool[Math.floor(Math.random()*uaPool.length)] : this.config.userAgent,
       ignoreHTTPSErrors: true,
     };
 
@@ -1441,6 +1508,10 @@ DirectoryBoltWorker.prototype.processJob = async function (job) {
     let successCount = 0;
     let failCount = 0;
 
+    const minDelay = parseInt(process.env.TUNE_MIN_DELAY_MS || '800');
+    const maxDelay = parseInt(process.env.TUNE_MAX_DELAY_MS || '2200');
+    const rotateProxyPerDir = this.config.proxyManagerUrl && process.env.PROXY_ROTATE_PER_DIRECTORY === 'true';
+
     for (let i = 0; i < directories.length; i++) {
       const directory = directories[i];
       console.log("\n═══════════════════════════════════════");
@@ -1450,7 +1521,24 @@ DirectoryBoltWorker.prototype.processJob = async function (job) {
       console.log("URL:", directory.url);
       console.log("Category:", directory.category);
 
-      try {
+      // Per-directory pacing and retries
+      const dirMin = Math.max(200, Number(directory.pacing?.minDelayMs || minDelay));
+      const dirMax = Math.max(dirMin + 1, Number(directory.pacing?.maxDelayMs || maxDelay));
+      const dirRetries = Math.max(1, Number(directory.maxRetries || process.env.DIR_MAX_RETRIES || 1));
+
+      let finalResult = null;
+      let attempt = 0;
+      while (attempt < dirRetries) {
+        attempt++;
+        try {
+        // Rotate proxy and UA per directory if enabled
+        if (rotateProxyPerDir) {
+          const next = await this.obtainProxyFromManager();
+          await this.createPageContext(next || this.currentProxy);
+        } else if (process.env.USER_AGENT_ROTATE_PER_DIRECTORY === 'true') {
+          await this.createPageContext(this.currentProxy);
+        }
+
         console.log('→ Navigating to', directory.url);
         await this.page.goto(this.addCacheBuster(directory.url), { timeout: 60000, waitUntil: 'domcontentloaded' });
         console.log('✓ Page loaded');
@@ -1475,6 +1563,25 @@ if (!usedSpecific && ((directory.id && directory.id.includes('yelp')) || /yelp/i
             usedSpecific = true;
           } catch (e) {
             console.warn('⚠ Yelp specific flow failed, falling back to generic:', e?.message || e);
+          }
+        }
+
+if (!usedSpecific && ((directory.id && directory.id.includes('facebook')) || /facebook/i.test(directory.name || ''))) {
+          try {
+            console.log('→ Using Facebook Business specific submission flow');
+            specificResult = await this.submitToFacebook(this.page, business);
+            usedSpecific = true;
+          } catch (e) {
+            console.warn('⚠ Facebook specific flow failed, falling back to generic:', e?.message || e);
+          }
+        }
+        if (!usedSpecific && ((directory.id && directory.id.includes('apple')) || /apple\s*maps/i.test(directory.name || ''))) {
+          try {
+            console.log('→ Using Apple Maps specific submission flow');
+            specificResult = await this.submitToAppleMaps(this.page, business);
+            usedSpecific = true;
+          } catch (e) {
+            console.warn('⚠ Apple Maps specific flow failed, falling back to generic:', e?.message || e);
           }
         }
 
@@ -1511,10 +1618,9 @@ if (!usedSpecific && ((directory.id && directory.id.includes('yelp')) || /yelp/i
         console.log('→ Verifying submission...');
         const ok = await this.verifySubmission();
         const submissionUrl = this.page.url();
-
-        const result = ok
-          ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, submittedAt: new Date().toISOString() }
-          : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed' };
+         const result = ok
+          ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, screenshotUrl, submittedAt: new Date().toISOString() }
+          : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed', screenshotUrl };
 
         results.push(result);
         if (ok) successCount++; else failCount++;
@@ -1522,15 +1628,27 @@ if (!usedSpecific && ((directory.id && directory.id.includes('yelp')) || /yelp/i
         const progressPercent = Math.round(((i + 1) / directories.length) * 100);
         console.log(`Progress: ${progressPercent}% (${i + 1}/${directories.length})`);
 
+        finalResult = result;
         await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+        // Randomized polite delay between directories
+        const sleep = Math.max(dirMin, Math.floor(Math.random() * (dirMax - dirMin + 1)) + dirMin);
+        await this.page.waitForTimeout(sleep);
+        break;
       } catch (err) {
-        failCount++;
         const msg = err?.message || String(err);
         console.error('✗ EXCEPTION:', directory.name, msg);
-        try { await this.page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `error-${(directory.id || directory.name).toString().replace(/\s+/g,'-')}-${Date.now()}.png`) }); } catch {}
-        const result = { success: false, directoryName: directory.name, status: 'error', error: msg };
-        results.push(result);
-        await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+        if (attempt >= dirRetries) {
+          failCount++;
+          const screenshotUrl = await this.captureAndUpload(this.page, jobId, directory.name, 'error');
+          const result = { success: false, directoryName: directory.name, status: 'error', error: msg, screenshotUrl };
+          results.push(result);
+          await this.updateJobStatus(jobId, 'in_progress', { directoryResults: [result] });
+        } else {
+          console.log(`🔄 Retrying ${directory.name} (attempt ${attempt + 1}/${dirRetries})`);
+          await this.page.waitForTimeout(Math.min(5000, 1000 * attempt));
+          continue;
+        }
+      }
       }
     }
 
@@ -1553,7 +1671,36 @@ if (!usedSpecific && ((directory.id && directory.id.includes('yelp')) || /yelp/i
 DirectoryBoltWorker.prototype.submitToGoogleBusiness = async function(page, jobBusiness) {
   console.log('  ▶ Starting Google Business submission');
   try {
-    // Navigate to creation page (may require auth; this is a best-effort flow)
+    const gEmail = process.env.GOOGLE_EMAIL || '';
+    const gPass = process.env.GOOGLE_PASSWORD || '';
+
+    // Try Google login (best-effort). If creds missing, continue as anonymous.
+    try {
+      if (gEmail && gPass) {
+        await page.goto('https://accounts.google.com/signin/v2/identifier?service=lbc', { timeout: 60000, waitUntil: 'domcontentloaded' });
+        const emailSel = 'input[type="email"], input[name="identifier"]';
+        if (await page.$(emailSel)) {
+          await page.fill(emailSel, gEmail);
+          await page.keyboard.press('Enter');
+          await page.waitForTimeout(1500);
+        }
+        const passSel = 'input[type="password"], input[name="Passwd"]';
+        if (await page.$(passSel)) {
+          await page.fill(passSel, gPass);
+          await page.keyboard.press('Enter');
+          await page.waitForTimeout(2000);
+        }
+        // 2FA detection
+        if (await this.detectTwoFactor(page)) {
+          console.warn('  ⚠ Google 2FA detected - marking manual_required');
+          return { success: false, directoryName: 'Google Business Profile', status: 'manual_required', error: '2FA required' };
+        }
+      }
+    } catch (e) {
+      console.warn('  ⚠ Google login step failed:', e?.message || e);
+    }
+
+    // Navigate to creation page
     await page.goto('https://business.google.com/create', { timeout: 60000, waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-start-${Date.now()}.png`) });
 
@@ -1607,16 +1754,31 @@ DirectoryBoltWorker.prototype.submitToGoogleBusiness = async function(page, jobB
     // Basic verification
     const ok = await this.verifySubmission();
     const submissionUrl = page.url();
-    await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-finish-${Date.now()}.png`) });
+    const screenshotUrl = await this.captureAndUpload(page, jobBusiness?.jobId || jobBusiness?.id || 'job', 'google-business', 'success');
 
     if (ok) {
-      return { success: true, directoryName: 'Google Business Profile', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+      return { success: true, directoryName: 'Google Business Profile', status: 'success', submissionUrl, screenshotUrl, submittedAt: new Date().toISOString() };
     }
     return { success: false, directoryName: 'Google Business Profile', status: 'failed', error: 'Verification failed' };
   } catch (e) {
     console.error('  ❌ Google submission exception', e?.message || e);
-    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `google-error-${Date.now()}.png`) }); } catch {}
-    return { success: false, directoryName: 'Google Business Profile', status: 'error', error: e?.message || String(e) };
+    const screenshotUrl = await this.captureAndUpload(page, jobBusiness?.jobId || jobBusiness?.id || 'job', 'google-business', 'error');
+    return { success: false, directoryName: 'Google Business Profile', status: 'error', error: e?.message || String(e), screenshotUrl };
+  }
+};
+
+// Detect generic 2FA prompts for major providers
+DirectoryBoltWorker.prototype.detectTwoFactor = async function(page) {
+  const twoFAKeywords = [
+    '2-step', '2‑step', 'two-factor', 'two factor', 'verification code',
+    'enter code', 'approve sign-in', 'security code', 'authenticator'
+  ];
+  try {
+    const content = (await page.content()) || '';
+    const lower = content.toLowerCase();
+    return twoFAKeywords.some(k => lower.includes(k));
+  } catch {
+    return false;
   }
 };
 
@@ -1682,14 +1844,133 @@ DirectoryBoltWorker.prototype.submitToYelp = async function(page, jobBusiness) {
 
     const ok = await this.verifySubmission();
     const submissionUrl = page.url();
+    const screenshotUrl = await this.captureAndUpload(page, jobBusiness?.jobId || jobBusiness?.id || 'job', 'yelp', 'success');
     if (ok) {
-      return { success: true, directoryName: 'Yelp', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+      return { success: true, directoryName: 'Yelp', status: 'success', submissionUrl, screenshotUrl, submittedAt: new Date().toISOString() };
     }
-    return { success: false, directoryName: 'Yelp', status: 'failed', error: 'Verification failed' };
+    return { success: false, directoryName: 'Yelp', status: 'failed', error: 'Verification failed', screenshotUrl };
   } catch (e) {
     console.error('  ❌ Yelp submission exception', e?.message || e);
-    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `yelp-error-${Date.now()}.png`) }); } catch {}
-    return { success: false, directoryName: 'Yelp', status: 'error', error: e?.message || String(e) };
+    const screenshotUrl = await this.captureAndUpload(page, jobBusiness?.jobId || jobBusiness?.id || 'job', 'yelp', 'error');
+    return { success: false, directoryName: 'Yelp', status: 'error', error: e?.message || String(e), screenshotUrl };
+  }
+};
+
+// Directory-specific submission: Facebook Business (login + page create)
+DirectoryBoltWorker.prototype.submitToFacebook = async function(page, jobBusiness) {
+  console.log('  ▶ Starting Facebook Business submission');
+  try {
+    const fbEmail = process.env.FACEBOOK_EMAIL || process.env.FB_EMAIL || '';
+    const fbPass = process.env.FACEBOOK_PASSWORD || process.env.FB_PASSWORD || '';
+    if (!fbEmail || !fbPass) {
+      console.warn('  ⚠ FACEBOOK_EMAIL/FACEBOOK_PASSWORD not set; attempting limited flow without login');
+    }
+
+    try {
+      await page.goto('https://www.facebook.com/login', { timeout: 60000, waitUntil: 'domcontentloaded' });
+      const emailSel = 'input[name="email"], input[type="text"][id="email"]';
+      const passSel = 'input[name="pass"], input[type="password"][id="pass"]';
+      const loginBtn = 'button[name="login"], button:has-text("Log in")';
+      if (fbEmail && (await page.$(emailSel))) await page.fill(emailSel, fbEmail);
+      if (fbPass && (await page.$(passSel))) await page.fill(passSel, fbPass);
+      const btn = await page.$(loginBtn);
+      if (btn) {
+        await btn.click();
+        await page.waitForTimeout(2000);
+      }
+      if (await this.detectTwoFactor(page)) {
+        console.warn('  ⚠ Facebook 2FA detected - marking manual_required');
+        return { success: false, directoryName: 'Facebook Business', status: 'manual_required', error: '2FA required' };
+      }
+    } catch (e) {
+      console.warn('  ⚠ Facebook login failed:', e?.message || e);
+    }
+
+    // Navigate to create page flow
+    try {
+      await page.goto('https://www.facebook.com/pages/creation/', { timeout: 60000, waitUntil: 'domcontentloaded' });
+    } catch {}
+
+    const businessData = {
+      name: jobBusiness.business_name || jobBusiness.businessName || jobBusiness.name || ''
+    };
+
+    try {
+      const pageNameSel = 'input[name="page_name"], input[aria-label*="Page name" i]';
+      if (await page.$(pageNameSel)) {
+        await page.fill(pageNameSel, businessData.name);
+      }
+      const createBtn = await page.$('div[role="button"]:has-text("Create")');
+      if (createBtn) {
+        await createBtn.click();
+        await page.waitForTimeout(2000);
+      }
+    } catch (e) {
+      console.warn('  ⚠ Facebook page create step failed:', e?.message || e);
+    }
+
+    const ok = await this.verifySubmission();
+    const submissionUrl = page.url();
+    if (ok) {
+      return { success: true, directoryName: 'Facebook Business', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+    }
+    return { success: false, directoryName: 'Facebook Business', status: 'failed', error: 'Verification failed' };
+  } catch (e) {
+    console.error('  ❌ Facebook submission exception', e?.message || e);
+    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `facebook-error-${Date.now()}.png`) }); } catch {}
+    return { success: false, directoryName: 'Facebook Business', status: 'error', error: e?.message || String(e) };
+  }
+};
+
+// Directory-specific submission: Apple Maps (login then Maps Connect)
+DirectoryBoltWorker.prototype.submitToAppleMaps = async function(page, jobBusiness) {
+  console.log('  ▶ Starting Apple Maps submission');
+  try {
+    const appleEmail = process.env.APPLE_ID_EMAIL || '';
+    const applePass = process.env.APPLE_ID_PASSWORD || '';
+    if (!appleEmail || !applePass) {
+      console.warn('  ⚠ APPLE_ID_EMAIL/APPLE_ID_PASSWORD not set; attempting limited flow without login');
+    }
+
+    try {
+      await page.goto('https://mapsconnect.apple.com/', { timeout: 60000, waitUntil: 'domcontentloaded' });
+      const signIn = await page.$('a:has-text("Sign In"), a:has-text("Sign in")');
+      if (signIn) { await signIn.click(); await page.waitForTimeout(1500); }
+      const emailSel = 'input[type="email"], input[id="account_name_text_field"]';
+      if (appleEmail && (await page.$(emailSel))) {
+        await page.fill(emailSel, appleEmail);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(1500);
+      }
+      const passSel = 'input[type="password"], input[id="password_text_field"]';
+      if (applePass && (await page.$(passSel))) {
+        await page.fill(passSel, applePass);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(2000);
+      }
+      if (await this.detectTwoFactor(page)) {
+        console.warn('  ⚠ Apple 2FA detected - marking manual_required');
+        return { success: false, directoryName: 'Apple Maps', status: 'manual_required', error: '2FA required' };
+      }
+    } catch (e) {
+      console.warn('  ⚠ Apple login step failed:', e?.message || e);
+    }
+
+    // Best-effort to reach add business flow
+    try {
+      await page.goto('https://mapsconnect.apple.com/business/locations', { timeout: 60000, waitUntil: 'domcontentloaded' });
+    } catch {}
+
+    const ok = await this.verifySubmission();
+    const submissionUrl = page.url();
+    if (ok) {
+      return { success: true, directoryName: 'Apple Maps', status: 'success', submissionUrl, submittedAt: new Date().toISOString() };
+    }
+    return { success: false, directoryName: 'Apple Maps', status: 'failed', error: 'Verification failed' };
+  } catch (e) {
+    console.error('  ❌ Apple Maps submission exception', e?.message || e);
+    try { await page.screenshot({ path: path.join(this.screenshotsDir || 'worker/screenshots', `applemaps-error-${Date.now()}.png`) }); } catch {}
+    return { success: false, directoryName: 'Apple Maps', status: 'error', error: e?.message || String(e) };
   }
 };
 

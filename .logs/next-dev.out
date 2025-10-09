@@ -1,0 +1,15 @@
+
+> directorybolt@2.0.1-emergency-fix dev
+> npm run sanitize && cross-env NEXT_WP_POLL_INTERVAL=0 next dev -p 3001
+
+
+> directorybolt@2.0.1-emergency-fix sanitize
+> powershell -ExecutionPolicy Bypass -File .\sanitize-repo-light.ps1 -Force
+
+[2025-10-09 13:40:39] [INFO] Scanning for ghost/illegal Windows filenames at repo root...
+[2025-10-09 13:40:39] [SUCCESS] Sanitize (light) complete. Removed 0 ghost files.
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...

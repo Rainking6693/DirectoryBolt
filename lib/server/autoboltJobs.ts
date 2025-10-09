@@ -217,7 +217,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   const supabase = getClientOrThrow(fn)
 
   const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .select('id, customer_id, package_size, priority_level, status, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
       .eq('status', 'pending')
@@ -240,7 +240,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
 
   const startedAt = new Date().toISOString()
   const updateResponse = await executeSupabaseQuery(fn, 'jobs.update set in_progress', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', pendingJob.id)
@@ -261,7 +261,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   }
 
   const customerResponse = await executeSupabaseQuery(fn, 'customers.select by id', async () =>
-    await supabase
+    supabase
       .from('customers')
       .select(`
         id,
@@ -399,7 +399,7 @@ export async function completeJob(options: {
   }
 
   const updateResponse = await executeSupabaseQuery(fn, 'jobs.update complete job', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .update(updatePayload)
       .eq('id', jobId)
@@ -420,7 +420,7 @@ export async function completeJob(options: {
   }
 
   const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select for completion', async () =>
-    await supabase
+    supabase
       .from('job_results')
       .select('status')
       .eq('job_id', jobId)
@@ -462,7 +462,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   const supabase = getClientOrThrow(fn)
 
   const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .select(`
         id,
@@ -490,7 +490,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
 
   if (jobIds.length > 0) {
     const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', async () =>
-      await supabase
+      supabase
         .from('job_results')
         .select('job_id, status')
         .in('job_id', jobIds)
@@ -583,7 +583,7 @@ export async function markJobInProgress(jobId: string) {
   const startedAt = new Date().toISOString()
 
   const response = await executeSupabaseQuery(fn, 'jobs.update mark in progress', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', jobId)
@@ -608,7 +608,7 @@ export async function retryFailedJob(jobId: string) {
   const now = new Date().toISOString()
 
   const fetchResponse = await executeSupabaseQuery(fn, 'jobs.select for retry', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .select('id, status')
       .eq('id', jobId)
@@ -626,7 +626,7 @@ export async function retryFailedJob(jobId: string) {
   }
 
   const updateResponse = await executeSupabaseQuery(fn, 'jobs.update reset status to pending', async () =>
-    await supabase
+    supabase
       .from('jobs')
       .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
       .eq('id', jobId)
