@@ -6,8 +6,9 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Default function configuration (applies to all functions)
+# Default function configuration
 [[functions]]
+  name = "*"
   node_bundler = "esbuild"
 
 # Specific function configuration

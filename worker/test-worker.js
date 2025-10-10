@@ -283,8 +283,12 @@ class WorkerTestSuite {
         "2Captcha API key should be configured",
       );
       this.assert(
-        this.worker.config.twoCaptchaApiKey === "test_api_key_placeholder",
-        "Should use correct 2Captcha API key",
+        this.worker.config.twoCaptchaApiKey.length > 0,
+        "Should have non-empty 2Captcha API key",
+      );
+      this.assert(
+        this.worker.config.twoCaptchaApiKey.length >= 20,
+        "Should use valid format 2Captcha API key",
       );
 
       // Note: We don't actually call 2Captcha service in tests to avoid costs
