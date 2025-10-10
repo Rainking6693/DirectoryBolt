@@ -1,4 +1,4 @@
-﻿[build]
+[build]
   command = "npm run build"
   publish = ".next"
   functions = "netlify/functions"
@@ -6,18 +6,16 @@
 [build.environment]
   NODE_VERSION = "20"
 
-[functions]
+# Default function configuration (applies to all functions)
+[[functions]]
   node_bundler = "esbuild"
 
+# Specific function configuration
 [[functions]]
   name = "process-job-background"
   timeout = 900
-  node_bundler = "esbuild"
   external_node_modules = ["playwright", "playwright-chromium", "@supabase/supabase-js", "canvas", "sharp"]
   included_files = ["worker/**", "netlify/functions/**"]
-
-[functions."*"]
-  timeout = 300
 
 [[plugins]]
   package = "@netlify/plugin-sitemap"
