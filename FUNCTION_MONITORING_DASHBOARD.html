@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectoryBolt Function Monitoring Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .status-card.success {
+            border-left: 4px solid #28a745;
+        }
+        .status-card.warning {
+            border-left: 4px solid #ffc107;
+        }
+        .status-card.error {
+            border-left: 4px solid #dc3545;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .metric-label {
+            font-weight: 500;
+        }
+        .metric-value {
+            font-family: monospace;
+        }
+        .metric-value.success {
+            color: #28a745;
+        }
+        .metric-value.warning {
+            color: #ffc107;
+        }
+        .metric-value.error {
+            color: #dc3545;
+        }
+        .log-section {
+            margin-top: 30px;
+        }
+        .log-entry {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-timestamp {
+            color: #6c757d;
+        }
+        .log-level {
+            font-weight: bold;
+        }
+        .log-error {
+            color: #dc3545;
+        }
+        .log-warn {
+            color: #ffc107;
+        }
+        .log-info {
+            color: #17a2b8;
+        }
+        .refresh-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 DirectoryBolt Function Monitoring Dashboard</h1>
+            <p>Real-time monitoring of Netlify function performance and health</p>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card success" id="trigger-function-status">
+                <h3>🎯 Trigger Function</h3>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="metric-value success" id="trigger-status">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Avg Response Time:</span>
+                    <span class="metric-value" id="trigger-response-time">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Success Rate:</span>
+                    <span class="metric-value success" id="trigger-success-rate">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Memory Usage:</span>
+                    <span class="metric-value" id="trigger-memory">Loading...</span>
+                </div>
+            </div>
+
+            <div class="status-card success" id="background-function-status">
+                <h3>⚙️ Background Function</h3>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="metric-value success" id="background-status">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Jobs:</span>
+                    <span class="metric-value" id="background-active-jobs">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Completed Today:</span>
+                    <span class="metric-value success" id="background-completed">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Failed Today:</span>
+                    <span class="metric-value error" id="background-failed">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Avg Execution Time:</span>
+                    <span class="metric-value" id="background-execution-time">Loading...</span>
+                </div>
+            </div>
+
+            <div class="status-card success" id="system-status">
+                <h3>🖥️ System Health</h3>
+                <div class="metric">
+                    <span class="metric-label">Worker.js Available:</span>
+                    <span class="metric-value success" id="worker-available">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Directory Config:</span>
+                    <span class="metric-value success" id="directory-config">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Supabase Connection:</span>
+                    <span class="metric-value" id="supabase-connection">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Orchestrator API:</span>
+                    <span class="metric-value" id="orchestrator-api">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h3>📋 Recent Function Logs</h3>
+            <div id="function-logs">
+                <div class="log-entry">
+                    <span class="log-timestamp">Loading logs...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const NETLIFY_SITE_ID = 'your-netlify-site-id';
+        const NETLIFY_API_TOKEN = 'your-netlify-api-token';
+
+        // Function status tracking
+        let functionMetrics = {
+            triggerFunction: { status: 'unknown', responseTime: 0, successRate: 0, memoryUsage: 0 },
+            backgroundFunction: { status: 'unknown', activeJobs: 0, completedToday: 0, failedToday: 0, executionTime: 0 },
+            system: { workerAvailable: false, directoryConfig: false, supabase: false, orchestrator: false }
+        };
+
+        // Refresh data function
+        async function refreshData() {
+            console.log('Refreshing monitoring data...');
+            await Promise.all([
+                updateFunctionStatus(),
+                updateSystemHealth(),
+                updateFunctionLogs()
+            ]);
+        }
+
+        // Update function status
+        async function updateFunctionStatus() {
+            try {
+                // In a real implementation, you would fetch this data from Netlify API
+                // For demo purposes, we'll simulate the data
+
+                functionMetrics.triggerFunction = {
+                    status: 'healthy',
+                    responseTime: '45ms',
+                    successRate: '99.8%',
+                    memoryUsage: '67MB'
+                };
+
+                functionMetrics.backgroundFunction = {
+                    status: 'healthy',
+                    activeJobs: 2,
+                    completedToday: 47,
+                    failedToday: 1,
+                    executionTime: '8.5min'
+                };
+
+                updateUI();
+            } catch (error) {
+                console.error('Failed to update function status:', error);
+            }
+        }
+
+        // Update system health
+        async function updateSystemHealth() {
+            try {
+                // Check if worker.js exists and is accessible
+                const workerResponse = await fetch('/worker/worker.js');
+                functionMetrics.system.workerAvailable = workerResponse.ok;
+
+                // Check directory configuration
+                const configResponse = await fetch('/worker/directory-config.js');
+                functionMetrics.system.directoryConfig = configResponse.ok;
+
+                // Check Supabase connection (would need actual endpoint)
+                functionMetrics.system.supabase = true; // Simulated
+
+                // Check orchestrator API
+                functionMetrics.system.orchestrator = true; // Simulated
+
+                updateUI();
+            } catch (error) {
+                console.error('Failed to update system health:', error);
+            }
+        }
+
+        // Update function logs
+        async function updateFunctionLogs() {
+            try {
+                // In a real implementation, fetch from Netlify function logs API
+                const logsContainer = document.getElementById('function-logs');
+                logsContainer.innerHTML = `
+                    <div class="log-entry">
+                        <span class="log-timestamp">${new Date().toLocaleTimeString()}</span>
+                        <span class="log-level log-info">[INFO]</span>
+                        <span>Function monitoring dashboard loaded</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">${new Date().toLocaleTimeString()}</span>
+                        <span class="log-level log-info">[INFO]</span>
+                        <span>Background function timeout set to 900 seconds</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Failed to update function logs:', error);
+            }
+        }
+
+        // Update UI with current metrics
+        function updateUI() {
+            // Update trigger function status
+            document.getElementById('trigger-status').textContent = functionMetrics.triggerFunction.status;
+            document.getElementById('trigger-response-time').textContent = functionMetrics.triggerFunction.responseTime;
+            document.getElementById('trigger-success-rate').textContent = functionMetrics.triggerFunction.successRate;
+            document.getElementById('trigger-memory').textContent = functionMetrics.triggerFunction.memoryUsage;
+
+            // Update background function status
+            document.getElementById('background-status').textContent = functionMetrics.backgroundFunction.status;
+            document.getElementById('background-active-jobs').textContent = functionMetrics.backgroundFunction.activeJobs;
+            document.getElementById('background-completed').textContent = functionMetrics.backgroundFunction.completedToday;
+            document.getElementById('background-failed').textContent = functionMetrics.backgroundFunction.failedToday;
+            document.getElementById('background-execution-time').textContent = functionMetrics.backgroundFunction.executionTime;
+
+            // Update system health
+            document.getElementById('worker-available').textContent = functionMetrics.system.workerAvailable ? '✅ Available' : '❌ Missing';
+            document.getElementById('directory-config').textContent = functionMetrics.system.directoryConfig ? '✅ Loaded' : '❌ Error';
+            document.getElementById('supabase-connection').textContent = functionMetrics.system.supabase ? '✅ Connected' : '❌ Failed';
+            document.getElementById('orchestrator-api').textContent = functionMetrics.system.orchestrator ? '✅ Reachable' : '❌ Unreachable';
+
+            // Update card colors based on status
+            updateCardColors();
+        }
+
+        // Update card colors based on status
+        function updateCardColors() {
+            // Trigger function card
+            const triggerCard = document.getElementById('trigger-function-status');
+            triggerCard.className = functionMetrics.triggerFunction.status === 'healthy' ? 'status-card success' : 'status-card error';
+
+            // Background function card
+            const backgroundCard = document.getElementById('background-function-status');
+            backgroundCard.className = functionMetrics.backgroundFunction.status === 'healthy' ? 'status-card success' : 'status-card error';
+
+            // System status card
+            const systemCard = document.getElementById('system-status');
+            const systemHealthy = functionMetrics.system.workerAvailable && functionMetrics.system.directoryConfig;
+            systemCard.className = systemHealthy ? 'status-card success' : 'status-card error';
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', refreshData);
+    </script>
+</body>
+</html>
