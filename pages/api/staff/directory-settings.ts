@@ -2,9 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { createClient } from '@supabase/supabase-js'
 
-// Reuse base configuration from worker
-const DirectoryConfiguration = require('../../../worker/directory-config.js')
-
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET')
@@ -20,6 +17,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const supabase = createClient(supabaseUrl, serviceKey)
 
   try {
+    // Dynamic import to avoid build-time loading
+    const DirectoryConfiguration = (await import('../../../worker/directory-config.js')).default
+    
     // Load base directories
     const dc = new DirectoryConfiguration()
     await dc.initialize()
