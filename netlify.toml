@@ -5,21 +5,6 @@
 [build.environment]
   NODE_VERSION = "18.20.0"
 
-
-# Function settings - using array format only
-[[functions]]
-  node_bundler = "esbuild"
-
-# Background function configuration (15-minute timeout for job processing)
-[[functions]]
-  name = "process-job-background"
-  timeout = 900
-  max_age = 86400
-
-# Standard function configuration (5-minute timeout)
-[[functions]]
-  pattern = "*"
-
 # Plugin configuration
 [[plugins]]
   package = "@netlify/plugin-nextjs"
