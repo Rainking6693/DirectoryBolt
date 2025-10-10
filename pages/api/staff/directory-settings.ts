@@ -33,7 +33,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (error) {
       console.error('[staff:directory-settings] overrides query error', error)
-      return res.status(500).json({ success: false, error: 'Failed to load overrides' })
+      // If table doesn't exist, return empty array instead of error
+      if (error.message?.includes('relation "directory_overrides" does not exist')) {
+        console.log('[staff:directory-settings] Table does not exist, returning empty overrides')
+        // Continue with empty overrides array
+      } else {
+        return res.status(500).json({ success: false, error: 'Failed to load overrides' })
+      }
     }
 
     // Merge overrides

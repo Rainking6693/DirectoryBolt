@@ -66,6 +66,13 @@ async function executeSupabaseQuery<T>(
       durationMs: duration,
       error: serializeError(error)
     })
+
+    // If table doesn't exist, return empty result instead of throwing
+    if (error instanceof Error && error.message?.includes('relation "') && error.message?.includes('does not exist')) {
+      logWarn(functionName, `Table does not exist for query: ${label}, returning empty result`)
+      return [] as T
+    }
+
     throw error
   }
 }

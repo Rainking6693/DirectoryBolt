@@ -27,6 +27,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (error) {
       console.error('[staff:2fa-queue] query error', error)
+      // If table doesn't exist, return empty array instead of error
+      if (error.message?.includes('relation "autobolt_submission_logs" does not exist')) {
+        console.log('[staff:2fa-queue] Table does not exist, returning empty result')
+        return res.status(200).json({ success: true, data: [] })
+      }
       return res.status(500).json({ success: false, error: 'Failed to fetch 2FA queue' })
     }
 

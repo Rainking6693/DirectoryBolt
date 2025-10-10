@@ -31,6 +31,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { data, error } = await query
     if (error) {
       console.error('[staff:submission-logs] query error', error)
+      // If table doesn't exist, return empty array instead of error
+      if (error.message?.includes('relation "autobolt_submission_logs" does not exist')) {
+        console.log('[staff:submission-logs] Table does not exist, returning empty result')
+        return res.status(200).json({ success: true, data: [] })
+      }
       return res.status(500).json({ success: false, error: 'Failed to fetch logs' })
     }
 

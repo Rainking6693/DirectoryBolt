@@ -58,13 +58,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse<DeleteCustomerR
     const { error: jobsErr } = await supabase.from('jobs').delete().eq('customer_id', internalId)
     if (jobsErr) {
       console.error('[staff.customers.delete] jobs delete error', jobsErr)
-      return res.status(500).json({ success: false, error: jobsErr.message })
+      // If table doesn't exist, continue with customer deletion
+      if (jobsErr.message?.includes('relation "jobs" does not exist')) {
+        console.log('[staff.customers.delete] Jobs table does not exist, skipping job deletion')
+      } else {
+        return res.status(500).json({ success: false, error: jobsErr.message })
+      }
     }
 
     console.log('[staff.customers.delete] deleting customer', { customerId: internalId })
     const { error: delErr, count } = await supabase.from('customers').delete({ count: 'exact' }).eq('id', internalId)
     if (delErr) {
       console.error('[staff.customers.delete] customer delete error', delErr)
+      // If table doesn't exist, return success since there's nothing to delete
+      if (delErr.message?.includes('relation "customers" does not exist')) {
+        console.log('[staff.customers.delete] Customers table does not exist')
+        return res.status(200).json({ success: true, data: { deleted_customer_id: internalId } })
+      }
       return res.status(500).json({ success: false, error: delErr.message })
     }
 

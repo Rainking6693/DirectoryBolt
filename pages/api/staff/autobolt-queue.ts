@@ -29,6 +29,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
   } catch (error) {
     console.error('AutoBolt queue snapshot error:', error)
+
+    // If database tables don't exist, return empty snapshot instead of error
+    if (error instanceof Error && error.message?.includes('relation "') && error.message?.includes('does not exist')) {
+      console.log('Database tables do not exist, returning empty snapshot')
+      return res.status(200).json({
+        success: true,
+        data: {
+          queueItems: [],
+          stats: {
+            total_queued: 0,
+            total_processing: 0,
+            total_completed: 0,
+            total_failed: 0,
+            total_jobs: 0,
+            completed_directories: 0,
+            failed_directories: 0,
+            success_rate: 0
+          }
+        },
+        retrieved_at: new Date().toISOString(),
+        note: 'Database tables not initialized - run database_schema.sql'
+      })
+    }
+
     return res.status(500).json({ success: false, error: 'Failed to retrieve AutoBolt queue data' })
   }
 }
