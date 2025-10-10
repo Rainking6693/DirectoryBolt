@@ -5,6 +5,7 @@
 [build.environment]
   NODE_VERSION = "18.20.0"
 
+
 # Function settings - using array format only
 [[functions]]
   node_bundler = "esbuild"
