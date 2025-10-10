@@ -47,3 +47,43 @@
   from = "/api/create-checkout-session"
   to = "/.netlify/functions/create-checkout-session"
   status = 200
+
+[[redirects]]
+  from = "/api/customer-validate"
+  to = "/.netlify/functions/customer-validate"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-update"
+  to = "/.netlify/functions/jobs-update"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-next"
+  to = "/.netlify/functions/jobs-next"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-retry"
+  to = "/.netlify/functions/jobs-retry"
+  status = 200
+
+[[redirects]]
+  from = "/api/jobs-complete"
+  to = "/.netlify/functions/jobs-complete"
+  status = 200
+
+[[redirects]]
+  from = "/api/health-supabase"
+  to = "/.netlify/functions/health-supabase"
+  status = 200
+
+[[redirects]]
+  from = "/api/healthz"
+  to = "/.netlify/functions/healthz"
+  status = 200
+
+[[redirects]]
+  from = "/api/version"
+  to = "/.netlify/functions/version"
+  status = 200
