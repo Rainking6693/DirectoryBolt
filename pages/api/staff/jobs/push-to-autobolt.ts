@@ -107,7 +107,7 @@ async function handler(
       })
     }
 
-    console.log(`dYs? Staff pushing job ${job_id} to AutoBolt from IP:`, req.headers['x-forwarded-for'] || (req.socket as any)?.remoteAddress)
+    console.log(`Staff pushing job ${job_id} to AutoBolt from IP:`, req.headers['x-forwarded-for'] || (req.socket as any)?.remoteAddress)
 
     // Create Supabase client lazily
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
