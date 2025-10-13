@@ -1,50 +1,24 @@
 /**
- * Automatic Job Processor - CRON Endpoint
- * This endpoint should be called every minute to process pending jobs
- * 
- * How to set up:
- * 1. Use Vercel Cron Jobs: https://vercel.com/docs/cron-jobs
- * 2. Add to vercel.json:
- *    {
- *      "crons": [{
- *        "path": "/api/cron/process-jobs",
- *        "schedule": "* * * * *"
- *      }]
- *    }
- * 3. Or use a service like cron-job.org to ping this endpoint every minute
+ * Manual Cron Job Trigger - For Testing
+ * This allows you to manually trigger the cron job processing
+ * Useful for testing and debugging
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { createClient } from '@supabase/supabase-js'
 
-interface ProcessJobsResponse {
+interface TestCronResponse {
   success: boolean
-  processed: number
-  message?: string
+  message: string
+  jobsProcessed?: number
   error?: string
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ProcessJobsResponse>
-) {
-  // Security: Only allow POST requests
+async function handler(req: NextApiRequest, res: NextApiResponse<TestCronResponse>) {
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      processed: 0,
-      error: 'Method not allowed'
-    })
-  }
-
-  // Security: Require cron secret (set in environment variables)
-  const cronSecret = req.headers['authorization']?.replace('Bearer ', '')
-  if (cronSecret !== process.env.CRON_SECRET) {
-    return res.status(401).json({
-      success: false,
-      processed: 0,
-      error: 'Unauthorized'
-    })
+    res.setHeader('Allow', ['POST'])
+    return res.status(405).json({ success: false, message: 'Method not allowed', error: 'Use POST' })
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -53,8 +27,8 @@ export default async function handler(
   if (!supabaseUrl || !serviceKey) {
     return res.status(500).json({
       success: false,
-      processed: 0,
-      error: 'Supabase not configured'
+      message: 'Supabase not configured',
+      error: 'Missing credentials'
     })
   }
 
@@ -62,7 +36,7 @@ export default async function handler(
   let processedCount = 0
 
   try {
-    console.log('[cron:process-jobs] Starting job processing...')
+    console.log('[test-cron] Manually triggering job processing...')
 
     // Get next pending job
     const { data: job, error: jobError } = await supabase
@@ -75,24 +49,23 @@ export default async function handler(
       .maybeSingle()
 
     if (jobError) {
-      console.error('[cron:process-jobs] Error fetching job:', jobError)
+      console.error('[test-cron] Error fetching job:', jobError)
       return res.status(500).json({
         success: false,
-        processed: 0,
+        message: 'Error fetching job',
         error: jobError.message
       })
     }
 
     if (!job) {
-      console.log('[cron:process-jobs] No pending jobs')
+      console.log('[test-cron] No pending jobs')
       return res.status(200).json({
         success: true,
-        processed: 0,
-        message: 'No pending jobs'
+        message: 'No pending jobs to process'
       })
     }
 
-    console.log(`[cron:process-jobs] Processing job ${job.id} for customer ${job.customer_id}`)
+    console.log(`[test-cron] Processing job ${job.id} for customer ${job.customer_id}`)
 
     // Mark job as in_progress
     const { error: updateError } = await supabase
@@ -105,29 +78,23 @@ export default async function handler(
       .eq('id', job.id)
 
     if (updateError) {
-      console.error('[cron:process-jobs] Error updating job status:', updateError)
+      console.error('[test-cron] Error updating job status:', updateError)
       return res.status(500).json({
         success: false,
-        processed: 0,
+        message: 'Error updating job status',
         error: updateError.message
       })
     }
 
-    // Process the job - create job_results entries for each directory
-    const directoriesToProcess = Math.min(job.directory_limit || 50, 50) // Process up to 50 directories
-    
-    console.log(`[cron:process-jobs] Creating ${directoriesToProcess} job_results entries`)
-
-    // Get directories from the directories table
+    // Get directories to process
     const { data: directories, error: dirError } = await supabase
       .from('directories')
       .select('id, name, submission_url, category')
       .eq('is_active', true)
-      .limit(directoriesToProcess)
+      .limit(Math.min(job.directory_limit || 50, 50))
 
     if (dirError) {
-      console.error('[cron:process-jobs] Error fetching directories:', dirError)
-      
+      console.error('[test-cron] Error fetching directories:', dirError)
       // Mark job as failed
       await supabase
         .from('jobs')
@@ -140,14 +107,12 @@ export default async function handler(
 
       return res.status(500).json({
         success: false,
-        processed: 0,
+        message: 'Error fetching directories',
         error: dirError.message
       })
     }
 
     if (!directories || directories.length === 0) {
-      console.log('[cron:process-jobs] No directories found')
-      
       // Mark job as completed with 0 directories
       await supabase
         .from('jobs')
@@ -161,12 +126,12 @@ export default async function handler(
 
       return res.status(200).json({
         success: true,
-        processed: 0,
-        message: 'No directories to process'
+        message: 'No directories to process',
+        jobsProcessed: 1
       })
     }
 
-    // Create job_results entries for each directory
+    // Create job_results entries
     const jobResults = directories.map(dir => ({
       job_id: job.id,
       customer_id: job.customer_id,
@@ -183,9 +148,7 @@ export default async function handler(
       .insert(jobResults)
 
     if (insertError) {
-      console.error('[cron:process-jobs] Error creating job_results:', insertError)
-      
-      // Mark job as failed
+      console.error('[test-cron] Error creating job_results:', insertError)
       await supabase
         .from('jobs')
         .update({
@@ -197,12 +160,12 @@ export default async function handler(
 
       return res.status(500).json({
         success: false,
-        processed: 0,
+        message: 'Error creating job results',
         error: insertError.message
       })
     }
 
-    // Update job with directory counts and mark as completed
+    // Mark job as completed
     const completedCount = directories.length
     await supabase
       .from('jobs')
@@ -217,7 +180,7 @@ export default async function handler(
       })
       .eq('id', job.id)
 
-    // Log the job completion
+    // Log completion
     await supabase
       .from('autobolt_test_logs')
       .insert({
@@ -231,21 +194,23 @@ export default async function handler(
 
     processedCount = 1
 
-    console.log(`[cron:process-jobs] Successfully completed job ${job.id} with ${directories.length} directories`)
+    console.log(`[test-cron] Successfully completed job ${job.id} with ${completedCount} directories`)
 
     return res.status(200).json({
       success: true,
-      processed: processedCount,
-      message: `Completed job ${job.id} with ${directories.length} directories`
+      message: `Completed job ${job.id} with ${completedCount} directories`,
+      jobsProcessed: processedCount
     })
 
   } catch (error) {
-    console.error('[cron:process-jobs] Unexpected error:', error)
+    console.error('[test-cron] Unexpected error:', error)
     return res.status(500).json({
       success: false,
-      processed: processedCount,
+      message: 'Unexpected error',
       error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
+
+export default withStaffAuth(handler)
 

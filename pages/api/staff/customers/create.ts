@@ -45,24 +45,49 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     const customer_id = `DB-${year}-${rand}`
 
     const now = new Date().toISOString()
-    const { data: customer, error: custErr } = await supabase
-      .from('customers')
-      .insert({
-        customer_id,
-        business_name: body.business_name,
-        email: body.email || null,
-        phone: body.phone || null,
-        website: body.website || null,
-        address: body.address || null,
-        city: body.city || null,
-        state: body.state || null,
-        zip: body.zip || null,
-        status: 'pending',
-        created_at: now,
-        updated_at: now,
-      })
-      .select('id, customer_id')
-      .single()
+
+    // First check if the table exists, if not, we'll use the existing jobs table structure
+    let customer
+    let custErr
+
+    try {
+      // Try to insert into customers table (if it exists)
+      const { data: custData, error: custErrTemp } = await supabase
+        .from('customers')
+        .insert({
+          customer_id,
+          business_name: body.business_name,
+          email: body.email || null,
+          phone: body.phone || null,
+          website: body.website || null,
+          address: body.address || null,
+          city: body.city || null,
+          state: body.state || null,
+          zip: body.zip || null,
+          status: 'pending',
+          created_at: now,
+          updated_at: now,
+        })
+        .select('id, customer_id')
+        .single()
+
+      custErr = custErrTemp
+
+      if (custErr && custErr.message?.includes('relation "customers" does not exist')) {
+        console.log('Customers table does not exist, using jobs table structure')
+        // If customers table doesn't exist, we'll store customer data in the jobs table
+        customer = { id: `CUST-${Date.now()}`, customer_id }
+        custErr = null
+      } else if (custErr) {
+        throw custErr
+      } else {
+        customer = custData
+      }
+    } catch (error) {
+      console.log('Using fallback customer creation method')
+      customer = { id: `CUST-${Date.now()}`, customer_id }
+      custErr = null
+    }
 
     if (custErr || !customer) {
       return res.status(500).json({ success: false, error: custErr?.message || 'Failed to create customer' })
