@@ -26,10 +26,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const dc = new (DirectoryConfiguration as any)()
     await dc.initialize()
 
-    // Fetch overrides
+    // Fetch directory settings - using existing 'directories' table
     const { data: overrides, error } = await supabase
-      .from('directory_overrides')
-      .select('directory_id, enabled, pacing_min_ms, pacing_max_ms, max_retries')
+      .from('directories')
+      .select('id, name, enabled, pacing_min_ms, pacing_max_ms, max_retries')
 
     if (error) {
       console.error('[staff:directory-settings] overrides query error', error)
@@ -44,7 +44,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     // Merge overrides
     const map = new Map<string, any>()
-    for (const o of overrides || []) map.set(String(o.directory_id), o)
+    for (const o of overrides || []) map.set(String(o.id), o)
 
     const merged = (dc.directories || []).map((d: any) => {
       const o = map.get(d.id)

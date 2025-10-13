@@ -19,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Find latest entries that indicate 2FA/manual required in the last 48h
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
     const { data, error } = await supabase
-      .from('autobolt_submission_logs')
+      .from('autobolt_test_logs')
       .select('job_id, customer_id, directory_name, timestamp')
       .gte('timestamp', since)
       .or("details.ilike.%manual_required%,error_message.ilike.%2FA%")
@@ -28,7 +28,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (error) {
       console.error('[staff:2fa-queue] query error', error)
       // If table doesn't exist, return empty array instead of error
-      if (error.message?.includes('relation "autobolt_submission_logs" does not exist')) {
+      if (error.message?.includes('relation "autobolt_test_logs" does not exist')) {
         console.log('[staff:2fa-queue] Table does not exist, returning empty result')
         return res.status(200).json({ success: true, data: [] })
       }

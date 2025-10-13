@@ -31,7 +31,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     console.error('AutoBolt queue snapshot error:', error)
 
     // If database tables don't exist, return empty snapshot instead of error
-    if (error instanceof Error && error.message?.includes('relation "') && error.message?.includes('does not exist')) {
+    if (error instanceof Error && (error.message?.includes('relation "autobolt_processing_queue"') ||
+                                   error.message?.includes('relation "legacy_submissions_count"') ||
+                                   error.message?.includes('relation "job_results_count"'))) {
       console.log('Database tables do not exist, returning empty snapshot')
       return res.status(200).json({
         success: true,

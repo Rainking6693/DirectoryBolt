@@ -20,7 +20,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const lim = Math.min(parseInt(String(limit)) || 100, 500)
 
     let query = supabase
-      .from('autobolt_submission_logs')
+      .from('autobolt_test_logs')
       .select('id, customer_id, job_id, directory_name, action, timestamp, details, screenshot_url, success, processing_time_ms, error_message, created_at')
       .order('timestamp', { ascending: false })
       .limit(lim)
@@ -32,7 +32,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (error) {
       console.error('[staff:submission-logs] query error', error)
       // If table doesn't exist, return empty array instead of error
-      if (error.message?.includes('relation "autobolt_submission_logs" does not exist')) {
+      if (error.message?.includes('relation "autobolt_test_logs" does not exist')) {
         console.log('[staff:submission-logs] Table does not exist, returning empty result')
         return res.status(200).json({ success: true, data: [] })
       }
