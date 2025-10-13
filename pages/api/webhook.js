@@ -513,16 +513,124 @@ async function handleSubscriptionTrialWillEnd(subscription, requestId) {
   await sendTrialEndingEmail(subscription);
 }
 
-// Database helper functions (TODO: Implement with actual database)
+// Database helper functions
 
 async function processPackagePurchase(data) {
   console.log(`💾 Processing DirectoryBolt package purchase:`, data);
   
-  // TODO: Implement database operations:
-  // 1. Create order record
-  // 2. Create directory submission queue
-  // 3. Update customer profile
-  // 4. Start processing workflow
+  try {
+    // Import Supabase client
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase credentials not configured');
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // 1. Create or update customer record
+    const customerId = `CUST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const { data: customerData, error: customerError } = await supabase
+      .from('customers')
+      .upsert({
+        customer_id: customerId,
+        first_name: data.custom_fields?.first_name || 'Customer',
+        last_name: data.custom_fields?.last_name || '',
+        email: data.custom_fields?.email || '',
+        phone: data.custom_fields?.phone || '',
+        business_name: data.custom_fields?.business_name || '',
+        website: data.custom_fields?.website || '',
+        address: data.custom_fields?.address || '',
+        city: data.custom_fields?.city || '',
+        state: data.custom_fields?.state || '',
+        zip: data.custom_fields?.zip || '',
+        package_type: data.package_id,
+        status: 'active',
+        directories_submitted: 0,
+        failed_directories: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'customer_id'
+      })
+      .select()
+      .single();
+    
+    if (customerError) {
+      console.error('❌ Error creating customer:', customerError);
+      throw customerError;
+    }
+    
+    console.log(`✅ Customer record created/updated: ${customerId}`);
+    
+    // 2. Create job record
+    const jobId = `JOB-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const { data: jobData, error: jobError } = await supabase
+      .from('jobs')
+      .insert({
+        id: jobId,
+        customer_id: customerId,
+        package_size: data.total_directories || 0,
+        status: 'pending',
+        priority_level: 'medium',
+        business_name: data.custom_fields?.business_name || '',
+        email: data.custom_fields?.email || '',
+        phone: data.custom_fields?.phone || '',
+        website: data.custom_fields?.website || '',
+        address: data.custom_fields?.address || '',
+        city: data.custom_fields?.city || '',
+        state: data.custom_fields?.state || '',
+        zip: data.custom_fields?.zip || '',
+        category: data.custom_fields?.category || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (jobError) {
+      console.error('❌ Error creating job:', jobError);
+      throw jobError;
+    }
+    
+    console.log(`✅ Job record created: ${jobId}`);
+    
+    // 3. Log the creation
+    const { error: logError } = await supabase
+      .from('autobolt_test_logs')
+      .insert({
+        customer_id: customerId,
+        job_id: jobId,
+        directory_name: 'System',
+        status: 'job_created',
+        created_at: new Date().toISOString()
+      });
+    
+    if (logError) {
+      console.warn('⚠️ Error creating log entry:', logError);
+      // Don't throw - logging is not critical
+    }
+    
+    console.log(`✅ Package purchase processed successfully`);
+    console.log(`   Customer ID: ${customerId}`);
+    console.log(`   Job ID: ${jobId}`);
+    console.log(`   Directories: ${data.total_directories || 0}`);
+    
+    return {
+      success: true,
+      customerId,
+      jobId,
+      directories: data.total_directories || 0
+    };
+    
+  } catch (error) {
+    console.error('❌ Failed to process package purchase:', error);
+    throw error;
+  }
 }
 
 async function updateOrderStatus(data) {
