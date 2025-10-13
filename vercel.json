@@ -4,6 +4,12 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/process-jobs",
+      "schedule": "* * * * *"
+    }
+  ],
   "functions": {
     "pages/api/**/*.js": {
       "runtime": "nodejs20.x"

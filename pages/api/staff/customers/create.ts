@@ -73,10 +73,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer.id,
-        package_size: pkg,
+        customer_id: customer.customer_id,  // Use string customer_id, not UUID
+        customer_name: body.business_name,
+        customer_email: body.email || '',
+        package_type: 'starter',  // Default to starter
+        directory_limit: pkg,
         priority_level: 3,
         status: 'pending',
+        business_data: {
+          businessName: body.business_name,
+          email: body.email,
+          phone: body.phone,
+          website: body.website,
+          address: body.address,
+          city: body.city,
+          state: body.state,
+          zip: body.zip
+        },
         created_at: now,
         updated_at: now,
       })
