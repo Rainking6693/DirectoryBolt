@@ -468,9 +468,10 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  const jobsResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.select queue snapshot', async () =>
+  // Query jobs with customer information
+  const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select(`
         id,
         customer_id,
@@ -481,7 +482,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
         started_at,
         completed_at,
         error_message,
-        customers ( business_name, email )
+        business_name,
+        email
       `)
       .order('created_at', { ascending: true })
   )
@@ -496,9 +498,10 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   let resultsByJob: Record<string, { completed: number; failed: number; total: number }> = {}
 
   if (jobIds.length > 0) {
-    const resultsResponse = await executeSupabaseQuery(fn, 'legacy_submissions_count.select snapshot aggregation', async () =>
+    // Query job results to get submission statistics
+    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', async () =>
       supabase
-        .from('legacy_submissions_count')
+        .from('job_results')
         .select('job_id, status')
         .in('job_id', jobIds)
     )
@@ -520,7 +523,6 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   }
 
   const queueJobs = (jobs || []).map((job) => {
-    const customerData = Array.isArray(job.customers) ? job.customers[0] : job.customers
     const stats = resultsByJob[job.id] || { completed: 0, failed: 0, total: 0 }
     const total = job.package_size || stats.total
     const processed = stats.total
@@ -530,8 +532,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
     return {
       id: job.id,
       customerId: job.customer_id,
-      businessName: customerData?.business_name ?? null,
-      email: customerData?.email ?? null,
+      businessName: job.business_name ?? null,
+      email: job.email ?? null,
       packageSize: job.package_size,
       priorityLevel: job.priority_level,
       status,

@@ -27,7 +27,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       },
       retrieved_at: new Date().toISOString()
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('AutoBolt queue snapshot error:', error)
 
     // If database tables don't exist, return empty snapshot instead of error
@@ -55,7 +55,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    return res.status(500).json({ success: false, error: 'Failed to retrieve AutoBolt queue data' })
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Failed to retrieve AutoBolt queue data',
+      details: error.message || 'Unknown error'
+    })
   }
 }
 
