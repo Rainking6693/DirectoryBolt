@@ -204,6 +204,8 @@ export default async function handler(
 
     // Update job with directory counts and mark as completed
     const completedCount = directories.length
+    const now = new Date().toISOString()
+
     await supabase
       .from('jobs')
       .update({
@@ -211,11 +213,20 @@ export default async function handler(
         directories_completed: completedCount,
         directories_failed: 0,
         status: 'completed',
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        completed_at: now,
+        updated_at: now,
         progress_percentage: 100.0
       })
       .eq('id', job.id)
+
+    // Update all job_results to completed status
+    await supabase
+      .from('job_results')
+      .update({
+        submission_status: 'completed',
+        updated_at: now
+      })
+      .eq('job_id', job.id)
 
     // Log the job completion
     await supabase

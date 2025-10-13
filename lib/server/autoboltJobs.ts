@@ -468,7 +468,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  // Query jobs with customer information
+  // Query jobs with customer information - extract from business_data JSON
   const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
     supabase
       .from('jobs')
@@ -482,8 +482,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
         started_at,
         completed_at,
         error_message,
-        business_name,
-        email
+        business_data
       `)
       .order('created_at', { ascending: true })
   )
@@ -529,11 +528,16 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
     const progress = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0
     const status = normalizeJobStatus(job.status as string) ?? 'pending'
 
+    // Extract customer info from business_data JSON
+    const businessData = job.business_data as any
+    const businessName = businessData?.businessName || businessData?.business_name || 'Unknown Business'
+    const email = businessData?.email || ''
+
     return {
       id: job.id,
       customerId: job.customer_id,
-      businessName: job.business_name ?? null,
-      email: job.email ?? null,
+      businessName: businessName,
+      email: email,
       packageSize: job.package_size,
       priorityLevel: job.priority_level,
       status,

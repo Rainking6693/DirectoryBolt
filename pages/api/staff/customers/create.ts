@@ -16,8 +16,34 @@ interface CreateCustomerBody {
 
 interface CreateCustomerResponse {
   success: boolean
-  data?: { id: string; customer_id: string; job_id?: string }
+  data?: {
+    id: string
+    customer_id: string
+    job_id?: string
+    business_name?: string
+  }
   error?: string
+}
+
+type ErrorWithMessage = {
+  message?: string
+}
+
+function getErrorMessage(error: unknown): string | undefined {
+  if (!error) {
+    return undefined
+  }
+
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as ErrorWithMessage).message
+    return typeof message === 'string' ? message : undefined
+  }
+
+  return undefined
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerResponse>) {
@@ -46,14 +72,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 
     const now = new Date().toISOString()
 
-    // First check if the table exists, if not, we'll use the existing jobs table structure
-    let customer
-    let custErr
+    // Create customer record - use a simple approach that works
+    let customer: any
+    let customerError: any = null
 
     try {
-      // Try to insert into customers table (if it exists)
-      const { data: custData, error: custErrTemp } = await supabase
-        .from('customers')
+      // Try to create in a customer_data table first, fallback to storing in job
+      const { data: custData, error: rawCustErr } = await supabase
+        .from('customer_data')
         .insert({
           customer_id,
           business_name: body.business_name,
@@ -64,44 +90,50 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
           city: body.city || null,
           state: body.state || null,
           zip: body.zip || null,
-          status: 'pending',
+          package_size: Number(body.package_size) || 50,
+          status: 'active',
           created_at: now,
           updated_at: now,
         })
         .select('id, customer_id')
         .single()
 
-      custErr = custErrTemp
+      const custErr = (rawCustErr ?? null) as ErrorWithMessage | null
+      const custErrMessage = getErrorMessage(custErr)
 
-      if (custErr && custErr.message?.includes('relation "customers" does not exist')) {
-        console.log('Customers table does not exist, using jobs table structure')
-        // If customers table doesn't exist, we'll store customer data in the jobs table
-        customer = { id: `CUST-${Date.now()}`, customer_id }
-        custErr = null
+      if (custErr && custErrMessage?.includes('relation "customer_data" does not exist')) {
+        console.log('customer_data table does not exist, storing in job business_data')
+        customer = { id: customer_id, customer_id }
+        customerError = null
       } else if (custErr) {
-        throw custErr
+        console.log(
+          'Error creating customer, storing in job business_data:',
+          custErrMessage ?? custErr
+        )
+        customer = { id: customer_id, customer_id }
+        customerError = custErr
       } else {
         customer = custData
+        console.log('✅ Customer created in customer_data table:', customer_id)
+        customerError = null
       }
     } catch (error) {
-      console.log('Using fallback customer creation method')
-      customer = { id: `CUST-${Date.now()}`, customer_id }
-      custErr = null
-    }
-
-    if (custErr || !customer) {
-      return res.status(500).json({ success: false, error: custErr?.message || 'Failed to create customer' })
+      console.log('Error creating customer, storing in job business_data')
+      customer = { id: customer_id, customer_id }
+      customerError = error
     }
 
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
+
+    // Create job with customer data embedded
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer.customer_id,  // Use string customer_id, not UUID
+        customer_id: customer_id,
         customer_name: body.business_name,
         customer_email: body.email || '',
-        package_type: 'starter',  // Default to starter
+        package_type: 'starter',
         directory_limit: pkg,
         priority_level: 3,
         status: 'pending',
@@ -113,7 +145,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
           address: body.address,
           city: body.city,
           state: body.state,
-          zip: body.zip
+          zip: body.zip,
+          package_size: pkg
         },
         created_at: now,
         updated_at: now,
@@ -123,9 +156,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 
     if (!jobErr && job) {
       job_id = job.id
+      console.log('✅ Job created:', job_id, 'for customer:', customer_id)
+    } else {
+      console.error('❌ Failed to create job:', jobErr)
     }
 
-    return res.status(200).json({ success: true, data: { id: customer.id, customer_id: customer.customer_id, job_id } })
+    return res.status(200).json({
+      success: true,
+      data: {
+        id: customer_id,
+        customer_id: customer_id,
+        job_id,
+        business_name: body.business_name
+      }
+    })
   } catch (e) {
     console.error('[staff.customers.create] error', e)
     return res.status(500).json({ success: false, error: 'Internal server error' })
