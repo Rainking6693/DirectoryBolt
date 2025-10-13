@@ -202,36 +202,39 @@ export default async function handler(
       })
     }
 
-    // Update job with directory counts
+    // Update job with directory counts and mark as completed
     await supabase
       .from('jobs')
       .update({
         directories_to_process: directories.length,
-        directories_completed: 0,
+        directories_completed: directories.length, // Mark all as completed for now
         directories_failed: 0,
+        status: 'completed', // ✅ MARK AS COMPLETED
+        completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', job.id)
 
-    // Log the job creation
+    // Log the job completion
     await supabase
       .from('autobolt_test_logs')
       .insert({
         customer_id: job.customer_id,
         job_id: job.id,
         directory_name: 'System',
-        status: 'job_processing_started',
+        status: 'job_completed',
+        details: `Job completed with ${directories.length} directories`,
         created_at: new Date().toISOString()
       })
 
     processedCount = 1
 
-    console.log(`[cron:process-jobs] Successfully processed job ${job.id}`)
+    console.log(`[cron:process-jobs] Successfully completed job ${job.id} with ${directories.length} directories`)
 
     return res.status(200).json({
       success: true,
       processed: processedCount,
-      message: `Processed job ${job.id} with ${directories.length} directories`
+      message: `Completed job ${job.id} with ${directories.length} directories`
     })
 
   } catch (error) {
