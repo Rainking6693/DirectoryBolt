@@ -17,6 +17,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const supabase = createClient(supabaseUrl, serviceKey)
 
   try {
+    // First check if directories table exists
+    const { error: tableCheckError } = await supabase
+      .from('directories')
+      .select('id')
+      .limit(1)
+
+    if (tableCheckError && tableCheckError.message?.includes('relation "directories" does not exist')) {
+      console.log('[staff:directory-settings] Directories table does not exist, returning empty data')
+      return res.status(200).json({ success: true, data: [] })
+    }
+
     // Fetch directory settings from the directories table
     const { data: directories, error } = await supabase
       .from('directories')
@@ -25,19 +36,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (error) {
       console.error('[staff:directory-settings] directories query error', error)
-      // If table doesn't exist, return empty array instead of error
-      if (error.message?.includes('relation "directories" does not exist')) {
-        console.log('[staff:directory-settings] Directories table does not exist, returning empty data')
-        return res.status(200).json({ success: true, data: [] })
-      } else {
-        return res.status(500).json({ success: false, error: 'Failed to load directory settings' })
-      }
+      return res.status(500).json({ success: false, error: 'Failed to load directory settings' })
     }
 
     // Format the data for the frontend
     const formattedData = (directories || []).map((dir: any) => ({
       id: dir.id,
-      name: dir.name,
+      name: dir.name || 'Unknown Directory',
       category: dir.category || 'General',
       enabled: dir.is_active !== false, // Default to enabled if not specified
       pacing_min_ms: dir.pacing_min_ms || 1000,

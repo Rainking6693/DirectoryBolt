@@ -42,6 +42,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(500).json({ success: false, error: 'Failed to fetch 2FA queue' })
     }
 
+    // Transform data for frontend
+    const transformedData = (data || []).map((row: any) => ({
+      job_id: row.job_id,
+      customer_id: row.customer_id,
+      directory_name: row.directory_name,
+      last_seen: row.timestamp
+    }))
+
     // Deduplicate by job_id + directory_name, keep latest
     const map = new Map<string, { job_id: string; customer_id: string; directory_name: string; last_seen: string }>()
     for (const r of data || []) {
@@ -51,7 +59,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     }
 
-    return res.status(200).json({ success: true, data: Array.from(map.values()) })
+    return res.status(200).json({ success: true, data: transformedData })
   } catch (e: any) {
     return res.status(500).json({ success: false, error: e?.message || 'Internal error' })
   }
