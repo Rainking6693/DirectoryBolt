@@ -28,11 +28,27 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(200).json({ success: true, data: [] })
     }
 
-    // Fetch directory settings from the directories table
-    const { data: directories, error } = await supabase
-      .from('directories')
-      .select('id, name, category, is_active, pacing_min_ms, pacing_max_ms, max_retries')
-      .order('name')
+    // Fetch directory settings, tolerating missing optional pacing columns
+    let directories: any[] | null = null
+    let error: any = null
+    {
+      const r = await supabase
+        .from('directories')
+        .select('id, name, category, is_active, pacing_min_ms, pacing_max_ms, max_retries')
+        .order('name')
+      directories = r.data
+      error = r.error
+    }
+
+    if (error && String(error.message || '').toLowerCase().includes('column') && String(error.message || '').includes('does not exist')) {
+      console.warn('[staff:directory-settings] Optional columns missing, retrying with minimal selection')
+      const r2 = await supabase
+        .from('directories')
+        .select('id, name, category, is_active')
+        .order('name')
+      directories = r2.data
+      error = r2.error
+    }
 
     if (error) {
       console.error('[staff:directory-settings] directories query error', error)
@@ -45,9 +61,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       name: dir.name || 'Unknown Directory',
       category: dir.category || 'General',
       enabled: dir.is_active !== false, // Default to enabled if not specified
-      pacing_min_ms: dir.pacing_min_ms || 1000,
-      pacing_max_ms: dir.pacing_max_ms || 5000,
-      max_retries: dir.max_retries || 3,
+      pacing_min_ms: (typeof dir.pacing_min_ms === 'number' ? dir.pacing_min_ms : null) ?? 1000,
+      pacing_max_ms: (typeof dir.pacing_max_ms === 'number' ? dir.pacing_max_ms : null) ?? 5000,
+      max_retries: (typeof dir.max_retries === 'number' ? dir.max_retries : null) ?? 3,
     }))
 
     return res.status(200).json({ success: true, data: formattedData })
