@@ -279,7 +279,8 @@ class DirectoryConfiguration {
 
     return this.directories.filter((dir) => {
       const dirTierLevel = this.tierHierarchy[dir.tier.toLowerCase()] || 1;
-      return dirTierLevel <= tierLevel;
+      const enabled = dir.enabled !== false;
+      return enabled && dirTierLevel <= tierLevel;
     });
   }
 

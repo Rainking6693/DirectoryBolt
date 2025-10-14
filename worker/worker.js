@@ -25,6 +25,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { solveCaptcha } = require("./utils/captchaSolver");
+const { ensureRecaptchaSolved } = require("./utils/playwright-captcha-integration");
 const DirectoryConfiguration = require("./directory-config.js");
 const { createClient } = require('@supabase/supabase-js');
 require("dotenv").config();
@@ -1205,6 +1206,8 @@ DirectoryBoltWorker.prototype.fillDirectoryForm = async function (
 DirectoryBoltWorker.prototype.handleCaptcha = async function () {
   console.log("🔍 Checking for captcha...");
 
+  if (!this.page) return true;
+
   const captchaSelectors = [
     ".g-recaptcha",
     "#recaptcha",
@@ -1216,8 +1219,28 @@ DirectoryBoltWorker.prototype.handleCaptcha = async function () {
   for (const selector of captchaSelectors) {
     const captchaElement = await this.page.$(selector);
     if (captchaElement) {
-      console.log("🤖 Captcha detected, engaging solver...");
-      return await this.solveCaptchaChallenge(captchaElement);
+      console.log("🤖 Captcha detected, attempting automated solve...");
+
+      // Preferred: use unified Playwright captcha integration
+      try {
+        const solved = await ensureRecaptchaSolved(this.page).catch(() => false);
+        if (solved) {
+          this.captchaStats.solved += 1;
+          this.captchaStats.lastSolvedAt = new Date().toISOString();
+          console.log("✅ Captcha solved via integration");
+          return true;
+        }
+      } catch (e) {
+        console.warn("⚠️  ensureRecaptchaSolved failed:", e?.message || e);
+      }
+
+      // Fallback: legacy 2Captcha flow using detected element/sitekey
+      const ok = await this.solve2Captcha(captchaElement);
+      if (ok) {
+        this.captchaStats.solved += 1;
+        this.captchaStats.lastSolvedAt = new Date().toISOString();
+      }
+      return ok;
     }
   }
 
@@ -1230,11 +1253,11 @@ DirectoryBoltWorker.prototype.solve2Captcha = async function (captchaElement) {
     // Verify API key is available
     if (!this.config.twoCaptchaApiKey) {
       throw new Error(
-        "2Captcha API key not configured. Please set TWO_CAPTCHA_KEY environment variable.",
+        "2Captcha API key not configured. Please set TWO_CAPTCHA_KEY/TWOCAPTCHA_API_KEY.",
       );
     }
 
-    // Get site key for reCAPTCHA
+    // Attempt to extract site key and current URL
     const siteKey = await captchaElement.getAttribute("data-sitekey");
     const pageUrl = this.page.url();
 
@@ -1245,96 +1268,41 @@ DirectoryBoltWorker.prototype.solve2Captcha = async function (captchaElement) {
 
     console.log("🔄 Submitting captcha to 2Captcha service...");
 
-    // Submit captcha to 2Captcha (using HTTPS for security)
-    const submitResponse = await axios.post(
-      "https://2captcha.com/in.php",
-      {
-        method: "userrecaptcha",
-        googlekey: siteKey,
-        pageurl: pageUrl,
-        key: this.config.twoCaptchaApiKey,
-        json: 1,
-      },
-      {
-        timeout: 30000,
-        headers: {
-          "User-Agent": "DirectoryBolt-Worker/1.0.0",
-        },
-      },
-    );
+    // Delegate to shared solver (uses correct form-encoded requests and polling)
+    const token = await solveCaptcha({
+      apiKey: this.config.twoCaptchaApiKey,
+      siteKey,
+      url: pageUrl,
+      pollingIntervalMs: 10000,
+      timeoutMs: 180000,
+      userAgent: "DirectoryBolt-Worker/1.0.0",
+    });
 
-    if (submitResponse.data.status !== 1) {
-      // Don't log the full response to avoid exposing sensitive data
-      throw new Error(
-        `2Captcha submit failed: ${submitResponse.data.error_text || "Unknown error"}`,
-      );
-    }
+    console.log("✅ Captcha solved successfully");
 
-    const captchaId = submitResponse.data.request;
-    console.log(`🔄 Captcha ID: ${captchaId}, waiting for solution...`);
-
-    // Poll for solution
-    let attempts = 0;
-    const maxAttempts = 30; // 5 minutes maximum
-
-    while (attempts < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait 10 seconds
-
-      const resultResponse = await axios.get("https://2captcha.com/res.php", {
-        params: {
-          key: this.config.twoCaptchaApiKey,
-          action: "get",
-          id: captchaId,
-          json: 1,
-        },
-        timeout: 10000,
-        headers: {
-          "User-Agent": "DirectoryBolt-Worker/1.0.0",
-        },
-      });
-
-      if (resultResponse.data.status === 1) {
-        const solution = resultResponse.data.request;
-        console.log("✅ Captcha solved successfully");
-
-        // Inject solution into page
-        await this.page.evaluate((token) => {
-          const win = /** @type {any} */ (window);
-          if (
-            win.grecaptcha &&
-            typeof win.grecaptcha.getResponse === "function"
-          ) {
-            const textarea = document.querySelector(
-              '[name="g-recaptcha-response"]',
-            );
-            if (textarea instanceof HTMLTextAreaElement) {
-              textarea.value = token;
-              textarea.style.display = "block";
-            }
-
-            if (typeof win.grecaptcha.callback === "function") {
-              win.grecaptcha.callback(token);
-            }
-          }
-        }, solution);
-
-        return true;
+    // Inject solution token into the page
+    await this.page.evaluate((solution) => {
+      const win = /** @type {any} */ (window);
+      // Ensure response textarea exists
+      let textarea = document.querySelector('[name="g-recaptcha-response"]');
+      if (!(textarea instanceof HTMLTextAreaElement)) {
+        textarea = document.createElement('textarea');
+        textarea.name = 'g-recaptcha-response';
+        textarea.id = 'g-recaptcha-response';
+        textarea.style.display = 'none';
+        document.body.appendChild(textarea);
       }
+      textarea.value = solution;
 
-      if (
-        resultResponse.data.error_text &&
-        resultResponse.data.error_text !== "CAPCHA_NOT_READY"
-      ) {
-        throw new Error(`2Captcha error: ${resultResponse.data.error_text}`);
+      // Invoke potential callbacks
+      if (win.grecaptcha && typeof win.grecaptcha.callback === 'function') {
+        try { win.grecaptcha.callback(solution); } catch {}
       }
+    }, token);
 
-      attempts++;
-    }
-
-    throw new Error("Captcha solving timeout - exceeded maximum wait time");
+    return true;
   } catch (error) {
-    // Log error without exposing sensitive data
-    console.error("❌ Failed to solve captcha:", error.message);
+    console.error("❌ Failed to solve captcha:", error?.message || error);
     return false;
   }
 };
@@ -1420,6 +1388,41 @@ DirectoryBoltWorker.prototype.verifySubmission = async function () {
   } catch (error) {
     console.warn("⚠️  Submission verification timeout:", error.message);
     return true; // Assume success if we can't verify
+  }
+};
+
+/**
+ * Attempt to extract a human-readable confirmation message after submission
+ */
+DirectoryBoltWorker.prototype.extractConfirmationMessage = async function () {
+  try {
+    if (!this.page) return null;
+    const selectors = [
+      ".success",
+      ".thank-you",
+      ".confirmation",
+      '[class*="success"]',
+      '[class*="thank"]',
+      'text=Thank you',
+      'text=Submitted',
+      'text=Success',
+    ];
+
+    for (const sel of selectors) {
+      const el = await this.page.$(sel);
+      if (el) {
+        const text = await this.page.evaluate((node) => node.textContent || "", el);
+        const cleaned = (text || "").trim().replace(/\s+/g, " ");
+        if (cleaned) return cleaned.substring(0, 500);
+      }
+    }
+
+    // Fallback to brief snippet from body text
+    const bodyText = await this.page.evaluate(() => document.body?.innerText || "");
+    const snippet = (bodyText || "").trim().slice(0, 300);
+    return snippet || null;
+  } catch {
+    return null;
   }
 };
 
@@ -1618,9 +1621,11 @@ if (!usedSpecific && ((directory.id && directory.id.includes('facebook')) || /fa
         console.log('→ Verifying submission...');
         const ok = await this.verifySubmission();
         const submissionUrl = this.page.url();
-         const result = ok
-          ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, screenshotUrl, submittedAt: new Date().toISOString() }
-          : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed', screenshotUrl };
+        const screenshotUrl = await this.captureAndUpload(this.page, jobId, directory.name, ok ? 'success' : 'failed');
+        const confirmationMessage = await this.extractConfirmationMessage();
+        const result = ok
+          ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, screenshotUrl, confirmationMessage, submittedAt: new Date().toISOString() }
+          : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed', screenshotUrl, confirmationMessage };
 
         results.push(result);
         if (ok) successCount++; else failCount++;
