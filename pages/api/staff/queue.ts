@@ -65,12 +65,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
+    // Prefer the canonical AutoBolt processing queue for staff view
     const { data: jobs, error: jobsError } = await supabase
-      .from('jobs')
+      .from('autobolt_processing_queue')
       .select(`
         id,
         customer_id,
-        customer_name,
+        business_name,
+        email,
         package_size,
         priority_level,
         status,
@@ -78,10 +80,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         started_at,
         completed_at,
         error_message,
-        directories_to_process,
-        directories_completed,
-        directories_failed,
-        progress_percentage
+        metadata,
+        directory_limit
       `)
       .order('created_at', { ascending: false })
 
@@ -121,20 +121,75 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    // Transform jobs data - use existing customer_name field
+    // Compute progress from metadata.directoryResults when available; fallback to job_results aggregation
+    const jobIds: string[] = (jobs || []).map((j: any) => j.id)
+    const countsByJob: Record<string, { total: number; completed: number; failed: number }> = {}
+
+    for (const j of jobs || []) {
+      const directoryResults = Array.isArray(j?.metadata?.directoryResults) ? j.metadata.directoryResults : []
+      const total = directoryResults.length
+      const completed = directoryResults.filter((r: any) => ['submitted', 'approved'].includes(String(r?.status || '').toLowerCase())).length
+      const failed = directoryResults.filter((r: any) => ['failed', 'rejected'].includes(String(r?.status || '').toLowerCase())).length
+      countsByJob[j.id] = { total, completed, failed }
+    }
+
+    // Fallback: fetch from job_results if no metadata
+    const needsFallback = jobIds.filter((id) => (countsByJob[id]?.total || 0) === 0)
+    if (needsFallback.length > 0) {
+      const { data: jr, error: jrErr } = await supabase
+        .from('job_results')
+        .select('job_id, status')
+        .in('job_id', needsFallback)
+      if (!jrErr && Array.isArray(jr)) {
+        for (const row of jr) {
+          const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
+          current.total += 1
+          if (row.status === 'submitted') current.completed += 1
+          if (row.status === 'failed') current.failed += 1
+          countsByJob[row.job_id] = current
+        }
+      }
+    }
+
+    // Pull customer names/emails for nicer display if not embedded on queue rows
+    const uniqueCustomerIds = Array.from(new Set((jobs || []).map((j: any) => j.customer_id).filter(Boolean)))
+    let customerById: Record<string, { business_name?: string | null; email?: string | null }> = {}
+    if (uniqueCustomerIds.length > 0) {
+      const { data: customers } = await supabase
+        .from('customers')
+        .select('id, business_name, email')
+        .in('id', uniqueCustomerIds)
+      for (const c of customers || []) {
+        customerById[c.id] = { business_name: c.business_name, email: c.email }
+      }
+    }
+
+    // Transform jobs data with safe fallbacks
     const transformedJobs = (jobs || []).map((job: any) => {
+      const counts = countsByJob[job.id] || { total: 0, completed: 0, failed: 0 }
+      const directories_allocated = Math.max(counts.total, job.package_size || job.directory_limit || 0)
+      const directories_submitted = counts.completed
+      const directories_failed = counts.failed
+      const progress_percentage = directories_allocated > 0
+        ? Math.min(100, Math.round(((directories_submitted + directories_failed) / directories_allocated) * 100))
+        : 0
+
+      const fallbackCustomer = customerById[job.customer_id] || {}
+      const businessName = job.business_name || fallbackCustomer.business_name || 'Unknown Business'
+      const email = job.email || fallbackCustomer.email || ''
+
       return {
         id: job.id,
         customer_id: job.customer_id,
-        business_name: job.customer_name || 'Unknown Business',
-        email: '', // Email is not stored in jobs table, would need to join with customers table
-        package_type: mapPackageType(job.package_size || 0),
+        business_name: businessName,
+        email: email,
+        package_type: mapPackageType(job.package_size || directories_allocated),
         status: job.status,
-        priority_level: job.priority_level || 3,
-        directories_allocated: job.directories_to_process || 0,
-        directories_submitted: job.directories_completed || 0,
-        directories_failed: job.directories_failed || 0,
-        progress_percentage: job.progress_percentage || 0,
+        priority_level: job.priority_level ?? 3,
+        directories_allocated,
+        directories_submitted,
+        directories_failed,
+        progress_percentage,
         estimated_completion: job.completed_at,
         completed_at: job.completed_at,
         created_at: job.created_at,
