@@ -126,11 +126,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
+    // Get the actual customer record to use the UUID
+    const { data: customerRecord, error: customerFetchErr } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('id', customer_id)
+      .single()
+
+    const actualCustomerId = customerRecord?.id || customer_id
+
+    console.log('Creating job with customer_id:', actualCustomerId)
+
     // Create job with customer data embedded
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_id,
+        customer_id: actualCustomerId,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
@@ -157,7 +168,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       job_id = job.id
       console.log('✅ Job created:', job_id, 'for customer:', customer_id)
     } else {
-      console.error('❌ Failed to create job:', jobErr)
+      console.error('❌ Failed to create job')
+      console.error('Job Error:', JSON.stringify(jobErr, null, 2))
+      console.error('Job Data:', JSON.stringify(job, null, 2))
     }
 
     return res.status(200).json({
@@ -165,8 +178,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       data: {
         id: customer_id,
         customer_id: customer_id,
-        job_id,
-        business_name: body.business_name
+        job_id: job_id || null,
+        business_name: body.business_name,
+        job_error: jobErr ? jobErr.message : null
       }
     })
   } catch (e) {
