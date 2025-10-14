@@ -469,7 +469,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  // Query jobs with customer information - extract from business_data JSON
+  // Use jobs table (aligned with job_results) and avoid non-existent columns
   const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
     supabase
       .from('jobs')
@@ -483,7 +483,8 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
         started_at,
         completed_at,
         error_message,
-        business_data
+        business_name,
+        email
       `)
       .order('created_at', { ascending: true })
   )
@@ -497,55 +498,72 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   const jobIds = jobs?.map((job) => job.id) || []
   let resultsByJob: Record<string, { completed: number; failed: number; total: number }> = {}
 
+  // Aggregate counts from job_results for all jobs
   if (jobIds.length > 0) {
-    // Query job results to get submission statistics
-    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select snapshot aggregation', async () =>
+    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select aggregation', async () =>
       supabase
         .from('job_results')
         .select('job_id, status')
         .in('job_id', jobIds)
     )
 
-    const { data: results, error: resultsError } = resultsResponse
-    if (resultsError) {
-      logError(fn, 'Failed to load job results for snapshot', { error: serializeError(resultsError) })
-      throw new Error(`Failed to load job results: ${resultsError.message}`)
+    const { data: results } = resultsResponse as unknown as { data: Array<{ job_id: string; status: string }> | null }
+    if (results && results.length > 0) {
+      const aggregated = results.reduce<Record<string, { completed: number; failed: number; total: number }>>((acc, row) => {
+        const current = acc[row.job_id] || { completed: 0, failed: 0, total: 0 }
+        current.total += 1
+        if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
+        if (row.status === 'failed') current.failed += 1
+        acc[row.job_id] = current
+        return acc
+      }, {})
+      resultsByJob = aggregated
     }
+  }
 
-    resultsByJob = (results || []).reduce<Record<string, { completed: number; failed: number; total: number }>>((acc, row) => {
-      const current = acc[row.job_id] || { completed: 0, failed: 0, total: 0 }
-      current.total += 1
-      if (row.status === 'submitted') current.completed += 1
-      if (row.status === 'failed') current.failed += 1
-      acc[row.job_id] = current
-      return acc
-    }, {})
+  // Build lookup of customers for nicer display if job rows lack names/emails
+  const uniqueCustomerIds = Array.from(new Set((jobs || []).map((j) => j.customer_id).filter(Boolean)))
+  let customerById: Record<string, { business_name?: string | null; email?: string | null }> = {}
+  if (uniqueCustomerIds.length > 0) {
+    const customersResponse = await executeSupabaseQuery(fn, 'customers.select names for queue', async () =>
+      supabase
+        .from('customers')
+        .select('id, business_name, email')
+        .in('id', uniqueCustomerIds)
+    )
+    const { data: customers } = customersResponse as unknown as { data: Array<{ id: string; business_name: string | null; email: string | null }> | null }
+    for (const c of customers || []) {
+      customerById[c.id] = { business_name: c.business_name, email: c.email }
+    }
   }
 
   const queueJobs = (jobs || []).map((job) => {
     const stats = resultsByJob[job.id] || { completed: 0, failed: 0, total: 0 }
-    const total = job.package_size || stats.total
-    const processed = stats.total
+    const total = Math.max(job.package_size || 0, stats.total)
+    const processed = stats.completed + stats.failed
     const progress = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0
-    const status = normalizeJobStatus(job.status as string) ?? 'pending'
+    const status = normalizeJobStatus((job as any).status as string) ?? 'pending'
 
-    // Extract customer info from business_data JSON
-    const businessData = job.business_data as any
-    const businessName = businessData?.businessName || businessData?.business_name || 'Unknown Business'
-    const email = businessData?.email || ''
+    // Prefer explicit columns; fallback to customer record
+    const explicitBusinessName = (job as any).business_name ?? null
+    const explicitEmail = (job as any).email ?? null
+    const fallbackCustomer = customerById[(job as any).customer_id] || {}
+
+    const businessName = coerceString(explicitBusinessName ?? fallbackCustomer.business_name ?? '', '').trim() || 'Unknown Business'
+    const email = coerceString(explicitEmail ?? fallbackCustomer.email ?? '', '')
 
     return {
-      id: job.id,
-      customerId: job.customer_id,
-      businessName: businessName,
-      email: email,
-      packageSize: job.package_size,
-      priorityLevel: job.priority_level,
+      id: (job as any).id,
+      customerId: (job as any).customer_id,
+      businessName,
+      email,
+      packageSize: (job as any).package_size,
+      priorityLevel: (job as any).priority_level,
       status,
-      createdAt: job.created_at,
-      startedAt: job.started_at,
-      completedAt: job.completed_at,
-      errorMessage: job.error_message,
+      createdAt: (job as any).created_at,
+      startedAt: (job as any).started_at,
+      completedAt: (job as any).completed_at,
+      errorMessage: (job as any).error_message,
       directoriesTotal: total,
       directoriesCompleted: stats.completed,
       directoriesFailed: stats.failed,

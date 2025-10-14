@@ -65,19 +65,29 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
+    // Use canonical jobs table and compute progress from job_results
     const { data: jobs, error: jobsError } = await supabase
       .from('jobs')
       .select(`
         id,
         customer_id,
+<<<<<<< HEAD
+=======
+        business_name,
+        email,
+>>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
         package_size,
         priority_level,
         status,
         created_at,
         started_at,
         completed_at,
+<<<<<<< HEAD
         error_message,
         metadata
+=======
+        error_message
+>>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
       `)
       .order('created_at', { ascending: false })
 
@@ -158,8 +168,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         : 0
 
       const fallbackCustomer = customerById[job.customer_id] || {}
+<<<<<<< HEAD
       const businessName = fallbackCustomer.business_name || 'Unknown Business'
       const email = fallbackCustomer.email || ''
+=======
+      const businessName = job.business_name || fallbackCustomer.business_name || 'Unknown Business'
+      const email = job.email || fallbackCustomer.email || ''
+>>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
 
       return {
         id: job.id,
@@ -188,7 +203,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       acc.total += 1
       if (job.status === 'pending') acc.pending += 1
       if (job.status === 'in_progress') acc.processing += 1
-      if (job.status === 'completed') acc.completed += 1
+      if (job.status === 'complete' || job.status === 'completed') acc.completed += 1
       if (job.status === 'failed') acc.failed += 1
       return acc
     }, { pending: 0, processing: 0, completed: 0, failed: 0, total: 0 })
@@ -196,7 +211,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Calculate today's completed
     const today = new Date().toDateString()
     const completedToday = transformedJobs.filter(job =>
-      job.status === 'completed' &&
+      (job.status === 'complete' || job.status === 'completed') &&
       job.completed_at &&
       new Date(job.completed_at).toDateString() === today
     ).length
