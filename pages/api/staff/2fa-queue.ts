@@ -50,7 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
       const fallback = await supabase
         .from('autobolt_test_logs')
-        .select('job_id, customer_id, directory_name, timestamp, details, error_message')
+        .select('*')
         .gte('timestamp', since)
         .order('timestamp', { ascending: false })
 
@@ -80,10 +80,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const data = Array.from(byKey.values()).map((row: any) => ({
-      job_id: row.job_id,
-      customer_id: row.customer_id,
-      directory_name: row.directory_name,
-      last_seen: row.timestamp
+      job_id: row.job_id ?? row.test_job_id ?? row.queue_id ?? 'unknown',
+      customer_id: row.customer_id ?? row.test_customer_id ?? row.customer ?? 'unknown',
+      directory_name: row.directory_name ?? row.test_name ?? row.directory ?? 'Unknown Directory',
+      last_seen: row.timestamp ?? row.created_at ?? new Date().toISOString()
     }))
 
     return res.status(200).json({ success: true, data })

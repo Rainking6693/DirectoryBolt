@@ -468,11 +468,10 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  // Prefer the canonical AutoBolt processing queue for live status
-  // Include metadata so we can compute progress without relying on separate tables
-  const jobsResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.select queue snapshot', async () =>
+  // Use jobs table (aligned with job_results) and avoid non-existent columns
+  const jobsResponse = await executeSupabaseQuery(fn, 'jobs.select queue snapshot', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select(`
         id,
         customer_id,
@@ -484,8 +483,7 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
         completed_at,
         error_message,
         business_name,
-        email,
-        metadata
+        email
       `)
       .order('created_at', { ascending: true })
   )
@@ -499,26 +497,13 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
   const jobIds = jobs?.map((job) => job.id) || []
   let resultsByJob: Record<string, { completed: number; failed: number; total: number }> = {}
 
-  // Primary: compute counts from metadata.directoryResults (written by updateJobProgress)
-  for (const job of jobs || []) {
-    const meta = (job as any)?.metadata as any
-    const directoryResults: Array<{ status?: string }> = Array.isArray(meta?.directoryResults)
-      ? meta.directoryResults
-      : []
-    const total = directoryResults.length
-    const completed = directoryResults.filter((r) => mapDirectoryStatus((r.status as any) || 'pending') === 'submitted').length
-    const failed = directoryResults.filter((r) => mapDirectoryStatus((r.status as any) || 'pending') === 'failed').length
-    resultsByJob[job.id] = { total, completed, failed }
-  }
-
-  // Fallback (legacy flows): if no metadata present, try job_results table for those jobs
-  const jobsNeedingFallback = jobIds.filter((id) => (resultsByJob[id]?.total || 0) === 0)
-  if (jobsNeedingFallback.length > 0) {
-    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select legacy aggregation', async () =>
+  // Aggregate counts from job_results for all jobs
+  if (jobIds.length > 0) {
+    const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select aggregation', async () =>
       supabase
         .from('job_results')
         .select('job_id, status')
-        .in('job_id', jobsNeedingFallback)
+        .in('job_id', jobIds)
     )
 
     const { data: results } = resultsResponse as unknown as { data: Array<{ job_id: string; status: string }> | null }
@@ -526,14 +511,12 @@ export async function getQueueSnapshot(): Promise<JobProgressSnapshot> {
       const aggregated = results.reduce<Record<string, { completed: number; failed: number; total: number }>>((acc, row) => {
         const current = acc[row.job_id] || { completed: 0, failed: 0, total: 0 }
         current.total += 1
-        if (row.status === 'submitted') current.completed += 1
+        if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
         if (row.status === 'failed') current.failed += 1
         acc[row.job_id] = current
         return acc
       }, {})
-      for (const [jobId, agg] of Object.entries(aggregated)) {
-        resultsByJob[jobId] = agg
-      }
+      resultsByJob = aggregated
     }
   }
 

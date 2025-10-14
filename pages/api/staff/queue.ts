@@ -65,9 +65,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    // Prefer the canonical AutoBolt processing queue for staff view
+    // Use canonical jobs table and compute progress from job_results
     const { data: jobs, error: jobsError } = await supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select(`
         id,
         customer_id,
@@ -79,9 +79,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         created_at,
         started_at,
         completed_at,
-        error_message,
-        metadata,
-        directory_limit
+        error_message
       `)
       .order('created_at', { ascending: false })
 
@@ -121,33 +119,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    // Compute progress from metadata.directoryResults when available; fallback to job_results aggregation
+    // Aggregate progress from job_results
     const jobIds: string[] = (jobs || []).map((j: any) => j.id)
     const countsByJob: Record<string, { total: number; completed: number; failed: number }> = {}
-
-    for (const j of jobs || []) {
-      const directoryResults = Array.isArray(j?.metadata?.directoryResults) ? j.metadata.directoryResults : []
-      const total = directoryResults.length
-      const completed = directoryResults.filter((r: any) => ['submitted', 'approved'].includes(String(r?.status || '').toLowerCase())).length
-      const failed = directoryResults.filter((r: any) => ['failed', 'rejected'].includes(String(r?.status || '').toLowerCase())).length
-      countsByJob[j.id] = { total, completed, failed }
-    }
-
-    // Fallback: fetch from job_results if no metadata
-    const needsFallback = jobIds.filter((id) => (countsByJob[id]?.total || 0) === 0)
-    if (needsFallback.length > 0) {
-      const { data: jr, error: jrErr } = await supabase
+    if (jobIds.length > 0) {
+      const { data: jr } = await supabase
         .from('job_results')
         .select('job_id, status')
-        .in('job_id', needsFallback)
-      if (!jrErr && Array.isArray(jr)) {
-        for (const row of jr) {
-          const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
-          current.total += 1
-          if (row.status === 'submitted') current.completed += 1
-          if (row.status === 'failed') current.failed += 1
-          countsByJob[row.job_id] = current
-        }
+        .in('job_id', jobIds)
+      for (const row of jr || []) {
+        const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
+        current.total += 1
+        if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
+        if (row.status === 'failed') current.failed += 1
+        countsByJob[row.job_id] = current
       }
     }
 
@@ -167,7 +152,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Transform jobs data with safe fallbacks
     const transformedJobs = (jobs || []).map((job: any) => {
       const counts = countsByJob[job.id] || { total: 0, completed: 0, failed: 0 }
-      const directories_allocated = Math.max(counts.total, job.package_size || job.directory_limit || 0)
+      const directories_allocated = job.package_size || counts.total || 0
       const directories_submitted = counts.completed
       const directories_failed = counts.failed
       const progress_percentage = directories_allocated > 0
@@ -205,7 +190,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       acc.total += 1
       if (job.status === 'pending') acc.pending += 1
       if (job.status === 'in_progress') acc.processing += 1
-      if (job.status === 'completed') acc.completed += 1
+      if (job.status === 'complete' || job.status === 'completed') acc.completed += 1
       if (job.status === 'failed') acc.failed += 1
       return acc
     }, { pending: 0, processing: 0, completed: 0, failed: 0, total: 0 })
@@ -213,7 +198,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Calculate today's completed
     const today = new Date().toDateString()
     const completedToday = transformedJobs.filter(job =>
-      job.status === 'completed' &&
+      (job.status === 'complete' || job.status === 'completed') &&
       job.completed_at &&
       new Date(job.completed_at).toDateString() === today
     ).length
