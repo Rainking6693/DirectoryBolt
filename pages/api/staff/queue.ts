@@ -71,23 +71,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .select(`
         id,
         customer_id,
-<<<<<<< HEAD
-=======
         business_name,
         email,
->>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
         package_size,
         priority_level,
         status,
         created_at,
         started_at,
         completed_at,
-<<<<<<< HEAD
         error_message,
         metadata
-=======
-        error_message
->>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
       `)
       .order('created_at', { ascending: false })
 
