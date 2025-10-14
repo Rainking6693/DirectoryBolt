@@ -73,8 +73,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         directories_failed: job.directories_failed || 0,
         progress_percentage: job.progress_percentage || 0,
         estimated_completion: job.completed_at,
+        completed_at: job.completed_at,
         created_at: job.created_at,
         updated_at: job.started_at || job.created_at,
+        started_at: job.started_at,
         recent_activity: [],
         current_submissions: []
       }
