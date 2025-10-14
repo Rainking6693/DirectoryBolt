@@ -95,7 +95,7 @@ class DirectoryBoltWorker {
 
       // Orchestrator Communication - REQUIRED FOR SECURITY
       orchestratorBaseUrl:
-        process.env.ORCHESTRATOR_URL || "https://directorybolt.netlify.app/api",
+        process.env.ORCHESTRATOR_URL || "http://localhost:3000/api",
       workerAuthToken: process.env.AUTOBOLT_API_KEY || process.env.WORKER_AUTH_TOKEN,
 
       // Browser Configuration
@@ -557,13 +557,13 @@ class DirectoryBoltWorker {
       'Content-Type': 'application/json',
     };
 
-    const url = `${this.config.orchestratorBaseUrl}/jobs/next`;
-    console.log('📤 Request details:');
-    console.log('  URL:', url);
-    console.log('  Headers:', JSON.stringify({ ...headers, Authorization: `Bearer ${String(token).substring(0, 10)}...` }, null, 2));
+     const url = `${this.config.orchestratorBaseUrl}/autobolt/jobs/next`;
+     console.log('📤 Request details:');
+     console.log('  URL:', url);
+     console.log('  Headers:', JSON.stringify({ ...headers, Authorization: `Bearer ${String(token).substring(0, 10)}...` }, null, 2));
 
-    try {
-      const response = await axios.get(url, { headers, timeout: 15000 });
+     try {
+       const response = await axios.get(url, { headers, timeout: 15000 });
       console.log('✅ Response status:', response.status);
       console.log('✅ Response data (truncated):', JSON.stringify(response.data, null, 2).substring(0, 500));
 
@@ -613,11 +613,12 @@ class DirectoryBoltWorker {
         ...data,
       };
       await axios.post(
-        `${this.config.orchestratorBaseUrl}/jobs/update`,
+        `${this.config.orchestratorBaseUrl}/autobolt/jobs/update`,
         payload,
         {
           headers: {
             Authorization: `Bearer ${this.config.workerAuthToken}`,
+            'X-Worker-ID': process.env.WORKER_ID || 'worker-001',
             "Content-Type": "application/json",
             "User-Agent": "DirectoryBolt-Worker/1.0.0",
           },
@@ -1217,7 +1218,7 @@ DirectoryBoltWorker.prototype.handleCaptcha = async function () {
     const captchaElement = await this.page.$(selector);
     if (captchaElement) {
       console.log("🤖 Captcha detected, engaging solver...");
-      return await this.solveCaptchaChallenge(captchaElement);
+      return await this.solve2Captcha(captchaElement);
     }
   }
 
@@ -1618,7 +1619,8 @@ if (!usedSpecific && ((directory.id && directory.id.includes('facebook')) || /fa
         console.log('→ Verifying submission...');
         const ok = await this.verifySubmission();
         const submissionUrl = this.page.url();
-         const result = ok
+        const screenshotUrl = await this.captureAndUpload(this.page, jobId, directory.name, ok ? 'success' : 'failed');
+        const result = ok
           ? { success: true, directoryName: directory.name, status: 'success', submissionUrl, screenshotUrl, submittedAt: new Date().toISOString() }
           : { success: false, directoryName: directory.name, status: 'failed', error: 'Verification failed', screenshotUrl };
 
@@ -1661,6 +1663,34 @@ if (!usedSpecific && ((directory.id && directory.id.includes('facebook')) || /fa
     console.log('========================================');
 
     await this.updateJobStatus(jobId, 'completed', { directoryResults: results });
+    try {
+      const tokenComplete = this.config.workerAuthToken;
+      if (tokenComplete) {
+        await axios.post(
+          `${this.config.orchestratorBaseUrl}/autobolt/jobs/complete`,
+          {
+            jobId,
+            finalStatus: 'complete',
+            summary: {
+              totalDirectories: directories.length,
+              successfulSubmissions: successCount,
+              failedSubmissions: failCount,
+            }
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${tokenComplete}`,
+              'X-Worker-ID': process.env.WORKER_ID || 'worker-001',
+              'Content-Type': 'application/json',
+              'User-Agent': 'DirectoryBolt-Worker/1.0.0',
+            },
+            timeout: 15000,
+          }
+        );
+      }
+    } catch (e) {
+      console.warn('⚠️  jobs/complete call failed:', e?.message || e)
+    }
   } catch (error) {
     console.error('❌ processJob fatal error', error?.message || error);
     await this.updateJobStatus(jobId, 'failed', { errorMessage: error?.message || 'processJob failed' });

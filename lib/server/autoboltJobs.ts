@@ -223,10 +223,11 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  const pendingResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.select pending limit 1', async () =>
+  // Query jobs table directly (no more autobolt_processing_queue)
+  const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', async () =>
     supabase
-      .from('autobolt_processing_queue')
-      .select('id, customer_id, package_size, priority_level, status, metadata, created_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
+      .from('jobs')
+      .select('id, customer_id, package_size, priority_level, status, metadata, created_at, business_name, email')
       .eq('status', 'pending')
       .order('priority_level', { ascending: true })
       .order('created_at', { ascending: true })
@@ -246,9 +247,9 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   }
 
   const startedAt = new Date().toISOString()
-  const updateResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.update set in_progress', async () =>
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update set in_progress', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', pendingJob.id)
       .eq('status', 'pending')
@@ -374,7 +375,7 @@ export async function updateJobProgress(params: UpdateJobProgressParams) {
   }
 
   const { data, error } = await supabase
-    .from('autobolt_processing_queue')
+    .from('jobs')
     .update(updateData)
     .eq('id', jobId)
 
@@ -405,9 +406,9 @@ export async function completeJob(options: {
     updatePayload['error_message'] = errorMessage
   }
 
-  const updateResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.update complete job', async () =>
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update complete job', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update(updatePayload)
       .eq('id', jobId)
       .eq('status', 'in_progress')
@@ -595,9 +596,9 @@ export async function markJobInProgress(jobId: string) {
   const supabase = getClientOrThrow(fn)
   const startedAt = new Date().toISOString()
 
-  const response = await executeSupabaseQuery(fn, 'autobolt_processing_queue.update mark in progress', async () =>
+  const response = await executeSupabaseQuery(fn, 'jobs.update mark in progress', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', jobId)
       .select('id, status, started_at')
@@ -620,9 +621,9 @@ export async function retryFailedJob(jobId: string) {
   const supabase = getClientOrThrow(fn)
   const now = new Date().toISOString()
 
-  const fetchResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.select for retry', async () =>
+  const fetchResponse = await executeSupabaseQuery(fn, 'jobs.select for retry', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .select('id, status')
       .eq('id', jobId)
       .maybeSingle()
@@ -638,9 +639,9 @@ export async function retryFailedJob(jobId: string) {
     throw new Error('Job not found')
   }
 
-  const updateResponse = await executeSupabaseQuery(fn, 'autobolt_processing_queue.update reset status to pending', async () =>
+  const updateResponse = await executeSupabaseQuery(fn, 'jobs.update reset status to pending', async () =>
     supabase
-      .from('autobolt_processing_queue')
+      .from('jobs')
       .update({ status: 'pending', started_at: null, completed_at: null, updated_at: now, error_message: null })
       .eq('id', jobId)
       .select('id, status')

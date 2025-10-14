@@ -88,8 +88,9 @@ export function validateWorkerAuth(event) {
     event.headers["authorization"] || event.headers["x-worker-auth"];
   const workerId = event.headers["x-worker-id"];
   const expectedToken = process.env.WORKER_AUTH_TOKEN;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!expectedToken) {
+  if (!expectedToken && !serviceRoleKey) {
     console.error("WORKER_AUTH_TOKEN not configured in environment");
     return {
       isValid: false,
@@ -115,20 +116,12 @@ export function validateWorkerAuth(event) {
     };
   }
 
-  if (!workerId) {
-    return {
-      isValid: false,
-      statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: false,
-        error: "Missing X-Worker-ID header",
-      }),
-    };
-  }
+  // Allow a sane default worker id if not provided to avoid blocking progress updates
+  const effectiveWorkerId = workerId || "playwright-worker";
 
   const token = authToken.replace("Bearer ", "");
-  if (token !== expectedToken) {
+  // Accept either WORKER_AUTH_TOKEN or SUPABASE_SERVICE_ROLE_KEY for compatibility
+  if (token !== expectedToken && token !== serviceRoleKey) {
     return {
       isValid: false,
       statusCode: 401,
@@ -142,7 +135,7 @@ export function validateWorkerAuth(event) {
 
   return {
     isValid: true,
-    workerId,
+    workerId: effectiveWorkerId,
   };
 }
 

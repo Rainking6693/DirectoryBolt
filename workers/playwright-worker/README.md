@@ -9,7 +9,9 @@ Playwright-based Docker worker that polls DirectoryBolt Netlify Functions for jo
    cp .env.example .env
 
 2) Fill .env values:
-- NETLIFY_FUNCTIONS_URL: https://<your-site>/.netlify/functions
+- NETLIFY_FUNCTIONS_URL or AUTOBOLT_API_BASE: Base URL to your backend functions (e.g. https://<your-site>/.netlify/functions)
+- WORKER_AUTH_TOKEN: Authentication token accepted by backend (falls back to SUPABASE_SERVICE_ROLE_KEY if unset)
+- WORKER_ID: Optional worker identifier for logging/metadata
 - SUPABASE_SERVICE_ROLE_KEY: service role key (used as Bearer token)
 - POLL_INTERVAL: poll frequency in ms (default 5000)
 - DIRECTORY_LIST_PATH: optional absolute path to master-directory-list json when running locally

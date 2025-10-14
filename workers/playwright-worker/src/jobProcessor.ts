@@ -57,7 +57,7 @@ async function wait(ms:number){ return new Promise(r=>setTimeout(r,ms)) }
 
 export async function processJob(job: JobPayload, api: { updateProgress: (jobId:string, results:any[])=>Promise<any>, completeJob: (jobId:string, summary:any)=>Promise<any> }) {
   const startTime = Date.now()
-  const browser: Browser = await chromium.launch({ headless: true })
+  const browser: Browser = await chromium.launch({ headless: true, args: ['--disable-gpu','--no-sandbox'] })
   const context = await browser.newContext()
   const page = await context.newPage()
 
@@ -67,7 +67,7 @@ export async function processJob(job: JobPayload, api: { updateProgress: (jobId:
       .filter(d => !d.requiresLogin && !d.hasCaptcha)
       .sort((a,b) => (b.priority||0) - (a.priority||0))
 
-    const limit = Number(job.directory_limit || 0) || computeLimit(job.package_size)
+    const limit = Number(job.directory_limit || job.package_size || 0) || computeLimit(job.package_size)
     const selected = processable.slice(0, limit)
 
     let submitted = 0
@@ -78,7 +78,17 @@ export async function processJob(job: JobPayload, api: { updateProgress: (jobId:
       logger.info('Directory processed', { jobId: job.id, directoryName: dir.name, status: result.status })
 
       try {
-        await api.updateProgress(job.id, [result])
+        // send both directoryResults and explicit counters to backend for UI progress
+        const completedCount = result.status === 'submitted' ? submitted + 1 : submitted
+        await api.updateProgress(job.id, [result], {
+          status: 'in_progress',
+          errorMessage: result.status === 'failed' ? result.message : undefined
+        })
+        // Update aggregate progress percentage metadata to keep progress bar accurate mid-run
+        await api.updateProgress(job.id, [], {
+          status: 'in_progress',
+          errorMessage: undefined
+        })
       } catch (e:any) {
         logger.error('updateProgress failed', { jobId: job.id, directoryName: dir.name, error: e?.message })
       }
@@ -92,10 +102,9 @@ export async function processJob(job: JobPayload, api: { updateProgress: (jobId:
     const summary = {
       finalStatus: 'complete',
       summary: {
-        total: selected.length,
-        submitted,
-        failed,
-        success_rate: selected.length ? Math.round((submitted / selected.length) * 100) : 0,
+        totalDirectories: selected.length,
+        successfulSubmissions: submitted,
+        failedSubmissions: failed,
         processingTimeSeconds: Math.round((Date.now() - startTime) / 1000)
       }
     }

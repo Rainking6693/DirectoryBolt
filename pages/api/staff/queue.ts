@@ -70,7 +70,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .select(`
         id,
         customer_id,
-        customer_name,
         package_size,
         priority_level,
         status,
@@ -78,10 +77,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         started_at,
         completed_at,
         error_message,
-        directories_to_process,
-        directories_completed,
-        directories_failed,
-        progress_percentage
+        metadata
       `)
       .order('created_at', { ascending: false })
 
@@ -121,20 +117,62 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       })
     }
 
-    // Transform jobs data - use existing customer_name field
+    // Aggregate progress from job_results
+    const jobIds: string[] = (jobs || []).map((j: any) => j.id)
+    const countsByJob: Record<string, { total: number; completed: number; failed: number }> = {}
+    if (jobIds.length > 0) {
+      const { data: jr } = await supabase
+        .from('job_results')
+        .select('job_id, status')
+        .in('job_id', jobIds)
+      for (const row of jr || []) {
+        const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
+        current.total += 1
+        if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
+        if (row.status === 'failed') current.failed += 1
+        countsByJob[row.job_id] = current
+      }
+    }
+
+    // Pull customer names/emails for nicer display if not embedded on queue rows
+    const uniqueCustomerIds = Array.from(new Set((jobs || []).map((j: any) => j.customer_id).filter(Boolean)))
+    let customerById: Record<string, { business_name?: string | null; email?: string | null }> = {}
+    if (uniqueCustomerIds.length > 0) {
+      const { data: customers } = await supabase
+        .from('customers')
+        .select('id, business_name, email')
+        .in('id', uniqueCustomerIds)
+      for (const c of customers || []) {
+        customerById[c.id] = { business_name: c.business_name, email: c.email }
+      }
+    }
+
+    // Transform jobs data with safe fallbacks
     const transformedJobs = (jobs || []).map((job: any) => {
+      const counts = countsByJob[job.id] || { total: 0, completed: 0, failed: 0 }
+      const directories_allocated = job.package_size || counts.total || 0
+      const directories_submitted = counts.completed
+      const directories_failed = counts.failed
+      const progress_percentage = directories_allocated > 0
+        ? Math.min(100, Math.round(((directories_submitted + directories_failed) / directories_allocated) * 100))
+        : 0
+
+      const fallbackCustomer = customerById[job.customer_id] || {}
+      const businessName = fallbackCustomer.business_name || 'Unknown Business'
+      const email = fallbackCustomer.email || ''
+
       return {
         id: job.id,
         customer_id: job.customer_id,
-        business_name: job.customer_name || 'Unknown Business',
-        email: '', // Email is not stored in jobs table, would need to join with customers table
-        package_type: mapPackageType(job.package_size || 0),
+        business_name: businessName,
+        email: email,
+        package_type: mapPackageType(job.package_size || directories_allocated),
         status: job.status,
-        priority_level: job.priority_level || 3,
-        directories_allocated: job.directories_to_process || 0,
-        directories_submitted: job.directories_completed || 0,
-        directories_failed: job.directories_failed || 0,
-        progress_percentage: job.progress_percentage || 0,
+        priority_level: job.priority_level ?? 3,
+        directories_allocated,
+        directories_submitted,
+        directories_failed,
+        progress_percentage,
         estimated_completion: job.completed_at,
         completed_at: job.completed_at,
         created_at: job.created_at,

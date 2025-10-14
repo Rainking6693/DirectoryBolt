@@ -1,11 +1,13 @@
 import axios, { AxiosInstance } from 'axios'
 import { logger } from './logger'
 
-const baseURL = process.env.NETLIFY_FUNCTIONS_URL?.replace(/\/$/, '')
-const token = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const baseURL = (process.env.NETLIFY_FUNCTIONS_URL || process.env.AUTOBOLT_API_BASE || '').replace(/\/$/, '')
+const token = process.env.WORKER_AUTH_TOKEN || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 function client(): AxiosInstance {
-  const inst = axios.create({ baseURL, timeout: 30000, headers: { Authorization: `Bearer ${token}` } })
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
+  if (process.env.WORKER_ID) headers['X-Worker-ID'] = process.env.WORKER_ID!
+  const inst = axios.create({ baseURL, timeout: 30000, headers })
   inst.interceptors.request.use((cfg) => {
     logger.info('API request', { url: `${cfg.baseURL}${cfg.url}`, method: cfg.method })
     return cfg
