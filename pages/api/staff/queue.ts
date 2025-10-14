@@ -168,13 +168,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         : 0
 
       const fallbackCustomer = customerById[job.customer_id] || {}
-<<<<<<< HEAD
-      const businessName = fallbackCustomer.business_name || 'Unknown Business'
-      const email = fallbackCustomer.email || ''
-=======
       const businessName = job.business_name || fallbackCustomer.business_name || 'Unknown Business'
       const email = job.email || fallbackCustomer.email || ''
->>>>>>> a8af319e692f5c02e8404401cee067dabad6f6f0
 
       return {
         id: job.id,
