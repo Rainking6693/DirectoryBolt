@@ -131,13 +131,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       .from('jobs')
       .insert({
         customer_id: customer_id,
-        customer_name: body.business_name,
-        customer_email: body.email || '',
-        package_type: 'starter',
-        directory_limit: pkg,
+        business_name: body.business_name,
+        email: body.email || '',
+        package_size: pkg,
         priority_level: 3,
         status: 'pending',
-        business_data: {
+        metadata: {
           businessName: body.business_name,
           email: body.email,
           phone: body.phone,
