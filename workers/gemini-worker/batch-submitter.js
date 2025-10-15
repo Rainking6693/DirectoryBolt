@@ -177,41 +177,63 @@ class BatchSubmitter {
   }
 }
 
-// Example usage
+/**
+ * Get business data from environment or use defaults
+ */
+function getBusinessData() {
+  return {
+    business_name: process.env.TEST_BUSINESS_NAME || "DirectoryBolt Test Business",
+    email: process.env.TEST_EMAIL || "contact@directorybolt.com",
+    phone: process.env.TEST_PHONE || "555-123-4567",
+    website: process.env.TEST_WEBSITE || "https://directorybolt.com",
+    address: process.env.TEST_ADDRESS || "123 Main Street",
+    city: process.env.TEST_CITY || "San Francisco",
+    state: process.env.TEST_STATE || "CA",
+    zip: process.env.TEST_ZIP || "94102"
+  };
+}
+
+// Main execution
 async function main() {
   const batchSubmitter = new BatchSubmitter();
   
   try {
     await batchSubmitter.initialize();
 
-    // Load directories
+    // Load and show directory stats
     const loader = batchSubmitter.loader;
     loader.printStats();
 
-    // Get test batch of 10 CAPTCHA-free directories
-    const testBatch = loader.getTestBatch(10, 'easy');
+    // Get CAPTCHA-free directories
+    const easyDirs = loader.getCaptchaFreeDirectories();
+    console.log(`\n🎯 Found ${easyDirs.length} CAPTCHA-free directories`);
+    
+    // Determine batch size from environment or default to 10
+    const batchSize = parseInt(process.env.BATCH_SIZE || '10');
+    const testBatch = easyDirs.slice(0, batchSize);
+    
+    console.log(`\n📋 Processing ${testBatch.length} directories...`);
 
-    // Test business data
-    const businessData = {
-      business_name: "Test Business",
-      email: "test@example.com",
-      phone: "555-123-4567",
-      website: "https://testbusiness.com",
-      address: "123 Test Street",
-      city: "Test City",
-      state: "TS",
-      zip: "12345"
-    };
+    // Get business data
+    const businessData = getBusinessData();
+    console.log('\n📊 Business Data:');
+    console.log(JSON.stringify(businessData, null, 2));
 
     // Process the batch
+    console.log('\n🚀 Starting batch processing...\n');
     await batchSubmitter.processBatch(testBatch, businessData, {
-      delayBetween: 5000,
+      delayBetween: parseInt(process.env.DELAY_BETWEEN || '5000'),
       saveResults: true,
       stopOnError: false
     });
 
+    console.log('\n✅ Batch processing complete!');
+    console.log(`📁 Results saved to: workers/gemini-worker/results/`);
+    console.log(`📸 Screenshots saved to: workers/gemini-worker/screenshots/`);
+
   } catch (error) {
     console.error('❌ Batch processing failed:', error);
+    process.exit(1);
   } finally {
     await batchSubmitter.cleanup();
   }
@@ -219,7 +241,10 @@ async function main() {
 
 // Run if called directly
 if (require.main === module) {
-  main();
+  main().catch(error => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = BatchSubmitter;

@@ -42,10 +42,16 @@ class GeminiDirectorySubmitter {
       fs.mkdirSync(screenshotsDir, { recursive: true });
     }
     
+    this.captchaAttempts = 0; // Track CAPTCHA attempts
+    this.maxCaptchaAttempts = 3;
+    
     try {
       // Navigate to directory
       console.log('🌐 Navigating to:', directoryUrl);
-      await this.page.goto(directoryUrl, { waitUntil: 'networkidle', timeout: 30000 });
+      await this.page.goto(directoryUrl, { waitUntil: 'networkidle', timeout: 30000 }).catch(async () => {
+        // If networkidle fails, try with domcontentloaded
+        await this.page.goto(directoryUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      });
       console.log('✅ Page loaded, current URL:', this.page.url());
       
       // Take initial screenshot and save it
@@ -187,6 +193,33 @@ class GeminiDirectorySubmitter {
             message: 'Received empty response from Gemini API',
             screenshot: finalScreenshot
           };
+        }
+        
+        // Check for CAPTCHA blocking
+        const captchaPhrases = ['captcha', 'blocked', 'verify', 'robot', 'puzzle'];
+        const isCaptchaBlocked = textResponse && captchaPhrases.some(phrase => 
+          textResponse.toLowerCase().includes(phrase)
+        );
+        
+        if (isCaptchaBlocked && this.captchaSolver && this.captchaAttempts < this.maxCaptchaAttempts) {
+          console.log('🤖 CAPTCHA detected - attempting to solve with 2Captcha...');
+          this.captchaAttempts++;
+          
+          // Try to solve with 2Captcha
+          const captchaResult = await this.captchaSolver.solveImageCaptcha(finalScreenshot);
+          
+          if (captchaResult.success) {
+            console.log('✅ CAPTCHA solved by 2Captcha, continuing...');
+            // Continue the loop - don't return yet
+            continue;
+          } else {
+            console.log('❌ 2Captcha failed, marking as failed');
+            return {
+              status: 'failed',
+              message: `CAPTCHA blocked submission: ${textResponse}`,
+              screenshot: finalScreenshot
+            };
+          }
         }
         
         // Check if the text indicates task is incomplete
