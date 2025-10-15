@@ -37,7 +37,7 @@ async function testGeminiWorker() {
   } catch (error) {
     console.error('❌ Test failed:', error);
   } finally {
-    await submitter.close();
+    await submitter.cleanup();
   }
 }
 
