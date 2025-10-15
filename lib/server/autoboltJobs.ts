@@ -280,10 +280,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
         city,
         state,
         zip,
-        website,
-        facebook,
-        instagram,
-        linkedin
+        website
       `)
       .eq('id', updatedJob.customer_id)
       .maybeSingle()
