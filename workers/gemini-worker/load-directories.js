@@ -81,24 +81,32 @@ class DirectoryLoader {
    * Get CAPTCHA-free directories (easy difficulty)
    */
   getCaptchaFreeDirectories() {
-    const easyDirs = this.filterByDifficulty('easy');
+    if (!this.loaded) this.loadDirectories();
     
-    // Further filter for directories without CAPTCHA requirements
-    const captchaFree = easyDirs.filter(dir => {
-      const requirements = dir.submission_requirements || {};
+    // Filter for directories without CAPTCHA and not requiring login
+    const captchaFree = this.directories.filter(dir => {
+      // Check hasCaptcha field
+      if (dir.hasCaptcha === false && dir.requiresLogin === false) {
+        return true;
+      }
       
-      // Check if explicitly marked as no CAPTCHA
-      if (requirements.captcha_required === false) return true;
-      if (requirements.has_captcha === false) return true;
-      
-      // If difficulty is 1, usually no CAPTCHA
-      if (dir.submission_difficulty === 1) return true;
+      // If difficulty is easy and no captcha mentioned
+      if (dir.difficulty === 'easy' && !dir.hasCaptcha && !dir.requiresLogin) {
+        return true;
+      }
       
       return false;
     });
     
     console.log(`🚫 Found ${captchaFree.length} CAPTCHA-free directories`);
-    return captchaFree.length > 0 ? captchaFree : easyDirs; // Return easy dirs if no specific CAPTCHA-free
+    
+    // If no explicitly CAPTCHA-free, return easy difficulty ones
+    if (captchaFree.length === 0) {
+      console.log('⚠️ No explicitly CAPTCHA-free directories, using easy difficulty');
+      return this.filterByDifficulty('easy');
+    }
+    
+    return captchaFree;
   }
 
   /**

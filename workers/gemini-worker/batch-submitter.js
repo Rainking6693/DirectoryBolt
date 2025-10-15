@@ -39,26 +39,31 @@ class BatchSubmitter {
     
     for (let i = 0; i < directories.length; i++) {
       const directory = directories[i];
+      const directoryUrl = directory.submissionUrl || directory.url || directory.website;
+      
       console.log(`\n${'='.repeat(80)}`);
       console.log(`📍 Directory ${i + 1}/${directories.length}: ${directory.name}`);
-      console.log(`🌐 URL: ${directory.website}`);
-      console.log(`📊 DA: ${directory.domain_authority || 'N/A'} | Difficulty: ${directory.difficulty || directory.submission_difficulty}`);
+      console.log(`🌐 URL: ${directoryUrl}`);
+      console.log(`📊 DA: ${directory.domainAuthority || directory.domain_authority || 'N/A'} | Difficulty: ${directory.difficulty || directory.submission_difficulty}`);
+      console.log(`🔒 Login Required: ${directory.requiresLogin ? 'Yes' : 'No'} | CAPTCHA: ${directory.hasCaptcha ? 'Yes' : 'No'}`);
       console.log('='.repeat(80));
 
       try {
         const result = await this.submitter.submitToDirectory(
-          directory.website,
+          directoryUrl,
           businessData
         );
 
         const submissionResult = {
           directory: directory.name,
-          url: directory.website,
+          url: directoryUrl,
           status: result.status,
           message: result.message,
           timestamp: new Date().toISOString(),
           difficulty: directory.difficulty || directory.submission_difficulty,
-          domain_authority: directory.domain_authority
+          domain_authority: directory.domainAuthority || directory.domain_authority,
+          has_captcha: directory.hasCaptcha,
+          requires_login: directory.requiresLogin
         };
 
         this.results.push(submissionResult);
@@ -86,12 +91,14 @@ class BatchSubmitter {
         
         this.results.push({
           directory: directory.name,
-          url: directory.website,
+          url: directoryUrl,
           status: 'error',
           message: error.message,
           timestamp: new Date().toISOString(),
           difficulty: directory.difficulty || directory.submission_difficulty,
-          domain_authority: directory.domain_authority
+          domain_authority: directory.domainAuthority || directory.domain_authority,
+          has_captcha: directory.hasCaptcha,
+          requires_login: directory.requiresLogin
         });
 
         if (stopOnError) {
