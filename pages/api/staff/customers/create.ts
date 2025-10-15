@@ -68,10 +68,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 
     const now = new Date().toISOString()
 
-    // Create customer record in the customers table (uses UUID by default)
+    // Generate custom customer ID
+    const rand = Math.random().toString(36).slice(2, 8).toUpperCase()
+    const year = new Date().getFullYear()
+    const customerId = `DB-${year}-${rand}`
+
+    // Create customer record in the customers table (uses UUID for id, custom format for customer_id)
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .insert({
+        customer_id: customerId,
         business_name: body.business_name,
         email: body.email || null,
         phone: body.phone || null,
@@ -80,10 +86,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
         city: body.city || null,
         state: body.state || null,
         zip: body.zip || null,
+        status: 'pending',
+        package_type: 'starter',
         created_at: now,
         updated_at: now,
       })
-      .select('id')
+      .select('id, customer_id')
       .single()
 
     if (customerError) {
@@ -94,19 +102,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       })
     }
 
-    const customer_id = customer.id
-    console.log('✅ Customer created:', customer_id)
+    const uuid = customer.id
+    const customer_id = customer.customer_id
+    console.log('✅ Customer created:', customer_id, '(UUID:', uuid, ')')
 
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
-    console.log('Creating job with customer_id:', customer_id)
+    console.log('Creating job with customer UUID:', uuid)
 
-    // Create job with customer data embedded
+    // Create job with customer UUID (jobs.customer_id is UUID type)
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_id,
+        customer_id: uuid,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
