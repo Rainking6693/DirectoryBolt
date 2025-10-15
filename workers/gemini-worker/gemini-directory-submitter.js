@@ -169,9 +169,9 @@ Please proceed with filling out and submitting the form.
         
         for (const part of candidate.content.parts) {
           console.log('Part:', part);
-          if (part.function_call) {
-            console.log('Found function call:', part.function_call);
-            actions.push(part.function_call);
+          if (part.functionCall) {
+            console.log('Found function call:', part.functionCall);
+            actions.push(part.functionCall);
           }
         }
       }
