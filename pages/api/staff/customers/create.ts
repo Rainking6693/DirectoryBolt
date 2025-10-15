@@ -151,7 +151,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       data: {
         id: customer_id,
         customer_id: customer_id,
-        job_id: job_id || null,
+        job_id: job_id || undefined,
         business_name: body.business_name,
         job_error: jobErr ? jobErr.message : null
       }
