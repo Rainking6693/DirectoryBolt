@@ -131,7 +131,14 @@ class GeminiJobProcessor {
       zip: job.zip || job.customer?.zip
     };
 
-    const result = await this.submitter.submitToDirectory(directory.submission_url, businessData);
+    // Get the directory URL (handle different field names)
+    const directoryUrl = directory.submissionUrl || directory.submission_url || directory.url || directory.website;
+    
+    if (!directoryUrl) {
+      throw new Error(`No URL found for directory: ${directory.name}`);
+    }
+
+    const result = await this.submitter.submitToDirectory(directoryUrl, businessData);
     
     return {
       directory_id: directory.id,
