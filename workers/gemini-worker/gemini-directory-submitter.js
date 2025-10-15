@@ -1,14 +1,17 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
+const TwoCaptchaSolver = require('./add-2captcha');
 
 class GeminiDirectorySubmitter {
-  constructor() {
+  constructor(options = {}) {
     this.browser = null;
     this.page = null;
     this.screenWidth = 1440;
     this.screenHeight = 900;
     this.apiKey = process.env.GEMINI_API_KEY;
+    this.use2Captcha = options.use2Captcha !== false; // Default to true
+    this.captchaSolver = this.use2Captcha ? new TwoCaptchaSolver() : null;
     
     if (!this.apiKey) {
       throw new Error('GEMINI_API_KEY environment variable is required');

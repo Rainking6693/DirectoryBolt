@@ -5,12 +5,17 @@
   "main": "gemini-directory-submitter.js",
   "scripts": {
     "start": "node gemini-directory-submitter.js",
-    "test": "node test-gemini-worker.js"
+    "test": "node test-gemini-worker.js",
+    "batch": "node batch-submitter.js",
+    "test-10": "node -e \"require('./batch-submitter')\"",
+    "load-dirs": "node -e \"const loader = require('./load-directories'); const l = new loader(); l.printStats()\"",
+    "check-balance": "node -e \"const solver = require('./add-2captcha'); const s = new solver(); s.getBalance()\""
   },
   "dependencies": {
     "playwright": "^1.40.0",
     "axios": "^1.6.0",
-    "dotenv": "^16.3.0"
+    "dotenv": "^16.3.0",
+    "2captcha": "^3.0.7"
   },
   "keywords": [
     "gemini",
