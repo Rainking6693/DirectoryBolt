@@ -66,11 +66,28 @@ export default async function handler(
   try {
     if (supabase) {
       // Support lookup by internal id (UUID) or public customer_id (e.g., DB-YYYY-XXXXXX)
-      const { data: customer, error } = await supabase
-        .from("customers")
-        .select("*")
-        .or(`id.eq.${id},customer_id.eq.${id}`)
-        .single();
+      // First try customer_id (DB-YYYY-XXXXXX format), then try UUID
+      let customer, error;
+      
+      if (id.startsWith('DB-')) {
+        // Look up by customer_id for DB-YYYY-XXXXXX format
+        const result = await supabase
+          .from("customers")
+          .select("*")
+          .eq("customer_id", id)
+          .single();
+        customer = result.data;
+        error = result.error;
+      } else {
+        // Try UUID lookup
+        const result = await supabase
+          .from("customers")
+          .select("*")
+          .eq("id", id)
+          .single();
+        customer = result.data;
+        error = result.error;
+      }
 
       if (error || !customer) {
         return res.status(404).json({
@@ -80,10 +97,12 @@ export default async function handler(
         });
       }
 
+      // Get jobs using the customer's customer_id (not the UUID)
+      const customerId = customer.customer_id;
       const { data: jobs } = await supabase
         .from("jobs")
         .select("*")
-        .eq("customer_id", id)
+        .eq("customer_id", customerId)
         .order("created_at", { ascending: false });
 
       return res.status(200).json({

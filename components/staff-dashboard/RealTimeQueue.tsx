@@ -745,9 +745,17 @@ export default function RealTimeQueue(): JSX.Element {
                 e.preventDefault();
                 try {
                   setCreating(true)
+                  // Get CSRF token first
+                  const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+                  const csrfData = await csrfResponse.json()
+                  if (!csrfData.success) throw new Error('Failed to get CSRF token')
+                  
                   const res = await fetch('/api/staff/customers/create', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'X-CSRF-Token': csrfData.csrfToken
+                    },
                     credentials: 'include',
                     body: JSON.stringify(form)
                   })
