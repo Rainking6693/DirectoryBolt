@@ -268,11 +268,12 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
     return await getNextPendingJob()
   }
 
-  const customerResponse = await executeSupabaseQuery(fn, 'customers.select by id', async () =>
+  const customerResponse = await executeSupabaseQuery(fn, 'customers.select by customer_id', async () =>
     supabase
       .from('customers')
       .select(`
         id,
+        customer_id,
         business_name,
         email,
         phone,
@@ -282,7 +283,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
         zip,
         website
       `)
-      .eq('id', updatedJob.customer_id)
+      .eq('customer_id', updatedJob.customer_id)
       .maybeSingle()
   )
 
