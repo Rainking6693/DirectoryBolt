@@ -66,82 +66,47 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 
     const supabase = createClient(supabaseUrl, serviceKey)
 
-    const rand = Math.random().toString(36).slice(2, 8).toUpperCase()
-    const year = new Date().getFullYear()
-    const customer_id = `DB-${year}-${rand}`
-
     const now = new Date().toISOString()
 
-    // Create customer record - use a simple approach that works
-    let customer: any
-    let customerError: any = null
+    // Create customer record in the customers table (uses UUID by default)
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .insert({
+        business_name: body.business_name,
+        email: body.email || null,
+        phone: body.phone || null,
+        website: body.website || null,
+        address: body.address || null,
+        city: body.city || null,
+        state: body.state || null,
+        zip: body.zip || null,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('id')
+      .single()
 
-    try {
-      // Try to create in a customer_data table first, fallback to storing in job
-      const { data: custData, error: rawCustErr } = await supabase
-        .from('customer_data')
-        .insert({
-          customer_id,
-          business_name: body.business_name,
-          email: body.email || null,
-          phone: body.phone || null,
-          website: body.website || null,
-          address: body.address || null,
-          city: body.city || null,
-          state: body.state || null,
-          zip: body.zip || null,
-          package_size: Number(body.package_size) || 50,
-          status: 'active',
-          created_at: now,
-          updated_at: now,
-        })
-        .select('id, customer_id')
-        .single()
-
-      const custErr = (rawCustErr ?? null) as ErrorWithMessage | null
-      const custErrMessage = getErrorMessage(custErr)
-
-      if (custErr && custErrMessage?.includes('relation "customer_data" does not exist')) {
-        console.log('customer_data table does not exist, storing in job business_data')
-        customer = { id: customer_id, customer_id }
-        customerError = null
-      } else if (custErr) {
-        console.log(
-          'Error creating customer, storing in job business_data:',
-          custErrMessage ?? custErr
-        )
-        customer = { id: customer_id, customer_id }
-        customerError = custErr
-      } else {
-        customer = custData
-        console.log('✅ Customer created in customer_data table:', customer_id)
-        customerError = null
-      }
-    } catch (error) {
-      console.log('Error creating customer, storing in job business_data')
-      customer = { id: customer_id, customer_id }
-      customerError = error
+    if (customerError) {
+      console.error('❌ Failed to create customer:', customerError)
+      return res.status(500).json({ 
+        success: false, 
+        error: `Failed to create customer: ${customerError.message}` 
+      })
     }
+
+    const customer_id = customer.id
+    console.log('✅ Customer created:', customer_id)
 
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
-    // Get the actual customer record to use the UUID
-    const { data: customerRecord, error: customerFetchErr } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('id', customer_id)
-      .single()
-
-    const actualCustomerId = customerRecord?.id || customer_id
-
-    console.log('Creating job with customer_id:', actualCustomerId)
+    console.log('Creating job with customer_id:', customer_id)
 
     // Create job with customer data embedded
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: actualCustomerId,
+        customer_id: customer_id,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
