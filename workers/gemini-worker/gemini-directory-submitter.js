@@ -7,7 +7,12 @@ class GeminiDirectorySubmitter {
   constructor() {
     this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-2.5-computer-use-preview-10-2025' 
+      model: 'gemini-2.5-computer-use-preview-10-2025',
+      tools: [{
+        computerUse: {
+          environment: 'ENVIRONMENT_BROWSER'
+        }
+      }]
     });
     this.browser = null;
     this.page = null;
