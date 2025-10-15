@@ -253,7 +253,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
       .update({ status: 'in_progress', started_at: startedAt, updated_at: startedAt })
       .eq('id', pendingJob.id)
       .eq('status', 'pending')
-      .select('id, customer_id, package_size, priority_level, metadata, created_at, updated_at, business_name, email, phone, website, address, city, state, zip, description, category, package_type, directory_limit')
+      .select('id, customer_id, package_size, priority_level, metadata, created_at, updated_at, business_name, email, phone, website, address, city, state, zip, category, package_type, directory_limit')
       .maybeSingle()
   )
 
@@ -281,7 +281,6 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
         state,
         zip,
         website,
-        description,
         facebook,
         instagram,
         linkedin
@@ -308,7 +307,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   const city = coerceString((updatedJob as any).city ?? customerRecord['city'])
   const state = coerceString((updatedJob as any).state ?? customerRecord['state'])
   const zip = coerceString((updatedJob as any).zip ?? customerRecord['zip'])
-  const description = coerceString((updatedJob as any).description ?? customerRecord['description'])
+  const description = coerceString((updatedJob as any).description ?? customerRecord['description'] ?? '')
   const category = coerceString((updatedJob as any).category ?? customerRecord['category'])
   const packageType = coerceString((updatedJob as any).package_type ?? 'starter') || 'starter'
   const directoryLimit = Math.max(1, coerceNumber((updatedJob as any).directory_limit, 50))
