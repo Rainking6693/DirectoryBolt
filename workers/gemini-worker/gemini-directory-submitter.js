@@ -33,15 +33,27 @@ class GeminiDirectorySubmitter {
   async submitToDirectory(directoryUrl, businessData) {
     console.log(`🎯 Submitting to directory: ${directoryUrl}`);
     
+    // Create screenshots directory if it doesn't exist
+    const screenshotsDir = path.join(__dirname, 'screenshots');
+    if (!fs.existsSync(screenshotsDir)) {
+      fs.mkdirSync(screenshotsDir, { recursive: true });
+    }
+    
     try {
       // Navigate to directory
-      await this.page.goto(directoryUrl, { waitUntil: 'networkidle' });
+      console.log('🌐 Navigating to:', directoryUrl);
+      await this.page.goto(directoryUrl, { waitUntil: 'networkidle', timeout: 30000 });
+      console.log('✅ Page loaded, current URL:', this.page.url());
       
-      // Take initial screenshot
+      // Take initial screenshot and save it
       const screenshot = await this.page.screenshot({ type: 'png' });
+      const initialPath = path.join(screenshotsDir, 'initial-page.png');
+      fs.writeFileSync(initialPath, screenshot);
+      console.log(`📸 Initial screenshot saved: ${initialPath}`);
       
       // Create the prompt for Gemini
       const prompt = this.createSubmissionPrompt(businessData);
+      console.log('📝 Sending prompt to Gemini...');
       
       // Send to Gemini Computer Use using the correct API format
       const response = await this.callGeminiAPI(prompt, screenshot);
@@ -52,9 +64,26 @@ class GeminiDirectorySubmitter {
 
       const candidate = response.candidates[0];
       console.log('🤖 Gemini response received');
+      console.log('📋 Full response:', JSON.stringify(response, null, 2));
       
-      // Execute the agent loop
-      const result = await this.executeAgentLoop(candidate, businessData);
+      // Execute the agent loop with initial conversation
+      const initialContents = [
+        {
+          role: 'user',
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: 'image/png',
+                data: screenshot.toString('base64')
+              }
+            }
+          ]
+        },
+        candidate.content
+      ];
+      
+      const result = await this.executeAgentLoop(initialContents, businessData);
       
       return result;
       
@@ -113,14 +142,24 @@ class GeminiDirectorySubmitter {
     return await response.json();
   }
 
-  async executeAgentLoop(initialCandidate, businessData) {
-    const contents = [initialCandidate.content];
+  async executeAgentLoop(initialContents, businessData) {
+    // Start with the full initial conversation (user message + first model response)
+    const contents = [...initialContents];
     const maxTurns = 10;
+    
+    // Create screenshots directory if it doesn't exist
+    const screenshotsDir = path.join(__dirname, 'screenshots');
+    if (!fs.existsSync(screenshotsDir)) {
+      fs.mkdirSync(screenshotsDir, { recursive: true });
+    }
     
     for (let turn = 0; turn < maxTurns; turn++) {
       console.log(`🔄 Turn ${turn + 1}`);
       
       const candidate = contents[contents.length - 1];
+      
+      // Debug: Log the full candidate structure
+      console.log('📋 Candidate structure:', JSON.stringify(candidate, null, 2));
       
       // Check if there are function calls to execute
       const functionCalls = this.extractFunctionCalls(candidate);
@@ -128,26 +167,45 @@ class GeminiDirectorySubmitter {
       if (functionCalls.length === 0) {
         // No more actions, check if we're done
         const textResponse = this.extractTextResponse(candidate);
-        console.log('✅ Task completed:', textResponse);
+        console.log('⚠️ No function calls found!');
+        console.log('📝 Text response:', textResponse);
+        
+        // Save final screenshot
+        const finalScreenshot = await this.page.screenshot({ type: 'png' });
+        const finalPath = path.join(screenshotsDir, `final-turn-${turn + 1}.png`);
+        fs.writeFileSync(finalPath, finalScreenshot);
+        console.log(`📸 Final screenshot saved: ${finalPath}`);
+        
         return {
           status: 'submitted',
           message: textResponse || 'Successfully submitted to directory',
-          screenshot: await this.page.screenshot({ type: 'png' })
+          screenshot: finalScreenshot
         };
       }
       
       // Execute function calls
       console.log(`🔧 Executing ${functionCalls.length} actions...`);
+      console.log('📋 Function calls:', JSON.stringify(functionCalls, null, 2));
+      
       const results = await this.executeFunctionCalls(functionCalls);
       
-      // Take new screenshot
+      // Take new screenshot and save it
       const newScreenshot = await this.page.screenshot({ type: 'png' });
+      const screenshotPath = path.join(screenshotsDir, `turn-${turn + 1}-after-actions.png`);
+      fs.writeFileSync(screenshotPath, newScreenshot);
+      console.log(`📸 Screenshot saved: ${screenshotPath}`);
       
-      // Send function responses back to Gemini
-      const functionResponses = this.createFunctionResponses(functionCalls, results, newScreenshot);
+      // Create function response parts
+      const functionResponseParts = this.createFunctionResponses(functionCalls, results, newScreenshot);
       
-      // Get next response from Gemini
-      const nextResponse = await this.sendFunctionResponses(functionResponses);
+      // Add function responses to conversation history
+      contents.push({
+        role: 'user',
+        parts: functionResponseParts
+      });
+      
+      // Get next response from Gemini with full conversation history
+      const nextResponse = await this.sendConversationTurn(contents);
       
       if (!nextResponse || !nextResponse.candidates || nextResponse.candidates.length === 0) {
         throw new Error('No response from Gemini after function execution');
@@ -166,12 +224,22 @@ class GeminiDirectorySubmitter {
   extractFunctionCalls(candidate) {
     const functionCalls = [];
     
-    if (candidate.content && candidate.content.parts) {
-      for (const part of candidate.content.parts) {
-        if (part.function_call) {
-          functionCalls.push(part.function_call);
+    // Handle both direct candidate and candidate.content
+    const content = candidate.content || candidate;
+    
+    if (content && content.parts) {
+      console.log(`🔍 Checking ${content.parts.length} parts for function calls...`);
+      for (const part of content.parts) {
+        console.log('🔍 Part type:', Object.keys(part));
+        // Check for both camelCase (SDK response) and snake_case (REST API)
+        if (part.functionCall || part.function_call) {
+          const functionCall = part.functionCall || part.function_call;
+          console.log('✅ Found function call:', functionCall);
+          functionCalls.push(functionCall);
         }
       }
+    } else {
+      console.log('⚠️ No content.parts found in candidate');
     }
     
     return functionCalls;
@@ -259,40 +327,37 @@ class GeminiDirectorySubmitter {
   }
 
   createFunctionResponses(functionCalls, results, screenshot) {
-    const functionResponses = [];
+    const parts = [];
     
     for (let i = 0; i < functionCalls.length; i++) {
       const functionCall = functionCalls[i];
       const result = results[i];
       
-      functionResponses.push({
-        name: functionCall.name,
-        response: {
-          url: this.page.url(),
-          ...result.result
-        },
-        parts: [
-          {
-            inline_data: {
-              mime_type: "image/png",
-              data: screenshot.toString('base64')
-            }
+      parts.push({
+        functionResponse: {
+          name: functionCall.name,
+          response: {
+            url: this.page.url(),
+            ...result.result
           }
-        ]
+        }
       });
     }
     
-    return functionResponses;
+    // Add screenshot as a separate part
+    parts.push({
+      inline_data: {
+        mime_type: "image/png",
+        data: screenshot.toString('base64')
+      }
+    });
+    
+    return parts;
   }
 
-  async sendFunctionResponses(functionResponses) {
+  async sendConversationTurn(contents) {
     const requestBody = {
-      contents: [
-        {
-          role: "user",
-          parts: functionResponses.map(fr => ({ function_response: fr }))
-        }
-      ],
+      contents: contents,
       tools: [
         {
           computer_use: {
