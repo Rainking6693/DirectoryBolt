@@ -102,20 +102,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       })
     }
 
-    const uuid = customer.id
     const customer_id = customer.customer_id
-    console.log('✅ Customer created:', customer_id, '(UUID:', uuid, ')')
+    console.log('✅ Customer created:', customer_id)
 
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
-    console.log('Creating job with customer UUID:', uuid)
+    console.log('Creating job with customer_id:', customer_id)
 
-    // Create job with customer UUID (jobs.customer_id is UUID type)
+    // Create job with customer_id (DB-2025-XXXXXX format)
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: uuid,
+        customer_id: customer_id,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
