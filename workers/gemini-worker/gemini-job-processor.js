@@ -1,13 +1,20 @@
 require('dotenv').config();
 const GeminiDirectorySubmitter = require('./gemini-directory-submitter');
+const DirectoryLoader = require('./load-directories');
 const axios = require('axios');
 
 class GeminiJobProcessor {
   constructor() {
-    this.submitter = new GeminiDirectorySubmitter();
+    this.submitter = new GeminiDirectorySubmitter({ use2Captcha: true });
+    this.directoryLoader = new DirectoryLoader();
     this.apiBaseUrl = process.env.NETLIFY_FUNCTIONS_URL || process.env.AUTOBOLT_API_BASE || 'http://localhost:3000/api';
-    this.authToken = process.env.WORKER_AUTH_TOKEN || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    this.authToken = process.env.AUTOBOLT_API_KEY || process.env.WORKER_AUTH_TOKEN || process.env.SUPABASE_SERVICE_ROLE_KEY;
     this.workerId = process.env.WORKER_ID || 'gemini-worker-001';
+    
+    console.log('🔧 Gemini Job Processor Configuration:');
+    console.log(`  API Base URL: ${this.apiBaseUrl}`);
+    console.log(`  Worker ID: ${this.workerId}`);
+    console.log(`  Auth Token: ${this.authToken ? 'SET' : 'NOT SET'}`);
   }
 
   async start() {
@@ -137,31 +144,34 @@ class GeminiJobProcessor {
   }
 
   async getDirectories(limit) {
-    // This would fetch from your directories table
-    // For now, return some test directories
-    return [
-      {
-        id: '1',
-        name: 'Google Business Profile',
-        submission_url: 'https://business.google.com/create',
-        category: 'local_business'
-      },
-      {
-        id: '2', 
-        name: 'Yelp Business',
-        submission_url: 'https://biz.yelp.com/signup_business',
-        category: 'local_business'
-      }
-      // Add more directories as needed
-    ].slice(0, limit);
+    // Load directories from the complete database (543 directories)
+    const allDirectories = this.directoryLoader.loadDirectories();
+    
+    // Get CAPTCHA-free directories first (easiest to automate)
+    const easyDirectories = this.directoryLoader.getCaptchaFreeDirectories();
+    
+    // If we need more than easy directories, add medium ones
+    if (limit > easyDirectories.length) {
+      const mediumDirectories = this.directoryLoader.filterByDifficulty('medium');
+      const combined = [...easyDirectories, ...mediumDirectories];
+      return combined.slice(0, limit);
+    }
+    
+    return easyDirectories.slice(0, limit);
   }
 
   async updateProgress(jobId, results) {
     try {
+      // Match the exact API structure from pages/api/autobolt/jobs/update.ts
+      const completed = results.filter(r => r.status === 'submitted' || r.status === 'failed').length;
+      const successful = results.filter(r => r.status === 'submitted').length;
+      
       await axios.post(`${this.apiBaseUrl}/autobolt/jobs/update`, {
         jobId,
         status: 'in_progress',
-        directoryResults: results
+        directoryResults: results,
+        completedDirectories: completed,
+        successfulDirectories: successful
       }, {
         headers: {
           'Authorization': `Bearer ${this.authToken}`,
@@ -170,6 +180,8 @@ class GeminiJobProcessor {
         },
         timeout: 15000
       });
+      
+      console.log(`📊 Progress: ${completed}/${results.length} completed (${successful} successful)`);
     } catch (error) {
       console.error('❌ Failed to update progress:', error.message);
     }
