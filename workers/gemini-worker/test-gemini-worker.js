@@ -21,9 +21,10 @@ async function testGeminiWorker() {
       zip: "12345"
     };
     
-    // Test with a simple directory with an actual form
-    // Using a demo contact form for testing (change to actual directory URL in production)
-    const testDirectory = "https://www.yelp.com/biz_add";
+    // Test with a simple contact form (no CAPTCHA)
+    // For actual directory testing, use directories from your list that don't require CAPTCHAs
+    // Example: Many WordPress directory plugins, local chamber of commerce sites, etc.
+    const testDirectory = "https://www.w3schools.com/html/html_forms.asp"; // Simple form for demo
     
     console.log('🎯 Testing submission to:', testDirectory);
     console.log('📋 Business data:', testBusiness);
