@@ -21,8 +21,9 @@ async function testGeminiWorker() {
       zip: "12345"
     };
     
-    // Test with a simple directory (you can replace with actual directory URLs)
-    const testDirectory = "https://www.google.com/business";
+    // Test with a simple directory with an actual form
+    // Using a demo contact form for testing (change to actual directory URL in production)
+    const testDirectory = "https://www.yelp.com/biz_add";
     
     console.log('🎯 Testing submission to:', testDirectory);
     console.log('📋 Business data:', testBusiness);

@@ -145,7 +145,7 @@ class GeminiDirectorySubmitter {
   async executeAgentLoop(initialContents, businessData) {
     // Start with the full initial conversation (user message + first model response)
     const contents = [...initialContents];
-    const maxTurns = 10;
+    const maxTurns = 20; // Increased for complex multi-step submissions
     
     // Create screenshots directory if it doesn't exist
     const screenshotsDir = path.join(__dirname, 'screenshots');
@@ -165,7 +165,7 @@ class GeminiDirectorySubmitter {
       const functionCalls = this.extractFunctionCalls(candidate);
       
       if (functionCalls.length === 0) {
-        // No more actions, check if we're done
+        // No more actions, check if we're done or if there's an error
         const textResponse = this.extractTextResponse(candidate);
         console.log('⚠️ No function calls found!');
         console.log('📝 Text response:', textResponse);
@@ -175,6 +175,31 @@ class GeminiDirectorySubmitter {
         const finalPath = path.join(screenshotsDir, `final-turn-${turn + 1}.png`);
         fs.writeFileSync(finalPath, finalScreenshot);
         console.log(`📸 Final screenshot saved: ${finalPath}`);
+        
+        // Check if this is an actual completion or an error
+        if (!textResponse && !candidate.content?.parts) {
+          console.log('❌ Empty response from Gemini - likely API issue');
+          return {
+            status: 'failed',
+            message: 'Received empty response from Gemini API',
+            screenshot: finalScreenshot
+          };
+        }
+        
+        // Check if the text indicates task is incomplete
+        const incompletePhrases = ['i will', 'i need to', 'i should', 'next step', 'trying to'];
+        const isIncomplete = textResponse && incompletePhrases.some(phrase => 
+          textResponse.toLowerCase().includes(phrase)
+        );
+        
+        if (isIncomplete) {
+          console.log('⚠️ Task appears incomplete based on text response');
+          return {
+            status: 'failed',
+            message: `Task incomplete: ${textResponse}`,
+            screenshot: finalScreenshot
+          };
+        }
         
         return {
           status: 'submitted',
@@ -227,7 +252,12 @@ class GeminiDirectorySubmitter {
     // Handle both direct candidate and candidate.content
     const content = candidate.content || candidate;
     
-    if (content && content.parts) {
+    if (!content) {
+      console.log('❌ No content in candidate - API may have returned empty response');
+      return functionCalls;
+    }
+    
+    if (content && content.parts && content.parts.length > 0) {
       console.log(`🔍 Checking ${content.parts.length} parts for function calls...`);
       for (const part of content.parts) {
         console.log('🔍 Part type:', Object.keys(part));
@@ -315,6 +345,36 @@ class GeminiDirectorySubmitter {
             
           case 'wait_5_seconds':
             await new Promise(resolve => setTimeout(resolve, 5000));
+            result = { status: 'success', ...safetyAcknowledgement };
+            break;
+            
+          case 'scroll_document':
+            const scrollDistance = 500;
+            if (args.direction === 'down') {
+              await this.page.mouse.wheel(0, scrollDistance);
+            } else if (args.direction === 'up') {
+              await this.page.mouse.wheel(0, -scrollDistance);
+            } else if (args.direction === 'left') {
+              await this.page.mouse.wheel(-scrollDistance, 0);
+            } else if (args.direction === 'right') {
+              await this.page.mouse.wheel(scrollDistance, 0);
+            }
+            result = { status: 'success', direction: args.direction, ...safetyAcknowledgement };
+            break;
+            
+          case 'go_back':
+            await this.page.goBack();
+            result = { status: 'success', ...safetyAcknowledgement };
+            break;
+            
+          case 'go_forward':
+            await this.page.goForward();
+            result = { status: 'success', ...safetyAcknowledgement };
+            break;
+            
+          case 'search':
+            // Navigate to Google search
+            await this.page.goto('https://www.google.com', { waitUntil: 'networkidle' });
             result = { status: 'success', ...safetyAcknowledgement };
             break;
             
