@@ -53,7 +53,10 @@ async function testCustomerAndJobCreation() {
   } catch (error) {
     console.error('\n❌ Error:', error.message);
     if (error.response) {
+      console.error('Status:', error.response.status);
       console.error('Response:', JSON.stringify(error.response.data, null, 2));
+    } else {
+      console.error('Full error:', error);
     }
   }
 }
