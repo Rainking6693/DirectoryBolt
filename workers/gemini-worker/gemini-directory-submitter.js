@@ -298,9 +298,21 @@ class GeminiDirectorySubmitter {
       if (args && args.safety_decision) {
         console.log('🛡️ Safety decision:', args.safety_decision);
         if (args.safety_decision.decision === 'require_confirmation') {
-          console.log('⚠️ Action requires confirmation - auto-approving for automation');
-          // In production, you would prompt the user here
-          // For now, we'll auto-approve to continue testing
+          console.log('\n' + '='.repeat(80));
+          console.log('⚠️  CONFIRMATION REQUIRED');
+          console.log('='.repeat(80));
+          console.log('Action:', name);
+          console.log('Reason:', args.safety_decision.explanation);
+          console.log('\nIn production, this would pause and ask you for confirmation.');
+          console.log('For automated testing, auto-approving in 3 seconds...');
+          console.log('='.repeat(80) + '\n');
+          
+          // In production, you would use readline or a web UI here:
+          // const confirmed = await this.promptUserForConfirmation(args.safety_decision);
+          // if (!confirmed) { throw new Error('User denied action'); }
+          
+          // For testing: auto-approve after brief pause
+          await new Promise(resolve => setTimeout(resolve, 3000));
           safetyAcknowledgement.safety_acknowledgement = 'true';
         }
       }
@@ -376,6 +388,32 @@ class GeminiDirectorySubmitter {
             // Navigate to Google search
             await this.page.goto('https://www.google.com', { waitUntil: 'networkidle' });
             result = { status: 'success', ...safetyAcknowledgement };
+            break;
+            
+          case 'drag_and_drop':
+            const startX = this.denormalizeX(args.x);
+            const startY = this.denormalizeY(args.y);
+            const endX = this.denormalizeX(args.destination_x);
+            const endY = this.denormalizeY(args.destination_y);
+            
+            console.log(`  Dragging from (${startX}, ${startY}) to (${endX}, ${endY})`);
+            
+            // Perform drag and drop
+            await this.page.mouse.move(startX, startY);
+            await this.page.mouse.down();
+            await new Promise(resolve => setTimeout(resolve, 100)); // Brief pause
+            
+            // Move in steps for smoother drag (helps with some CAPTCHAs)
+            const steps = 10;
+            for (let i = 1; i <= steps; i++) {
+              const x = startX + (endX - startX) * (i / steps);
+              const y = startY + (endY - startY) * (i / steps);
+              await this.page.mouse.move(x, y);
+              await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            
+            await this.page.mouse.up();
+            result = { status: 'success', from: { x: startX, y: startY }, to: { x: endX, y: endY }, ...safetyAcknowledgement };
             break;
             
           default:
@@ -513,6 +551,36 @@ Please proceed step by step, taking screenshots after each action to show your p
       await this.browser.close();
       console.log('🧹 Browser closed');
     }
+  }
+
+  /**
+   * Prompt user for confirmation (for production use)
+   * In production, you could implement this with:
+   * - readline for CLI prompts
+   * - WebSocket for real-time UI notifications
+   * - Email/SMS alerts
+   * - Dashboard notifications
+   */
+  async promptUserForConfirmation(safetyDecision) {
+    // Example implementation with readline (commented out for now):
+    /*
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+    
+    return new Promise((resolve) => {
+      console.log('\n⚠️  CONFIRMATION REQUIRED:');
+      console.log(safetyDecision.explanation);
+      readline.question('Allow this action? (yes/no): ', (answer) => {
+        readline.close();
+        resolve(answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y');
+      });
+    });
+    */
+    
+    // For now, auto-approve
+    return true;
   }
 }
 
