@@ -55,7 +55,7 @@ function loadDirectories(): DirectoryConfig[] {
 
 async function wait(ms:number){ return new Promise(r=>setTimeout(r,ms)) }
 
-export async function processJob(job: JobPayload, api: { updateProgress: (jobId:string, results:any[])=>Promise<any>, completeJob: (jobId:string, summary:any)=>Promise<any> }) {
+export async function processJob(job: JobPayload, api: { updateProgress: (jobId:string, results:any[], extras?: { status?: string, errorMessage?: string })=>Promise<any>, completeJob: (jobId:string, summary:any)=>Promise<any> }) {
   const startTime = Date.now()
   const browser: Browser = await chromium.launch({ headless: true, args: ['--disable-gpu','--no-sandbox'] })
   const context = await browser.newContext()
