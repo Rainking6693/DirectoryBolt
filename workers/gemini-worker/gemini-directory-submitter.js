@@ -276,19 +276,19 @@ class GeminiDirectorySubmitter {
       }
       
       try {
-        let result = { ...safetyAcknowledgement };
+        let result = {};
         
         switch (name) {
           case 'open_web_browser':
             // Browser is already open
-            result = { status: 'success' };
+            result = { status: 'success', ...safetyAcknowledgement };
             break;
             
           case 'click_at':
             const clickX = this.denormalizeX(args.x);
             const clickY = this.denormalizeY(args.y);
             await this.page.mouse.click(clickX, clickY);
-            result = { status: 'success', x: clickX, y: clickY };
+            result = { status: 'success', x: clickX, y: clickY, ...safetyAcknowledgement };
             break;
             
           case 'type_text_at':
@@ -305,22 +305,22 @@ class GeminiDirectorySubmitter {
               await this.page.keyboard.press('Enter');
             }
             
-            result = { status: 'success', text: args.text };
+            result = { status: 'success', text: args.text, ...safetyAcknowledgement };
             break;
             
           case 'navigate':
             await this.page.goto(args.url, { waitUntil: 'networkidle' });
-            result = { status: 'success', url: args.url };
+            result = { status: 'success', url: args.url, ...safetyAcknowledgement };
             break;
             
           case 'wait_5_seconds':
             await new Promise(resolve => setTimeout(resolve, 5000));
-            result = { status: 'success' };
+            result = { status: 'success', ...safetyAcknowledgement };
             break;
             
           default:
             console.log(`⚠️ Unimplemented function: ${name}`);
-            result = { status: 'unimplemented', function: name };
+            result = { status: 'unimplemented', function: name, ...safetyAcknowledgement };
         }
         
         // Wait for potential page changes
