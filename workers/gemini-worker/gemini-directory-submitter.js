@@ -45,20 +45,22 @@ class GeminiDirectorySubmitter {
       const prompt = this.createSubmissionPrompt(businessData);
       
       // Send to Gemini Computer Use
-      const result = await this.model.generateContent([
-        {
-          role: 'user',
-          parts: [
-            { text: prompt },
-            {
-              inline_data: {
-                mime_type: 'image/png',
-                data: screenshot.toString('base64')
+      const result = await this.model.generateContent({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: 'image/png',
+                  data: screenshot.toString('base64')
+                }
               }
-            }
-          ]
-        }
-      ]);
+            ]
+          }
+        ]
+      });
 
       // Execute Gemini's suggested actions
       const response = await result.response;
@@ -204,20 +206,22 @@ Please proceed with filling out and submitting the form.
 
   async checkSubmissionSuccess(screenshot) {
     // Use Gemini to analyze the screenshot and determine if submission was successful
-    const result = await this.model.generateContent([
-      {
-        role: 'user',
-        parts: [
-          { text: 'Look at this screenshot. Did the business submission form get submitted successfully? Look for success messages, confirmation pages, or "thank you" messages. Respond with just "SUCCESS" or "FAILED".' },
-          {
-            inline_data: {
-              mime_type: 'image/png',
-              data: screenshot.toString('base64')
+    const result = await this.model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: 'Look at this screenshot. Did the business submission form get submitted successfully? Look for success messages, confirmation pages, or "thank you" messages. Respond with just "SUCCESS" or "FAILED".' },
+            {
+              inlineData: {
+                mimeType: 'image/png',
+                data: screenshot.toString('base64')
+              }
             }
-          }
-        ]
-      }
-    ]);
+          ]
+        }
+      ]
+    });
     
     const response = await result.response;
     const text = response.text();
