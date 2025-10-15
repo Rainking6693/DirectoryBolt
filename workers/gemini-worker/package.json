@@ -1,0 +1,25 @@
+{
+  "name": "directorybolt-gemini-worker",
+  "version": "1.0.0",
+  "description": "Gemini Computer Use powered directory submission worker",
+  "main": "gemini-directory-submitter.js",
+  "scripts": {
+    "start": "node gemini-directory-submitter.js",
+    "test": "node test-gemini-worker.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "playwright": "^1.40.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0"
+  },
+  "keywords": [
+    "gemini",
+    "computer-use",
+    "directory-submission",
+    "automation",
+    "playwright"
+  ],
+  "author": "DirectoryBolt",
+  "license": "MIT"
+}
