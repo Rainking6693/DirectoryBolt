@@ -34,7 +34,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     {
       const r = await supabase
         .from('directories')
-        .select('id, name, category, is_active, pacing_min_ms, pacing_max_ms, max_retries')
+        .select('id, name, category, active, pacing_min_ms, pacing_max_ms, max_retries')
         .order('name')
       directories = r.data
       error = r.error
@@ -44,7 +44,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.warn('[staff:directory-settings] Optional columns missing, retrying with minimal selection')
       const r2 = await supabase
         .from('directories')
-        .select('id, name, category, is_active')
+        .select('id, name, category, active')
         .order('name')
       directories = r2.data
       error = r2.error
@@ -60,7 +60,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       id: dir.id,
       name: dir.name || 'Unknown Directory',
       category: dir.category || 'General',
-      enabled: dir.is_active !== false, // Default to enabled if not specified
+      enabled: dir.active !== false, // Default to enabled if not specified
       pacing_min_ms: (typeof dir.pacing_min_ms === 'number' ? dir.pacing_min_ms : null) ?? 1000,
       pacing_max_ms: (typeof dir.pacing_max_ms === 'number' ? dir.pacing_max_ms : null) ?? 5000,
       max_retries: (typeof dir.max_retries === 'number' ? dir.max_retries : null) ?? 3,
