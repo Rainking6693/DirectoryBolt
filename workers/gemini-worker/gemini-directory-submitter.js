@@ -69,16 +69,34 @@ class GeminiDirectorySubmitter {
 
       // Execute Gemini's suggested actions
       const response = await result.response;
+      console.log('🤖 Gemini response:', JSON.stringify(response, null, 2));
+      
       const actions = this.extractActions(response);
+      console.log('🎯 Extracted actions:', actions);
+      
+      if (actions.length === 0) {
+        console.log('⚠️ No actions found in Gemini response');
+        return {
+          status: 'failed',
+          message: 'No actions suggested by Gemini',
+          screenshot: await this.page.screenshot({ type: 'png' })
+        };
+      }
       
       for (const action of actions) {
-        await this.executeAction(action);
-        
-        // Take screenshot after each action
-        const newScreenshot = await this.page.screenshot({ type: 'png' });
-        
-        // Send feedback to Gemini
-        await this.sendFeedback(action, newScreenshot);
+        console.log('🔧 Executing action:', action);
+        try {
+          await this.executeAction(action);
+          
+          // Take screenshot after each action
+          const newScreenshot = await this.page.screenshot({ type: 'png' });
+          
+          // Send feedback to Gemini
+          await this.sendFeedback(action, newScreenshot);
+        } catch (actionError) {
+          console.error('❌ Error executing action:', actionError);
+          throw actionError;
+        }
       }
       
       // Check for success
@@ -137,18 +155,31 @@ Please proceed with filling out and submitting the form.
   extractActions(response) {
     const actions = [];
     
+    console.log('🔍 Parsing response structure...');
+    console.log('Response type:', typeof response);
+    console.log('Response keys:', Object.keys(response || {}));
+    
     // Parse Gemini's response to extract function calls
     if (response.candidates && response.candidates[0]) {
       const candidate = response.candidates[0];
+      console.log('Candidate:', candidate);
+      
       if (candidate.content && candidate.content.parts) {
+        console.log('Content parts:', candidate.content.parts);
+        
         for (const part of candidate.content.parts) {
+          console.log('Part:', part);
           if (part.function_call) {
+            console.log('Found function call:', part.function_call);
             actions.push(part.function_call);
           }
         }
       }
+    } else {
+      console.log('No candidates found in response');
     }
     
+    console.log('Total actions extracted:', actions.length);
     return actions;
   }
 
