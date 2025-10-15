@@ -282,7 +282,7 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
         zip,
         website
       `)
-      .eq('id', updatedJob.customer_id)
+      .eq('customer_id', updatedJob.customer_id)
       .maybeSingle()
   )
 
