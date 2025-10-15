@@ -423,9 +423,9 @@ export async function completeJob(options: {
     throw new Error('Job not found or not in progress')
   }
 
-  const resultsResponse = await executeSupabaseQuery(fn, 'job_results_count.select for completion', async () =>
+  const resultsResponse = await executeSupabaseQuery(fn, 'job_results.select for completion', async () =>
     supabase
-      .from('job_results_count')
+      .from('job_results')
       .select('status')
       .eq('job_id', jobId)
   )
