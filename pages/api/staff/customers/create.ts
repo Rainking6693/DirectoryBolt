@@ -21,6 +21,7 @@ interface CreateCustomerResponse {
     customer_id: string
     job_id?: string
     business_name?: string
+    job_error?: string | null
   }
   error?: string
 }
