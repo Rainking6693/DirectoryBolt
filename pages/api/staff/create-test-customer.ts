@@ -74,10 +74,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer.id,
+        customer_id: customer.customer_id, // Use the custom DB-YYYY-XXXXXX format, not the UUID
+        business_name: name,
+        email: email,
         package_size: package_size,
         priority_level: 3,
         status: 'pending',
+        metadata: {
+          businessName: name,
+          email: email,
+          phone: phone,
+          website: website,
+          address: address,
+          city: city,
+          state: state,
+          zip: zip,
+          package_size: package_size
+        },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
