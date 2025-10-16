@@ -40,14 +40,24 @@ export async function getNextJob(): Promise<{ success: boolean, data: any | null
 
 export async function updateProgress(jobId: string, directoryResults: any[], extras?: { status?: string, errorMessage?: string }) {
   return withRetry(async () => {
-    const res = await client().post('/api/jobs/update', { jobId, directoryResults, ...(extras || {}) })
+    const res = await client().post('/api/jobs/update', {
+      job_id: jobId,
+      status: extras?.status || 'in_progress',
+      message: extras?.errorMessage,
+      directoryResults
+    })
     return res.data
   })
 }
 
 export async function completeJob(jobId: string, summary: { finalStatus?: string, summary?: any, errorMessage?: string }) {
   return withRetry(async () => {
-    const res = await client().post('/api/jobs/complete', { jobId, ...summary })
+    const res = await client().post('/api/jobs/complete', {
+      job_id: jobId,
+      status: summary.finalStatus || 'complete',
+      message: summary.errorMessage,
+      summary: summary.summary
+    })
     return res.data
   })
 }
