@@ -110,13 +110,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
-    console.log('Creating job with customer UUID:', customer_uuid)
+    console.log('Creating job with customer ID:', customer_id)
 
-    // Create job with customer UUID (foreign key reference)
+    // Create job with customer custom ID (VARCHAR format)
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_uuid,
+        customer_id: customer_id,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,

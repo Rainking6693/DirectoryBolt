@@ -29,7 +29,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // Get customer statistics (list used for both aggregates and drilldown)
+    // Get customer statistics - only customers with jobs
     const { data: customers, error: customerError } = await supabase
       .from('customers')
       .select(`
@@ -39,7 +39,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         package_type,
         status,
         created_at,
-        updated_at
+        updated_at,
+        jobs!inner(id, status, created_at, package_size)
       `)
 
     if (customerError) {
@@ -103,23 +104,34 @@ function calculateSimpleAnalytics(customers: any[]) {
   const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
   const thisMonth = new Date(today.getFullYear(), now.getMonth(), 1)
 
-  // Basic customer statistics
+  // Basic customer statistics - based on job status
   const totalCustomers = customers.length
-  const activeCustomers = customers.filter(c => c.status === 'active' || c.status === 'in-progress').length
-  const completedCustomers = customers.filter(c => c.status === 'completed').length
-  const pendingCustomers = customers.filter(c => c.status === 'pending').length
+  const activeCustomers = customers.filter(c => c.jobs?.some((j: any) => j.status === 'in_progress')).length
+  const completedCustomers = customers.filter(c => c.jobs?.some((j: any) => j.status === 'completed')).length
+  const pendingCustomers = customers.filter(c => c.jobs?.some((j: any) => j.status === 'pending')).length
 
-  // Package type breakdown
+  // Package type breakdown - based on job package_size
   const packageBreakdown = customers.reduce((acc, customer) => {
-    const packageType = customer.package_type || 'unknown'
+    const job = customer.jobs?.[0] // Use first job's package size
+    const packageSize = job?.package_size || 50
+    const packageType = getPackageTypeFromSize(packageSize)
     acc[packageType] = (acc[packageType] || 0) + 1
     return acc
   }, {} as Record<string, number>)
 
-  // Directory statistics
-  const totalDirectoriesAllocated = customers.reduce((sum, c) => sum + getDirectoryLimits(c.package_type), 0)
-  const totalDirectoriesSubmitted = customers.reduce((sum, c) => sum + (c.directories_submitted || 0), 0)
-  const totalDirectoriesFailed = customers.reduce((sum, c) => sum + (c.failed_directories || 0), 0)
+  // Directory statistics - based on job data
+  const totalDirectoriesAllocated = customers.reduce((sum, c) => {
+    const job = c.jobs?.[0]
+    return sum + (job?.package_size || 50)
+  }, 0)
+  const totalDirectoriesSubmitted = customers.reduce((sum, c) => {
+    const job = c.jobs?.[0]
+    return sum + (job?.metadata?.directories_completed || 0)
+  }, 0)
+  const totalDirectoriesFailed = customers.reduce((sum, c) => {
+    const job = c.jobs?.[0]
+    return sum + (job?.metadata?.directories_failed || 0)
+  }, 0)
   const overallCompletionRate = totalDirectoriesAllocated > 0 
     ? Math.round((totalDirectoriesSubmitted / totalDirectoriesAllocated) * 10000) / 100 
     : 0
@@ -163,6 +175,16 @@ function calculateSimpleAnalytics(customers: any[]) {
       package_performance: calculatePackagePerformance(customers)
     }
   }
+}
+
+function getPackageTypeFromSize(packageSize: number): string {
+  const sizeMap: Record<number, string> = {
+    50: 'starter',
+    75: 'growth', 
+    150: 'professional',
+    500: 'enterprise'
+  }
+  return sizeMap[packageSize] || 'custom'
 }
 
 function getDirectoryLimits(packageType: string): number {
