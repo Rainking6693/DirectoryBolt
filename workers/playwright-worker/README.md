@@ -41,3 +41,4 @@ Compose (3 replicas):
 - All DB writes happen behind functions: /jobs-next, /jobs-update, /jobs-complete.
 - Directory list is loaded from repo if available, or specify DIRECTORY_LIST_PATH.
 - The submission logic is best-effort: adjust formMapping in directory JSON as needed.
+# Force rebuild Thu, Oct 16, 2025 12:50:55 PM
