@@ -21,9 +21,11 @@ git push origin master
 In Railway dashboard:
 1. Click on your service
 2. Go to "Settings" tab
-3. Under "Build & Deploy"
+3. Under "Service" section
 4. Set **Root Directory**: `workers/playwright-worker`
-5. Set **Start Command**: `npm run build && npm start`
+5. Under "Build" section
+6. Set **Builder**: Dockerfile (it should auto-detect, but verify)
+7. **DO NOT** set a custom start command - it's defined in the Dockerfile
 
 ## Step 4: Add Environment Variables
 

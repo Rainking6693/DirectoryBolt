@@ -10,6 +10,7 @@ RUN npm ci --no-audit --no-fund
 # Copy source and build
 COPY tsconfig.json ./
 COPY src ./src
+COPY complete-directory-database.json ./
 RUN npm run build && npx playwright install chromium --with-deps
 
 CMD ["node", "dist/index.js"]
