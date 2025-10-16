@@ -39,7 +39,8 @@ function loadDirectories(): DirectoryConfig[] {
   // allow override via env URL (fetch) or path
   const envPath = process.env.DIRECTORY_LIST_PATH
   if (envPath && fs.existsSync(envPath)) {
-    return JSON.parse(fs.readFileSync(envPath, 'utf-8'))
+    const json = JSON.parse(fs.readFileSync(envPath, 'utf-8'))
+    return Array.isArray(json) ? json : (json.directories || json.items || [])
   }
   for (const rel of DEFAULT_DIR_PATHS) {
     const abs = path.resolve(__dirname, rel)
@@ -127,12 +128,25 @@ export async function submitToDirectory(page: Page, directory: DirectoryConfig, 
     await page.goto(directory.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
 
     if (directory.formMapping) {
-      for (const [selector, field] of Object.entries(directory.formMapping)) {
-        const value = pickField(job, field)
+      for (const [fieldName, selectors] of Object.entries(directory.formMapping)) {
+        const value = pickField(job, fieldName)
         if (typeof value === 'string' && value.length) {
-          try {
-            await page.fill(selector, value, { timeout: 15000 })
-          } catch {}
+          // Handle both array of selectors and single selector
+          const selectorList = Array.isArray(selectors) ? selectors : [selectors]
+
+          // Try each selector until one works
+          let filled = false
+          for (const selector of selectorList) {
+            try {
+              await page.fill(selector, value, { timeout: 5000 })
+              filled = true
+              break
+            } catch {}
+          }
+
+          if (!filled) {
+            logger.info('No selector worked for field', { jobId: job.id, field: fieldName, directory: directory.name })
+          }
         }
       }
     }
@@ -159,6 +173,7 @@ export async function submitToDirectory(page: Page, directory: DirectoryConfig, 
 function pickField(job: JobPayload, field: string): string | undefined {
   const map: Record<string, any> = {
     business_name: job.business_name,
+    businessName: job.business_name,
     email: job.email,
     phone: job.phone,
     website: job.website,

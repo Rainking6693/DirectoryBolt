@@ -11,18 +11,39 @@ async function main() {
   while (true) {
     try {
       logger.info('Polling for jobs...', { component: 'poller' })
-      const next = await getNextJob()
-      if (next && next.job) {
-        const job = next.job
-        logger.info('Job received', { jobId: job.id, customerId: job.customer_id })
+      const response = await getNextJob()
+
+      // API returns { success: true, data: jobPayload } or { success: true, data: null }
+      if (response && response.success && response.data) {
+        const job = response.data
+        logger.info('Job received', { jobId: job.jobId, customerId: job.customerId })
+
+        // Map API response fields to job processor format
+        const jobPayload = {
+          id: job.jobId,
+          customer_id: job.customerId,
+          business_name: job.customerName || job.businessData?.business_name || '',
+          email: job.customerEmail || job.businessData?.email || '',
+          phone: job.businessData?.phone || '',
+          website: job.businessData?.website || job.metadata?.website || '',
+          address: job.businessData?.address || job.metadata?.address || '',
+          city: job.businessData?.city || job.metadata?.city || '',
+          state: job.businessData?.state || job.metadata?.state || '',
+          zip: job.businessData?.zip || job.metadata?.zip || '',
+          description: job.businessData?.description || '',
+          category: job.businessData?.category || '',
+          directory_limit: job.directoryLimit,
+          package_size: job.packageType
+        }
+
         try {
-          await processJob(job, { updateProgress, completeJob })
-          logger.info('Job processed', { jobId: job.id })
+          await processJob(jobPayload, { updateProgress, completeJob })
+          logger.info('Job processed', { jobId: job.jobId })
         } catch (jobErr:any) {
-          logger.error('Job processing failed', { jobId: job.id, error: jobErr?.message })
+          logger.error('Job processing failed', { jobId: job.jobId, error: jobErr?.message })
           // try to mark failed completion
           try {
-            await completeJob(job.id, { finalStatus: 'failed', summary: { total: job.directory_limit || 0, submitted: 0, failed: 0, success_rate: 0 } })
+            await completeJob(job.jobId, { finalStatus: 'failed', summary: { total: job.directoryLimit || 0, submitted: 0, failed: 0, success_rate: 0 }, errorMessage: jobErr?.message })
           } catch {}
         }
       }

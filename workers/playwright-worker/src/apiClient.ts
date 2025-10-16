@@ -31,7 +31,7 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
   throw lastErr
 }
 
-export async function getNextJob(): Promise<{ job: any | null }> {
+export async function getNextJob(): Promise<{ success: boolean, data: any | null, message?: string }> {
   return withRetry(async () => {
     const res = await client().get('/api/jobs/next')
     return res.data
