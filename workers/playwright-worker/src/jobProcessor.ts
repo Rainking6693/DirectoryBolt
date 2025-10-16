@@ -30,6 +30,8 @@ interface DirectoryConfig {
 }
 
 const DEFAULT_DIR_PATHS = [
+  '../complete-directory-database.json', // Railway deployment
+  '../../../directories/complete-directory-database.json', // Local development
   '../../../directories/master-directory-list.json',
   '../../../directories/expanded-master-directory-list-final.json',
   '../../../directories/directory-list.json'
