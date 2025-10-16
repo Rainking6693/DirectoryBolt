@@ -226,13 +226,7 @@ export default function RealTimeQueue(): JSX.Element {
             </span>
           </div>
           <button
-            onClick={() => {
-              alert('Add Customer button clicked!');
-              console.log('🔍 Add Customer button clicked');
-              console.log('🔍 Current showCreateModal state:', showCreateModal);
-              setShowCreateModal(true);
-              console.log('🔍 Set showCreateModal to true');
-            }}
+            onClick={() => setShowCreateModal(true)}
             className="px-3 py-2 text-xs bg-volt-500/10 border border-volt-500/40 text-volt-300 rounded hover:bg-volt-500/15"
           >
             + Add Customer
@@ -739,10 +733,7 @@ export default function RealTimeQueue(): JSX.Element {
       )}
 
       {/* Create Customer Modal */}
-      {(() => {
-        console.log('🔍 Modal render check - showCreateModal:', showCreateModal);
-        return showCreateModal;
-      })() && (
+      {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-secondary-900 border border-secondary-700 rounded-lg max-w-xl w-full mx-4">
             <div className="flex items-center justify-between p-4 border-b border-secondary-800">

@@ -2,8 +2,8 @@
 // Receives submission logs from workers and stores them in the database
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { withRateLimit, rateLimiters } from '../../../../lib/middleware/production-rate-limit';
-import { createSupabaseAdminClient } from '../../../../lib/server/supabaseAdmin';
+import { withRateLimit, rateLimiters } from '../../../lib/middleware/production-rate-limit';
+import { createSupabaseAdminClient } from '../../../lib/server/supabaseAdmin';
 
 const WORKER_API_ENV_KEY = 'AUTOBOLT_API_KEY' as const;
 
