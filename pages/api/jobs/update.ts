@@ -44,11 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   } catch (error) {
     console.error('[jobs/update] Error:', error)
-    console.error('[jobs/update] Error details:', error.message, error.stack)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('[jobs/update] Error details:', errorMessage, errorStack)
     return res.status(500).json({ 
       success: false, 
       error: 'Failed to update job',
-      details: error.message 
+      details: errorMessage 
     })
   }
 }
