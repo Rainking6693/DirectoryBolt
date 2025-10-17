@@ -21,12 +21,15 @@ interface JobPayload {
 }
 
 interface DirectoryConfig {
+  id?: string
   name: string
   url: string
+  submissionUrl?: string
   priority?: number
+  tier?: string | number
   requiresLogin?: boolean
   hasCaptcha?: boolean
-  formMapping?: Record<string, string>
+  formMapping?: Record<string, string | string[]>
 }
 
 const DEFAULT_DIR_PATHS = [
@@ -42,14 +45,14 @@ function loadDirectories(): DirectoryConfig[] {
   const envPath = process.env.DIRECTORY_LIST_PATH
   if (envPath && fs.existsSync(envPath)) {
     const json = JSON.parse(fs.readFileSync(envPath, 'utf-8'))
-    return Array.isArray(json) ? json : (json.directories || json.items || [])
+    return normalizeDirectories(Array.isArray(json) ? json : (json.directories || json.items || []))
   }
   for (const rel of DEFAULT_DIR_PATHS) {
     const abs = path.resolve(__dirname, rel)
     if (fs.existsSync(abs)) {
       try {
         const json = JSON.parse(fs.readFileSync(abs, 'utf-8'))
-        return Array.isArray(json) ? json : (json.directories || json.items || [])
+        return normalizeDirectories(Array.isArray(json) ? json : (json.directories || json.items || []))
       } catch {}
     }
   }
@@ -57,6 +60,55 @@ function loadDirectories(): DirectoryConfig[] {
 }
 
 async function wait(ms:number){ return new Promise(r=>setTimeout(r,ms)) }
+
+function normalizeDirectories(raw: any[]): DirectoryConfig[] {
+  const tierLookup: Record<number, string> = { 1: 'starter', 2: 'growth', 3: 'professional', 4: 'enterprise' }
+  return (raw || [])
+    .filter(Boolean)
+    .map((entry) => {
+      const submissionUrl = entry.submissionUrl || entry.url
+      const formMapping = normalizeFormMapping(entry.formMapping || entry.formSelectors || {})
+      return {
+        ...entry,
+        url: submissionUrl,
+        submissionUrl,
+        formMapping,
+        priority: Number(entry.priority ?? entry.priorityScore ?? entry.weight ?? 0) || 0,
+        tier: typeof entry.tier === 'number' ? tierLookup[entry.tier] || entry.tier : entry.tier
+      }
+    })
+}
+
+function normalizeFormMapping(mapping: Record<string, any>): Record<string, string | string[]> {
+  const normalized: Record<string, string | string[]> = {}
+  const fieldAlias: Record<string, string> = {
+    business: 'businessName',
+    business_name: 'businessName',
+    companyName: 'businessName',
+    company: 'businessName',
+    contactEmail: 'email',
+    emailAddress: 'email',
+    phoneNumber: 'phone',
+    telephone: 'phone',
+    websiteUrl: 'website',
+    businessWebsite: 'website',
+    street: 'address',
+    address1: 'address',
+    addressLine1: 'address',
+    postcode: 'zip',
+    postalCode: 'zip',
+    zipCode: 'zip',
+    summary: 'description',
+    about: 'description'
+  }
+
+  Object.entries(mapping || {}).forEach(([key, value]) => {
+    const targetKey = fieldAlias[key] || key
+    normalized[targetKey] = value
+  })
+
+  return normalized
+}
 
 export async function processJob(job: JobPayload, api: { updateProgress: (jobId:string, results:any[], extras?: { status?: string, errorMessage?: string })=>Promise<any>, completeJob: (jobId:string, summary:any)=>Promise<any> }) {
   const startTime = Date.now()
@@ -173,6 +225,7 @@ export async function submitToDirectory(page: Page, directory: DirectoryConfig, 
 }
 
 function pickField(job: JobPayload, field: string): string | undefined {
+  const normalized = field.toLowerCase()
   const map: Record<string, any> = {
     business_name: job.business_name,
     businessName: job.business_name,
@@ -183,8 +236,13 @@ function pickField(job: JobPayload, field: string): string | undefined {
     city: job.city,
     state: job.state,
     zip: job.zip,
+    zipcode: job.zip,
+    postalcode: job.zip,
     description: job.description,
     category: job.category
   }
-  return map[field]
+
+  if (field in map) return map[field]
+  if (normalized in map) return map[normalized]
+  return map[field as keyof typeof map]
 }
