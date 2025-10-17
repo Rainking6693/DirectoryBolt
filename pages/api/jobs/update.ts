@@ -11,17 +11,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    console.log('[jobs/update] Request body:', JSON.stringify(req.body, null, 2))
+    
     const { jobId, job_id, status, directoryResults, errorMessage } = req.body
 
     // Handle both jobId and job_id parameter names
     const actualJobId = jobId || job_id
 
     if (!actualJobId) {
+      console.log('[jobs/update] Missing jobId')
       return res.status(400).json({ 
         success: false, 
         error: 'jobId is required' 
       })
     }
+    
+    console.log('[jobs/update] Processing job:', actualJobId, 'status:', status)
 
     // Use the existing updateJobProgress function
     const result = await updateJobProgress({
@@ -31,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       errorMessage
     })
 
+    console.log('[jobs/update] Success:', result)
     return res.status(200).json({
       success: true,
       data: result,
@@ -38,9 +44,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   } catch (error) {
     console.error('[jobs/update] Error:', error)
+    console.error('[jobs/update] Error details:', error.message, error.stack)
     return res.status(500).json({ 
       success: false, 
-      error: 'Failed to update job' 
+      error: 'Failed to update job',
+      details: error.message 
     })
   }
 }
