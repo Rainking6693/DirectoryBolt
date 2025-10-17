@@ -24,8 +24,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Use the existing updateJobProgress function
-    const result = await updateJobProgress(actualJobId, status, {
-      directoryResults,
+    const result = await updateJobProgress({
+      jobId: actualJobId,
+      status,
+      directoryResults: directoryResults || [],
       errorMessage
     })
 
