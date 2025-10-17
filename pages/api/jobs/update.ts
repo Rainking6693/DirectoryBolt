@@ -47,10 +47,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const errorMessage = error instanceof Error ? error.message : String(error)
     const errorStack = error instanceof Error ? error.stack : undefined
     console.error('[jobs/update] Error details:', errorMessage, errorStack)
+    
+    // Log the full error object for debugging
+    console.error('[jobs/update] Full error object:', JSON.stringify(error, null, 2))
+    
     return res.status(500).json({ 
       success: false, 
       error: 'Failed to update job',
-      details: errorMessage 
+      details: errorMessage,
+      fullError: JSON.stringify(error, Object.getOwnPropertyNames(error))
     })
   }
 }
