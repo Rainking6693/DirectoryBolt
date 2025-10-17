@@ -21,7 +21,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Use the existing completeJob function
-    const result = await completeJob(jobId, finalStatus || 'completed', summary)
+    const result = await completeJob({
+      jobId,
+      finalStatus: finalStatus || 'completed',
+      summary
+    })
 
     return res.status(200).json({
       success: true,
