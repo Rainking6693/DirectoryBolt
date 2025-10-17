@@ -33,17 +33,17 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
 
 export async function getNextJob(): Promise<{ success: boolean, data: any | null, message?: string }> {
   return withRetry(async () => {
-    const res = await client().get('/api/jobs/next')
+    const res = await client().get('/api/autobolt/jobs/next')
     return res.data
   })
 }
 
 export async function updateProgress(jobId: string, directoryResults: any[], extras?: { status?: string, errorMessage?: string }) {
   return withRetry(async () => {
-    const res = await client().post('/api/jobs/update', {
-      job_id: jobId,
+    const res = await client().post('/api/autobolt/jobs/update', {
+      jobId,
       status: extras?.status || 'in_progress',
-      message: extras?.errorMessage,
+      errorMessage: extras?.errorMessage,
       directoryResults
     })
     return res.data
@@ -52,10 +52,10 @@ export async function updateProgress(jobId: string, directoryResults: any[], ext
 
 export async function completeJob(jobId: string, summary: { finalStatus?: string, summary?: any, errorMessage?: string }) {
   return withRetry(async () => {
-    const res = await client().post('/api/jobs/complete', {
-      job_id: jobId,
-      status: summary.finalStatus || 'complete',
-      message: summary.errorMessage,
+    const res = await client().post('/api/autobolt/jobs/complete', {
+      jobId,
+      finalStatus: summary.finalStatus || 'complete',
+      errorMessage: summary.errorMessage,
       summary: summary.summary
     })
     return res.data
