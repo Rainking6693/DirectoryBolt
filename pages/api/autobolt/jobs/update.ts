@@ -109,6 +109,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
 
   const { jobId, directoryResults, status, errorMessage } = parsedBody;
 
+  console.log('[autobolt:jobs:update] Processing request:', { jobId, status, directoryResultsCount: directoryResults?.length || 0 });
+
   try {
     const supabase = createSupabaseAdminClient()
 
@@ -180,7 +182,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
 
     if (updErr) {
       console.error('[autobolt:jobs:update] jobs update failed', updErr)
-      return res.status(500).json({ success: false, error: 'Failed to update job' })
+      return res.status(500).json({ success: false, error: 'Failed to update job', details: updErr.message })
+    }
+    
+    if (!data) {
+      console.error('[autobolt:jobs:update] No job found with ID:', jobId)
+      return res.status(404).json({ success: false, error: 'Job not found', details: `No job found with ID: ${jobId}` })
     }
 
     return res.status(200).json({
@@ -190,7 +197,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
     })
   } catch (error) {
     console.error('[autobolt:jobs:update] Failed to update job progress', error);
-    return res.status(500).json({ success: false, error: 'Internal server error. Please try again later.' });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error. Please try again later.',
+      details: errorMessage 
+    });
   }
 }
 
