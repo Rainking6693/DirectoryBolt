@@ -573,7 +573,7 @@ class DirectoryBoltWorker {
       } else {
         console.log('ℹ️  No jobs available');
       }
-      return response.data?.data || null;
+      return response.data?.job || null;
     } catch (error) {
       console.error('❌ Request failed');
       console.error('  Status:', error?.response?.status);
@@ -607,6 +607,7 @@ class DirectoryBoltWorker {
    * Update job status with orchestrator
    */
   async updateJobStatus(jobId, status, data = {}) {
+    console.log('Updating job status:', { jobId, status });
     try {
       const payload = {
         jobId,
@@ -1466,7 +1467,7 @@ DirectoryBoltWorker.prototype.processJob = async function (job) {
   console.log("\n========================================");
   console.log("STARTING JOB PROCESSING");
   console.log("========================================");
-  const jobId = job?.id || job?.jobId;
+  const jobId = job?.id || job?.jobId || job?.job_id;
   const customerId = job?.customerId || job?.customer_id;
   const business = job?.businessData || job?.customer || {};
   const packageType = job?.packageType || job?.package_type || null;

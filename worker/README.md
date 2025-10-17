@@ -66,9 +66,8 @@ HTTP_PROXY_USERNAME=username
 HTTP_PROXY_PASSWORD=password
 
 # Orchestrator Communication
-ORCHESTRATOR_URL=https://directorybolt.netlify.app/api
-WORKER_AUTH_TOKEN=your-worker-auth-token
-WORKER_ID=worker-001
+ORCHESTRATOR_URL=https://directorybolt.com/api
+WORKER_ID=railway-worker-1
 
 # Browser Configuration
 HEADLESS=true
