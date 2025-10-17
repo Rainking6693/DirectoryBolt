@@ -558,7 +558,7 @@ class DirectoryBoltWorker {
       'Content-Type': 'application/json',
     };
 
-     const url = `${this.config.orchestratorBaseUrl}/autobolt/jobs/next`;
+     const url = `${this.config.orchestratorBaseUrl}/jobs/next`;
      console.log('📤 Request details:');
      console.log('  URL:', url);
      console.log('  Headers:', JSON.stringify({ ...headers, Authorization: `Bearer ${String(token).substring(0, 10)}...` }, null, 2));
@@ -614,7 +614,7 @@ class DirectoryBoltWorker {
         ...data,
       };
       await axios.post(
-        `${this.config.orchestratorBaseUrl}/autobolt/jobs/update`,
+        `${this.config.orchestratorBaseUrl}/jobs/update`,
         payload,
         {
           headers: {
@@ -633,7 +633,7 @@ console.log("📡 Job updated", { jobId, status });
       if (dr && dr.length) {
         try {
           await axios.post(
-            `${this.config.orchestratorBaseUrl}/autobolt/submission-logs`,
+            `${this.config.orchestratorBaseUrl}/submission-logs`,
             {
               jobId,
               entries: dr,
@@ -1682,7 +1682,7 @@ if (!usedSpecific && ((directory.id && directory.id.includes('facebook')) || /fa
       const tokenComplete = this.config.workerAuthToken;
       if (tokenComplete) {
         await axios.post(
-          `${this.config.orchestratorBaseUrl}/autobolt/jobs/complete`,
+          `${this.config.orchestratorBaseUrl}/jobs/complete`,
           {
             jobId,
             finalStatus: 'complete',
