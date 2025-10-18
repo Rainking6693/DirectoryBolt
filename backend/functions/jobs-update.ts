@@ -24,6 +24,12 @@ interface JobUpdateRequest {
   directoriesTotal?: number;
   errorMessage?: string;
   lastActivity?: string;
+  directoryResults?: Array<{
+    directory: string;
+    status: string;
+    log?: string;
+    error?: string;
+  }>;
 }
 
 interface JobUpdateResponse {
@@ -100,6 +106,7 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
       directoriesTotal,
       errorMessage,
       lastActivity,
+      directoryResults,
     } = parseRequestBody(event.body);
 
     const actualJobId: JobsRow["id"] | undefined = jobId ?? queueId;
@@ -188,6 +195,72 @@ const handler: Handler = async (event): Promise<HandlerResponse> => {
       .eq("id", actualJobId)
       .select("id, status, metadata, customer_id")
       .single();
+
+    // After successful jobs update, handle inserts for logging tables if directoryResults provided and in_progress
+    if (!error && data && status === "in_progress" && directoryResults && Array.isArray(directoryResults) && directoryResults.length > 0) {
+      try {
+        console.log(`Inserting ${directoryResults.length} directory results for job ${actualJobId} by worker ${workerId}`);
+
+        // Insert into job_results for each directory result
+        for (const result of directoryResults) {
+          const jobResultPayload = {
+            job_id: actualJobId,
+            directory_name: result.directory,
+            status: result.status,
+            response_log: {
+              log: result.log || null,
+              error: result.error || null,
+            },
+            submitted_at: nowIso,
+            worker_id: workerId,
+          };
+
+          console.log(`Attempting insert to job_results:`, jobResultPayload);
+
+          const { error: jobResultError } = await (supabase as any)
+            .from("job_results")
+            .insert(jobResultPayload);
+
+          if (jobResultError) {
+            console.error(`Failed to insert job_results for ${result.directory}:`, jobResultError);
+            // Continue with other inserts, don't fail the whole response
+          } else {
+            console.log(`Successfully inserted job_results for ${result.directory}`);
+          }
+        }
+
+        // Insert summary log into autobolt_submission_logs for the API call
+        const submissionLogPayload = {
+          job_id: actualJobId,
+          api_call: "jobs-update",
+          method: "POST",
+          status_code: 200, // Assuming success since we reached here
+          response_summary: `Processed ${directoryResults.length} directories`,
+          payload_summary: JSON.stringify({
+            directories_processed: directoryResults.length,
+            statuses: directoryResults.map(r => ({ directory: r.directory, status: r.status })),
+          }),
+          timestamp: nowIso,
+          worker_id: workerId,
+        };
+
+        console.log(`Attempting insert to autobolt_submission_logs:`, submissionLogPayload);
+
+        const { error: logError } = await (supabase as any)
+          .from("autobolt_submission_logs")
+          .insert(submissionLogPayload);
+
+        if (logError) {
+          console.error(`Failed to insert autobolt_submission_logs:`, logError);
+        } else {
+          console.log(`Successfully inserted autobolt_submission_logs for job ${actualJobId}`);
+        }
+
+      } catch (insertError) {
+        console.error(`Unexpected error during logging inserts for job ${actualJobId}:`, insertError);
+        // Don't propagate insert errors to the main response to avoid breaking worker flow
+      }
+    }
 
     if (error) {
       return handleSupabaseError(error, "update-job-status");

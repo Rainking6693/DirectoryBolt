@@ -124,18 +124,61 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
     }
 
     if (Array.isArray(directoryResults) && directoryResults.length > 0) {
-      const rows = directoryResults.map((r) => ({
+      // 1. Insert into job_results for progress tracking
+      const jobResultRows = directoryResults.map((r) => ({
         job_id: jobId,
         directory_name: r.directoryName,
         status: toJobResultStatus(r.status as string),
-        directory_url: (r as any).directoryUrl,
-        listing_url: (r as any).listingUrl,
-        response_log: (r as any).responseLog ?? null,
-        rejection_reason: (r as any).rejectionReason ?? null
+        response_log: (r as any).responseLog ?? {},
+        submitted_at: r.status === 'submitted' ? new Date().toISOString() : null,
+        retry_count: 0
       }))
-      const { error: insertErr } = await supabase.from('job_results').insert(rows)
-      if (insertErr) {
-        console.warn('[autobolt:jobs:update] job_results insert warning', insertErr.message)
+      console.log('[autobolt:jobs:update] Inserting job_results:', jobResultRows.length, 'rows')
+      console.log('[autobolt:jobs:update] Job result rows:', JSON.stringify(jobResultRows, null, 2))
+      const { data: jobResultsData, error: jobResultsErr } = await supabase.from('job_results').insert(jobResultRows).select()
+      if (jobResultsErr) {
+        console.error('[autobolt:jobs:update] job_results insert failed', jobResultsErr)
+        console.error('[autobolt:jobs:update] Error details:', JSON.stringify(jobResultsErr, null, 2))
+      } else {
+        console.log('[autobolt:jobs:update] Successfully inserted', jobResultRows.length, 'job results')
+        console.log('[autobolt:jobs:update] Inserted data:', JSON.stringify(jobResultsData, null, 2))
+      }
+
+      // 2. Get customer_id from the job data
+      const { data: jobData, error: jobError } = await supabase
+        .from('jobs')
+        .select('customer_id')
+        .eq('id', jobId)
+        .single();
+      
+      const customerId = jobData?.customer_id || 'unknown';
+      console.log('[autobolt:jobs:update] Using customer_id:', customerId);
+
+      // 3. Insert into autobolt_submission_logs for Submission Activity dashboard
+      const submissionLogRows = directoryResults.map((r) => ({
+        customer_id: customerId,
+        job_id: jobId,
+        directory_name: r.directoryName,
+        action: 'submission_attempt',
+        timestamp: new Date().toISOString(),
+        success: r.status === 'submitted',
+        error_message: r.status === 'failed' ? (r as any).message || 'Submission failed' : null,
+        processing_time_ms: (r as any).processingTime || null,
+        details: {
+          status: r.status,
+          message: (r as any).message || null,
+          timestamp: (r as any).timestamp || new Date().toISOString()
+        }
+      }))
+      console.log('[autobolt:jobs:update] Inserting submission logs:', submissionLogRows.length, 'rows')
+      console.log('[autobolt:jobs:update] Submission log rows:', JSON.stringify(submissionLogRows, null, 2))
+      const { data: logsData, error: logsErr } = await supabase.from('autobolt_submission_logs').insert(submissionLogRows).select()
+      if (logsErr) {
+        console.error('[autobolt:jobs:update] submission_logs insert failed', logsErr)
+        console.error('[autobolt:jobs:update] Error details:', JSON.stringify(logsErr, null, 2))
+      } else {
+        console.log('[autobolt:jobs:update] Successfully inserted', submissionLogRows.length, 'submission logs')
+        console.log('[autobolt:jobs:update] Inserted data:', JSON.stringify(logsData, null, 2))
       }
     }
 
