@@ -21,6 +21,7 @@
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.2",
+    "playwright": "^1.56.1",
     "rate-limiter-flexible": "^2.4.2",
     "uuid": "^9.0.0",
     "winston": "^3.10.0"

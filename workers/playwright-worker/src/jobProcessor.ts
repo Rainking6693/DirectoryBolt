@@ -1,86 +1,227 @@
-import fs from 'fs'
-import path from 'path'
-import { chromium, Browser, Page } from 'playwright'
-import { logger } from './logger'
+import fs from 'fs';
+import path from 'path';
+import { chromium, Browser, Page } from 'playwright';
+import { logger } from './logger';
+import SuccessProbabilityCalculator = require('../../../lib/ai-services/SuccessProbabilityCalculator');
+import DescriptionCustomizer = require('../../../lib/ai-services/DescriptionCustomizer');
+import { HUMANIZATION, randomDelay, humanType, humanClick, solveCaptcha } from './humanization';
+import { shouldUseGemini, callGeminiWorker } from './geminiRouter';
 
-interface JobPayload {
-  id: string
-  customer_id: string
-  business_name?: string
-  email?: string
-  phone?: string
-  website?: string
-  address?: string
-  city?: string
-  state?: string
-  zip?: string
-  description?: string
-  category?: string
-  directory_limit?: number
-  package_size?: any
+export type SubmissionStatus = 'submitted' | 'failed' | 'skipped';
+
+export interface JobPayload {
+  id: string;
+  customer_id: string;
+  business_name?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  description?: string;
+  category?: string;
+  directory_limit?: number;
+  package_size?: any;
 }
 
 interface DirectoryConfig {
-  id?: string
-  name: string
-  url: string
-  submissionUrl?: string
-  priority?: number
-  tier?: string | number
-  requiresLogin?: boolean
-  hasCaptcha?: boolean
-  formMapping?: Record<string, string | string[]>
+  id?: string;
+  name: string;
+  url: string;
+  submissionUrl?: string;
+  priority?: number;
+  tier?: string | number;
+  requiresLogin?: boolean;
+  hasCaptcha?: boolean;
+  hasAntiBot?: boolean;
+  difficulty?: string;
+  formMapping?: Record<string, string | string[]>;
+  failureRate?: number;
+}
+
+export interface SubmissionResult {
+  directoryId?: string;
+  directoryName: string;
+  status: SubmissionStatus;
+  message: string;
+  timestamp: string;
+  aiScore?: number;
+  aiCustomized?: boolean;
+  viaGemini?: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+interface ProgressApi {
+  updateProgress: (
+    jobId: string,
+    results: SubmissionResult[],
+    extras?: { status?: string; errorMessage?: string }
+  ) => Promise<any>;
+  completeJob: (jobId: string, summary: { finalStatus?: string; summary?: any; errorMessage?: string }) => Promise<any>;
+}
+
+interface BusinessProfile {
+  name: string;
+  business_name: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  description: string;
+  category: string;
+}
+
+interface DirectoryMeta {
+  id?: string;
+  name: string;
+  requiresLogin?: boolean;
+  hasCaptcha?: boolean;
+  hasAntiBot?: boolean;
+  difficulty?: string;
+  failureRate?: number;
+  selectorCount: number;
 }
 
 const DEFAULT_DIR_PATHS = [
-  '../complete-directory-database.json', // Railway deployment
-  '../../../directories/complete-directory-database.json', // Local development
+  '../complete-directory-database.json',
+  '../../../directories/complete-directory-database.json',
   '../../../directories/master-directory-list.json',
   '../../../directories/expanded-master-directory-list-final.json',
   '../../../directories/directory-list.json'
-]
+];
 
-function loadDirectories(): DirectoryConfig[] {
-  // allow override via env URL (fetch) or path
-  const envPath = process.env.DIRECTORY_LIST_PATH
-  if (envPath && fs.existsSync(envPath)) {
-    const json = JSON.parse(fs.readFileSync(envPath, 'utf-8'))
-    return normalizeDirectories(Array.isArray(json) ? json : (json.directories || json.items || []))
+const parsedMinDelay = Number.parseInt(process.env.DIRECTORY_DELAY_MIN_MS || '2000', 10);
+const parsedMaxDelay = Number.parseInt(process.env.DIRECTORY_DELAY_MAX_MS || '5000', 10);
+
+const MIN_DIRECTORY_DELAY_MS = Number.isFinite(parsedMinDelay) && parsedMinDelay >= 0 ? parsedMinDelay : 2000;
+const MAX_DIRECTORY_DELAY_MS =
+  Number.isFinite(parsedMaxDelay) && parsedMaxDelay >= MIN_DIRECTORY_DELAY_MS
+    ? parsedMaxDelay
+    : Math.max(MIN_DIRECTORY_DELAY_MS, 5000);
+
+const AI_PROBABILITY_THRESHOLD = Number.isFinite(Number(process.env.AI_PROBABILITY_THRESHOLD))
+  ? Number(process.env.AI_PROBABILITY_THRESHOLD)
+  : 0.6;
+
+let probabilityCalculatorInstance: any | null | undefined;
+let descriptionCustomizerInstance: any | null | undefined;
+let probabilityCalculatorInitLogged = false;
+let descriptionCustomizerInitLogged = false;
+
+function getProbabilityCalculator(): any | null {
+  if (probabilityCalculatorInstance !== undefined) {
+    return probabilityCalculatorInstance;
   }
-  for (const rel of DEFAULT_DIR_PATHS) {
-    const abs = path.resolve(__dirname, rel)
-    if (fs.existsSync(abs)) {
-      try {
-        const json = JSON.parse(fs.readFileSync(abs, 'utf-8'))
-        return normalizeDirectories(Array.isArray(json) ? json : (json.directories || json.items || []))
-      } catch {}
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!probabilityCalculatorInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping AI probability scoring.');
+      probabilityCalculatorInitLogged = true;
     }
+    probabilityCalculatorInstance = null;
+    return probabilityCalculatorInstance;
   }
-  throw new Error('No directory list found. Set DIRECTORY_LIST_PATH or ensure directories JSON exists in repo root.')
+
+  try {
+    probabilityCalculatorInstance = new SuccessProbabilityCalculator({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('AI probability calculator initialized', { component: 'ai' });
+  } catch (error: any) {
+    logger.error('Failed to initialize SuccessProbabilityCalculator', { error: error?.message });
+    probabilityCalculatorInstance = null;
+  }
+
+  return probabilityCalculatorInstance;
 }
 
-async function wait(ms:number){ return new Promise(r=>setTimeout(r,ms)) }
+function getDescriptionCustomizer(): any | null {
+  if (descriptionCustomizerInstance !== undefined) {
+    return descriptionCustomizerInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!descriptionCustomizerInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping AI description customization.');
+      descriptionCustomizerInitLogged = true;
+    }
+    descriptionCustomizerInstance = null;
+    return descriptionCustomizerInstance;
+  }
+
+  try {
+    descriptionCustomizerInstance = new DescriptionCustomizer({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('AI description customizer initialized', { component: 'ai' });
+  } catch (error: any) {
+    logger.error('Failed to initialize DescriptionCustomizer', { error: error?.message });
+    descriptionCustomizerInstance = null;
+  }
+
+  return descriptionCustomizerInstance;
+}
+
+function loadDirectories(): DirectoryConfig[] {
+  const envPath = process.env.DIRECTORY_LIST_PATH;
+  if (envPath && fs.existsSync(envPath)) {
+    const json = JSON.parse(fs.readFileSync(envPath, 'utf-8'));
+    return normalizeDirectories(Array.isArray(json) ? json : json.directories || json.items || []);
+  }
+
+  for (const rel of DEFAULT_DIR_PATHS) {
+    const abs = path.resolve(__dirname, rel);
+    if (fs.existsSync(abs)) {
+      try {
+        const json = JSON.parse(fs.readFileSync(abs, 'utf-8'));
+        return normalizeDirectories(Array.isArray(json) ? json : json.directories || json.items || []);
+      } catch (error: any) {
+        logger.warn('Failed to parse directory list', { path: abs, error: error?.message });
+      }
+    }
+  }
+
+  throw new Error('No directory list found. Set DIRECTORY_LIST_PATH or ensure directories JSON exists in repo root.');
+}
+
+async function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getDirectoryDelayMs(): number {
+  if (MAX_DIRECTORY_DELAY_MS <= MIN_DIRECTORY_DELAY_MS) {
+    return MIN_DIRECTORY_DELAY_MS;
+  }
+  const diff = MAX_DIRECTORY_DELAY_MS - MIN_DIRECTORY_DELAY_MS;
+  return MIN_DIRECTORY_DELAY_MS + Math.floor(Math.random() * (diff + 1));
+}
 
 function normalizeDirectories(raw: any[]): DirectoryConfig[] {
-  const tierLookup: Record<number, string> = { 1: 'starter', 2: 'growth', 3: 'professional', 4: 'enterprise' }
+  const tierLookup: Record<number, string> = { 1: 'starter', 2: 'growth', 3: 'professional', 4: 'enterprise' };
   return (raw || [])
     .filter(Boolean)
     .map((entry) => {
-      const submissionUrl = entry.submissionUrl || entry.url
-      const formMapping = normalizeFormMapping(entry.formMapping || entry.formSelectors || {})
+      const submissionUrl = entry.submissionUrl || entry.url;
+      const formMapping = normalizeFormMapping(entry.formMapping || entry.formSelectors || {});
       return {
         ...entry,
         url: submissionUrl,
         submissionUrl,
         formMapping,
         priority: Number(entry.priority ?? entry.priorityScore ?? entry.weight ?? 0) || 0,
+        failureRate: entry.failureRate ?? entry.failure_rate ?? undefined,
         tier: typeof entry.tier === 'number' ? tierLookup[entry.tier] || entry.tier : entry.tier
-      }
-    })
+      };
+    });
 }
 
 function normalizeFormMapping(mapping: Record<string, any>): Record<string, string | string[]> {
-  const normalized: Record<string, string | string[]> = {}
+  const normalized: Record<string, string | string[]> = {};
   const fieldAlias: Record<string, string> = {
     business: 'businessName',
     business_name: 'businessName',
@@ -100,58 +241,221 @@ function normalizeFormMapping(mapping: Record<string, any>): Record<string, stri
     zipCode: 'zip',
     summary: 'description',
     about: 'description'
-  }
+  };
 
   Object.entries(mapping || {}).forEach(([key, value]) => {
-    const targetKey = fieldAlias[key] || key
-    normalized[targetKey] = value
-  })
+    const targetKey = fieldAlias[key] || key;
+    normalized[targetKey] = value;
+  });
 
-  return normalized
+  return normalized;
 }
 
-export async function processJob(job: JobPayload, api: { updateProgress: (jobId:string, results:any[], extras?: { status?: string, errorMessage?: string })=>Promise<any>, completeJob: (jobId:string, summary:any)=>Promise<any> }) {
-  const startTime = Date.now()
-  const browser: Browser = await chromium.launch({ headless: true, args: ['--disable-gpu','--no-sandbox'] })
-  const context = await browser.newContext()
-  const page = await context.newPage()
+function buildBusinessProfile(job: JobPayload): BusinessProfile {
+  return {
+    name: job.business_name || '',
+    business_name: job.business_name || '',
+    email: job.email || '',
+    phone: job.phone || '',
+    website: job.website || '',
+    address: job.address || '',
+    city: job.city || '',
+    state: job.state || '',
+    zip: job.zip || '',
+    description: job.description || '',
+    category: job.category || ''
+  };
+}
+
+function toSelectorList(value: string | string[]): string[] {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+  return value ? [value] : [];
+}
+
+function createDirectoryMeta(directory: DirectoryConfig): DirectoryMeta {
+  const selectorCount = directory.formMapping
+    ? Object.keys(directory.formMapping).reduce((acc, key) => {
+        const selectors = directory.formMapping?.[key];
+        return acc + toSelectorList(selectors || []).length;
+      }, 0)
+    : 0;
+
+  return {
+    id: directory.id,
+    name: directory.name,
+    requiresLogin: directory.requiresLogin,
+    hasCaptcha: directory.hasCaptcha,
+    hasAntiBot: directory.hasAntiBot,
+    difficulty: directory.difficulty,
+    failureRate: directory.failureRate,
+    selectorCount
+  };
+}
+
+export async function processJob(job: JobPayload, api: ProgressApi) {
+  const browser: Browser = await chromium.launch({ headless: true, args: ['--disable-gpu', '--no-sandbox'] });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  const probabilityCalculator = getProbabilityCalculator();
+  const descriptionCustomizer = getDescriptionCustomizer();
+  const businessProfile = buildBusinessProfile(job);
+
+  const startTime = Date.now();
 
   try {
-    const allDirs = loadDirectories()
+    const allDirs = loadDirectories();
     const processable = allDirs
-      .filter(d => !d.requiresLogin && !d.hasCaptcha)
-      .sort((a,b) => (b.priority||0) - (a.priority||0))
+      .filter((d) => !d.requiresLogin && !d.hasCaptcha)
+      .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
-    const limit = Number(job.directory_limit || job.package_size || 0) || computeLimit(job.package_size)
-    const selected = processable.slice(0, limit)
+    const limit = Number(job.directory_limit || job.package_size || 0) || computeLimit(job.package_size);
+    const selected = processable.slice(0, limit);
 
-    let submitted = 0
-    let failed = 0
+    let submitted = 0;
+    let failed = 0;
+    let skipped = 0;
 
-    for (const dir of selected) {
-      const result = await submitToDirectory(page, dir, job)
-      logger.info('Directory processed', { jobId: job.id, directoryName: dir.name, status: result.status })
+    for (const directory of selected) {
+      const startedAt = new Date().toISOString();
+      let aiScore: number | undefined;
+      let aiCustomized = false;
+      let skipDirectory = false;
 
-      try {
-        // send both directoryResults and explicit counters to backend for UI progress
-        const completedCount = result.status === 'submitted' ? submitted + 1 : submitted
-        await api.updateProgress(job.id, [result], {
-          status: 'in_progress',
-          errorMessage: result.status === 'failed' ? result.message : undefined
-        })
-        // Update aggregate progress percentage metadata to keep progress bar accurate mid-run
-        await api.updateProgress(job.id, [], {
-          status: 'in_progress',
-          errorMessage: undefined
-        })
-      } catch (e:any) {
-        logger.error('updateProgress failed', { jobId: job.id, directoryName: dir.name, error: e?.message })
+      const jobForDirectory: JobPayload = { ...job };
+      const directoryMeta = createDirectoryMeta(directory);
+
+      if (probabilityCalculator) {
+        try {
+          const probabilityResult = await probabilityCalculator.calculateSuccessProbability({
+            business: {
+              ...businessProfile
+            },
+            directory
+          });
+
+          if (probabilityResult && typeof probabilityResult.probability === 'number') {
+            aiScore = probabilityResult.probability;
+            logger.debug('AI probability score computed', {
+              jobId: job.id,
+              directory: directory.name,
+              score: aiScore
+            });
+
+            if (typeof aiScore === 'number' && aiScore < AI_PROBABILITY_THRESHOLD) {
+              skipDirectory = true;
+            }
+          }
+        } catch (error: any) {
+          logger.warn('AI probability calculation failed', {
+            jobId: job.id,
+            directory: directory.name,
+            error: error?.message
+          });
+        }
       }
 
-      if (result.status === 'submitted') submitted++
-      else failed++
+      const shouldRouteToGemini = shouldUseGemini(directoryMeta, aiScore);
 
-      await wait(2000)
+      if (skipDirectory && !shouldRouteToGemini) {
+        const skipResult: SubmissionResult = {
+          directoryId: directory.id,
+          directoryName: directory.name,
+          status: 'skipped',
+          message: `Skipped by AI probability (${aiScore !== undefined ? aiScore.toFixed(2) : 'n/a'})`,
+          timestamp: startedAt,
+          aiScore
+        };
+
+        logger.info('Directory skipped due to low AI probability', {
+          jobId: job.id,
+          directory: directory.name,
+          score: aiScore
+        });
+
+        await api.updateProgress(job.id, [skipResult], { status: 'in_progress' });
+        skipped += 1;
+        continue;
+      }
+
+      let result: SubmissionResult | null = null;
+      let geminiTried = false;
+
+      if (shouldRouteToGemini) {
+        geminiTried = true;
+        try {
+          const geminiResponse = await callGeminiWorker(jobForDirectory, directoryMeta);
+          result = {
+            directoryId: directory.id,
+            directoryName: directory.name,
+            status: geminiResponse.success ? 'submitted' : geminiResponse.status ?? 'failed',
+            message: geminiResponse.message ?? (geminiResponse.success ? 'Gemini submission successful' : 'Gemini submission failed'),
+            timestamp: startedAt,
+            aiScore,
+            aiCustomized,
+            viaGemini: true,
+            metadata: geminiResponse.metadata
+          };
+        } catch (error: any) {
+          logger.error('Gemini worker call failed, falling back to Playwright', {
+            jobId: job.id,
+            directory: directory.name,
+            error: error?.message
+          });
+        }
+      }
+
+      if (!result) {
+        if (descriptionCustomizer && job.description) {
+          try {
+            const customizationResult = await descriptionCustomizer.customizeDescription({
+              directoryId: directory.id || directory.name,
+              businessData: {
+                ...businessProfile
+              },
+              originalDescription: job.description
+            });
+
+            const customizedDescription = customizationResult?.primaryCustomization?.description;
+            if (customizedDescription && typeof customizedDescription === 'string') {
+              jobForDirectory.description = customizedDescription;
+              aiCustomized = true;
+            }
+          } catch (error: any) {
+            logger.warn('AI description customization failed', {
+              jobId: job.id,
+              directory: directory.name,
+              error: error?.message
+            });
+          }
+        }
+
+        result = await submitToDirectory(page, directory, jobForDirectory, {
+          aiProbability: aiScore,
+          aiCustomized
+        });
+      }
+
+      if (result.status === 'submitted') {
+        submitted += 1;
+      } else if (result.status === 'failed') {
+        failed += 1;
+      } else {
+        skipped += 1;
+      }
+
+      await api.updateProgress(job.id, [result], {
+        status: 'in_progress',
+        errorMessage: result.status === 'failed' ? result.message : undefined
+      });
+
+      if (!result.viaGemini || geminiTried) {
+        await randomDelay({ min: MIN_DIRECTORY_DELAY_MS, max: MAX_DIRECTORY_DELAY_MS });
+      } else {
+        await wait(getDirectoryDelayMs());
+      }
     }
 
     const summary = {
@@ -160,74 +464,183 @@ export async function processJob(job: JobPayload, api: { updateProgress: (jobId:
         totalDirectories: selected.length,
         successfulSubmissions: submitted,
         failedSubmissions: failed,
+        skippedSubmissions: skipped,
         processingTimeSeconds: Math.round((Date.now() - startTime) / 1000)
       }
-    }
+    };
 
-    await api.completeJob(job.id, summary)
+    await api.completeJob(job.id, summary);
   } finally {
-    await browser.close()
+    await browser.close();
   }
 }
 
-function computeLimit(pkg:any): number {
-  const v = String(pkg || '').toLowerCase()
-  const map:Record<string,number>={ starter:50, growth:150, professional:300, enterprise:500, pro:500 }
-  return map[v] || Number(pkg) || 50
+function computeLimit(pkg: any): number {
+  const value = String(pkg || '').toLowerCase();
+  const map: Record<string, number> = {
+    starter: 50,
+    growth: 150,
+    professional: 300,
+    enterprise: 500,
+    pro: 500
+  };
+  return map[value] || Number(pkg) || 50;
 }
 
-export async function submitToDirectory(page: Page, directory: DirectoryConfig, job: JobPayload){
-  const started = new Date().toISOString()
+export async function submitToDirectory(
+  page: Page,
+  directory: DirectoryConfig,
+  job: JobPayload,
+  options?: { aiProbability?: number; aiCustomized?: boolean }
+): Promise<SubmissionResult> {
+  const started = new Date().toISOString();
+
   try {
-    await page.goto(directory.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await page.goto(directory.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await randomDelay(HUMANIZATION.delays.afterPageLoad);
+
+    const captchaOk = await solveCaptcha(page);
+    if (!captchaOk) {
+      return {
+        directoryId: directory.id,
+        directoryName: directory.name,
+        status: 'failed',
+        message: 'CAPTCHA could not be solved',
+        timestamp: started,
+        aiScore: options?.aiProbability,
+        aiCustomized: options?.aiCustomized
+      };
+    }
+
+    let filledCount = 0;
 
     if (directory.formMapping) {
       for (const [fieldName, selectors] of Object.entries(directory.formMapping)) {
-        const value = pickField(job, fieldName)
+        const value = pickField(job, fieldName);
         if (typeof value === 'string' && value.length) {
-          // Handle both array of selectors and single selector
-          const selectorList = Array.isArray(selectors) ? selectors : [selectors]
+          const selectorList = toSelectorList(selectors);
 
-          // Try each selector until one works
-          let filled = false
+          let filled = false;
           for (const selector of selectorList) {
             try {
-              await page.fill(selector, value, { timeout: 5000 })
-              filled = true
-              break
-            } catch {}
+              await page.fill(selector, '');
+            } catch (error) {
+              logger.debug('Initial clear failed', {
+                directory: directory.name,
+                field: fieldName,
+                selector,
+                error: (error as any)?.message
+              });
+            }
+
+            try {
+              const typed = await humanType(page, selector, value);
+              if (typed) {
+                filled = true;
+                filledCount += 1;
+                await randomDelay(HUMANIZATION.delays.betweenFields);
+                break;
+              }
+            } catch (error) {
+              logger.debug('Human typing failed', {
+                directory: directory.name,
+                field: fieldName,
+                selector,
+                error: (error as any)?.message
+              });
+            }
+
+            if (!filled) {
+              try {
+                await page.fill(selector, value, { timeout: 5000 });
+                filled = true;
+                filledCount += 1;
+                await randomDelay(HUMANIZATION.delays.betweenFields);
+                break;
+              } catch (error) {
+                logger.debug('Fallback fill failed', {
+                  directory: directory.name,
+                  field: fieldName,
+                  selector,
+                  error: (error as any)?.message
+                });
+              }
+            }
           }
 
           if (!filled) {
-            logger.info('No selector worked for field', { jobId: job.id, field: fieldName, directory: directory.name })
+            logger.info('No selector worked for field', {
+              directory: directory.name,
+              field: fieldName
+            });
           }
         }
       }
     }
 
-    // best-effort submit button click
-    const submitSelectors = ['button[type="submit"]','input[type="submit"]','button:has-text("Submit")','button:has-text("Create")','button:has-text("Add")']
-    for (const sel of submitSelectors) {
-      const el = await page.$(sel)
-      if (el) { await el.click({ timeout: 10000 }).catch(()=>{}) }
+    await randomDelay(HUMANIZATION.delays.beforeSubmit);
+
+    const submitSelectors = [
+      'button[type="submit"]',
+      'input[type="submit"]',
+      'button:has-text("Submit")',
+      'button:has-text("Create")',
+      'button:has-text("Add")'
+    ];
+
+    let submittedClicked = false;
+    for (const selector of submitSelectors) {
+      submittedClicked = await humanClick(page, selector);
+      if (submittedClicked) break;
     }
 
-    await page.waitForTimeout(2000)
+    if (!submittedClicked) {
+      for (const selector of submitSelectors) {
+        const element = await page.$(selector);
+        if (element) {
+          await element.click({ timeout: 10000 }).catch(() => undefined);
+          submittedClicked = true;
+          break;
+        }
+      }
+    }
 
-    // simple success heuristics
-    const content = (await page.content()).toLowerCase()
-    const success = /success|thank you|received|submitted/.test(content)
+    await page.waitForTimeout(2000);
 
-    return { directoryName: directory.name, status: success ? 'submitted' : 'failed', message: success ? 'OK' : 'No success indicator', timestamp: started }
-  } catch (e:any) {
-    return { directoryName: directory.name, status: 'failed', message: e?.message || 'Navigation/submit error', timestamp: started }
+    const content = (await page.content()).toLowerCase();
+    const success = /success|thank you|received|submitted/.test(content);
+
+    return {
+      directoryId: directory.id,
+      directoryName: directory.name,
+      status: success ? 'submitted' : 'failed',
+      message: success ? 'OK' : 'No success indicator',
+      timestamp: started,
+      aiScore: options?.aiProbability,
+      aiCustomized: options?.aiCustomized,
+      metadata: {
+        filledFields: filledCount,
+        submittedClicked
+      }
+    };
+  } catch (error: any) {
+    return {
+      directoryId: directory.id,
+      directoryName: directory.name,
+      status: 'failed',
+      message: error?.message || 'Navigation/submit error',
+      timestamp: started,
+      aiScore: options?.aiProbability,
+      aiCustomized: options?.aiCustomized
+    };
   }
 }
 
 function pickField(job: JobPayload, field: string): string | undefined {
-  const normalized = field.toLowerCase()
+  const normalized = field.toLowerCase();
   const map: Record<string, any> = {
     business_name: job.business_name,
+    businessname: job.business_name,
     businessName: job.business_name,
     email: job.email,
     phone: job.phone,
@@ -240,9 +653,9 @@ function pickField(job: JobPayload, field: string): string | undefined {
     postalcode: job.zip,
     description: job.description,
     category: job.category
-  }
+  };
 
-  if (field in map) return map[field]
-  if (normalized in map) return map[normalized]
-  return map[field as keyof typeof map]
+  if (field in map) return map[field];
+  if (normalized in map) return map[normalized];
+  return map[field as keyof typeof map];
 }
