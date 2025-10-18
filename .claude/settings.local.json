@@ -70,7 +70,8 @@
       "Bash(rd:*)",
       "Bash(where yarn)",
       "Bash(taskkill:*)",
-      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_7bdfcb97cac2785470a503c8bc2c7b2e9b89ea75)"
+      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_7bdfcb97cac2785470a503c8bc2c7b2e9b89ea75)",
+      "Bash(npx playwright install chromium)"
     ],
     "deny": [],
     "ask": []

@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { chromium, Browser, Page } from 'playwright';
 import { logger } from './logger';
-import SuccessProbabilityCalculator = require('../../../lib/ai-services/SuccessProbabilityCalculator');
-import DescriptionCustomizer = require('../../../lib/ai-services/DescriptionCustomizer');
+import SuccessProbabilityCalculator from '../../../lib/ai-services/SuccessProbabilityCalculator';
+import DescriptionCustomizer from '../../../lib/ai-services/DescriptionCustomizer';
 import { HUMANIZATION, randomDelay, humanType, humanClick, solveCaptcha } from './humanization';
 import { shouldUseGemini, callGeminiWorker } from './geminiRouter';
 
