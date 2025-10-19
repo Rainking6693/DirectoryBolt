@@ -1,0 +1,53 @@
+{
+  "name": "selector-discovery-system",
+  "version": "1.0.0",
+  "description": "Automated selector discovery for DirectoryBolt",
+  "main": "AutoSelectorDiscovery.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:security": "jest __tests__/security.test.js",
+    "test:integration": "jest __tests__/integration.test.js",
+    "test:atomic": "jest __tests__/atomic-updates.test.js",
+    "discover:single": "node run-discovery.js single",
+    "discover:all": "node run-discovery.js all",
+    "discover:failed": "node run-discovery.js failed"
+  },
+  "keywords": [
+    "selector",
+    "discovery",
+    "playwright",
+    "automation"
+  ],
+  "author": "DirectoryBolt Team",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "AutoSelectorDiscovery.js",
+      "worker-integration.js",
+      "!node_modules/**",
+      "!__tests__/**"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 60,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  }
+}

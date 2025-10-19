@@ -65,46 +65,146 @@ class AutoSelectorDiscovery {
   }
 
   /**
-   * Discover selectors for a single directory
+   * Discover selectors for a single directory with retry logic
    */
-  async discoverSelectorsForDirectory(directoryId) {
+  async discoverSelectorsForDirectory(directoryId, retryCount = 0) {
+    const maxRetries = 3;
     const requestId = this.generateRequestId();
-    console.log(`🔍 [${requestId}] Starting selector discovery for directory: ${directoryId}`);
+
+    try {
+      return await this._discoverWithRetry(directoryId, requestId, retryCount);
+    } catch (error) {
+      if (retryCount < maxRetries && this._isRetriableError(error)) {
+        const delay = Math.pow(2, retryCount) * 2000; // Exponential backoff: 2s, 4s, 8s
+        console.log(`🔄 [${requestId}] Retry ${retryCount + 1}/${maxRetries} after ${delay}ms for ${directoryId}`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.discoverSelectorsForDirectory(directoryId, retryCount + 1);
+      }
+
+      // Not retriable or max retries exceeded
+      console.error(`❌ [${requestId}] Discovery failed after ${retryCount} retries:`, error.message);
+      return {
+        success: false,
+        directoryId,
+        error: error.message,
+        errorType: error.name || 'UnknownError',
+        retries: retryCount,
+        requestId
+      };
+    }
+  }
+
+  /**
+   * Check if error is retriable
+   * @private
+   */
+  _isRetriableError(error) {
+    const retriableErrors = [
+      'PAGE_LOAD_TIMEOUT',
+      'NETWORK_ERROR',
+      'TIMEOUT',
+      'ECONNRESET',
+      'ECONNREFUSED',
+      'ETIMEDOUT'
+    ];
+
+    return retriableErrors.some(errType =>
+      error.message.includes(errType) || error.code === errType
+    );
+  }
+
+  /**
+   * Internal discovery implementation with error handling
+   * @private
+   */
+  async _discoverWithRetry(directoryId, requestId, retryCount) {
+    console.log(`🔍 [${requestId}] Starting selector discovery for directory: ${directoryId} (attempt ${retryCount + 1})`);
 
     let browser;
+    let browserClosed = false;
+
     try {
       // Get directory info
       const directory = await this.getDirectoryInfo(directoryId);
       if (!directory || !directory.submission_url) {
-        throw new Error('Directory not found or missing submission URL');
+        const error = new Error('Directory not found or missing submission URL');
+        error.name = 'INVALID_DIRECTORY';
+        throw error;
       }
 
       console.log(`📄 [${requestId}] Analyzing: ${directory.name}`);
 
-      // Launch browser
+      // Launch browser with timeout
       browser = await chromium.launch({
-        headless: this.config.headless
+        headless: this.config.headless,
+        timeout: 60000
       });
+
       const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       });
+
       const page = await context.newPage();
 
-      // Navigate to submission page
-      console.log(`🌐 [${requestId}] Loading: ${directory.submission_url}`);
-      await page.goto(directory.submission_url, {
-        waitUntil: 'domcontentloaded',
-        timeout: this.config.timeout
-      });
+      // Set default timeout for all operations
+      page.setDefaultTimeout(this.config.timeout);
 
-      // Wait for page to be fully loaded
+      // Navigate to submission page with error handling
+      console.log(`🌐 [${requestId}] Loading: ${directory.submission_url}`);
+
+      try {
+        await page.goto(directory.submission_url, {
+          waitUntil: 'domcontentloaded',
+          timeout: this.config.timeout
+        });
+      } catch (navError) {
+        if (navError.message.includes('timeout')) {
+          const error = new Error('PAGE_LOAD_TIMEOUT');
+          error.name = 'PAGE_LOAD_TIMEOUT';
+          throw error;
+        }
+        throw navError;
+      }
+
+      // Check if page redirected to different domain
+      const currentUrl = page.url();
+      const originalHost = new URL(directory.submission_url).hostname;
+      const currentHost = new URL(currentUrl).hostname;
+
+      if (originalHost !== currentHost) {
+        const error = new Error(`PAGE_REDIRECTED: Expected ${originalHost}, got ${currentHost}`);
+        error.name = 'PAGE_REDIRECTED';
+        console.warn(`⚠️ [${requestId}] ${error.message}`);
+
+        // Mark directory as requiring login if redirected to login page
+        if (currentUrl.includes('login') || currentUrl.includes('signin') || currentUrl.includes('auth')) {
+          await this._markDirectoryRequiresLogin(directoryId);
+        }
+
+        throw error;
+      }
+
+      // Wait for page stability
       await page.waitForTimeout(3000);
 
       // Discover all form fields
       const discoveredFields = await this.discoverFormFields(page, requestId);
 
+      if (discoveredFields.length === 0) {
+        const error = new Error('NO_FORM_FIELDS_FOUND');
+        error.name = 'NO_FORM_FIELDS_FOUND';
+        throw error;
+      }
+
       // Map fields to business data
       const mappedFields = await this.mapFieldsToBusinessData(discoveredFields, requestId);
+
+      if (Object.keys(mappedFields).length === 0) {
+        const error = new Error('NO_BUSINESS_FIELDS_MAPPED');
+        error.name = 'NO_BUSINESS_FIELDS_MAPPED';
+        console.warn(`⚠️ [${requestId}] Found ${discoveredFields.length} fields but none matched business patterns`);
+        throw error;
+      }
 
       // Generate selectors with fallbacks
       const selectors = await this.generateSelectorsWithFallbacks(page, mappedFields, requestId);
@@ -114,6 +214,10 @@ class AutoSelectorDiscovery {
 
       // Calculate confidence scores
       const scoredSelectors = this.calculateConfidenceScores(validatedSelectors);
+
+      // Close browser before database operations
+      await browser.close();
+      browserClosed = true;
 
       // Save to database
       await this.saveDiscoveredSelectors(directoryId, scoredSelectors, requestId);
@@ -125,21 +229,40 @@ class AutoSelectorDiscovery {
         directoryId,
         directoryName: directory.name,
         discoveredFields: scoredSelectors,
+        fieldsCount: Object.keys(scoredSelectors).length,
+        retries: retryCount,
         requestId
       };
 
     } catch (error) {
-      console.error(`❌ [${requestId}] Discovery failed:`, error);
-      return {
-        success: false,
-        directoryId,
-        error: error.message,
-        requestId
-      };
+      console.error(`❌ [${requestId}] Discovery error:`, error.message);
+      throw error;
     } finally {
-      if (browser) {
-        await browser.close();
+      // Ensure browser is always closed
+      if (browser && !browserClosed) {
+        try {
+          await browser.close();
+        } catch (closeError) {
+          console.warn(`⚠️ [${requestId}] Failed to close browser:`, closeError.message);
+        }
       }
+    }
+  }
+
+  /**
+   * Mark directory as requiring login
+   * @private
+   */
+  async _markDirectoryRequiresLogin(directoryId) {
+    try {
+      await this.supabase
+        .from('directories')
+        .update({ requires_login: true })
+        .eq('id', directoryId);
+
+      console.log(`🔒 Marked directory ${directoryId} as requiring login`);
+    } catch (error) {
+      console.warn('Failed to mark directory as requiring login:', error.message);
     }
   }
 
@@ -230,6 +353,59 @@ class AutoSelectorDiscovery {
   }
 
   /**
+   * Escape CSS selector special characters to prevent injection
+   * @param {string} str - String to escape
+   * @returns {string} Escaped string safe for CSS selectors
+   */
+  escapeCSSSelector(str) {
+    if (!str || typeof str !== 'string') return '';
+
+    // Escape special CSS characters per CSS.escape() spec
+    // Characters that need escaping: !"#$%&'()*+,./:;<=>?@[\]^`{|}~
+    return str.replace(/([!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~])/g, '\\$1');
+  }
+
+  /**
+   * Validate and sanitize field data to prevent injection attacks
+   * @param {Object} field - Field data from page
+   * @returns {Object} Sanitized field data
+   */
+  validateFieldData(field) {
+    const sanitized = {};
+
+    // Only allow alphanumeric, dash, underscore for IDs
+    const idPattern = /^[a-zA-Z0-9_-]+$/;
+
+    if (field.id && idPattern.test(field.id) && field.id.length < 100) {
+      sanitized.id = field.id;
+    }
+
+    // Sanitize name attribute (more permissive, but still safe)
+    if (field.name && field.name.length < 100) {
+      // Only allow letters, numbers, dash, underscore, dots, brackets
+      const safeName = field.name.replace(/[^a-zA-Z0-9_.\[\]-]/g, '');
+      if (safeName) {
+        sanitized.name = safeName;
+      }
+    }
+
+    // Sanitize placeholder (escape for selector use)
+    if (field.placeholder && field.placeholder.length < 200) {
+      sanitized.placeholder = this.escapeCSSSelector(field.placeholder);
+    }
+
+    // Copy safe fields
+    if (field.type) sanitized.type = field.type;
+    if (field.inputType) sanitized.inputType = field.inputType;
+    if (field.label) sanitized.label = field.label;
+    if (field.className) sanitized.className = field.className;
+    sanitized.required = field.required || false;
+    sanitized.index = field.index;
+
+    return sanitized;
+  }
+
+  /**
    * Map discovered fields to business data fields
    */
   async mapFieldsToBusinessData(fields, requestId) {
@@ -237,10 +413,16 @@ class AutoSelectorDiscovery {
 
     const mapped = {};
 
+    // First, sanitize all fields
+    const sanitizedFields = fields.map(field => ({
+      ...field,
+      ...this.validateFieldData(field)
+    }));
+
     for (const [businessField, patterns] of Object.entries(this.fieldPatterns)) {
       const matches = [];
 
-      fields.forEach(field => {
+      sanitizedFields.forEach(field => {
         let score = 0;
         const searchText = [
           field.name,
@@ -303,6 +485,7 @@ class AutoSelectorDiscovery {
 
       // Priority 1: ID selector (most reliable)
       if (field.id) {
+        // IDs are already validated to be alphanumeric+dash+underscore only
         selectorOptions.push({
           selector: `#${field.id}`,
           type: 'id',
@@ -312,6 +495,7 @@ class AutoSelectorDiscovery {
 
       // Priority 2: Name attribute
       if (field.name) {
+        // Names are already sanitized in validateFieldData
         selectorOptions.push({
           selector: `${field.type}[name="${field.name}"]`,
           type: 'name',
@@ -321,6 +505,7 @@ class AutoSelectorDiscovery {
 
       // Priority 3: Placeholder (less reliable but sometimes necessary)
       if (field.placeholder) {
+        // Placeholders are already escaped in validateFieldData
         selectorOptions.push({
           selector: `${field.type}[placeholder="${field.placeholder}"]`,
           type: 'placeholder',
@@ -361,6 +546,14 @@ class AutoSelectorDiscovery {
   async generateCSSPath(page, field, requestId) {
     try {
       const cssPath = await page.evaluate((fieldData) => {
+        // Helper function to escape CSS selector IDs (must be defined inside evaluate)
+        function escapeId(id) {
+          if (!id) return '';
+          // Only allow alphanumeric, dash, underscore
+          const safe = id.replace(/[^a-zA-Z0-9_-]/g, '');
+          return safe;
+        }
+
         // Find the element by its attributes
         let element;
 
@@ -378,18 +571,22 @@ class AutoSelectorDiscovery {
           let selector = element.nodeName.toLowerCase();
 
           if (element.id) {
-            selector += `#${element.id}`;
-            path.unshift(selector);
-            break;
-          } else {
-            let sibling = element;
-            let nth = 1;
-            while (sibling.previousElementSibling) {
-              sibling = sibling.previousElementSibling;
-              if (sibling.nodeName.toLowerCase() === selector) nth++;
+            const safeId = escapeId(element.id);
+            if (safeId) {
+              selector += `#${safeId}`;
+              path.unshift(selector);
+              break;
             }
-            if (nth !== 1) selector += `:nth-of-type(${nth})`;
           }
+
+          // Use nth-of-type for elements without IDs
+          let sibling = element;
+          let nth = 1;
+          while (sibling.previousElementSibling) {
+            sibling = sibling.previousElementSibling;
+            if (sibling.nodeName.toLowerCase() === selector) nth++;
+          }
+          if (nth !== 1) selector += `:nth-of-type(${nth})`;
 
           path.unshift(selector);
           element = element.parentNode;
@@ -490,70 +687,96 @@ class AutoSelectorDiscovery {
   }
 
   /**
-   * Save discovered selectors to database
+   * Save discovered selectors to database using atomic update to prevent race conditions
    */
   async saveDiscoveredSelectors(directoryId, selectors, requestId) {
-    console.log(`💾 [${requestId}] Saving selectors to database...`);
+    console.log(`💾 [${requestId}] Saving selectors atomically...`);
 
     try {
-      // Get existing selectors
-      const { data: existingDir, error: fetchError } = await this.supabase
-        .from('directories')
-        .select('field_selectors, name')
-        .eq('id', directoryId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const existingSelectors = existingDir?.field_selectors || {};
+      // Prepare data for atomic function
       const updates = {};
       let updateCount = 0;
 
-      // Compare and update
+      // Filter to only high-confidence selectors
       for (const [field, selectorData] of Object.entries(selectors)) {
-        const shouldUpdate =
-          !existingSelectors[field] || // New field
-          selectorData.confidence > this.config.minConfidence; // High confidence
-
-        if (shouldUpdate) {
+        if (selectorData.confidence > this.config.minConfidence) {
           updates[field] = selectorData.primary.selector;
           updateCount++;
 
-          console.log(`🔄 [${requestId}] Updating ${field}: ${selectorData.primary.selector} (confidence: ${(selectorData.confidence * 100).toFixed(0)}%)`);
+          console.log(`🔄 [${requestId}] Adding ${field}: ${selectorData.primary.selector} (confidence: ${(selectorData.confidence * 100).toFixed(0)}%)`);
         }
       }
 
-      if (updateCount > 0) {
-        // Merge with existing selectors
-        const mergedSelectors = { ...existingSelectors, ...updates };
+      if (updateCount === 0) {
+        console.log(`ℹ️ [${requestId}] No high-confidence updates to save`);
+        return;
+      }
 
-        // Update database
-        const { error: updateError } = await this.supabase
-          .from('directories')
-          .update({
-            field_selectors: mergedSelectors,
-            selectors_updated_at: new Date().toISOString(),
-            selector_discovery_log: {
-              last_run: new Date().toISOString(),
-              updates: updateCount,
-              confidence_scores: Object.fromEntries(
-                Object.entries(selectors).map(([k, v]) => [k, v.confidence])
-              )
-            }
-          })
-          .eq('id', directoryId);
+      // Prepare discovery log metadata
+      const discoveryLog = {
+        last_run: new Date().toISOString(),
+        updates: updateCount,
+        confidence_scores: Object.fromEntries(
+          Object.entries(selectors).map(([k, v]) => [k, v.confidence])
+        ),
+        request_id: requestId
+      };
 
-        if (updateError) throw updateError;
+      // Use atomic function to prevent race conditions
+      // This function uses JSONB merge (||) which is atomic
+      const { error } = await this.supabase.rpc('update_directory_selectors', {
+        dir_id: directoryId,
+        new_selectors: updates,
+        discovery_log: discoveryLog
+      });
 
-        console.log(`✅ [${requestId}] Updated ${updateCount} selectors for ${existingDir.name}`);
+      if (error) {
+        // If function doesn't exist (migration not applied), fall back to direct update
+        if (error.message.includes('function') && error.message.includes('does not exist')) {
+          console.warn(`⚠️ [${requestId}] Atomic function not found, using fallback update`);
+          await this._saveSelectorsLegacy(directoryId, updates, discoveryLog, requestId);
+        } else {
+          throw error;
+        }
       } else {
-        console.log(`ℹ️ [${requestId}] No updates needed (low confidence or no changes)`);
+        console.log(`✅ [${requestId}] Atomically updated ${updateCount} selectors`);
       }
 
     } catch (error) {
       console.error(`❌ [${requestId}] Failed to save selectors:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Legacy fallback for saving selectors (non-atomic, only used if migration not applied)
+   * @private
+   */
+  async _saveSelectorsLegacy(directoryId, updates, discoveryLog, requestId) {
+    console.warn(`⚠️ [${requestId}] Using legacy non-atomic update (migration not applied)`);
+
+    // Get directory name for logging
+    const { data: dir } = await this.supabase
+      .from('directories')
+      .select('name, field_selectors')
+      .eq('id', directoryId)
+      .single();
+
+    const existingSelectors = dir?.field_selectors || {};
+    const mergedSelectors = { ...existingSelectors, ...updates };
+
+    const { error } = await this.supabase
+      .from('directories')
+      .update({
+        field_selectors: mergedSelectors,
+        selectors_updated_at: new Date().toISOString(),
+        selector_discovery_log: discoveryLog
+      })
+      .eq('id', directoryId);
+
+    if (error) throw error;
+
+    console.log(`✅ [${requestId}] Updated ${Object.keys(updates).length} selectors for ${dir?.name || directoryId} (legacy mode)`);
   }
 
   /**

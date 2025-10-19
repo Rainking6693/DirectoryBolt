@@ -66,3 +66,4 @@ async function testDatabaseInsert() {
 }
 
 testDatabaseInsert().catch(console.error);
+

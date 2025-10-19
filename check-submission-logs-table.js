@@ -66,3 +66,4 @@ async function checkSubmissionLogsTable() {
 }
 
 checkSubmissionLogsTable().catch(console.error);
+

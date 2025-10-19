@@ -97,3 +97,4 @@ async function checkDatabaseConstraints() {
 }
 
 checkDatabaseConstraints().catch(console.error);
+

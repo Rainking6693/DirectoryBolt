@@ -54,3 +54,4 @@ async function testDirectApiCall() {
 }
 
 testDirectApiCall().catch(console.error);
+
