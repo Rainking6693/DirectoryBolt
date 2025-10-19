@@ -65,3 +65,4 @@ async function checkBothTables() {
 
 checkBothTables().catch(console.error);
 
+

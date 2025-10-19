@@ -1,0 +1,33 @@
+{
+  "tool_version": "1.0.0",
+  "site_id": "google-business-profile",
+  "raw_site_id": "google-business-profile",
+  "homepage": "https://www.google.com/business",
+  "submission_url": "https://www.google.com/business/submit",
+  "target_url": "https://www.google.com/business/submit",
+  "resolved_url": "https://www.google.com/business/submit/",
+  "captured_at": "2025-10-19T16:41:02.569498+00:00",
+  "mode": "monitor",
+  "status": "ok",
+  "error": null,
+  "dom_checksum": "d1d88f67f0d294400238a89457b6246e2242124bc99fe2d3e53138332a7250a7",
+  "form_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "form_count": 0,
+  "field_count": 0,
+  "has_captcha": false,
+  "multi_step_signal": {
+    "likely": false,
+    "signals": []
+  },
+  "likely_multi_step": false,
+  "forms": [],
+  "submitters": [],
+  "notes": "Core listing for local visibility",
+  "artifacts": {
+    "map_html": "google-business-profile\\map.html",
+    "screenshot": "google-business-profile\\sshot.png",
+    "map_json": "google-business-profile\\map.json"
+  },
+  "load_duration_ms": 2910,
+  "status_code": 404
+}

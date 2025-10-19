@@ -1,0 +1,32 @@
+{
+  "tool_version": "1.0.0",
+  "site_id": "manta",
+  "raw_site_id": "manta",
+  "homepage": "https://www.manta.com",
+  "submission_url": "https://www.manta.com/claim",
+  "target_url": "https://www.manta.com/claim",
+  "resolved_url": null,
+  "captured_at": "2025-10-19T16:41:07.441745+00:00",
+  "mode": "monitor",
+  "status": "error",
+  "error": "Navigation timeout after 25000 ms: Page.goto: Timeout 25000ms exceeded.\nCall log:\n  - navigating to \"https://www.manta.com/claim\", waiting until \"networkidle\"\n",
+  "dom_checksum": null,
+  "form_signature": null,
+  "form_count": 0,
+  "field_count": 0,
+  "has_captcha": false,
+  "multi_step_signal": {
+    "likely": false,
+    "signals": []
+  },
+  "likely_multi_step": false,
+  "forms": [],
+  "submitters": [],
+  "notes": "SMB directory with citation value",
+  "artifacts": {
+    "map_html": "manta\\map.html",
+    "screenshot": "manta\\sshot.png",
+    "map_json": "manta\\map.json"
+  },
+  "load_duration_ms": 25007
+}

@@ -1,0 +1,33 @@
+{
+  "tool_version": "1.0.0",
+  "site_id": "yelp",
+  "raw_site_id": "yelp",
+  "homepage": "https://business.yelp.com",
+  "submission_url": "https://business.yelp.com/signup",
+  "target_url": "https://business.yelp.com/signup",
+  "resolved_url": "https://business.yelp.com/signup",
+  "captured_at": "2025-10-19T16:41:05.559683+00:00",
+  "mode": "monitor",
+  "status": "ok",
+  "error": null,
+  "dom_checksum": "614e0e8f4e07cbb5108b5bb02ed8383470a1f285992d1977cdf95728d7719c04",
+  "form_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "form_count": 0,
+  "field_count": 0,
+  "has_captcha": false,
+  "multi_step_signal": {
+    "likely": false,
+    "signals": []
+  },
+  "likely_multi_step": false,
+  "forms": [],
+  "submitters": [],
+  "notes": "Review platform with strong consumer reach",
+  "artifacts": {
+    "map_html": "yelp\\map.html",
+    "screenshot": "yelp\\sshot.png",
+    "map_json": "yelp\\map.json"
+  },
+  "load_duration_ms": 1786,
+  "status_code": 403
+}

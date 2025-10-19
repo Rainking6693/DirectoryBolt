@@ -1,0 +1,33 @@
+{
+  "tool_version": "1.0.0",
+  "site_id": "tripadvisor",
+  "raw_site_id": "tripadvisor",
+  "homepage": "https://www.tripadvisor.com",
+  "submission_url": "https://www.tripadvisor.com/add-business",
+  "target_url": "https://www.tripadvisor.com/add-business",
+  "resolved_url": "https://www.tripadvisor.com/add-business",
+  "captured_at": "2025-10-19T16:41:53.839998+00:00",
+  "mode": "monitor",
+  "status": "ok",
+  "error": null,
+  "dom_checksum": "6390f5b148f77165df7e58d2257a83dc59ba71a1575908b9844d4ecd5246f35a",
+  "form_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "form_count": 0,
+  "field_count": 0,
+  "has_captcha": true,
+  "multi_step_signal": {
+    "likely": false,
+    "signals": []
+  },
+  "likely_multi_step": false,
+  "forms": [],
+  "submitters": [],
+  "notes": "Travel/hospitality exposure",
+  "artifacts": {
+    "map_html": "tripadvisor\\map.html",
+    "screenshot": "tripadvisor\\sshot.png",
+    "map_json": "tripadvisor\\map.json"
+  },
+  "load_duration_ms": 2811,
+  "status_code": 403
+}

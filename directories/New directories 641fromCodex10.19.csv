@@ -1,0 +1,31 @@
+id,name,correct_submission_url,Category,Domain authority,impact level,tier level,Difficulty,traffic estimate,time to approval,has captcha
+source-forge,Source Forge,https://sourceforge.net/create/,tech startups,93,High,1,Medium,20000000,Instant,y
+healthline,Healthline,https://www.healthline.com/contact,content media,100,High,1,High,75000000,Varies,n
+dev-community,DEV Community,https://dev.to/new,content media,68,Medium,2,Low,6500000,Instant,y
+get-app,Get App,https://www.getapp.com/vendors/,SaaS,85,Medium,2,Medium,598600,Varies,unknown
+getting-smart,Getting Smart,Editor@GettingSmart.com,content media,,Medium,3,Medium,,Varies,n
+software-world,Software World,https://www.softwareworld.co/user/login,SaaS,38,Low,3,Medium,207280,Varies,y
+alternative-me,Alternative Me,support@alternative.me,SaaS,55,Medium,3,Medium,,Varies,n
+alternative-to,Alternative To,https://alternativeto.net/,SaaS,52,Medium,2,Medium,3500000,1-2 days,y
+vccircle,Vccircle,https://www.vccircle.com/contact-us/,tech startups,43,Medium,3,High,267000,Varies,n
+babel-slack,Babel Slack,https://babeljs.io/community,tech startups,,High,1,Low,,Instant,n
+f6s,F6S,https://www.f6s.com/,tech startups,72,High,1,Medium,1100000,Varies,y
+all-top-startups,All top startups,thomas@alltopstartups.com,business general,,Medium,3,Medium,,Varies,n
+alltopstartups,AllTopStartups,thomas@alltopstartups.com,business general,,Medium,3,Medium,,Varies,n
+financesonline-com,FinancesOnline.com,https://financesonline.com/contact-us/,SaaS,,High,1,High,2500000,Varies,y
+vator,Vator,newsroom@vator.tv,tech startups,,Medium,3,Medium,,Varies,n
+crowd-reviews,Crowd Reviews,http://crowdreviews.com/user/register,business general,,Medium,3,Medium,,Varies,y
+software-review,Software Review,https://provider.softwarereviews.com,SaaS,,Medium,2,Medium,590610,Varies,y
+libhunt,Libhunt,stan@libhunt.com,tech startups,,Medium,3,Medium,302000,Varies,n
+built-in-chicago,Built in Chicago,customersupport@builtin.com,tech startups,,Low,4,Medium,10600,Varies,n
+cloud-native-computing-foundation,Cloud Native Computing Foundation,https://www.cncf.io/,tech startups,64,High,1,Medium,,Varies,unknown
+trustradius,TrustRadius,vendors@trustradius.com,SaaS,,Medium,2,Medium,327100,Varies,n
+startups-uk,Startups UK,hello@startups.co.uk,business general,,High,1,Medium,4800000,Varies,n
+all-top,All Top,https://alltop.com/contact/,content media,,Low,4,Medium,36000,Varies,n
+tekpon,Tekpon,https://tekpon.com/get-listed/,SaaS,,Medium,3,Medium,136900,Varies,n
+site-jabber,Site Jabber,https://www.jabio.com/,business general,50,Medium,2,Medium,840000,Varies,n
+cool-mom-picks,Cool mom picks,info@coolmompicks.com,Ecommerce,32,Low,4,Medium,183700,Varies,n
+dang,Dang,http://dang.ai/submit,ai tools,,Low,4,Low,118700,Varies,n
+eu-startups-database,EU-Startups Database,https://www.eu-startups.com/directory/submit,tech startups,68,Medium,2,Medium,325000,Varies,n
+growth-hackers,Growth hackers,https://community.growthhackers.com/,business general,65,Medium,2,Medium,,Varies,y
+startupranking,StartupRanking,https://www.startupranking.com/,tech startups,,Medium,3,Medium,128200,Varies,y

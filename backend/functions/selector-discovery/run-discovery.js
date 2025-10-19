@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env' });
 const AutoSelectorDiscovery = require('./AutoSelectorDiscovery');
 
 async function main() {

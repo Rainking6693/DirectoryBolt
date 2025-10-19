@@ -1,0 +1,101 @@
+id,name,correct_submission_url,Category,Domain authority,Impact level,Tier level (1-4),Difficulty,Traffic estimate,Time to approval,Has captcha (y/n)
+source-forge,Source Forge,https://sourceforge.net/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+healthline,Healthline,https://healthline.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+dev-community,DEV Community,http://dev.to/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+get-app,Get App,https://www.getapp.com/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y
+getting-smart,Getting Smart,https://www.gettingsmart.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+software-world,Software World,https://www.softwareworld.co/submit,business general,30.0,Low,4,Low-Medium,40000,3-7 days,y
+alternative-me,Alternative Me,https://alternative.me/submit,business general,30.0,Low,4,Low-Medium,40000,3-7 days,y
+alternative-to,Alternative To,https://alternativeto.net/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+vccircle,Vccircle,https://www.vccircle.com/company/directory/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+babel-slack,Babel Slack,https://slack.babeljs.io/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y
+f6s,F6S,https://www.f6s.com/submit,business general,55.0,Medium,2-3,Medium,150000,2-5 days,y
+all-top-startups,All top startups,http://alltopstartups.com/submit-startup/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+alltopstartups,AllTopStartups,https://alltopstartups.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+financesonline-com,FinancesOnline.com,https://FinancesOnline.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+vator,Vator,https://vator.tv/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+crowd-reviews,Crowd Reviews,http://crowdreviews.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+software-review,Software Review,https://provider.softwarereviews.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+libhunt,Libhunt,https://www.libhunt.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+built-in-chicago,Built in Chicago,https://www.builtinchicago.org/contact/send_us_tip/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+cloud-native-computing-foundation,Cloud Native Computing Foundation,https://slack.cncf.io/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y
+trustradius,TrustRadius,http://trustradius.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+startups-uk,Startups UK,https://startups.co.uk/submit,business general,40.0,Medium,2-3,Medium,80000,2-5 days,y
+all-top,All Top,https://alltop.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+tekpon,Tekpon,http://tekpon.com/get-listed/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+site-jabber,Site Jabber,https://sitejabber.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+cool-mom-picks,Cool mom picks,https://coolmompicks.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+dang,Dang,http://dang.ai/submit,ai tools,50.0,Medium,2-3,Medium,150000,2-5 days,y
+eu-startups-database,EU-Startups Database,https://www.eu-startups.com/directory/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+growth-hackers,Growth hackers,https://community.growthhackers.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+startupranking,StartupRanking,https://www.startupranking.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+list-your-software-get-qualified-leads,List Your Software & Get Qualified Leads,https://www.softwareadvice.com/vendors/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+springwise,Springwise,https://springwise.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+startup-grind,Startup Grind,https://www.startupgrind.com/submit,tech startups,35.0,Low,4,Low-Medium,40000,3-7 days,y
+bunity,Bunity,https://www.bunity.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+foundr,Foundr,https://Foundr.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+saastr,SaaStr,https://www.saastr.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+unboxing-startups,Unboxing Startups,https://unboxingstartups.com/contact/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+tricky-enough,Tricky Enough,https://www.trickyenough.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+appsumo,AppSumo,https://sell.appsumo.com/submit,business general,55.0,Medium,2-3,Medium,150000,2-5 days,y
+cloud-foundry,Cloud Foundry,https://slack.cloudfoundry.org/submit,SaaS,55.0,Medium,2-3,Medium,150000,2-5 days,y
+killerstartups,Killerstartups,https://killerstartups.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+betalist,Betalist,http://betalist.com/submit,tech startups,45.0,Medium,2-3,Medium,80000,2-5 days,y
+all-my-faves,All my faves,https://allmyfaves.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+famous-ai-tools,Famous AI Tools,https://famousaitools.ai/submit,ai tools,30.0,Low,4,Low-Medium,40000,3-7 days,y
+startupxplore,Startupxplore,https://startupxplore.com/en/startups/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+slant,Slant,http://slant.co/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+uplabs,Uplabs,https://www.uplabs.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+webrazzi,Webrazzi,http://webrazzi.com/en/startup-form/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+people-ops-hr-community,People Ops & HR Community,https://lattice.com/community/rfh/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+saas-tools,SaaS Tools,https://saasaitools.com/submit,SaaS,35.0,Low,4,Low-Medium,40000,3-7 days,y
+eu-startups,EU startups,https://eu-startups.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+hotfrog,hotfrog,https://www.hotfrog.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+slant-co,Slant.co,https://www.slant.co/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+stackshare,StackShare,https://stackshare.io/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y
+devhunt,Devhunt,https://devhunt.org/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+mind-the-product,Mind the product,http://slack.mindtheproduct.com/submit,business general,55.0,Medium,2-3,Medium,150000,2-5 days,y
+data-quest,Data Quest,https://www.dataquest.io/chat/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y
+wip,WIP,http://wip.co/projects/new/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+nextbigwhat,NextBigWhat,https://nextbigwhat.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+fivetaco,FiveTaco,http://fivetaco.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+indiehackers,Indiehackers,https://www.indiehackers.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+changelog,Changelog,https://changelog.com/news/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+product-school,Product School,https://www.productschool.com/slack-community/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+ai-tool-guru,AI TOOL GURU,https://aitoolguru.com/submit,ai tools,35.0,Low,4,Low-Medium,40000,3-7 days,y
+tracxn,Tracxn,https://tracxn.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+nocodedevs,NoCodeDevs,https://www.nocodedevs.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+nocodefounders,NoCodeFounders,https://nocodefounders.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+software-suggest,Software Suggest,https://www.softwaresuggest.com/vendors/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+cofounderslab,CoFoundersLab,https://cofounderslab.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+devdojo,DevDojo,https://devdojo.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+snap-munk,Snap Munk,https://startups.snapmunk.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+betabound,Betabound,https://betabound.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+serchen,Serchen,https://www.serchen.com/get-listed/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+netted,Netted,http://netted.net/contact-us/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+devrant,devRant,https://devrant.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+web-design-inspiration,Web Design Inspiration,https://webdesign-inspiration.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+pitchwall,PitchWall,https://pitchwall.co/submit,business general,30.0,Low,4,Low-Medium,40000,3-7 days,y
+startup-stash,Startup Stash,https://startupstash.com/add-listing/submit,tech startups,35.0,Low,4,Low-Medium,40000,3-7 days,y
+starter-story,Starter Story,https://www.starterstory.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+lobsters,Lobsters,https://lobste.rs/submit,business general,40.0,Medium,2-3,Medium,80000,2-5 days,y
+elpha,Elpha,https://elpha.com/submit,business general,55.0,Medium,2-3,Medium,150000,2-5 days,y
+ecommercefuel,eCommerceFuel,https://www.ecommercefuel.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+launchingnext,LaunchingNext,https://www.launchingnext.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+sideprojectors,SideProjectors,https://www.sideprojectors.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+indie-hackers,Indie Hackers,https://indiehackers.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+bigstartups,BigStartups,https://bigstartups.co/submit,business general,30.0,Low,4,Low-Medium,40000,3-7 days,y
+insidr-ai-tools,Insidr AI Tools,http://insidr.ai/submit-tools/submit,ai tools,40.0,Medium,2-3,Medium,80000,2-5 days,y
+workspaces,Workspaces,http://workspaces.xyz/submit-a-workspace-workspaces/submit,business general,30.0,Low,4,Low-Medium,40000,3-7 days,y
+thingtesting,Thingtesting,https://thingtesting.com/submit-brand/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+land-book,Land Book,https://land-book.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+cabinet-m,Cabinet M,https://cabinetm.com/submit,business general,45.0,Medium,2-3,Medium,80000,2-5 days,y
+mars-ai-directory,Mars AI Directory,http://marsx.dev/ai-startups/submit,ai tools,50.0,Medium,2-3,Medium,150000,2-5 days,y
+startup-buffer,Startup Buffer,http://startupbuffer.com/submit,tech startups,35.0,Low,4,Low-Medium,40000,3-7 days,y
+there-s-an-ai-for-that,There's An AI For That,https://theresanaiforthat.com/submit,ai tools,35.0,Low,4,Low-Medium,40000,3-7 days,y
+tiny-startups,Tiny Startups,http://tally.so/r/wMzP8X/submit,business general,50.0,Medium,2-3,Medium,150000,2-5 days,y
+real-world-beta-testing,Real World Beta Testing,https://betatesting.com/beta-testing/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+remote-tools,Remote Tools,https://www.remote.tools/submit,business general,40.0,Medium,2-3,Medium,80000,2-5 days,y
+buffer-apps,Buffer apps,https://www.bufferapps.com/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+product-hq,Product HQ,https://www.productmanagerhq.com/join-the-community/submit,business general,35.0,Low,4,Low-Medium,40000,3-7 days,y
+sidebar-io,Sidebar.io,https://Sidebar.io/submit,SaaS,45.0,Medium,2-3,Medium,80000,2-5 days,y

@@ -1,0 +1,642 @@
+id,name,correct_submission_url,Category,Domain authority,Impact level,Tier level (1-4),Difficulty,Traffic estimate,Time to approval,Has captcha (y/n)
+source-forge,Source Forge,https://sourceforge.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+healthline,Healthline,https://healthline.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dev-community,DEV Community,http://dev.to/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+get-app,Get App,https://www.getapp.com/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+getting-smart,Getting Smart,https://www.gettingsmart.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+software-world,Software World,https://www.softwareworld.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alternative-me,Alternative Me,https://alternative.me/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alternative-to,Alternative To,https://alternativeto.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+vccircle,Vccircle,https://www.vccircle.com/company/directory/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+babel-slack,Babel Slack,https://slack.babeljs.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+f6s,F6S,https://www.f6s.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+all-top-startups,All top startups,http://alltopstartups.com/submit-startup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alltopstartups,AllTopStartups,https://alltopstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+financesonline-com,FinancesOnline.com,https://FinancesOnline.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+vator,Vator,https://vator.tv/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+crowd-reviews,Crowd Reviews,http://crowdreviews.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+software-review,Software Review,https://provider.softwarereviews.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+libhunt,Libhunt,https://www.libhunt.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+built-in-chicago,Built in Chicago,https://www.builtinchicago.org/contact/send_us_tip/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cloud-native-computing-foundation,Cloud Native Computing Foundation,https://slack.cncf.io/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+trustradius,TrustRadius,http://trustradius.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startups-uk,Startups UK,https://startups.co.uk/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+all-top,All Top,https://alltop.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tekpon,Tekpon,http://tekpon.com/get-listed/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+site-jabber,Site Jabber,https://sitejabber.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cool-mom-picks,Cool mom picks,https://coolmompicks.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dang,Dang,http://dang.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+eu-startups-database,EU-Startups Database,https://www.eu-startups.com/directory/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+growth-hackers,Growth hackers,https://community.growthhackers.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startupranking,StartupRanking,https://www.startupranking.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+list-your-software-get-qualified-leads,List Your Software & Get Qualified Leads,https://www.softwareadvice.com/vendors/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+springwise,Springwise,https://springwise.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-grind,Startup Grind,https://www.startupgrind.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bunity,Bunity,https://www.bunity.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+foundr,Foundr,https://Foundr.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saastr,SaaStr,https://www.saastr.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+unboxing-startups,Unboxing Startups,https://unboxingstartups.com/contact/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tricky-enough,Tricky Enough,https://www.trickyenough.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+appsumo,AppSumo,https://sell.appsumo.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cloud-foundry,Cloud Foundry,https://slack.cloudfoundry.org/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+killerstartups,Killerstartups,https://killerstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+betalist,Betalist,http://betalist.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+all-my-faves,All my faves,https://allmyfaves.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+famous-ai-tools,Famous AI Tools,https://famousaitools.ai/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startupxplore,Startupxplore,https://startupxplore.com/en/startups/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+slant,Slant,http://slant.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+uplabs,Uplabs,https://www.uplabs.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+webrazzi,Webrazzi,http://webrazzi.com/en/startup-form/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+people-ops-hr-community,People Ops & HR Community,https://lattice.com/community/rfh/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-tools,SaaS Tools,https://saasaitools.com/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+eu-startups,EU startups,https://eu-startups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hotfrog,hotfrog,https://www.hotfrog.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+slant-co,Slant.co,https://www.slant.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+stackshare,StackShare,https://stackshare.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+devhunt,Devhunt,https://devhunt.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mind-the-product,Mind the product,http://slack.mindtheproduct.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+data-quest,Data Quest,https://www.dataquest.io/chat/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wip,WIP,http://wip.co/projects/new/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nextbigwhat,NextBigWhat,https://nextbigwhat.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fivetaco,FiveTaco,http://fivetaco.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+indiehackers,Indiehackers,https://www.indiehackers.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+changelog,Changelog,https://changelog.com/news/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+product-school,Product School,https://www.productschool.com/slack-community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-tool-guru,AI TOOL GURU,https://aitoolguru.com/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tracxn,Tracxn,https://tracxn.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nocodedevs,NoCodeDevs,https://www.nocodedevs.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nocodefounders,NoCodeFounders,https://nocodefounders.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+software-suggest,Software Suggest,https://www.softwaresuggest.com/vendors/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cofounderslab,CoFoundersLab,https://cofounderslab.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+devdojo,DevDojo,https://devdojo.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+snap-munk,Snap Munk,https://startups.snapmunk.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+betabound,Betabound,https://betabound.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+serchen,Serchen,https://www.serchen.com/get-listed/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+netted,Netted,http://netted.net/contact-us/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+devrant,devRant,https://devrant.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+web-design-inspiration,Web Design Inspiration,https://webdesign-inspiration.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pitchwall,PitchWall,https://pitchwall.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-stash,Startup Stash,https://startupstash.com/add-listing/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+starter-story,Starter Story,https://www.starterstory.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+lobsters,Lobsters,https://lobste.rs/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+elpha,Elpha,https://elpha.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ecommercefuel,eCommerceFuel,https://www.ecommercefuel.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+launchingnext,LaunchingNext,https://www.launchingnext.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+sideprojectors,SideProjectors,https://www.sideprojectors.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+indie-hackers,Indie Hackers,https://indiehackers.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bigstartups,BigStartups,https://bigstartups.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+insidr-ai-tools,Insidr AI Tools,http://insidr.ai/submit-tools/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+workspaces,Workspaces,http://workspaces.xyz/submit-a-workspace-workspaces/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+thingtesting,Thingtesting,https://thingtesting.com/submit-brand/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+land-book,Land Book,https://land-book.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cabinet-m,Cabinet M,https://cabinetm.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mars-ai-directory,Mars AI Directory,http://marsx.dev/ai-startups/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-buffer,Startup Buffer,http://startupbuffer.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+there-s-an-ai-for-that,There's An AI For That,https://theresanaiforthat.com/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tiny-startups,Tiny Startups,http://tally.so/r/wMzP8X/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+real-world-beta-testing,Real World Beta Testing,https://betatesting.com/beta-testing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+remote-tools,Remote Tools,https://www.remote.tools/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+buffer-apps,Buffer apps,https://www.bufferapps.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+product-hq,Product HQ,https://www.productmanagerhq.com/join-the-community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+sidebar-io,Sidebar.io,https://Sidebar.io/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+webcatalog,webcatalog,https://webcatalog.io/en/apps/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+online-geniuses,Online Geniuses,https://onlinegeniuses.com/marketplace/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+superb-crew,Superb Crew,http://www.superbcrew.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+future-startup,Future Startup,https://futurestartup.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+futurepedia,Futurepedia,https://www.futurepedia.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+find-gift,Find Gift,https://www.findgift.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+phygital,Phygital,https://library.phygital.plus/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-hub,SaaS Hub,https://Saashub.com/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-worthy,SaaS Worthy,https://www.saasworthy.com/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+landing-folio,Landing Folio,https://www.landingfolio.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saashub,SaaSHub,http://saashub.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hcilab,Hcilab,http://Hcilab.org/ai-tools-directory/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+launching-next,Launching Next,http://launchingnext.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fyple,fyple,https://www.fyple.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+supertools,Supertools,https://supertools.therundown.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-lister,startup lister,https://startuplister.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+buildspace,buildspace,https://sage.buildspace.so/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+web-tools-weekly,Web Tools Weekly,http://webtoolsweekly.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+topai-tools,TopAI.tools,https://topai.tools/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+submit-a-startup,Submit A Startup,http://thetechpanda.com/submit-a-startup/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+openalternative,OpenAlternative,http://openalternative.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+classical-finance,Classical Finance,https://www.classicalfinance.com/your-story/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-startup-pitch,The Startup Pitch,https://thestartuppitch.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dang-ai,dang ai,https://dang.ai/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+admire-the-web,Admire The Web,https://www.admiretheweb.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+aixploria,AIxploria,https://www.aixploria.com/en/add-ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+top-apps,Top Apps,https://topapps.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+foundr-ai,Foundr.ai,https://foundr.ai/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+toolify,Toolify,https://www.toolify.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ctrl-alt,Ctrl Alt,https://ctrlalt.cc/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+romanian-startups,Romanian Startups,https://www.romanianstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-tracker,Startup Tracker,https://startuptracker.io/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+future-tools,Future Tools,https://www.futuretools.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startups-list,Startups List,https://www.startups-list.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup88,Startup88,https://startup88.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+top-similar-sites,Top Similar Sites,http://www.topsimilarsites.com/add.aspx/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+vic-trays,Vic Trays,https://victrays.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+promotehour,Promotehour,https://promotehour.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+robingood,RobinGood,https://tools.robingood.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startuplister,Startuplister,http://startuplister.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+robin-good-s-tools,Robin Good's Tools,http://tools.robingood.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+new-startups,New Startups,http://new-startups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+no-code-founders,No Code Founders,https://nocodefounders.com/startups/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+peerlist,Peerlist,https://peerlist.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ios-developers,iOS Developers,https://ios-developers.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+product-led-alliance,Product-Led Alliance,https://www.productledalliance.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hive-index,Hive Index,https://thehiveindex.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+genz-vcs,GenZ VCs,https://www.genzvcs.com/join-us/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+getworm-com,Getworm.com,https://getworm.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+allthingsai,AllThingsAI,https://allthingsai.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+creative-tribes,Creative Tribes,http://creativetribes.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+founderio,founderio,https://www.founderio.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+appsthunder,Appsthunder,https://appsthunder.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+digital-marketing-hints,Digital Marketing Hints,https://ads.digitalmarketinghints.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+spectacle,Spectacle,https://spectacle.is/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+webapprater,Webapprater,https://webapprater.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-inspiration,Startup inspiration,https://www.startupinspire.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+inspiration-gallery-for-startups,Inspiration gallery for startups,http://startupinspire.com/startups/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startuptabs,Startuptabs,http://startuptabs.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+worm,Worm,https://getworm.com/submit-startup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startups-watch,Startups.watch,https://startups.watch/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+allthingsai-com,Allthingsai.com,http://Allthingsai.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+front-end-developers,Front-End Developers,http://frontenddevelopers.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+9sites-net,9Sites.net,https://www.9sites.net/addurl.php/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-collections,Startup Collections,http://startupcollections.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+aitools-fyi,aitools.fyi,https://aitools.fyi/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+easy-with-ai,Easy With AI,https://easywithai.com/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+phygital-plus,Phygital.plus,http://library.phygital.plus/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+indiehackerstacks,IndieHackerStacks,http://indiehackerstacks.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-inspire,Startup Inspire,http://startupinspire.com/dashboard/startup/create/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+easywithai-com,Easywithai.com,http://Easywithai.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-toolkit,AI Toolkit,https://www.aitoolkit.org/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+landscape,Landscape,https://www.landscape.vc/community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-scout,AI Scout,https://aiscout.net/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+opentools,OpenTools,https://opentools.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+unita,Unita,https://www.unita.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-mojo,AI Mojo,https://aimojo.pro/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+owwly,Owwly,https://owwly.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-spotlight,Startup Spotlight,http://tally.so/r/nrLJRp/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-startup-project,The Startup Project,https://www.startupproject.org/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-tool-hunt,Ai Tool Hunt,https://www.aitoolhunt.com/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fazier-com,Fazier.com,https://fazier.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startupbase,Startupbase,https://startupbase.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+remotely-one,Remotely One,https://www.remotelyone.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+aitoptools,AITopTools,https://aitoptools.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+aitoptools-com,AItoptools.com,http://AItoptools.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nocodelist,NoCodeList,https://nocodelist.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-center,AI Center,https://aicenter.ai/?/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+toolpilot-ai,ToolPilot AI,https://www.toolpilot.ai/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+launched,Launched!,https://launched.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fuse-kiwi,Fuse.kiwi,https://www.fuse.kiwi/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nocode-devs,Nocode Devs,https://www.nocodedevs.com/browse-the-directory/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startups-fyi,Startups .fyi,http://tally.so/r/3lOGLk/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+favird-com,Favird.com,http://favird.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+kernal,Kernal,https://kern.al/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+findmyaitool,FindMyAITool,https://findmyaitool.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alternatives-co,Alternatives.Co,https://alternatives.co/software/ai-tools/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-finder,AI Finder,https://ai-finder.net/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+gpte,GPTE,https://gpte.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+seoul-startups,SEOUL Startups,https://www.seoulstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+textify,TEXTIFY,https://textify.ai/directory/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tool-scout,Tool Scout,https://toolscout.ai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ilib-com,iLib.com,https://www.ilib.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+firebase,Firebase,https://firebase-community.appspot.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+promote-project,Promote Project,https://promoteproject.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+uneed,Uneed,https://www.uneed.best/submit-a-tool/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+appiod-com,Appiod.com,http://appiod.com/submit-app-for-review/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+awesomeindie,AwesomeIndie,https://awesomeindie.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+uneed-best,Uneed.best,https://www.uneed.best/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+beta-candy,beta candy,https://betacandy.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-europe,Startup Europe,http://startupeurope.net/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-chat,Startup Chat,https://community.startup.foundation/c/latest/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-growth-hub-by-projectium,Startup Growth Hub by Projectium,https://discadia.com/projectium-network/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-founders-build-scale,SaaS Founders - Build & Scale,https://www.facebook.com/groups/saasfoundersnetwork/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-growth-hacks,SaaS Growth Hacks,https://www.facebook.com/groups/SaaSgrowthhacking/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-mantra,SaaS Mantra,https://www.facebook.com/groups/saasmantra/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-products-marketing,SaaS Products & Marketing,https://www.facebook.com/groups/saasproductsandmarketing/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+scaling-saas-founders,Scaling SaaS Founders,https://www.facebook.com/groups/2044902829088090/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-startup-chat-mastermind-group,The Startup Chat Mastermind Group,https://www.facebook.com/groups/TheStartupChat/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+executive-suite,Executive Suite,https://www.linkedin.com/groups/1426/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+on-startups,On Startups,https://www.linkedin.com/groups/2877/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-specialists-group,Startup Specialists Group,https://www.linkedin.com/groups/56766/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-alphaandbetausers,/r/alphaandbetausers/,https://www.reddit.com/r/alphaandbetausers/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-roastmystartup,/r/roastmystartup,https://www.reddit.com/r/roastmystartup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-saas,/r/SaaS,https://www.reddit.com/r/SaaS/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-sideproject,/r/sideproject,https://www.reddit.com/r/SideProject/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-startup,/r/Startup,https://www.reddit.com/r/startup/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-sweatystartup,/r/sweatystartup/,https://www.reddit.com/r/sweatystartup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-plugyourproduct,/r/Plugyourproduct/,https://www.reddit.com/r/plugyourproduct/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-thesidehustle,/r/thesidehustle/,https://reddit.com//r/thesidehustle/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-advertising,r/Advertising,https://reddit.com/r/Advertising/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-artificialinteligence,r/ArtificialInteligence/,https://www.reddit.com/r/ArtificialInteligence/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-askmarketing,r/AskMarketing,https://reddit.com/r/AskMarketing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-automate,r/Automate,https://www.reddit.com/r/Automate/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-betatests,r/betatests,https://www.reddit.com/r/betatests/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-coding,r/coding,https://www.reddit.com/r/coding/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-coupons,r/coupons,https://Reddit.com/r/coupons/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-design,r/design,https://reddit.com/r/design/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-design-critiques,r/design_critiques/,https://www.reddit.com/r/design_critiques/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-devops,r/devops,https://www.reddit.com/r/devops/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-digitalmarketing,r/DigitalMarketing,https://www.reddit.com/r/DigitalMarketing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-dotcom,r/DotCom,https://www.reddit.com/r/DotCom/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-ecommerce,r/eCommerce,https://reddit.com/r/eCommerce/submit,Ecommerce,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-emailmarketing,r/EmailMarketing,https://reddit.com/r/EmailMarketing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-frontend,r/frontend,https://reddit.com/r/frontend/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-growinpublic,r/growinpublic,https://www.reddit.com/r/growinpublic/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-growthhacking,r/GrowthHacking,https://reddit.com/r/GrowthHacking/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-imadethis,r/IMadeThis,https://www.reddit.com/r/IMadeThis/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-indiebiz,r/indiebiz,https://www.reddit.com/r/indiebiz/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-indiehackers,r/indiehackers,https://www.reddit.com/r/indiehackers/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-indieproducts,r/indieproducts,https://www.reddit.com/r/indieproducts/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-internetisbeautiful,r/InternetIsBeautiful/,https://www.reddit.com/r/InternetIsBeautiful/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-marketing,r/Marketing,https://reddit.com/r/marketing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-microsaas,r/microsaas,https://www.reddit.com/r/microsaas/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-nichewebsites,r/NicheWebsites/,https://www.reddit.com/r/NicheWebsites/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-nocode,r/nocode/,https://www.reddit.com/r/nocode/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-nocodesaas,r/NoCodeSaaS/,https://reddit.com/r/NoCodeSaaS/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-productmanagement,r/ProductManagement,https://www.reddit.com/r/ProductManagement/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-programming,r/programming,https://reddit.com/r/programming/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-retail,r/Retail,https://reddit.com/r/Retail/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-sales,r/Sales,https://reddit.com/r/Sales/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-socialpreneur,r/Socialpreneur,https://www.reddit.com/r/Socialpreneur/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-software,r/software,https://www.reddit.com/r/software/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-startup-ideas,r/Startup_Ideas,https://www.reddit.com/r/Startup_Ideas/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-startup-resources,r/startup_resources,https://reddit.com/r/startup_resources/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-startups,r/startups,https://www.reddit.com/r/startups/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-streetwearstartup,r/streetwearstartup,https://reddit.com/r/streetwearstartup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-testmyapp,r/testmyapp,https://www.reddit.com/r/TestMyApp/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-userexperience,r/userexperience,https://reddit.com/r/userexperience/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-webdesign,r/webdesign,https://reddit.com/r/webdesign/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-webdev,r/webdev,https://www.reddit.com/r/webdev/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-webmarketing,r/WebMarketing,https://reddit.com/r/WebMarketing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+all-startups,All Startups,https://www.allstartups.info/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+app-rater,App Rater,https://apprater.net/add/submit,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+beta-list,Beta List,https://betalist.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+beta-page,Beta Page,https://betapage.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+betafy,Betafy,https://betafy.co/home/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+creatorbase,Creatorbase,https://www.creatorbase.xyz/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+crunch-base,Crunch Base,https://www.crunchbase.com/#/home/index/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+founderbeats,FounderBeats,https://founderbeats.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+growth-junkie,Growth Junkie,https://growthjunkie.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hackerspad,Hackerspad,https://hackerspad.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+index-co,Index.co,https://index.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+killer-startups,Killer Startups,https://www.killerstartups.com/submit-startup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+next-big-product,Next Big Product,http://nextbigproduct.net/product-submission/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+next-big-what,Next Big What,http://nextbigwhat.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+open-startup,Open Startup,https://openstartup.tm/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+project-hatch,Project Hatch,https://www.projecthatch.co/your-story/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saasified,Saasified,https://saasified.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+show-hn,Show HN,https://news.ycombinator.com/show/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+side-projectors,Side Projectors,https://www.sideprojectors.com/#/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+side-projects,Side Projects,https://sideprojects.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+snapmunk,SnapMunk,https://www.snapmunk.com/submit-your-startup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-deals,Startup Deals,https://www.startupdeals.tech/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-lift,Startup Lift,http://www.startuplift.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startupguys,StartupGuys,https://www.startupguys.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tools-for-creators,Tools for Creators,https://toolsforcreators.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+glassdoor,Glassdoor,https://www.glassdoor.com/employers/post-job,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+healthgrades,Healthgrades,https://www.healthgrades.com/provider/join,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+avvo,Avvo,https://www.avvo.com/lawyers/join,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+gust-com,Gust,https://www.gust.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+owler-com,Owler,https://www.owler.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+local-com,Local.com,https://www.local.com/add-business,local business,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yext-com,Yext,https://www.yext.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+directory-company-com,Company.com Directory,https://directory.company.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+local-listings-data-axle-com,Data Axle Local Listings,https://local-listings.data-axle.com/add-business,local business,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cybo-com,Cybo,https://www.cybo.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+finduslocal-com,FindUsLocal,https://www.finduslocal.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cityfos-com,CityFos,https://www.cityfos.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+linkcentre-com,LinkCentre,https://www.linkcentre.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+de-biznet-us-com,BizNet US,https://de.biznet-us.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+getfreelisting-com,GetFreeListing,https://www.getfreelisting.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+gomylocal-com,GoMyLocal,https://www.gomylocal.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ecity-com,eCity,https://www.ecity.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+igotbiz-com,IGotBiz,https://www.igotbiz.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+directorycave-com,DirectoryCave,http://directorycave.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+directorytag-com,DirectoryTag,http://directorytag.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+linkroo-com,LinkRoo,http://linkroo.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+d-i-r-com,D-I-R,http://d-i-r.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+easylinklist-com,EasyLinkList,http://easylinklist.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+linkdevils-com,LinkDevils,http://linkdevils.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+linknthink-com,LinkNThink,http://linknthink.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+directorydudes-com,DirectoryDudes,http://directorydudes.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alistsites-com,AListSites,http://www.alistsites.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alistdirectory-com,AListDirectory,http://alistdirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+baikalglobal-com,BaikalGlobal,http://baikalglobal.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+247webdirectory-com,247WebDirectory,http://www.247webdirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pakranks-com,PakRanks,http://pakranks.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+onlinesociety-org,OnlineSociety,http://onlinesociety.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+loadspy-com,LoadSpy,http://loadspy.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wldirectory-com,WLDirectory,http://wldirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+weboworld-com,WebOWorld,http://www.weboworld.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+usgeo-org,USGeo,http://www.usgeo.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hdvconnect-com,HDVConnect,http://hdvconnect.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+usalistingdirectory-com,USAListingDirectory,http://www.usalistingdirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+socialcliff-com,SocialCliff,http://www.socialcliff.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ecctrade-com,ECCTrade,http://www.ecctrade.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+web-directory-site-com,Web Directory Site,http://www.web-directory-site.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+elephantdirectory-com,ElephantDirectory,http://www.elephantdirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dn2i-com,DN2I,http://www.dn2i.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+joinsociety-com,JoinSociety,http://www.joinsociety.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+everbestlinks-com,EverBestLinks,http://www.everbestlinks.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+freeprwebdirectory-com,FreePRWebDirectory,http://www.freeprwebdirectory.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zocdoc-com,Zocdoc,https://www.zocdoc.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+doctor-webmd-com,WebMD Provider Directory,https://doctor.webmd.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+vitals-com,Vitals,https://www.vitals.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ratemds-com,RateMDs,https://www.ratemds.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+findatopdoc-com,FindATopDoc,https://www.findatopdoc.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+docspot-com,DocSpot,https://www.docspot.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+healthprofs-com,HealthProfs,https://www.healthprofs.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+justia-com,Justia,https://www.justia.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+lawyers-findlaw-com,FindLaw,https://lawyers.findlaw.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+martindale-com,Martindale-Hubbell,https://www.martindale.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+superlawyers-com,Super Lawyers,https://www.superlawyers.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nolo-com,Nolo,https://www.nolo.com/lawyers/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+americanbar-org,LawyerLocator,https://www.americanbar.org/groups/legal_services/flh-home/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+realtor-com,Realtor.com,https://www.realtor.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+trulia-com,Trulia,https://www.trulia.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+redfin-com,Redfin,https://www.redfin.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+century21-com,Century21,https://www.century21.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+coldwellbanker-com,Coldwell Banker,https://www.coldwellbanker.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+remax-com,RE/MAX,https://www.remax.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+angel-co,AngelList,https://angel.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+github-com,GitHub,https://github.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+stackoverflow-com,Stack Overflow Jobs,https://stackoverflow.com/jobs/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dice-com,Dice,https://www.dice.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cars-com,Cars.com,https://www.cars.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+autotrader-com,AutoTrader,https://www.autotrader.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cargurus-com,CarGurus,https://www.cargurus.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+edmunds-com,Edmunds,https://www.edmunds.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+kbb-com,KBB,https://www.kbb.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yellowbot-com,YellowBot,https://www.yellowbot.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+localstack-com,LocalStack,https://www.localstack.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+chamberofcommerce-com,ChamberofCommerce.com,https://www.chamberofcommerce.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yellowpagecity-com,YellowPageCity,https://www.yellowpagecity.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+localdatabase-com,LocalDatabase,https://www.localdatabase.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+citysearch-com,CitySearch,http://www.citysearch.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+merchantcircle-com,MerchantCircle,https://www.merchantcircle.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+whitepages-com,WhitePages,https://www.whitepages.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+superpages-com,Superpages,https://www.superpages.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dexknows-com,DexKnows,https://www.dexknows.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+theknot-com,The Knot,https://www.theknot.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+weddingwire-com,WeddingWire,https://www.weddingwire.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zola-com,Zola,https://www.zola.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+homeadvisor-com,HomeAdvisor,https://www.homeadvisor.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+thumbtack-com,Thumbtack,https://www.thumbtack.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+taskrabbit-com,TaskRabbit,https://www.taskrabbit.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tripadvisor-com,TripAdvisor,https://www.tripadvisor.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+booking-com,Booking.com,https://www.booking.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+expedia-com,Expedia,https://www.expedia.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+24-7pressrelease,24-7PressRelease,https://www.24-7pressrelease.com/press-release-submission-form.php,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+aapsense,Aapsense,https://www.apsense.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+about-me,about me,https://about.me/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+activesearch,ActiveSearch,https://www.activesearchresults.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+addictive-tips,Addictive Tips,https://www.addictivetips.com/tip-us/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ai-library,AI Library,https://library.phygital.plus/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alibaba,Alibaba.com,https://passport.alibaba.com/mini_login.htm,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+all-software-categories-goodfirms,All Software Categories - GoodFirms,https://www.goodfirms.co/directories/software/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alltopstartups-com,Alltopstartups.com,https://alltopstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+alternativeto,AlternativeTo,http://alternativeto.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+amazon-business,Amazon Business,https://business.amazon.com/en/register,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+amazon-seller,Amazon Seller Central,https://sellercentral.amazon.com/ap/register,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+android-authority,Android Authority,https://androidauthority.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+android-central,Android Central,https://www.androidcentral.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+android-headlines,Android Headlines,https://www.androidheadlines.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+android-united,Android United,http://android-united.community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+angie-list,Angie's List (Angi),https://www.angi.com/companyaccount/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+apple-app-store,Apple App Store,https://developer.apple.com/app-store-connect/,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+apple-maps,Apple Maps Connect,https://mapsconnect.apple.com/business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+apple-podcasts,Apple Podcasts,https://podcasters.apple.com/support/823-podcast-requirements,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+artstation,ArtStation,https://www.artstation.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+atlassian,Atlassian,https://www.atlassian.com/blog/trello/trello-collection-atlassian-community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+awesome-tech-blogs,Awesome Tech Blogs,https://tech-blogs.dev/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+band-of-entrepreneurs,Band of Entrepreneurs,https://www.linkedin.com/groups/1789386/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bbb,Better Business Bureau,https://www.bbb.org/get-accredited,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+behance,Behance,http://behance.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ben-bites-news,Ben Bites News,https://news.bensbites.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ben-s-bites-news,Ben's Bites News,http://news.bensbites.co/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+beta-bound,Beta Bound,https://betabound.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+better-business-bureau,Better Business Bureau,https://www.bbb.org/get-accredited,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+biggerpockets-com,Biggerpockets.com,https://Biggerpockets.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bing-places,Bing Places for Business,https://www.bingplaces.com/dashboard/addlisting,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bizapedia,Bizapedia,https://www.bizapedia.com/claim,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bizcommunity,Bizcommunity,https://www.bizcommunity.com/SubmitNews.aspx,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+biznik,Biznik,https://www.biznik.com/members/join,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+bostinno-startups-tech-news-and-events,"BostInno Startups, Tech News and Events",https://bizjournals.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+brownbook,Brownbook,https://www.brownbook.net/business/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+brownbook-ca,Brownbook Canada,https://canada.brownbook.net/business/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+business-insider-india,Business Insider India,https://www.businessinsider.in/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+business-wire,Business Wire,https://www.businesswire.com/portal/site/home/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+canadian-business,Canadian Business Directory,https://www.canadianbusinessdirectory.ca/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+capterra,Capterra,https://www.capterra.com/vendors/add-product,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+chamber-commerce,US Chamber of Commerce,https://www.uschamber.com/co/directory/add,local business,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+chrome-web-store,Chrome Web Store,https://chrome.google.com/webstore/devconsole/register,Ecommerce,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cityof,CityOf,https://www.cityof.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+citysearch,Citysearch,https://www.citysearch.com/business/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cnet,CNET,https://www.cnet.com/news/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+codeproject,CodeProject,https://www.codeproject.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+crazy-about-startups,Crazy About Startups,https://www.crazyaboutstartups.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+crunchbase,Crunchbase,https://crunchbase.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+cylex,Cylex,https://www.cylex.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dealroom,DealRoom,https://app.dealroom.co/companies/fintern/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+designer-news,Designer News,https://designernews.co/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dev-to,DEV Community,https://dev.to/new,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+devpost,Devpost,https://devpost.com/software/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dexknows,DexKnows Business Directory,https://www.dexknows.com/info/addlisting,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+digg,Digg,https://digg.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+docker-hub,Docker Hub,https://hub.docker.com/repository/create,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+dribbble,Dribbble,https://dribbble.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+e27,e27,https://e27.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ebay-business,eBay Business,https://www.ebay.com/sl/sell,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ebusinesspages-com,eBusiness Pages,https://www.ebusinesspages.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+einpresswire,EIN Presswire,https://www.einpresswire.com/shareholder-submit-press-release,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+engadget,Engadget,http://www.engadget.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+entrepreneur,Entrepreneur,https://Entrepreneur.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+entrepreneur-s-network,Entrepreneur's network,https://www.linkedin.com/groups/91749/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+etsy-business,Etsy,https://www.etsy.com/sell,Ecommerce,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+eu-tech,EU Tech,https://tech.eu/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+europages,Europages,https://www.europages.com/register,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+ezlocal,EZLocal,https://ezlocal.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+facebook-business,Facebook Business,https://www.facebook.com/pages/create,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fast-company,Fast Company,https://www.fastcompany.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fastcompany,Fastcompany,http://www.fastcompany.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+fastlane-forum,Fastlane Forum,https://www.thefastlaneforum.com/community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+firefox-addons,Firefox Add-ons,https://addons.mozilla.org/developers/addon/submit/agreement,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+forbes-technology,Forbes Technology,http://www.forbes.com/technology/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+foursquare,Foursquare for Business,https://business.foursquare.com/venues/new,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+freecodecamp,FreeCodeCamp,https://forum.freecodecamp.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+g2,G2,http://g2.com/products/new/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+g2-crowd,G2,https://www.g2.com/products/create,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+g2crowd-com,G2crowd.com,https://g2.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+geekwire,Geekwire,https://Geekwire.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+getapp,GetApp,https://www.gartner.com/en/digital-markets/basic-listing/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+github-awesome-lists,GitHub Awesome Lists,https://github.com/sindresorhus/awesome/pulls,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+gizmodo,Gizmodo,http://www.gizmodo.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+glassdoor-employer,Glassdoor for Employers,https://www.glassdoor.com/employers/account/products,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+goodfirms,GoodFirms,https://www.goodfirms.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+google-business,Google Business Profile,https://business.google.com/create,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+google-business-profile,Google Business Profile,https://www.google.com/business/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+google-play-store,Google Play Store,https://play.google.com/console/,Ecommerce,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+guardian-technology,Guardian Technology,http://www.theguardian.com/uk/technology/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hacker-news,Hacker News,https://news.ycombinator.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hackernews,HackerNews,https://news.ycombinator.com/showhn.html/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hackernoon,HackerNoon,https://hackernoon.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+here-places,HERE Places,https://developer.here.com/sign-up,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hotnews-org,HotNews,http://www.hotnews.org/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+houzz,Houzz,https://www.houzz.com/professionals/signup,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+hub-spot-directory,HubSpot App Marketplace,https://developers.hubspot.com/marketplace,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+huffingtonpost,Huffingtonpost,http://www.huffingtonpost.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+huffpost,HuffPost,https://www.huffpost.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+inc-magazine,Inc. Magazine,https://www.inc.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+inc42,Inc42,https://inc42.com/startup-submission/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+indeed-company,Indeed Company Pages,https://employers.indeed.com/p,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+infignos,Infignos,https://www.infignos.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+infoworld,InfoWorld,https://www.infoworld.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+instagram-business,Instagram Business,https://business.instagram.com/getting-started,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+instapaper,InstaPaper,https://www.instapaper.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+justdial,Justdial,https://www.justdial.com/free-listing,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+kompass,Kompass,https://www.kompass.com/selectcountry/?language=en&pageid=registration,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+lacartes,Lacartes,https://www.lacartes.com/business/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+linkedin-company,LinkedIn Company Pages,https://www.linkedin.com/company/setup/new/,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+local-business-guide,Local Business Guide,https://www.localbusinessguide.com.au/add-business/,local business,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+localstack,LocalStack,https://www.localstack.com/biz/add-listing,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mac-stories,Mac Stories,http://www.macstories.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+make-rs,Make.rs,https://make.rs/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+make-use-of,Make Use of,https://www.makeuseof.com/contributor/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+makerlog,Makerlog,https://getmakerlog.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+makerpad,Makerpad,https://www.makerpad.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+makeuseof,MakeUseOf,http://www.makeuseof.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+manta,Manta,https://www.manta.com/claim,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mapquest,MapQuest,https://www.mapquest.com/business/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mashable,Mashable,http://mashable.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mashable-india,Mashable India,https://in.mashable.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+media-index-kochava,Media Index Kochava,https://media-index.kochava.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+medium-publications,Medium Publications,https://medium.com/p/write,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+merchant-circle,Merchant Circle,https://www.merchantcircle.com/signup,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+microsoft-appsource,Microsoft AppSource,https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mit-technology-review,MIT Technology Review,https://www.technologyreview.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+monster-company,Monster Company Profiles,https://www.monster.com/employers/profile/create,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+mysheriff,MySheriff,https://www.mysheriff.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+n49,n49,https://www.n49.com/biz/new,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nexport,Nexport,https://www.nexport.com/add-company,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nextdoor-business,Nextdoor Business,https://business.nextdoor.com/get-started/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+npm-registry,NPM Registry,https://www.npmjs.com/package/publish,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+nuget,NuGet Gallery,https://www.nuget.org/packages/upload,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+opendi,Opendi,https://www.opendi.com/add-company,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+openpr,openPR,https://www.openpr.com/news/submit.html,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+packagist,Packagist (PHP),https://packagist.org/packages/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pc-world,PC World,https://www.pcworld.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pcmag,PCMag,https://www.pcmag.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pinterest-business,Pinterest Business,https://business.pinterest.com/business/create/,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+press-release-newswire,PR Newswire,https://www.prnewswire.com/news-releases/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+prfree,PRFree,https://www.prfree.org/submit-press-release.html,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+prlog,PRLog,https://www.prlog.org/pub/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+product-hunt,Product Hunt,https://www.producthunt.com/posts/new,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+producthunt,ProductHunt,https://producthunt.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+psychology-today,Psychology Today,https://www.psychologytoday.com/us/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+pypi,Python Package Index (PyPI),https://pypi.org/manage/account/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+quora,Quora,https://www.quora.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-advancedentrepreneur,/r/advancedentrepreneur,https://www.reddit.com/r/advancedentrepreneur/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-business-ideas,r/Business_Ideas,https://reddit.com/r/Business_Ideas/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-businessideas,r/Businessideas,https://reddit.com/r/Businessideas/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-entrepreneur,/r/Entrepreneur,https://www.reddit.com/r/Entrepreneur/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-entrepreneurridealong,r/EntrepreneurRideAlong,https://www.reddit.com/r/EntrepreneurRideAlong/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-entrepreneurship,r/entrepreneurship,https://reddit.com/r/entrepreneurship/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-growmybusiness,/r/GrowMyBusiness,https://www.reddit.com/r/growmybusiness/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-ladybusiness,/r/LadyBusiness,https://www.reddit.com/r/ladybusiness/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-producthunters,r/ProductHunters/,https://www.reddit.com/r/ProductHunters/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-smallbusiness,/r/SmallBusiness,https://www.reddit.com/r/smallbusiness/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-technology,r/technology,https://reddit.com/r/technology/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-venturecapital,r/VentureCapital,https://reddit.com/r/VentureCapital/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+r-venturedcapital,r/VenturedCapital,https://reddit.com/r/VenturedCapital/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+read-cv,Read .cv,http://read.cv/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+reddit-business,Reddit Business Subreddits,https://www.reddit.com/submit,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+robin-good-s-t5,Robin Good's T5,http://tools.robingood.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+rubygems,RubyGems,https://rubygems.org/gems/new,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saas-ai-tools,SaaS AI Tools,https://saasaitools.com/submit,ai tools,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+saasworthy,SaaSworthy,https://www.saasworthy.com/add-product,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+salesforce-appexchange,Salesforce AppExchange,https://partners.salesforce.com/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+shopify-exchange,Shopify Partner Directory,https://partners.shopify.com/signup,Ecommerce,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+showmelocal,ShowMeLocal,https://www.showmelocal.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+siliconangle,SiliconANGLE,https://siliconangle.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+sitejabber,Sitejabber,https://www.sitejabber.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+sitepoint-forums,SitePoint Forums,https://www.sitepoint.com/community/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+slack-app-directory,Slack App Directory,https://api.slack.com/apps,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+slate,Slate,https://slate.com/pitch/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+slide-share,Slide Share,https://www.slideshare.net/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+smashing-magazine,Smashing Magazine,https://www.smashingmagazine.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+softonic,Softonic,https://en.softonic.com/android/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+softwareworld,SoftwareWorld,https://www.softwareworld.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+solo-to,solo to,https://solo.to/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+sourceforge,SourceForge,https://sourceforge.net/software/vendors/new/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+spoke,Spoke,https://www.spoke.com/companies/add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+spotify-artists,Spotify for Artists,https://artists.spotify.com/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-base,Startup Base,https://startupbase.io/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-digest-more-than-just-a-newsletter-techstars,Startup Digest: More Than Just a Newsletter | Techstars,https://www.techstars.com/communities/startup-digest/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+stripe,Stripe,https://stripe.com/en-in/partner-proqram/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+superpages,Superpages,https://www.superpages.com/bp/claim-listing,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-co,Tech.co,https://tech.co/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-directory,Tech directory,http://techdirectory.io/get-listed/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-faster,Tech Faster,http://techfaster.com/submit-your-company/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-in-asia,Tech in Asia,https://www.techinasia.com/companies/create/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-pluto,Tech Pluto,https://techpluto.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-time,Tech | Time,https://time.com/section/tech/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tech-tools-directory,Tech Tools Directory,https://www.nocode.tech/tools/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techboard,Techboard,https://techboard.com.au/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techcrunch,TechCrunch,https://techcrunch.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techdirectory,TechDirectory,https://www.techdirectory.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techendo,Techendo,http://techendo.com/beta/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techli,Techli,https://techli.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techlondon,TechLondon,https://techlondon.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techmasters,#TechMasters,https://techmasters.chat/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+technologyadvice,TechnologyAdvice,https://technologyadvice.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techpluto,TechPluto,http://www.techpluto.com/submit-a-startup/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techrepublic,TechRepublic,https://www.techrepublic.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+techtarget-com,TechTarget,https://www.techtarget.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-register-uk,The Register UK,http://www.theregister.co.uk/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-startup-inc,The Startup INC,https://www.thestartupinc.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-verge,The Verge,https://www.theverge.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+the-wall-street-journal,The Wall Street Journal,https://www.wsj.com/submit,content media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+thomasnet,Thomasnet,https://www.thomasnet.com/nsearch/create-free-listing,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+thumbtack,Thumbtack,https://www.thumbtack.com/business/start,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+towards-data-science,Towards Data Science,https://towardsdatascience.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tripadvisor,TripAdvisor Business,https://www.tripadvisor.com/Owners/Claim,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+trustpilot,Trustpilot,https://business.trustpilot.com/signup,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+tupalo,Tupalo,https://www.tupalo.com/add-place,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+twitter-business,Twitter Business,https://business.twitter.com/en/basics/create-a-business-profile.html,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+usa-businessdirectory-cc,Business Directory CC,https://usa.businessdirectory.cc/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+uses-tech,uses.tech,https://uses.tech/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+venture-beat,Venture Beat,https://venturebeat.com/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+venture-radar,Venture Radar,https://www.ventureradar.com/database/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+venture-village,Venture Village,http://venturevillage.eu/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+venturebeat-profiles,VentureBeat Profiles,https://www.vbprofiles.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+waze-business,Waze Business,https://www.waze.com/business/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+webwiki,WebWiki,https://www.webwiki.com/info/add-website.html/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+whitepages,White Pages,https://www.whitepages.com/business/add-my-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wincyspider-com,WincySpider,http://www.wincyspider.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wired,Wired,http://www.wired.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+women-in-technology,Women in Technology,http://witchat.github.io/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wordpress-plugin-directory,WordPress Plugin Directory,https://wordpress.org/plugins/developers/add/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+wp-newsify,WP Newsify,https://wpnewsify.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yahoo-small-business,Yahoo Small Business Directory,https://smallbusiness.yahoo.com/local-listings,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yell,Yell (UK),https://www.yell.com/s/add-free-listing.html,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yellowbot,Yellowbot,https://www.yellowbot.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yellowpages,Yellow Pages,https://listings.yellowpages.com/claim,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yelp,Yelp for Business,https://business.yelp.com/signup,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+yourstory,YourStory,https://yourstory.com/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+youtube-creator,YouTube Creator,https://www.youtube.com/channel_switcher,social media,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zapier-integrations,Zapier App Directory,https://developer.zapier.com/,SaaS,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zaubee,Zaubee,https://www.zaubee.com/add-business,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zillow,Zillow,https://www.zillow.com/agent-resources/,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+zipleaf,Zipleaf,https://www.zipleaf.com/Companies/Add,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+furlough,Furlough,https://discord.com/invite/UrFqwSwxvN/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+loqol-startup-community,Loqol Startup Community,https://discord.gg/79X3j8NHGE/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+openai-discord-server,OpenAI discord Server,https://discord.gg/openai/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+retool-discord-server,Retool Discord Server,https://discord.com/invite/aEHwpVd7yF/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startup-india,Startup India,https://discord.gg/jtESvh9Pg5/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+advertise-your-startup,Advertise Your Startup,https://discord.com/invite/JcGuNVM/submit,tech startups,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+creatorhub-startups-projects,CreatorHub - Startups & Projects,https://discord.com/invite/yDkR7veK/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+furlough-community,Furlough Community,https://discord.com/invite/furlough/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD
+startups,Startups,https://discord.gg/9qsrDuEeZS/submit,business general,TBD,TBD,TBD,TBD,TBD,TBD,TBD

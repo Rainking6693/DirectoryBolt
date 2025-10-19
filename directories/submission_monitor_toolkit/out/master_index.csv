@@ -1,0 +1,12 @@
+site_id,homepage,submission_url,notes,target_url,resolved_url,last_mode,last_captured_at,status,last_error,dom_checksum,form_signature,form_count,field_count,has_captcha,likely_multi_step,map_json,map_html,screenshot,captured_with
+google-business-profile,https://www.google.com/business,https://www.google.com/business/submit,Core listing for local visibility,https://www.google.com/business/submit,https://www.google.com/business/submit/,monitor,2025-10-19T16:41:02.569498+00:00,ok,,d1d88f67f0d294400238a89457b6246e2242124bc99fe2d3e53138332a7250a7,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0,0,False,False,google-business-profile\map.json,google-business-profile\map.html,google-business-profile\sshot.png,1.0.0
+yelp,https://business.yelp.com,https://business.yelp.com/signup,Review platform with strong consumer reach,https://business.yelp.com/signup,https://business.yelp.com/signup,monitor,2025-10-19T16:41:05.559683+00:00,ok,,614e0e8f4e07cbb5108b5bb02ed8383470a1f285992d1977cdf95728d7719c04,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0,0,False,False,yelp\map.json,yelp\map.html,yelp\sshot.png,1.0.0
+manta,https://www.manta.com,https://www.manta.com/claim,SMB directory with citation value,https://www.manta.com/claim,,monitor,2025-10-19T16:41:07.441745+00:00,error,"Navigation timeout after 25000 ms: Page.goto: Timeout 25000ms exceeded.
+Call log:
+  - navigating to ""https://www.manta.com/claim"", waiting until ""networkidle""
+",,,0,0,False,False,manta\map.json,manta\map.html,manta\sshot.png,1.0.0
+yellowpages,https://www.yellowpages.com,https://listings.yellowpages.com/claim,Traditional citation source,https://listings.yellowpages.com/claim,,monitor,2025-10-19T16:41:32.578149+00:00,error,"Playwright error: Page.goto: net::ERR_CONNECTION_TIMED_OUT at https://listings.yellowpages.com/claim
+Call log:
+  - navigating to ""https://listings.yellowpages.com/claim"", waiting until ""networkidle""
+",,,0,0,False,False,yellowpages\map.json,yellowpages\map.html,yellowpages\sshot.png,1.0.0
+tripadvisor,https://www.tripadvisor.com,https://www.tripadvisor.com/add-business,Travel/hospitality exposure,https://www.tripadvisor.com/add-business,https://www.tripadvisor.com/add-business,monitor,2025-10-19T16:41:53.839998+00:00,ok,,6390f5b148f77165df7e58d2257a83dc59ba71a1575908b9844d4ecd5246f35a,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0,0,True,False,tripadvisor\map.json,tripadvisor\map.html,tripadvisor\sshot.png,1.0.0

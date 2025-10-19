@@ -56,3 +56,4 @@ async function checkTableSchema() {
 
 checkTableSchema().catch(console.error);
 
+
