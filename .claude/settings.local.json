@@ -71,7 +71,8 @@
       "Bash(where yarn)",
       "Bash(taskkill:*)",
       "Bash(set SUPABASE_ACCESS_TOKEN=sbp_7bdfcb97cac2785470a503c8bc2c7b2e9b89ea75)",
-      "Bash(npx playwright install chromium)"
+      "Bash(npx playwright install chromium)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://kolgqfjgncdwddziqloz.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvbGdxZmpnbmNkd2RkemlxbG96Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjczODc2MSwiZXhwIjoyMDcyMzE0NzYxfQ.xPoR2Q_yey7AQcorPG3iBLKTadzzSEMmK3eM9ZW46Qc node run-discovery.js single 219568db-5155-4d67-803f-6d884b096948)"
     ],
     "deny": [],
     "ask": []
