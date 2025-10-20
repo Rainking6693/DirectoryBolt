@@ -17,3 +17,39 @@ declare module 'formidable' {
 }
 
 declare module 'validator';
+
+declare module 'formidable' {
+  interface File {
+    filepath: string
+    originalFilename?: string | null
+    mimetype?: string | null
+    size?: number
+  }
+
+  interface Fields {
+    [key: string]: string | string[] | undefined
+  }
+
+  interface Files {
+    [key: string]: File | File[] | undefined
+  }
+
+  interface Options {
+    multiples?: boolean
+    maxFileSize?: number
+  }
+
+  class IncomingForm {
+    constructor(options?: Options)
+    parse(
+      req: import('http').IncomingMessage,
+      callback: (err: Error | null, fields: Fields, files: Files) => void
+    ): void
+  }
+
+  function formidable(options?: Options): IncomingForm
+
+  export { File, Files, Fields, IncomingForm, Options }
+  export default formidable
+}
+
