@@ -6,11 +6,11 @@
   "submission_url": "https://www.tripadvisor.com/add-business",
   "target_url": "https://www.tripadvisor.com/add-business",
   "resolved_url": "https://www.tripadvisor.com/add-business",
-  "captured_at": "2025-10-19T16:41:53.839998+00:00",
+  "captured_at": "2025-10-20T00:03:32.434765+00:00",
   "mode": "monitor",
   "status": "ok",
   "error": null,
-  "dom_checksum": "6390f5b148f77165df7e58d2257a83dc59ba71a1575908b9844d4ecd5246f35a",
+  "dom_checksum": "76f7ea0daa9459ebc87d9fcf7f2fb4cc380e7745d18390238adb7fdd72daa0ae",
   "form_signature": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "form_count": 0,
   "field_count": 0,
@@ -28,6 +28,6 @@
     "screenshot": "tripadvisor\\sshot.png",
     "map_json": "tripadvisor\\map.json"
   },
-  "load_duration_ms": 2811,
+  "load_duration_ms": 2699,
   "status_code": 403
 }

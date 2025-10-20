@@ -6,7 +6,7 @@
   "submission_url": "https://www.manta.com/claim",
   "target_url": "https://www.manta.com/claim",
   "resolved_url": null,
-  "captured_at": "2025-10-19T16:41:07.441745+00:00",
+  "captured_at": "2025-10-20T00:02:46.129952+00:00",
   "mode": "monitor",
   "status": "error",
   "error": "Navigation timeout after 25000 ms: Page.goto: Timeout 25000ms exceeded.\nCall log:\n  - navigating to \"https://www.manta.com/claim\", waiting until \"networkidle\"\n",
@@ -28,5 +28,5 @@
     "screenshot": "manta\\sshot.png",
     "map_json": "manta\\map.json"
   },
-  "load_duration_ms": 25007
+  "load_duration_ms": 25018
 }

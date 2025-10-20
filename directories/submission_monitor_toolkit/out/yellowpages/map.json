@@ -6,7 +6,7 @@
   "submission_url": "https://listings.yellowpages.com/claim",
   "target_url": "https://listings.yellowpages.com/claim",
   "resolved_url": null,
-  "captured_at": "2025-10-19T16:41:32.578149+00:00",
+  "captured_at": "2025-10-20T00:03:11.244759+00:00",
   "mode": "monitor",
   "status": "error",
   "error": "Playwright error: Page.goto: net::ERR_CONNECTION_TIMED_OUT at https://listings.yellowpages.com/claim\nCall log:\n  - navigating to \"https://listings.yellowpages.com/claim\", waiting until \"networkidle\"\n",
@@ -28,5 +28,5 @@
     "screenshot": "yellowpages\\sshot.png",
     "map_json": "yellowpages\\map.json"
   },
-  "load_duration_ms": 21114
+  "load_duration_ms": 21109
 }

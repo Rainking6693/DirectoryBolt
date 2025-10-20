@@ -6,7 +6,7 @@
   "submission_url": "https://www.google.com/business/submit",
   "target_url": "https://www.google.com/business/submit",
   "resolved_url": "https://www.google.com/business/submit/",
-  "captured_at": "2025-10-19T16:41:02.569498+00:00",
+  "captured_at": "2025-10-20T00:02:38.232977+00:00",
   "mode": "monitor",
   "status": "ok",
   "error": null,
@@ -28,6 +28,6 @@
     "screenshot": "google-business-profile\\sshot.png",
     "map_json": "google-business-profile\\map.json"
   },
-  "load_duration_ms": 2910,
+  "load_duration_ms": 5787,
   "status_code": 404
 }

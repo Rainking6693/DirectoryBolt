@@ -30,11 +30,11 @@ $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $logFile = Join-Path $logDir "monitor_$timestamp.log"
 
 $arguments = @(
-    "`"$scriptPath`"",
+    $scriptPath,
+    '--out-dir', $OutDir,
+    '--log-level', $LogLevel,
     'monitor',
-    '--targets', "`"$TargetsCsv`"",
-    '--out-dir', "`"$OutDir`"",
-    '--log-level', $LogLevel
+    '--targets', $TargetsCsv
 )
 
 Push-Location $repoRoot
