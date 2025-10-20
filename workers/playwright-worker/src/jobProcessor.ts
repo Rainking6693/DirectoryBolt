@@ -4,6 +4,10 @@ import { chromium, Browser, Page } from 'playwright';
 import { logger } from './logger';
 import SuccessProbabilityCalculator from '../../../lib/ai-services/SuccessProbabilityCalculator';
 import DescriptionCustomizer from '../../../lib/ai-services/DescriptionCustomizer';
+import AISubmissionOrchestrator from '../../../lib/ai-services/AISubmissionOrchestrator';
+import IntelligentRetryAnalyzer from '../../../lib/ai-services/IntelligentRetryAnalyzer';
+import AIFormMapper from '../../../lib/ai-services/AIFormMapper';
+import SubmissionTimingOptimizer from '../../../lib/ai-services/SubmissionTimingOptimizer';
 import { HUMANIZATION, randomDelay, humanType, humanClick, solveCaptcha } from './humanization';
 import { shouldUseGemini, callGeminiWorker } from './geminiRouter';
 
@@ -110,8 +114,17 @@ const AI_PROBABILITY_THRESHOLD = Number.isFinite(Number(process.env.AI_PROBABILI
 
 let probabilityCalculatorInstance: any | null | undefined;
 let descriptionCustomizerInstance: any | null | undefined;
+let aiOrchestratorInstance: any | null | undefined;
+let retryAnalyzerInstance: any | null | undefined;
+let formMapperInstance: any | null | undefined;
+let timingOptimizerInstance: any | null | undefined;
+
 let probabilityCalculatorInitLogged = false;
 let descriptionCustomizerInitLogged = false;
+let aiOrchestratorInitLogged = false;
+let retryAnalyzerInitLogged = false;
+let formMapperInitLogged = false;
+let timingOptimizerInitLogged = false;
 
 function getProbabilityCalculator(): any | null {
   if (probabilityCalculatorInstance !== undefined) {
@@ -165,6 +178,120 @@ function getDescriptionCustomizer(): any | null {
   }
 
   return descriptionCustomizerInstance;
+}
+
+// AI Orchestrator initialization
+function getAIOrchestrator(): any | null {
+  if (aiOrchestratorInstance !== undefined) {
+    return aiOrchestratorInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!aiOrchestratorInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping AI Orchestrator initialization.');
+      aiOrchestratorInitLogged = true;
+    }
+    aiOrchestratorInstance = null;
+    return aiOrchestratorInstance;
+  }
+
+  try {
+    aiOrchestratorInstance = new AISubmissionOrchestrator({
+      enableAllAIServices: true,
+      maxConcurrentOperations: 50,
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('🎼 AI Submission Orchestrator initialized', { component: 'ai-orchestrator' });
+  } catch (error: any) {
+    logger.error('Failed to initialize AISubmissionOrchestrator', { error: error?.message });
+    aiOrchestratorInstance = null;
+  }
+
+  return aiOrchestratorInstance;
+}
+
+// Retry Analyzer initialization
+function getRetryAnalyzer(): any | null {
+  if (retryAnalyzerInstance !== undefined) {
+    return retryAnalyzerInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!retryAnalyzerInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping Retry Analyzer initialization.');
+      retryAnalyzerInitLogged = true;
+    }
+    retryAnalyzerInstance = null;
+    return retryAnalyzerInstance;
+  }
+
+  try {
+    retryAnalyzerInstance = new IntelligentRetryAnalyzer({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('🔄 Intelligent Retry Analyzer initialized', { component: 'retry-analyzer' });
+  } catch (error: any) {
+    logger.error('Failed to initialize IntelligentRetryAnalyzer', { error: error?.message });
+    retryAnalyzerInstance = null;
+  }
+
+  return retryAnalyzerInstance;
+}
+
+// Form Mapper initialization
+function getFormMapper(): any | null {
+  if (formMapperInstance !== undefined) {
+    return formMapperInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!formMapperInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping Form Mapper initialization.');
+      formMapperInitLogged = true;
+    }
+    formMapperInstance = null;
+    return formMapperInstance;
+  }
+
+  try {
+    formMapperInstance = new AIFormMapper({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('🗺️  AI Form Mapper initialized', { component: 'form-mapper' });
+  } catch (error: any) {
+    logger.error('Failed to initialize AIFormMapper', { error: error?.message });
+    formMapperInstance = null;
+  }
+
+  return formMapperInstance;
+}
+
+// Timing Optimizer initialization
+function getTimingOptimizer(): any | null {
+  if (timingOptimizerInstance !== undefined) {
+    return timingOptimizerInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!timingOptimizerInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping Timing Optimizer initialization.');
+      timingOptimizerInitLogged = true;
+    }
+    timingOptimizerInstance = null;
+    return timingOptimizerInstance;
+  }
+
+  try {
+    timingOptimizerInstance = new SubmissionTimingOptimizer({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('⏰ Submission Timing Optimizer initialized', { component: 'timing-optimizer' });
+  } catch (error: any) {
+    logger.error('Failed to initialize SubmissionTimingOptimizer', { error: error?.message });
+    timingOptimizerInstance = null;
+  }
+
+  return timingOptimizerInstance;
 }
 
 function loadDirectories(): DirectoryConfig[] {
