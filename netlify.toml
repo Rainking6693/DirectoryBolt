@@ -1,6 +1,8 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  # Ignore Netlify functions - we use Next.js API routes instead
+  functions = ""
 
 [build.environment]
   NODE_VERSION = "18.20.0"

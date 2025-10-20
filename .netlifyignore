@@ -1,55 +1,35 @@
-# Netlify Build Exclusions
-# Files that should not be included in Netlify builds
+# Ignore Netlify functions directory - we use Next.js API routes instead
+netlify/functions/
 
-# Sync scripts that cause build issues
-sync-directorybolt-to-autobolt.js
-verify-sync.js
+# Ignore test files
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
 
-# AutoBolt extension files (COMPLETELY EXCLUDED)
-autobolt-extension/
-
-# All problematic scripts and files
-scripts/
-background-batch.js
-background.js
-queue-processor*.js
-directory-registry.js
-
-# Development and testing files
-scripts/
-tests/
-*.test.js
-*.test.ts
-
-# Documentation
+# Ignore documentation
 *.md
 !README.md
 
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Ignore local development files
+.env.local
+.env.development
+.env.test
 
-# OS files
+# Ignore build artifacts from other tools
+worker/
+workers/
+
+# Ignore large directory data files (loaded from database instead)
+directories/complete-directory-database.json
+directories/*.json
+!directories/directory-list.json
+
+# Ignore logs and temporary files
+*.log
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-
-# Temporary files
-tmp/
-temp/
-
-# Build artifacts that shouldn't be in source
-.next/
-out/
-dist/
-build/
-
-# Environment files (handled by Netlify)
-.env*
-!.env.example
+# Ignore git files
+.git/
+.gitignore
