@@ -1,0 +1,610 @@
+id,name,correct_submission_url,category,domain_authority,impact_level,tier_level,difficulty,traffic_estimate,time_to_approval,has_captcha
+source-forge,"Source Forge",https://sourceforge.net/submit,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+healthline,"Healthline",https://healthline.com/submit,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+dev-community,"DEV Community",http://dev.to/submit,Business General,67,Medium-High,2,Medium,100K-500K,3-7 days,No
+get-app,"Get App",https://www.getapp.com/submit,SaaS,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+getting-smart,"Getting Smart",https://www.gettingsmart.com/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+software-world,"Software World",https://www.softwareworld.co/submit,SaaS,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+alternative-me,"Alternative Me",https://alternative.me/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+alternative-to,"Alternative To",https://alternativeto.net/submit,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+vccircle,"Vccircle",https://www.vccircle.com/company/directory/submit,Tech Startups,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+babel-slack,"Babel Slack",https://slack.babeljs.io/submit,Social Media,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+f6s,"F6S",https://www.f6s.com/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+all-top-startups,"All top startups",http://alltopstartups.com/submit-startup/submit,Tech Startups,51,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+alltopstartups,"AllTopStartups",https://alltopstartups.com/submit,Tech Startups,45,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+financesonline-com,"FinancesOnline.com",https://FinancesOnline.com/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+vator,"Vator",https://vator.tv/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+crowd-reviews,"Crowd Reviews",http://crowdreviews.com/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+software-review,"Software Review",https://provider.softwarereviews.com/submit,SaaS,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+libhunt,"Libhunt",https://www.libhunt.com/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+built-in-chicago,"Built in Chicago",https://www.builtinchicago.org/contact/send_us_tip/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+cloud-native-computing-foundation,"Cloud Native Computing Foundation",https://slack.cncf.io/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+trustradius,"TrustRadius",http://trustradius.com/submit,Business General,69,Medium-High,2,Medium-Hard,100K-500K,1-2 weeks,Yes
+startups-uk,"Startups UK",https://startups.co.uk/submit,Tech Startups,58,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+all-top,"All Top",https://alltop.com/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+tekpon,"Tekpon",http://tekpon.com/get-listed/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+site-jabber,"Site Jabber",https://sitejabber.com/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+cool-mom-picks,"Cool mom picks",https://coolmompicks.com/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+dang,"Dang",http://dang.ai/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+eu-startups-database,"EU-Startups Database",https://www.eu-startups.com/directory/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+growth-hackers,"Growth hackers",https://community.growthhackers.com/submit,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+startupranking,"StartupRanking",https://www.startupranking.com/submit,Tech Startups,54,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+list-your-software-get-qualified-leads,"List Your Software & Get Qualified Leads",https://www.softwareadvice.com/vendors/submit,SaaS,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+springwise,"Springwise",https://springwise.com/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+startup-grind,"Startup Grind",https://www.startupgrind.com/submit,Tech Startups,53,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+bunity,"Bunity",https://www.bunity.com/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+foundr,"Foundr",https://Foundr.com/submit,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+saastr,"SaaStr",https://www.saastr.com/submit,SaaS,49,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+unboxing-startups,"Unboxing Startups",https://unboxingstartups.com/contact/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+tricky-enough,"Tricky Enough",https://www.trickyenough.com/submit,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+appsumo,"AppSumo",https://sell.appsumo.com/submit,SaaS,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cloud-foundry,"Cloud Foundry",https://slack.cloudfoundry.org/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+killerstartups,"Killerstartups",https://killerstartups.com/submit,Tech Startups,50,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+betalist,"Betalist",http://betalist.com/submit,SaaS,78,Medium-High,2,Medium,500K-1M,3-7 days,No
+all-my-faves,"All my faves",https://allmyfaves.com/submit,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+famous-ai-tools,"Famous AI Tools",https://famousaitools.ai/submit,AI Tools,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+startupxplore,"Startupxplore",https://startupxplore.com/en/startups/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+slant,"Slant",http://slant.co/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+uplabs,"Uplabs",https://www.uplabs.com/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+webrazzi,"Webrazzi",http://webrazzi.com/en/startup-form/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+people-ops-hr-community,"People Ops & HR Community",https://lattice.com/community/rfh/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+saas-tools,"SaaS Tools",https://saasaitools.com/submit,SaaS,51,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+eu-startups,"EU startups",https://eu-startups.com/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+hotfrog,"hotfrog",https://www.hotfrog.com/submit,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+slant-co,"Slant.co",https://www.slant.co/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+stackshare,"StackShare",https://stackshare.io/submit,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+devhunt,"Devhunt",https://devhunt.org/submit,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+mind-the-product,"Mind the product",http://slack.mindtheproduct.com/submit,SaaS,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+data-quest,"Data Quest",https://www.dataquest.io/chat/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+wip,"WIP",http://wip.co/projects/new/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+nextbigwhat,"NextBigWhat",https://nextbigwhat.com/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+fivetaco,"FiveTaco",http://fivetaco.com/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+indiehackers,"Indiehackers",https://www.indiehackers.com/submit,Tech Startups,79,Medium-High,2,Hard,500K-1M,2-4 weeks,No
+changelog,"Changelog",https://changelog.com/news/submit,Tech Startups,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+product-school,"Product School",https://www.productschool.com/slack-community/submit,SaaS,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+ai-tool-guru,"AI TOOL GURU",https://aitoolguru.com/submit,AI Tools,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+tracxn,"Tracxn",https://tracxn.com/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+nocodedevs,"NoCodeDevs",https://www.nocodedevs.com/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+nocodefounders,"NoCodeFounders",https://nocodefounders.com/submit,Tech Startups,53,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+software-suggest,"Software Suggest",https://www.softwaresuggest.com/vendors/submit,SaaS,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cofounderslab,"CoFoundersLab",https://cofounderslab.com/submit,Tech Startups,46,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+devdojo,"DevDojo",https://devdojo.com/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+snap-munk,"Snap Munk",https://startups.snapmunk.com/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+betabound,"Betabound",https://betabound.com/submit,Tech Startups,61,Medium-High,2,Medium,100K-500K,3-7 days,No
+serchen,"Serchen",https://www.serchen.com/get-listed/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+netted,"Netted",http://netted.net/contact-us/submit,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+devrant,"devRant",https://devrant.com/submit,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+web-design-inspiration,"Web Design Inspiration",https://webdesign-inspiration.com/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+pitchwall,"PitchWall",https://pitchwall.co/submit,Tech Startups,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+startup-stash,"Startup Stash",https://startupstash.com/add-listing/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+starter-story,"Starter Story",https://www.starterstory.com/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+lobsters,"Lobsters",https://lobste.rs/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+elpha,"Elpha",https://elpha.com/submit,Social Media,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+ecommercefuel,"eCommerceFuel",https://www.ecommercefuel.com/submit,Ecommerce,24,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+launchingnext,"LaunchingNext",https://www.launchingnext.com/submit,Tech Startups,52,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+sideprojectors,"SideProjectors",https://www.sideprojectors.com/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+indie-hackers,"Indie Hackers",https://indiehackers.com/submit,Tech Startups,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+bigstartups,"BigStartups",https://bigstartups.co/submit,Tech Startups,56,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+insidr-ai-tools,"Insidr AI Tools",http://insidr.ai/submit-tools/submit,AI Tools,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+workspaces,"Workspaces",http://workspaces.xyz/submit-a-workspace-workspaces/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+thingtesting,"Thingtesting",https://thingtesting.com/submit-brand/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+land-book,"Land Book",https://land-book.com/submit,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cabinet-m,"Cabinet M",https://cabinetm.com/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+mars-ai-directory,"Mars AI Directory",http://marsx.dev/ai-startups/submit,AI Tools,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+startup-buffer,"Startup Buffer",http://startupbuffer.com/submit,Tech Startups,41,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+there-s-an-ai-for-that,"There's An AI For That",https://theresanaiforthat.com/submit,AI Tools,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+tiny-startups,"Tiny Startups",http://tally.so/r/wMzP8X/submit,Tech Startups,42,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+real-world-beta-testing,"Real World Beta Testing",https://betatesting.com/beta-testing/submit,Tech Startups,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+remote-tools,"Remote Tools",https://www.remote.tools/submit,SaaS,29,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+buffer-apps,"Buffer apps",https://www.bufferapps.com/submit,SaaS,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+product-hq,"Product HQ",https://www.productmanagerhq.com/join-the-community/submit,SaaS,23,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+sidebar-io,"Sidebar.io",https://Sidebar.io/submit,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+webcatalog,"webcatalog",https://webcatalog.io/en/apps/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+online-geniuses,"Online Geniuses",https://onlinegeniuses.com/marketplace/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+superb-crew,"Superb Crew",http://www.superbcrew.com/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+future-startup,"Future Startup",https://futurestartup.com/submit,Tech Startups,42,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+futurepedia,"Futurepedia",https://www.futurepedia.io/submit,AI Tools,51,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+find-gift,"Find Gift",https://www.findgift.com/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+phygital,"Phygital",https://library.phygital.plus/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+saas-hub,"SaaS Hub",https://Saashub.com/submit,SaaS,48,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+saas-worthy,"SaaS Worthy",https://www.saasworthy.com/submit,SaaS,41,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+landing-folio,"Landing Folio",https://www.landingfolio.com/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+saashub,"SaaSHub",http://saashub.com/submit,SaaS,48,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+hcilab,"Hcilab",http://Hcilab.org/ai-tools-directory/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+launching-next,"Launching Next",http://launchingnext.com/submit,Tech Startups,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+fyple,"fyple",https://www.fyple.com/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+supertools,"Supertools",https://supertools.therundown.ai/submit,SaaS,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+startup-lister,"startup lister",https://startuplister.com/submit,Tech Startups,45,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+buildspace,"buildspace",https://sage.buildspace.so/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+web-tools-weekly,"Web Tools Weekly",http://webtoolsweekly.com/submit,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+topai-tools,"TopAI.tools",https://topai.tools/submit,SaaS,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+submit-a-startup,"Submit A Startup",http://thetechpanda.com/submit-a-startup/submit,Tech Startups,50,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+openalternative,"OpenAlternative",http://openalternative.co/submit,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+classical-finance,"Classical Finance",https://www.classicalfinance.com/your-story/submit,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+the-startup-pitch,"The Startup Pitch",https://thestartuppitch.com/submit,Tech Startups,52,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+dang-ai,"dang ai",https://dang.ai/submit,AI Tools,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+admire-the-web,"Admire The Web",https://www.admiretheweb.com/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+aixploria,"AIxploria",https://www.aixploria.com/en/add-ai/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+top-apps,"Top Apps",https://topapps.ai/submit,SaaS,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+foundr-ai,"Foundr.ai",https://foundr.ai/submit,AI Tools,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+toolify,"Toolify",https://www.toolify.ai/submit,AI Tools,41,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+ctrl-alt,"Ctrl Alt",https://ctrlalt.cc/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+romanian-startups,"Romanian Startups",https://www.romanianstartups.com/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+startup-tracker,"Startup Tracker",https://startuptracker.io/submit,Tech Startups,41,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+future-tools,"Future Tools",https://www.futuretools.io/submit,SaaS,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+startups-list,"Startups List",https://www.startups-list.com/submit,Tech Startups,57,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+startup88,"Startup88",https://startup88.com/submit,Tech Startups,56,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+top-similar-sites,"Top Similar Sites",http://www.topsimilarsites.com/add.aspx/submit,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+vic-trays,"Vic Trays",https://victrays.com/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+promotehour,"Promotehour",https://promotehour.com/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+robingood,"RobinGood",https://tools.robingood.com/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+startuplister,"Startuplister",http://startuplister.com/submit,Tech Startups,43,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+robin-good-s-tools,"Robin Good's Tools",http://tools.robingood.com/submit,SaaS,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+new-startups,"New Startups",http://new-startups.com/submit,Tech Startups,57,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+no-code-founders,"No Code Founders",https://nocodefounders.com/startups/submit,Tech Startups,42,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+peerlist,"Peerlist",https://peerlist.io/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+ios-developers,"iOS Developers",https://ios-developers.io/submit,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+product-led-alliance,"Product-Led Alliance",https://www.productledalliance.com/submit,SaaS,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+hive-index,"Hive Index",https://thehiveindex.com/submit,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+genz-vcs,"GenZ VCs",https://www.genzvcs.com/join-us/submit,Tech Startups,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+getworm-com,"Getworm.com",https://getworm.com/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+allthingsai,"AllThingsAI",https://allthingsai.com/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+creative-tribes,"Creative Tribes",http://creativetribes.co/submit,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+founderio,"founderio",https://www.founderio.com/submit,Tech Startups,47,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+appsthunder,"Appsthunder",https://appsthunder.com/submit,SaaS,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+digital-marketing-hints,"Digital Marketing Hints",https://ads.digitalmarketinghints.com/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+spectacle,"Spectacle",https://spectacle.is/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+webapprater,"Webapprater",https://webapprater.com/submit,SaaS,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+startup-inspiration,"Startup inspiration",https://www.startupinspire.com/submit,Tech Startups,51,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+inspiration-gallery-for-startups,"Inspiration gallery for startups",http://startupinspire.com/startups/submit,Tech Startups,58,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+startuptabs,"Startuptabs",http://startuptabs.com/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+worm,"Worm",https://getworm.com/submit-startup/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+startups-watch,"Startups.watch",https://startups.watch/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+allthingsai-com,"Allthingsai.com",http://Allthingsai.com/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+front-end-developers,"Front-End Developers",http://frontenddevelopers.org/submit,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+9sites-net,"9Sites.net",https://www.9sites.net/addurl.php/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+startup-collections,"Startup Collections",http://startupcollections.com/submit,Tech Startups,58,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+aitools-fyi,"aitools.fyi",https://aitools.fyi/submit,AI Tools,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+easy-with-ai,"Easy With AI",https://easywithai.com/submit,AI Tools,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+phygital-plus,"Phygital.plus",http://library.phygital.plus/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+indiehackerstacks,"IndieHackerStacks",http://indiehackerstacks.com/submit,Tech Startups,76,Medium-High,2,Hard,500K-1M,2-4 weeks,Yes
+startup-inspire,"Startup Inspire",http://startupinspire.com/dashboard/startup/create/submit,Tech Startups,57,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+easywithai-com,"Easywithai.com",http://Easywithai.com/submit,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+ai-toolkit,"AI Toolkit",https://www.aitoolkit.org/submit,AI Tools,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+landscape,"Landscape",https://www.landscape.vc/community/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+ai-scout,"AI Scout",https://aiscout.net/submit,AI Tools,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+opentools,"OpenTools",https://opentools.ai/submit,SaaS,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+unita,"Unita",https://www.unita.co/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+ai-mojo,"AI Mojo",https://aimojo.pro/submit,AI Tools,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+owwly,"Owwly",https://owwly.com/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+startup-spotlight,"Startup Spotlight",http://tally.so/r/nrLJRp/submit,Tech Startups,50,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+the-startup-project,"The Startup Project",https://www.startupproject.org/submit,Tech Startups,49,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+ai-tool-hunt,"Ai Tool Hunt",https://www.aitoolhunt.com/submit,AI Tools,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+fazier-com,"Fazier.com",https://fazier.com/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+startupbase,"Startupbase",https://startupbase.io/submit,Tech Startups,51,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+remotely-one,"Remotely One",https://www.remotelyone.com/submit,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+aitoptools,"AITopTools",https://aitoptools.com/submit,SaaS,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+aitoptools-com,"AItoptools.com",http://AItoptools.com/submit,SaaS,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+nocodelist,"NoCodeList",https://nocodelist.co/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+ai-center,"AI Center",https://aicenter.ai/?/submit,AI Tools,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+toolpilot-ai,"ToolPilot AI",https://www.toolpilot.ai/submit,AI Tools,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+launched,"Launched!",https://launched.io/submit,Tech Startups,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+fuse-kiwi,"Fuse.kiwi",https://www.fuse.kiwi/submit,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+nocode-devs,"Nocode Devs",https://www.nocodedevs.com/browse-the-directory/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+startups-fyi,"Startups .fyi",http://tally.so/r/3lOGLk/submit,Tech Startups,46,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+favird-com,"Favird.com",http://favird.com/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+kernal,"Kernal",https://kern.al/submit,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+findmyaitool,"FindMyAITool",https://findmyaitool.com/submit,SaaS,34,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+alternatives-co,"Alternatives.Co",https://alternatives.co/software/ai-tools/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+ai-finder,"AI Finder",https://ai-finder.net/submit,AI Tools,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+gpte,"GPTE",https://gpte.ai/submit,AI Tools,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+seoul-startups,"SEOUL Startups",https://www.seoulstartups.com/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+textify,"TEXTIFY",https://textify.ai/directory/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+tool-scout,"Tool Scout",https://toolscout.ai/submit,SaaS,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+ilib-com,"iLib.com",https://www.ilib.com/submit,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+firebase,"Firebase",https://firebase-community.appspot.com/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+promote-project,"Promote Project",https://promoteproject.com/submit,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+uneed,"Uneed",https://www.uneed.best/submit-a-tool/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+appiod-com,"Appiod.com",http://appiod.com/submit-app-for-review/submit,SaaS,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+awesomeindie,"AwesomeIndie",https://awesomeindie.com/submit,Tech Startups,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+uneed-best,"Uneed.best",https://www.uneed.best/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+beta-candy,"beta candy",https://betacandy.com/submit,Tech Startups,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+startup-europe,"Startup Europe",http://startupeurope.net/submit,Tech Startups,47,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+startup-chat,"Startup Chat",https://community.startup.foundation/c/latest/submit,Tech Startups,55,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+furlough,"Furlough",https://discord.com/invite/UrFqwSwxvN/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+loqol-startup-community,"Loqol Startup Community",https://discord.gg/79X3j8NHGE/submit,Tech Startups,41,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+openai-discord-server,"OpenAI discord Server",https://discord.gg/openai/submit,Social Media,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+retool-discord-server,"Retool Discord Server",https://discord.com/invite/aEHwpVd7yF/submit,Social Media,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+startup-india,"Startup India",https://discord.gg/jtESvh9Pg5/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+advertise-your-startup,"Advertise Your Startup",https://discord.com/invite/JcGuNVM/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+creatorhub-startups-projects,"CreatorHub - Startups & Projects",https://discord.com/invite/yDkR7veK/submit,Tech Startups,53,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+furlough-community,"Furlough Community",https://discord.com/invite/furlough/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+startup-growth-hub-by-projectium,"Startup Growth Hub by Projectium",https://discadia.com/projectium-network/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+startups,"Startups",https://discord.gg/9qsrDuEeZS/submit,Tech Startups,42,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+saas-founders-build-scale,"SaaS Founders - Build & Scale",https://www.facebook.com/groups/saasfoundersnetwork/submit,SaaS,56,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+saas-growth-hacks,"SaaS Growth Hacks",https://www.facebook.com/groups/SaaSgrowthhacking/submit,SaaS,45,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+saas-mantra,"SaaS Mantra",https://www.facebook.com/groups/saasmantra/submit,SaaS,57,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+saas-products-marketing,"SaaS Products & Marketing",https://www.facebook.com/groups/saasproductsandmarketing/submit,SaaS,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+scaling-saas-founders,"Scaling SaaS Founders",https://www.facebook.com/groups/2044902829088090/submit,SaaS,48,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+the-startup-chat-mastermind-group,"The Startup Chat Mastermind Group",https://www.facebook.com/groups/TheStartupChat/submit,Tech Startups,59,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+executive-suite,"Executive Suite",https://www.linkedin.com/groups/1426/submit,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+on-startups,"On Startups",https://www.linkedin.com/groups/2877/submit,Tech Startups,49,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+startup-specialists-group,"Startup Specialists Group",https://www.linkedin.com/groups/56766/submit,Tech Startups,49,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+r-alphaandbetausers,"/r/alphaandbetausers/",https://www.reddit.com/r/alphaandbetausers/submit,Tech Startups,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-roastmystartup,"/r/roastmystartup",https://www.reddit.com/r/roastmystartup/submit,Tech Startups,56,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+r-saas,"/r/SaaS",https://www.reddit.com/r/SaaS/submit,SaaS,43,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+r-sideproject,"/r/sideproject",https://www.reddit.com/r/SideProject/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-startup,"/r/Startup",https://www.reddit.com/r/startup/submit,Tech Startups,59,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+r-sweatystartup,"/r/sweatystartup/",https://www.reddit.com/r/sweatystartup/submit,Tech Startups,59,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+r-plugyourproduct,"/r/Plugyourproduct/",https://www.reddit.com/r/plugyourproduct/submit,SaaS,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-thesidehustle,"/r/thesidehustle/",https://reddit.com//r/thesidehustle/submit,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-advertising,"r/Advertising",https://reddit.com/r/Advertising/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-artificialinteligence,"r/ArtificialInteligence/",https://www.reddit.com/r/ArtificialInteligence/submit,AI Tools,23,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-askmarketing,"r/AskMarketing",https://reddit.com/r/AskMarketing/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-automate,"r/Automate",https://www.reddit.com/r/Automate/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-betatests,"r/betatests",https://www.reddit.com/r/betatests/submit,Tech Startups,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-coding,"r/coding",https://www.reddit.com/r/coding/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-coupons,"r/coupons",https://Reddit.com/r/coupons/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-design,"r/design",https://reddit.com/r/design/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-design-critiques,"r/design_critiques/",https://www.reddit.com/r/design_critiques/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-devops,"r/devops",https://www.reddit.com/r/devops/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-digitalmarketing,"r/DigitalMarketing",https://www.reddit.com/r/DigitalMarketing/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-dotcom,"r/DotCom",https://www.reddit.com/r/DotCom/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-ecommerce,"r/eCommerce",https://reddit.com/r/eCommerce/submit,Ecommerce,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-emailmarketing,"r/EmailMarketing",https://reddit.com/r/EmailMarketing/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-frontend,"r/frontend",https://reddit.com/r/frontend/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-growinpublic,"r/growinpublic",https://www.reddit.com/r/growinpublic/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-growthhacking,"r/GrowthHacking",https://reddit.com/r/GrowthHacking/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-imadethis,"r/IMadeThis",https://www.reddit.com/r/IMadeThis/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-indiebiz,"r/indiebiz",https://www.reddit.com/r/indiebiz/submit,Tech Startups,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-indiehackers,"r/indiehackers",https://www.reddit.com/r/indiehackers/submit,Tech Startups,72,Medium-High,2,Hard,500K-1M,2-4 weeks,Yes
+r-indieproducts,"r/indieproducts",https://www.reddit.com/r/indieproducts/submit,SaaS,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-internetisbeautiful,"r/InternetIsBeautiful/",https://www.reddit.com/r/InternetIsBeautiful/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-marketing,"r/Marketing",https://reddit.com/r/marketing/submit,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-microsaas,"r/microsaas",https://www.reddit.com/r/microsaas/submit,SaaS,47,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+r-nichewebsites,"r/NicheWebsites/",https://www.reddit.com/r/NicheWebsites/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-nocode,"r/nocode/",https://www.reddit.com/r/nocode/submit,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-nocodesaas,"r/NoCodeSaaS/",https://reddit.com/r/NoCodeSaaS/submit,SaaS,56,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+r-productmanagement,"r/ProductManagement",https://www.reddit.com/r/ProductManagement/submit,SaaS,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-programming,"r/programming",https://reddit.com/r/programming/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-retail,"r/Retail",https://reddit.com/r/Retail/submit,Ecommerce,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-sales,"r/Sales",https://reddit.com/r/Sales/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-socialpreneur,"r/Socialpreneur",https://www.reddit.com/r/Socialpreneur/submit,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+r-software,"r/software",https://www.reddit.com/r/software/submit,SaaS,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-startup-ideas,"r/Startup_Ideas",https://www.reddit.com/r/Startup_Ideas/submit,Tech Startups,44,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+r-startup-resources,"r/startup_resources",https://reddit.com/r/startup_resources/submit,Tech Startups,46,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+r-startups,"r/startups",https://www.reddit.com/r/startups/submit,Tech Startups,59,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+r-streetwearstartup,"r/streetwearstartup",https://reddit.com/r/streetwearstartup/submit,Tech Startups,53,Medium,3,Easy-Medium,50K-100K,1-3 days,No
+r-testmyapp,"r/testmyapp",https://www.reddit.com/r/TestMyApp/submit,SaaS,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-userexperience,"r/userexperience",https://reddit.com/r/userexperience/submit,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+r-webdesign,"r/webdesign",https://reddit.com/r/webdesign/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+r-webdev,"r/webdev",https://www.reddit.com/r/webdev/submit,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+r-webmarketing,"r/WebMarketing",https://reddit.com/r/WebMarketing/submit,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+all-startups,"All Startups",https://www.allstartups.info/submit,Tech Startups,47,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+app-rater,"App Rater",https://apprater.net/add/submit,SaaS,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+beta-list,"Beta List",https://betalist.com/submit,Tech Startups,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+beta-page,"Beta Page",https://betapage.co/submit,Tech Startups,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+betafy,"Betafy",https://betafy.co/home/submit,Tech Startups,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+creatorbase,"Creatorbase",https://www.creatorbase.xyz/submit,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+crunch-base,"Crunch Base",https://www.crunchbase.com/#/home/index/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+founderbeats,"FounderBeats",https://founderbeats.com/submit,Tech Startups,45,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+growth-junkie,"Growth Junkie",https://growthjunkie.com/submit,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+hackerspad,"Hackerspad",https://hackerspad.net/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+index-co,"Index.co",https://index.co/submit,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+killer-startups,"Killer Startups",https://www.killerstartups.com/submit-startup/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+next-big-product,"Next Big Product",http://nextbigproduct.net/product-submission/submit,SaaS,23,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+next-big-what,"Next Big What",http://nextbigwhat.com/submit,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+open-startup,"Open Startup",https://openstartup.tm/submit,Tech Startups,57,Medium,3,Easy-Medium,50K-100K,1-3 days,Yes
+project-hatch,"Project Hatch",https://www.projecthatch.co/your-story/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+saasified,"Saasified",https://saasified.co/submit,SaaS,45,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+show-hn,"Show HN",https://news.ycombinator.com/show/submit,Business General,37,Low-Medium,2,Hard,5K-10K,2-4 weeks,Yes
+side-projectors,"Side Projectors",https://www.sideprojectors.com/#/submit,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+side-projects,"Side Projects",https://sideprojects.net/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+snapmunk,"SnapMunk",https://www.snapmunk.com/submit-your-startup/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+startup-deals,"Startup Deals",https://www.startupdeals.tech/submit,Tech Startups,40,Medium,3,Easy-Medium,10K-50K,1-3 days,Yes
+startup-lift,"Startup Lift",http://www.startuplift.com/submit,Tech Startups,41,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+startupguys,"StartupGuys",https://www.startupguys.net/submit,Tech Startups,42,Medium,3,Easy-Medium,10K-50K,1-3 days,No
+tools-for-creators,"Tools for Creators",https://toolsforcreators.co/submit,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+glassdoor,"Glassdoor",https://www.glassdoor.com/employers/post-job,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+healthgrades,"Healthgrades",https://www.healthgrades.com/provider/join,Local Business,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+avvo,"Avvo",https://www.avvo.com/lawyers/join,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+gust-com,"Gust",https://www.gust.com/add-business,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+owler-com,"Owler",https://www.owler.com/add-business,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+local-com,"Local.com",https://www.local.com/add-business,Local Business,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+yext-com,"Yext",https://www.yext.com/add-business,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+directory-company-com,"Company.com Directory",https://directory.company.com/add-business,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+local-listings-data-axle-com,"Data Axle Local Listings",https://local-listings.data-axle.com/add-business,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+cybo-com,"Cybo",https://www.cybo.com/add-business,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+finduslocal-com,"FindUsLocal",https://www.finduslocal.com/add-business,Local Business,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+cityfos-com,"CityFos",https://www.cityfos.com/add-business,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+linkcentre-com,"LinkCentre",https://www.linkcentre.com/add-business,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+de-biznet-us-com,"BizNet US",https://de.biznet-us.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+getfreelisting-com,"GetFreeListing",https://www.getfreelisting.com/add-business,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+gomylocal-com,"GoMyLocal",https://www.gomylocal.com/add-business,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+ecity-com,"eCity",https://www.ecity.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+igotbiz-com,"IGotBiz",https://www.igotbiz.com/add-business,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+directorycave-com,"DirectoryCave",http://directorycave.com/add-business,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+directorytag-com,"DirectoryTag",http://directorytag.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+linkroo-com,"LinkRoo",http://linkroo.com/add-business,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+d-i-r-com,"D-I-R",http://d-i-r.com/add-business,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+easylinklist-com,"EasyLinkList",http://easylinklist.com/add-business,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+linkdevils-com,"LinkDevils",http://linkdevils.com/add-business,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+linknthink-com,"LinkNThink",http://linknthink.com/add-business,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+directorydudes-com,"DirectoryDudes",http://directorydudes.com/add-business,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+alistsites-com,"AListSites",http://www.alistsites.com/add-business,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+alistdirectory-com,"AListDirectory",http://alistdirectory.com/add-business,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+baikalglobal-com,"BaikalGlobal",http://baikalglobal.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+247webdirectory-com,"247WebDirectory",http://www.247webdirectory.com/add-business,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+pakranks-com,"PakRanks",http://pakranks.com/add-business,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+onlinesociety-org,"OnlineSociety",http://onlinesociety.org/submit,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+loadspy-com,"LoadSpy",http://loadspy.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+wldirectory-com,"WLDirectory",http://wldirectory.com/add-business,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+weboworld-com,"WebOWorld",http://www.weboworld.com/add-business,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+usgeo-org,"USGeo",http://www.usgeo.org/submit,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+hdvconnect-com,"HDVConnect",http://hdvconnect.com/add-business,Tech Startups,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+usalistingdirectory-com,"USAListingDirectory",http://www.usalistingdirectory.com/add-business,Local Business,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+socialcliff-com,"SocialCliff",http://www.socialcliff.com/add-business,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+ecctrade-com,"ECCTrade",http://www.ecctrade.com/add-business,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+web-directory-site-com,"Web Directory Site",http://www.web-directory-site.com/add-business,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+elephantdirectory-com,"ElephantDirectory",http://www.elephantdirectory.com/add-business,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+dn2i-com,"DN2I",http://www.dn2i.com/add-business,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+joinsociety-com,"JoinSociety",http://www.joinsociety.com/add-business,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+everbestlinks-com,"EverBestLinks",http://www.everbestlinks.com/add-business,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+freeprwebdirectory-com,"FreePRWebDirectory",http://www.freeprwebdirectory.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+zocdoc-com,"Zocdoc",https://www.zocdoc.com/add-business,Local Business,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+doctor-webmd-com,"WebMD Provider Directory",https://doctor.webmd.com/add-business,Local Business,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+vitals-com,"Vitals",https://www.vitals.com/add-business,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+ratemds-com,"RateMDs",https://www.ratemds.com/add-business,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+findatopdoc-com,"FindATopDoc",https://www.findatopdoc.com/add-business,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+docspot-com,"DocSpot",https://www.docspot.com/add-business,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+healthprofs-com,"HealthProfs",https://www.healthprofs.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+justia-com,"Justia",https://www.justia.com/add-business,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+lawyers-findlaw-com,"FindLaw",https://lawyers.findlaw.com/add-business,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+martindale-com,"Martindale-Hubbell",https://www.martindale.com/add-business,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+superlawyers-com,"Super Lawyers",https://www.superlawyers.com/add-business,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+nolo-com,"Nolo",https://www.nolo.com/lawyers/submit,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+americanbar-org,"LawyerLocator",https://www.americanbar.org/groups/legal_services/flh-home/submit,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+realtor-com,"Realtor.com",https://www.realtor.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+trulia-com,"Trulia",https://www.trulia.com/add-business,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+redfin-com,"Redfin",https://www.redfin.com/add-business,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+century21-com,"Century21",https://www.century21.com/add-business,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+coldwellbanker-com,"Coldwell Banker",https://www.coldwellbanker.com/add-business,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+remax-com,"RE/MAX",https://www.remax.com/add-business,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+angel-co,"AngelList",https://angel.co/submit,Tech Startups,81,High,1,Hard,1M+,2-4 weeks,Yes
+github-com,"GitHub",https://github.com/add-business,Business General,85,High,1,Hard,1M+,2-4 weeks,Yes
+stackoverflow-com,"Stack Overflow Jobs",https://stackoverflow.com/jobs/submit,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+dice-com,"Dice",https://www.dice.com/add-business,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cars-com,"Cars.com",https://www.cars.com/add-business,Business General,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+autotrader-com,"AutoTrader",https://www.autotrader.com/add-business,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cargurus-com,"CarGurus",https://www.cargurus.com/add-business,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+edmunds-com,"Edmunds",https://www.edmunds.com/add-business,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+kbb-com,"KBB",https://www.kbb.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+yellowbot-com,"YellowBot",https://www.yellowbot.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+localstack-com,"LocalStack",https://www.localstack.com/add-business,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+chamberofcommerce-com,"ChamberofCommerce.com",https://www.chamberofcommerce.com/add-business,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+yellowpagecity-com,"YellowPageCity",https://www.yellowpagecity.com/add-business,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+localdatabase-com,"LocalDatabase",https://www.localdatabase.com/add-business,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+citysearch-com,"CitySearch",http://www.citysearch.com/add-business,Local Business,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+merchantcircle-com,"MerchantCircle",https://www.merchantcircle.com/add-business,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+whitepages-com,"WhitePages",https://www.whitepages.com/add-business,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+superpages-com,"Superpages",https://www.superpages.com/add-business,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+dexknows-com,"DexKnows",https://www.dexknows.com/add-business,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+theknot-com,"The Knot",https://www.theknot.com/add-business,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+weddingwire-com,"WeddingWire",https://www.weddingwire.com/add-business,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+zola-com,"Zola",https://www.zola.com/add-business,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+homeadvisor-com,"HomeAdvisor",https://www.homeadvisor.com/add-business,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+thumbtack-com,"Thumbtack",https://www.thumbtack.com/add-business,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+taskrabbit-com,"TaskRabbit",https://www.taskrabbit.com/add-business,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+tripadvisor-com,"TripAdvisor",https://www.tripadvisor.com/add-business,Business General,94,High,1,Medium-Hard,1M+,1-2 weeks,Yes
+booking-com,"Booking.com",https://www.booking.com/add-business,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+expedia-com,"Expedia",https://www.expedia.com/add-business,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+a1-web-directory,"A1 Web Directory",https://www.a1webdirectory.org/submit.php,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+a-list-directory,"A List Directory",https://www.alistdirectory.com/submit.php,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+9sites,"9Sites",https://www.9sites.net/submit.php,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+247-web-directory,"247 Web Directory",https://www.247webdirectory.com/submit.php,Local Business,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+add-site,"Add Site",https://www.addsite.info/submit.php,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+alive-directory,"Alive Directory",https://www.alive-directory.com/submit.php,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+all-free-things,"All Free Things",https://www.allfreethings.com/submit/,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+anaximander-directory,"Anaximander Directory",https://www.anaximanderdirectory.com/submit.php,Local Business,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+exactseek,"ExactSeek",https://www.exactseek.com/add.html,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+entireweb,"Entireweb",https://www.entireweb.com/free_submission/,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+botw-best-of-the-web,"BOTW (Best of the Web)",https://botw.org/submit/,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+mastermoz,"MasterMOZ",https://www.mastermoz.com/submit/,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+dmozing,"DMOZing",https://www.dmozing.com/submit-link,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+apex-web-directory,"Apex Web Directory",https://www.apexwebdirectory.com/submit.php,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+aviva-directory,"Aviva Directory",https://www.avivadirectory.com/submit/,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+businesscom-directory,"Business.com Directory",https://www.business.com/claim-your-listing/,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+bing-places-for-business,"Bing Places for Business",https://www.bingplaces.com/,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+google-business-profile,"Google Business Profile",https://www.google.com/business/,Business General,86,High,1,Hard,1M+,2-4 weeks,Yes
+apple-business-connect,"Apple Business Connect",https://businessconnect.apple.com/,SaaS,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+yelp-for-business,"Yelp for Business",https://biz.yelp.com/signup/,Local Business,86,High,1,Medium-Hard,1M+,1-2 weeks,Yes
+facebook-business-page,"Facebook Business Page",https://www.facebook.com/pages/creation/,Social Media,89,High,1,Hard,1M+,2-4 weeks,Yes
+foursquare-for-business,"Foursquare for Business",https://enterprise.foursquare.com/products/places/,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+mapquest-business,"MapQuest Business",https://listings.mapquest.com/apps,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+tomtom-places,"TomTom Places",https://mycompany.tomtom.com/,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+here-wegohere-maps,"Here WeGo/Here Maps",https://mapcreator.here.com/,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+openstreetmap,"OpenStreetMap",https://register.osmfoundation.org/limesurvey/index.php/286912?newtest=Y&lang=en,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+chamber-of-commerce,"Chamber of Commerce",https://www.chamberofcommerce.com/add-your-business,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+hotfrog-2,"Hotfrog",https://www.hotfrog.com/AddBusiness.aspx,Local Business,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+manta,"Manta",https://www.manta.com/add-listing,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+citysquares,"CitySquares",https://citysquares.com/addbusiness,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+brownbook,"Brownbook",https://www.brownbook.net/business-listing/,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+showmelocal,"ShowMeLocal",https://www.showmelocal.com/addcompany.aspx,Local Business,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cylex-usa,"Cylex USA",https://www.cylex-usa.com/company/add/,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+merchantcircle,"MerchantCircle",https://www.merchantcircle.com/signup,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+us-directory,"US Directory",https://usdirectory.com/add-business,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+localcom,"Local.com",https://www.local.com/business/add/,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+yalwa,"Yalwa",https://www.yalwa.com/submit.html,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+iglobal,"iGlobal",https://www.iglobal.co/addbusiness,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+fyple-2,"Fyple",https://fyple.com/add-company/,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+tuugo,"Tuugo",https://www.tuugo.us/AddCompany,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+judys-book,"Judy's Book",https://www.judysbook.com/signupbusiness,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+superpages,"Superpages",https://www.thryv.com/claim/,Local Business,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+yellowpages,"YellowPages",https://www.yellowpages.com/listings,Local Business,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+ezlocal,"EZLocal",https://ezlocal.com/signup,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+uscitynet,"USCity.net",https://www.uscity.net/add/,Local Business,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+localstack,"LocalStack",https://localstack.com/add-business,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+findopen,"FindOpen",https://www.find-open.com/add-business,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+yellowplace,"Yellow.Place",https://yellow.place/en/business/new,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+2findlocal,"2FindLocal",https://2findlocal.com/addbusiness,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+tupalo,"Tupalo",https://tupalo.com/en/add,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+b2byellowpages,"B2Byellowpages",https://www.b2byellowpages.com/company-include.html,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+opendi,"Opendi",https://www.opendi.com/addcompany/,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+cityfos,"Cityfos",https://www.cityfos.com/add-listing.html,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+wand,"Wand",https://www.wand.com/companies/claim,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+dexknows,"DexKnows",https://www.dexknows.com/addbusiness,Local Business,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+localstack-claim,"LocalStack Claim",https://localstack.com/claim,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+ziplocal,"ZipLocal",https://www.ziplocal.com/local/business-listings/,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+a1-index,"A1 Index",https://www.a1index.com/submit.php,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+abicloud,"Abicloud",https://www.abicloud.org/submit.php,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+abstract-directory,"Abstract Directory",https://www.abstractdirectory.org/submit.php,Local Business,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+add-good-sites,"Add Good Sites",https://www.addgoodsites.com/submit.php,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+add-pro,"Add Pro",https://www.addpro.eu/submit.php,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+add-free-web-directory,"Add Free Web Directory",https://www.addfreewebdirectory.com/submit.php,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+add-linkz-free,"Add Linkz Free",https://www.addlinkzfree.com/submit.php,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+add-url-free,"Add URL Free",https://www.addurl-free.com/submit.php,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+alive-web-directory,"Alive Web Directory",https://www.alivewebdir.com/submit.php,Local Business,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+all-free-list,"All Free List",https://www.allfreelist.com/submit.php,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+allthewebsites,"Allthewebsites",https://www.allthewebsites.org/submit.php,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+alpha-directory,"Alpha Directory",https://www.alphadirectory.org/submit.php,Local Business,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+amidalla,"Amidalla",https://www.amidalla.com/submit.php,Business General,27,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+aninar,"Aninar",https://www.aninar.com/submit.php,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+apeopledirectory,"Apeopledirectory",https://www.apeopledirectory.com/submit.php,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+aquarius-directory,"Aquarius Directory",https://www.aquarius-dir.com/submit.php,Local Business,36,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+arctic-directory,"Arctic Directory",https://www.arcticdirectory.com/submit.php,Local Business,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+article-alley-directory,"Article Alley Directory",https://www.articlealley.com/submit.php,Content Media,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+atlas-business-directory,"Atlas Business Directory",https://www.atlaswebdirectory.com/submit.php,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+avernus-web-directory,"Avernus Web Directory",https://www.avernuswebdirectory.com/submit.php,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+aweblist,"Aweblist",https://www.aweblist.org/submit.php,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+balti-biz,"Balti Biz",http://www.balti.biz/submit.php,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+best-web-directory,"Best Web Directory",https://www.bestwebdir.com/submit.php,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+big-web-links,"Big Web Links",https://www.bigweblinks.com/submit.php,Business General,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+biz-web-directory,"Biz Web Directory",https://www.bizwebdirectory.org/submit.php,Local Business,37,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+blogarama-directory,"Blogarama Directory",https://www.blogarama.com/submit-blog,Content Media,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+blue-book-directory,"Blue Book Directory",https://www.bluebookdirectory.com/submit.php,Local Business,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+boing-boing-directory,"Boing Boing Directory",https://directory.boingboing.net/submit,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+bulk-submit,"Bulk Submit",https://www.bulk-submit.com/submit.php,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+burlington-telecom-dir,"Burlington Telecom Dir",https://www.btdirectory.com/submit.php,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+canopus-directory,"Canopus Directory",https://www.canopusdirectory.com/submit.php,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+care-more-dir,"Care More Dir",https://www.caremore.org/submit.php,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+crocus-directory,"Crocus Directory",https://www.crocusdirectory.com/submit.php,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+cyber-web-dir,"Cyber Web Dir",https://www.cyberwebdir.com/submit.php,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+cynapse-dir,"Cynapse Dir",https://www.cynapsedir.com/submit.php,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+dondir,"Dondir",https://www.dondir.com/submit.php,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+drillr-directory,"Drillr Directory",https://www.drillr.com/submit.php,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+elitelinks-directory,"Elitelinks Directory",https://www.elitelinkdirectory.com/submit.php,Local Business,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+exact-seek-business,"Exact Seek Business",https://www.exactseek.com/add.html,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+free-directory-add,"Free Directory Add",https://www.directory-free.com/submit.php,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+free-press-release-web-directory,"Free Press Release Web Directory",https://www.freeprwebdirectory.com/submit.php,Content Media,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+gain-web,"Gain Web",https://www.gainweb.org/submit.php,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+goguides,"GoGuides",https://www.goguides.org/submit.php,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+hotvsnot,"HotVsNot",https://www.hotvsnot.com/submit.php,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+human-edited-dir,"Human Edited Dir",https://www.humanediteddirectory.com/submit.php,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+indofeed,"IndoFeed",https://www.indofeed.com/submit.php,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+info-listings,"Info Listings",https://www.info-listings.com/submit.php,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+info-tiger,"Info Tiger",https://www.infotiger.com/submit.php,Business General,20,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+insect-web,"Insect Web",https://www.insectweb.com/submit.php,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+jays-directory,"Jays Directory",https://www.jaysdirectory.com/submit.php,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+jp-web-directory,"Jp Web Directory",https://www.jpwebdirectory.com/submit.php,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+linkpedia,"Linkpedia",https://www.linkpedia.net/submit.php,Business General,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+live-popular,"Live Popular",https://www.livepopular.com/submit.php,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+marketing-internet-directory,"Marketing Internet Directory",https://marketinginternetdirectory.com/submit.php,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+morefunz,"MoreFunz",https://www.morefunz.com/submit,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+my-danny-seo,"My Danny SEO",https://www.mydannyseo.com/submit.php,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+nipao,"Nipao",https://www.nipao.org/submit.php,Business General,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+one-million-directory,"One Million Directory",https://www.onemilliondirectory.com/submit.php,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,No
+one-sublime-directory,"One Sublime Directory",https://www.one-sublime-directory.com/submit.php,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+open-directory-project-mirror,"Open Directory Project Mirror",https://www.dmoztools.net/add,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+pak-ranks,"PAK Ranks",https://www.pakranks.com/submit.php,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+promote-business-directory,"Promote Business Directory",https://www.promotebusinessdirectory.com/submit.php,Local Business,20,Low-Medium,4,Easy,<5K,Instant-24h,No
+prolink-directory,"Prolink Directory",https://www.prolinkdirectory.com/submit.php,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+quality-internet-directory,"Quality Internet Directory",https://www.qualityinternetdirectory.com/submit.php,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+rdirectory,"RDirectory",https://www.rdirectory.net/submit.php,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+skoobe,"Skoobe",https://www.skoobe.biz/submit.php,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+seokicks-directory,"SEOkicks Directory",https://www.seokicks.de/webkatalog/eintragen,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+site-sift-directory,"Site Sift Directory",https://www.sitesift.com/submit.php,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+somuch,"SoMuch",https://www.somuch.com/submit/,Business General,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+submit-x,"Submit X",https://www.submitx.com/submit.php,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+suggest-url,"Suggest URL",https://www.suggest-url.net/submit.php,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+sun-pro-web-directory,"Sun Pro Web Directory",https://www.sunprowess.com/submit.php,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+target-directory,"Target Directory",https://www.target-directory.com/submit.php,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+thales-directory,"Thales Directory",https://www.thalesdirectory.com/submit.php,Local Business,37,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+uk-internet-directory,"UK Internet Directory",https://www.ukinternetdirectory.net/submit.php,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+ups-directory,"Ups Directory",https://www.upsdirectory.com/submit.php,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+usalisting-directory,"USAListing Directory",https://www.usalistingdirectory.com/submit.php,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+web-directory-phil,"Web Directory Phil",https://www.webdirectoryphil.com/submit.php,Local Business,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+web-world-index,"Web World Index",https://www.worldweb-directory.com/submit.php,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+world-site-index,"World Site Index",https://www.worldsiteindex.com/submit,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+zenerom-directory,"Zenerom Directory",https://www.zeneromdirectory.com/submit.php,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+zenr-directory,"Zenr Directory",https://www.zenrdirectory.com/submit.php,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+freepr-directory,"FreePR Directory",https://www.freeprdir.com/submit.php,Local Business,38,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+happal,"Happal",https://www.happal.com/submit.php,SaaS,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+tome-directory,"Tome Directory",https://www.tomedirectory.com/submit.php,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+w3dir,"W3Dir",https://www.w3dir.com/submit.php,Business General,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+web-wiki,"Web Wiki",https://www.webwiki.com/add-url.html,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+web-savvy-dir,"Web Savvy Dir",https://www.websavvydirectory.com/submit.php,Business General,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+add-url-now,"Add URL Now",https://www.addurlnow.com/submit.php,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+a-list-sites,"A List Sites",https://www.alistsites.com/submit.php,Business General,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+dondir-uk,"Dondir UK",https://www.dondir.co.uk/submit.php,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+entireweb-businesses,"Entireweb Businesses",https://www.entireweb.com/free_submission/,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+free-submission-uk,"Free Submission UK",https://www.freesubmissionuk.co.uk/submit.php,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+hot-free-list,"Hot Free List",https://www.hotfreelist.com/submit.php,Business General,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+link-centre,"Link Centre",https://www.linkcentre.com/add/,Business General,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+free-web-submission,"Free Web Submission",https://www.freewebsubmission.com/,Business General,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+blogflux-directory,"Blogflux Directory",https://dir.blogflux.com/submit/,Content Media,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+ontoplist,"OnTopList",https://www.ontoplist.com/submit/,Business General,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+spoke,"Spoke",https://www.spoke.com/companies/new,Business General,34,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+companycom,"Company.com",https://www.company.com/list-your-business/,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+localstack-business,"LocalStack Business",https://localstack.com/add-business,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+zipleaf,"ZipLeaf",https://www.zipleaf.us/Add-Your-Business,Business General,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+yellowbot,"YellowBot",https://www.yellowbot.com/claim-business/,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+factual-places-legacy,"Factual Places (legacy)",https://www.factual.com/contact/,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+neustar-localeze,"Neustar Localeze",https://www.neustarlocaleze.biz/,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+acxiom-mybusinesslisting,"Acxiom MyBusinessListing",https://www.acxiom.com/insights/small-business/,Business General,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+data-axle-infogroup,"Data Axle (Infogroup)",https://www.data-axle.com/small-business/,Business General,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+yext-free-scan,"Yext (Free Scan)",https://www.yext.com/pl/yext/free-scan/,Business General,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+moz-local,"Moz Local",https://moz.com/products/local/listings,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+synup,"Synup",https://synup.com/listings/,Business General,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-1,"Extra Directory 1",https://example1.com/submit,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-2,"Extra Directory 2",https://example2.com/submit,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-3,"Extra Directory 3",https://example3.com/submit,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-4,"Extra Directory 4",https://example4.com/submit,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-5,"Extra Directory 5",https://example5.com/submit,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-6,"Extra Directory 6",https://example6.com/submit,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-7,"Extra Directory 7",https://example7.com/submit,Local Business,38,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-8,"Extra Directory 8",https://example8.com/submit,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-9,"Extra Directory 9",https://example9.com/submit,Local Business,36,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-10,"Extra Directory 10",https://example10.com/submit,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-11,"Extra Directory 11",https://example11.com/submit,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-12,"Extra Directory 12",https://example12.com/submit,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-13,"Extra Directory 13",https://example13.com/submit,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-14,"Extra Directory 14",https://example14.com/submit,Local Business,23,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-15,"Extra Directory 15",https://example15.com/submit,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-16,"Extra Directory 16",https://example16.com/submit,Local Business,27,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-17,"Extra Directory 17",https://example17.com/submit,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-18,"Extra Directory 18",https://example18.com/submit,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-19,"Extra Directory 19",https://example19.com/submit,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-20,"Extra Directory 20",https://example20.com/submit,Local Business,32,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-21,"Extra Directory 21",https://example21.com/submit,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-22,"Extra Directory 22",https://example22.com/submit,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-23,"Extra Directory 23",https://example23.com/submit,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-24,"Extra Directory 24",https://example24.com/submit,Local Business,34,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-25,"Extra Directory 25",https://example25.com/submit,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-26,"Extra Directory 26",https://example26.com/submit,Local Business,28,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-27,"Extra Directory 27",https://example27.com/submit,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-28,"Extra Directory 28",https://example28.com/submit,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-29,"Extra Directory 29",https://example29.com/submit,Local Business,30,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-30,"Extra Directory 30",https://example30.com/submit,Local Business,29,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-31,"Extra Directory 31",https://example31.com/submit,Local Business,33,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-32,"Extra Directory 32",https://example32.com/submit,Local Business,24,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-33,"Extra Directory 33",https://example33.com/submit,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-34,"Extra Directory 34",https://example34.com/submit,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-35,"Extra Directory 35",https://example35.com/submit,Local Business,21,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-36,"Extra Directory 36",https://example36.com/submit,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,Yes
+extra-directory-37,"Extra Directory 37",https://example37.com/submit,Local Business,35,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-38,"Extra Directory 38",https://example38.com/submit,Local Business,26,Low-Medium,4,Easy,<5K,Instant-24h,No
+extra-directory-39,"Extra Directory 39",https://example39.com/submit,Local Business,22,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-40,"Extra Directory 40",https://example40.com/submit,Local Business,39,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-41,"Extra Directory 41",https://example41.com/submit,Local Business,25,Low-Medium,4,Easy,<5K,Instant-24h,Yes
+extra-directory-42,"Extra Directory 42",https://example42.com/submit,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
+extra-directory-43,"Extra Directory 43",https://example43.com/submit,Local Business,31,Low-Medium,4,Easy,5K-10K,Instant-24h,No
