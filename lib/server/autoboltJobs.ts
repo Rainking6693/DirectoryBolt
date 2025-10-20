@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from './supabaseAdmin'
 import { logInfo, logWarn, logError, serializeError } from './logging'
+import AIEnhancedQueueManager from '../ai-services/AIEnhancedQueueManager'
 
 import type {
   DirectoryBoltSupabaseClient,
@@ -14,6 +15,37 @@ import type {
 export type { JobStatus } from '../../types/supabase'
 
 const QUERY_TIMEOUT_MS = 10_000
+
+// Initialize AI Enhanced Queue Manager (singleton)
+let aiQueueManagerInstance: any | null = null;
+
+function getAIQueueManager(): any | null {
+  if (aiQueueManagerInstance !== null) {
+    return aiQueueManagerInstance;
+  }
+
+  // Only initialize if ANTHROPIC_API_KEY is available
+  if (!process.env.ANTHROPIC_API_KEY) {
+    logInfo('autoboltJobs', 'ANTHROPIC_API_KEY not set, using standard queue logic');
+    aiQueueManagerInstance = null;
+    return null;
+  }
+
+  try {
+    aiQueueManagerInstance = new AIEnhancedQueueManager({
+      enableAIPrioritization: true,
+      enableTimingOptimization: true,
+      batchSize: 10,
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logInfo('autoboltJobs', '🤖 AI Enhanced Queue Manager initialized');
+    return aiQueueManagerInstance;
+  } catch (error) {
+    logError('autoboltJobs', 'Failed to initialize AI Queue Manager', { error: serializeError(error) });
+    aiQueueManagerInstance = null;
+    return null;
+  }
+}
 
 type QueryExecutor<T> = () => Promise<T>
 
@@ -223,7 +255,27 @@ export async function getNextPendingJob(): Promise<NextJobResponse | null> {
   logFunctionStart(fn)
   const supabase = getClientOrThrow(fn)
 
-  // Query jobs table directly (no more autobolt_processing_queue)
+  // Try AI-enhanced queue manager first (if available)
+  const aiQueueManager = getAIQueueManager();
+  if (aiQueueManager) {
+    try {
+      logInfo(fn, '🤖 Using AI Enhanced Queue Manager for job selection');
+      const aiOptimalJob = await aiQueueManager.getOptimalNextJob();
+      if (aiOptimalJob) {
+        logInfo(fn, '✅ AI selected optimal job', { 
+          jobId: aiOptimalJob.job?.id,
+          aiPriority: aiOptimalJob.job?.metadata?.aiPriority 
+        });
+        return aiOptimalJob;
+      }
+    } catch (error) {
+      logWarn(fn, 'AI Queue Manager failed, falling back to standard logic', { 
+        error: serializeError(error) 
+      });
+    }
+  }
+
+  // Fallback to standard query if AI not available or failed
   const pendingResponse = await executeSupabaseQuery(fn, 'jobs.select pending limit 1', async () =>
     supabase
       .from('jobs')

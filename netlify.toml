@@ -1,8 +1,28 @@
 [build]
   command = "npm run build"
   publish = ".next"
-  # Ignore Netlify functions - we use Next.js API routes instead
-  functions = ""
+  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = [
+    "@supabase/supabase-js",
+    "@supabase/postgrest-js",
+    "@supabase/auth-js",
+    "@anthropic-ai/sdk",
+    "openai",
+    "puppeteer",
+    "@sparticuz/chromium",
+    "airtable",
+    "stripe"
+  ]
+  included_files = [
+    "netlify/functions/**/*",
+    "lib/**/*",
+    "directories/**/*.json",
+    "public/**/*.json"
+  ]
 
 [build.environment]
   NODE_VERSION = "18.20.0"

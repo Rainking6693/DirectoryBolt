@@ -8,6 +8,8 @@ import AISubmissionOrchestrator from '../../../lib/ai-services/AISubmissionOrche
 import IntelligentRetryAnalyzer from '../../../lib/ai-services/IntelligentRetryAnalyzer';
 import AIFormMapper from '../../../lib/ai-services/AIFormMapper';
 import SubmissionTimingOptimizer from '../../../lib/ai-services/SubmissionTimingOptimizer';
+import ABTestingFramework from '../../../lib/ai-services/ABTestingFramework';
+import PerformanceFeedbackLoop from '../../../lib/ai-services/PerformanceFeedbackLoop';
 import { HUMANIZATION, randomDelay, humanType, humanClick, solveCaptcha } from './humanization';
 import { shouldUseGemini, callGeminiWorker } from './geminiRouter';
 
@@ -118,6 +120,8 @@ let aiOrchestratorInstance: any | null | undefined;
 let retryAnalyzerInstance: any | null | undefined;
 let formMapperInstance: any | null | undefined;
 let timingOptimizerInstance: any | null | undefined;
+let abTestingInstance: any | null | undefined;
+let feedbackLoopInstance: any | null | undefined;
 
 let probabilityCalculatorInitLogged = false;
 let descriptionCustomizerInitLogged = false;
@@ -125,6 +129,8 @@ let aiOrchestratorInitLogged = false;
 let retryAnalyzerInitLogged = false;
 let formMapperInitLogged = false;
 let timingOptimizerInitLogged = false;
+let abTestingInitLogged = false;
+let feedbackLoopInitLogged = false;
 
 function getProbabilityCalculator(): any | null {
   if (probabilityCalculatorInstance !== undefined) {
@@ -294,6 +300,62 @@ function getTimingOptimizer(): any | null {
   return timingOptimizerInstance;
 }
 
+// A/B Testing Framework initialization
+function getABTesting(): any | null {
+  if (abTestingInstance !== undefined) {
+    return abTestingInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!abTestingInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping A/B Testing initialization.');
+      abTestingInitLogged = true;
+    }
+    abTestingInstance = null;
+    return abTestingInstance;
+  }
+
+  try {
+    abTestingInstance = new ABTestingFramework({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('🧪 A/B Testing Framework initialized', { component: 'ab-testing' });
+  } catch (error: any) {
+    logger.error('Failed to initialize ABTestingFramework', { error: error?.message });
+    abTestingInstance = null;
+  }
+
+  return abTestingInstance;
+}
+
+// Performance Feedback Loop initialization
+function getFeedbackLoop(): any | null {
+  if (feedbackLoopInstance !== undefined) {
+    return feedbackLoopInstance;
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    if (!feedbackLoopInitLogged) {
+      logger.warn('ANTHROPIC_API_KEY not set. Skipping Feedback Loop initialization.');
+      feedbackLoopInitLogged = true;
+    }
+    feedbackLoopInstance = null;
+    return feedbackLoopInstance;
+  }
+
+  try {
+    feedbackLoopInstance = new PerformanceFeedbackLoop({
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY
+    });
+    logger.info('📈 Performance Feedback Loop initialized', { component: 'feedback-loop' });
+  } catch (error: any) {
+    logger.error('Failed to initialize PerformanceFeedbackLoop', { error: error?.message });
+    feedbackLoopInstance = null;
+  }
+
+  return feedbackLoopInstance;
+}
+
 function loadDirectories(): DirectoryConfig[] {
   const envPath = process.env.DIRECTORY_LIST_PATH;
   if (envPath && fs.existsSync(envPath)) {
@@ -428,6 +490,11 @@ export async function processJob(job: JobPayload, api: ProgressApi) {
 
   const probabilityCalculator = getProbabilityCalculator();
   const descriptionCustomizer = getDescriptionCustomizer();
+  const retryAnalyzer = getRetryAnalyzer();
+  const formMapper = getFormMapper();
+  const timingOptimizer = getTimingOptimizer();
+  const abTesting = getABTesting();
+  const feedbackLoop = getFeedbackLoop();
   const businessProfile = buildBusinessProfile(job);
 
   const startTime = Date.now();
@@ -453,6 +520,31 @@ export async function processJob(job: JobPayload, api: ProgressApi) {
 
       const jobForDirectory: JobPayload = { ...job };
       const directoryMeta = createDirectoryMeta(directory);
+
+      // Check optimal timing for this directory
+      if (timingOptimizer) {
+        try {
+          const timingAnalysis = await timingOptimizer.getOptimalSubmissionTime({
+            directoryName: directory.name,
+            timezone: 'America/New_York', // Default timezone, can be customized
+            currentQueueSize: selected.length
+          });
+          
+          if (!timingAnalysis.isOptimalNow && timingAnalysis.confidence > 0.7) {
+            logger.info('Timing not optimal, but continuing (queue processing)', {
+              directory: directory.name,
+              optimalTime: timingAnalysis.recommendedTime,
+              reason: timingAnalysis.reason
+            });
+            // Note: In a more sophisticated implementation, we could reschedule this job
+          }
+        } catch (error: any) {
+          logger.debug('Timing optimization failed', {
+            directory: directory.name,
+            error: error?.message
+          });
+        }
+      }
 
       if (probabilityCalculator) {
         try {
@@ -569,6 +661,40 @@ export async function processJob(job: JobPayload, api: ProgressApi) {
         submitted += 1;
       } else if (result.status === 'failed') {
         failed += 1;
+        
+        // Use IntelligentRetryAnalyzer to analyze failure and recommend retry strategy
+        if (retryAnalyzer) {
+          try {
+            const retryRecommendation = await retryAnalyzer.analyzeFailureAndRecommendRetry({
+              jobId: job.id,
+              directoryName: directory.name,
+              failureReason: result.message,
+              attemptNumber: (job as any).retry_count || 0,
+              businessData: businessProfile
+            });
+            
+            logger.info('Retry analysis complete', {
+              jobId: job.id,
+              directory: directory.name,
+              shouldRetry: retryRecommendation?.shouldRetry,
+              retryProbability: retryRecommendation?.retryProbability,
+              suggestedDelay: retryRecommendation?.suggestedRetryDelay
+            });
+            
+            // Store retry recommendation in result metadata
+            if (result.metadata) {
+              result.metadata.retryRecommendation = retryRecommendation;
+            } else {
+              result.metadata = { retryRecommendation };
+            }
+          } catch (error: any) {
+            logger.warn('Retry analysis failed', {
+              jobId: job.id,
+              directory: directory.name,
+              error: error?.message
+            });
+          }
+        }
       } else {
         skipped += 1;
       }
@@ -577,6 +703,34 @@ export async function processJob(job: JobPayload, api: ProgressApi) {
         status: 'in_progress',
         errorMessage: result.status === 'failed' ? result.message : undefined
       });
+
+      // Record submission result in Performance Feedback Loop
+      if (feedbackLoop) {
+        try {
+          await feedbackLoop.recordSubmission({
+            jobId: job.id,
+            customerId: job.customer_id,
+            directoryId: directory.id || directory.name,
+            directoryName: directory.name,
+            status: result.status,
+            aiProbability: aiScore,
+            aiCustomized,
+            processingTime: Date.now() - startTime,
+            metadata: result.metadata
+          });
+          
+          logger.debug('Submission recorded in feedback loop', {
+            jobId: job.id,
+            directory: directory.name,
+            status: result.status
+          });
+        } catch (error: any) {
+          logger.warn('Failed to record in feedback loop', {
+            jobId: job.id,
+            error: error?.message
+          });
+        }
+      }
 
       if (!result.viaGemini || geminiTried) {
         await randomDelay({ min: MIN_DIRECTORY_DELAY_MS, max: MAX_DIRECTORY_DELAY_MS });
@@ -640,6 +794,48 @@ export async function submitToDirectory(
     }
 
     let filledCount = 0;
+    let useAIMapping = false;
+
+    // If no form mapping exists, use AIFormMapper to detect fields
+    if (!directory.formMapping || Object.keys(directory.formMapping).length === 0) {
+      const formMapper = getFormMapper();
+      if (formMapper) {
+        try {
+          logger.info('Using AI Form Mapper for unmapped directory', {
+            directory: directory.name
+          });
+          
+          const pageHtml = await page.content();
+          const aiFormMapping = await formMapper.analyzeForm({
+            url: directory.url,
+            html: pageHtml,
+            directoryName: directory.name
+          });
+          
+          if (aiFormMapping && aiFormMapping.mapping) {
+            logger.info('AI Form Mapper detected fields', {
+              directory: directory.name,
+              fieldsDetected: Object.keys(aiFormMapping.mapping).length,
+              confidence: aiFormMapping.overallConfidence
+            });
+            
+            // Convert AI mapping to directory.formMapping format
+            directory.formMapping = {};
+            for (const [fieldName, fieldData] of Object.entries(aiFormMapping.mapping)) {
+              if ((fieldData as any).confidence > 0.7 && (fieldData as any).selector) {
+                directory.formMapping[fieldName] = (fieldData as any).selector;
+              }
+            }
+            useAIMapping = true;
+          }
+        } catch (error: any) {
+          logger.warn('AI Form Mapper failed, will use manual approach', {
+            directory: directory.name,
+            error: error?.message
+          });
+        }
+      }
+    }
 
     if (directory.formMapping) {
       for (const [fieldName, selectors] of Object.entries(directory.formMapping)) {
