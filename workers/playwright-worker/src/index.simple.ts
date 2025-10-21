@@ -52,7 +52,7 @@ async function processJobSimple(job: JobPayload, api: any) {
     
     logger.info('Job completed successfully', { jobId: job.id });
   } catch (error) {
-    logger.error('Job processing failed', { jobId: job.id, error: error.message });
+    logger.error('Job processing failed', { jobId: job.id, error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
