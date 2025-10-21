@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { logger } from './logger'
 import { getNextJob, updateProgress, completeJob } from './apiClient'
+import { processJob } from './jobProcessor'
 import http from 'http';
 
 const POLL_INTERVAL = Number(process.env.POLL_INTERVAL || '5000')
