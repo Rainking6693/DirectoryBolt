@@ -75,9 +75,16 @@ async function main() {
         } catch (jobErr: any) {
           logger.error('Job processing failed', { jobId: job.jobId, error: jobErr?.message })
           try {
+            // First update to in_progress, then mark as failed
+            await updateProgress(job.jobId, [], { status: 'in_progress' })
             await completeJob(job.jobId, { 
               finalStatus: 'failed', 
-              summary: { total: 1, submitted: 0, failed: 1, success_rate: 0 }, 
+              summary: { 
+                totalDirectories: 1, 
+                successfulSubmissions: 0, 
+                failedSubmissions: 1, 
+                processingTimeSeconds: 0 
+              }, 
               errorMessage: jobErr?.message 
             })
           } catch {}
