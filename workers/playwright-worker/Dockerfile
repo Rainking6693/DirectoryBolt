@@ -10,7 +10,7 @@ COPY workers/playwright-worker/package-lock.json ./package-lock.json
 # Install ALL dependencies (including devDependencies for TypeScript)
 RUN npm ci --no-audit --no-fund
 
-# Verify TypeScript is installed
+# Verify TypeScript is installed BEFORE building
 RUN npx tsc --version
 
 # Copy source files
