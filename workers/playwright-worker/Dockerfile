@@ -13,8 +13,6 @@ RUN npm ci --no-audit --no-fund
 # Copy worker source files individually to avoid symlink issues
 COPY workers/playwright-worker/src ./src
 COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
-# Optional data file—fallback only if database is unavailable
-COPY workers/playwright-worker/complete-directory-database.json ./complete-directory-database.json
 
 # Note: directories folder is NOT required for worker operation
 # The worker loads directory data from the database via API
