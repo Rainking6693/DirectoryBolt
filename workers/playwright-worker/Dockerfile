@@ -22,8 +22,9 @@ COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
 RUN mkdir -p /lib
 COPY lib/ai-services /lib/ai-services
 
-# Create symlinks so AI services can access node_modules
-RUN ln -sf /app/node_modules /lib/node_modules
+# Also copy AI services to the app directory so they can access node_modules
+# This ensures they have access to the installed dependencies
+COPY lib/ai-services ./lib/ai-services
 
 # Note: directories folder is NOT required for worker operation
 # The worker loads directory data from the database via API
