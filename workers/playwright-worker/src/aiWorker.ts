@@ -7,9 +7,17 @@ import { getNextJob, updateProgress, completeJob } from './apiClient';
 import { AIJobProcessor } from './aiJobProcessor';
 import type { JobPayload } from './types';
 import http from 'http';
+import { createClient } from '@supabase/supabase-js';
 
 const POLL_INTERVAL = Number(process.env.POLL_INTERVAL || '5000');
 const PORT = process.env.PORT || 3000;
+const HEARTBEAT_INTERVAL = 30000; // 30 seconds
+
+// Supabase client for queue management
+const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
 // Health check server
 const server = http.createServer((req, res) => {
@@ -33,6 +41,56 @@ server.listen(PORT, () => {
 
 // AI-Enhanced Job Processor
 let aiProcessor: AIJobProcessor | null = null;
+let jobsProcessedCount = 0;
+
+// Check if queue is paused
+async function isQueuePaused(): Promise<boolean> {
+  try {
+    const { data } = await supabase
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'queue_paused')
+      .maybeSingle();
+    
+    return data?.value === true;
+  } catch (error) {
+    logger.warn('Failed to check queue pause status, assuming not paused', { 
+      error: error instanceof Error ? error.message : String(error),
+      component: 'queue-check'
+    });
+    return false; // Fail open - continue processing
+  }
+}
+
+// Send worker heartbeat
+async function sendWorkerHeartbeat(): Promise<void> {
+  try {
+    await supabase
+      .from('worker_heartbeats')
+      .upsert({
+        worker_id: process.env.WORKER_ID || 'ai-enhanced-worker-1',
+        status: 'online',
+        last_seen: new Date().toISOString(),
+        ai_services_enabled: true,
+        jobs_processed: jobsProcessedCount,
+        metadata: {
+          poll_interval: POLL_INTERVAL,
+          port: PORT,
+          version: '2.0.0-ai-enhanced'
+        }
+      });
+    
+    logger.debug('💓 Worker heartbeat sent', { 
+      jobsProcessed: jobsProcessedCount,
+      component: 'heartbeat'
+    });
+  } catch (error) {
+    logger.warn('Failed to send worker heartbeat', { 
+      error: error instanceof Error ? error.message : String(error),
+      component: 'heartbeat'
+    });
+  }
+}
 
 async function initializeAIProcessor(): Promise<void> {
   try {
@@ -153,11 +211,22 @@ async function main(): Promise<void> {
     // Initialize AI services
     await initializeAIProcessor();
     
+    // Start heartbeat interval
+    setInterval(sendWorkerHeartbeat, HEARTBEAT_INTERVAL);
+    await sendWorkerHeartbeat(); // Send initial heartbeat
+    
     logger.info('🔄 Starting job polling loop...', { component: 'main' });
     
     // Main polling loop
     while (true) {
       try {
+        // Check if queue is paused
+        if (await isQueuePaused()) {
+          logger.info('⏸️ Queue is paused, waiting...', { component: 'poller' });
+          await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
+          continue;
+        }
+        
         logger.info('🔍 Polling for jobs...', { component: 'poller' });
         
         const response = await getNextJob();
@@ -173,7 +242,8 @@ async function main(): Promise<void> {
 
           try {
             await processJobWithAI(job);
-            logger.info('✅ Job processed successfully', { jobId: job.id });
+            jobsProcessedCount++; // Increment job counter
+            logger.info('✅ Job processed successfully', { jobId: job.id, totalProcessed: jobsProcessedCount });
           } catch (jobError) {
             logger.error('❌ Job processing failed', { 
               jobId: job.id, 

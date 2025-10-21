@@ -14,6 +14,7 @@ import SuccessProbabilityCalculator from '../../../lib/ai-services/SuccessProbab
 import SubmissionTimingOptimizer from '../../../lib/ai-services/SubmissionTimingOptimizer';
 import DescriptionCustomizer from '../../../lib/ai-services/DescriptionCustomizer';
 import IntelligentRetryAnalyzer from '../../../lib/ai-services/IntelligentRetryAnalyzer';
+import AIFormMapper from '../../../lib/ai-services/AIFormMapper';
 
 interface DirectorySubmissionResult {
   directoryName: string;
@@ -39,6 +40,7 @@ export class AIJobProcessor {
   private browser: Browser | null = null;
   private aiOrchestrator: AISubmissionOrchestrator;
   private queueManager: AIEnhancedQueueManager;
+  private formMapper: AIFormMapper;
   private config: AIJobProcessorConfig;
 
   constructor(config: AIJobProcessorConfig) {
@@ -66,6 +68,12 @@ export class AIJobProcessor {
       enableTimingOptimization: this.config.enableTimingOptimization,
       batchSize: this.config.batchSize,
       anthropicApiKey: this.config.anthropicApiKey || process.env.ANTHROPIC_API_KEY
+    });
+
+    this.formMapper = new AIFormMapper({
+      anthropicApiKey: this.config.anthropicApiKey || process.env.ANTHROPIC_API_KEY,
+      confidenceThreshold: 0.8,
+      maxRetries: 3
     });
   }
 
@@ -378,18 +386,88 @@ export class AIJobProcessor {
   }
 
   private async fillDirectoryForm(page: Page, content: any, aiAnalysis: any): Promise<void> {
-    // AI-enhanced form filling logic
-    // This would use AI to intelligently fill forms based on directory structure
-    logger.info('📝 Filling directory form with AI-enhanced data', { component: 'form-filler' });
+    logger.info('📝 Filling directory form with AI-enhanced mapping', { component: 'form-filler' });
     
-    // Mock implementation - in reality this would:
-    // 1. Analyze the form structure with AI
-    // 2. Map business data to form fields intelligently
-    // 3. Use AI to optimize field values
-    // 4. Handle different form layouts automatically
-    
-    // For now, just log the action
-    await page.waitForTimeout(1000);
+    try {
+      // Step 1: Get page HTML for form analysis
+      const html = await page.content();
+      const url = page.url();
+      
+      logger.info('🔍 Analyzing form structure with AI Form Mapper', { 
+        url, 
+        component: 'form-filler' 
+      });
+      
+      // Step 2: Use AI Form Mapper to analyze the form
+      const formAnalysis = await this.formMapper.analyzeForm({
+        url,
+        html,
+        screenshot: await page.screenshot({ encoding: 'base64' })
+      });
+      
+      if (!formAnalysis.success) {
+        throw new Error(`Form analysis failed: ${formAnalysis.error}`);
+      }
+      
+      logger.info('✅ Form analysis complete', { 
+        mappedFields: formAnalysis.stats?.mappedFields,
+        confidence: formAnalysis.confidence,
+        component: 'form-filler'
+      });
+      
+      // Step 3: Fill form fields using AI-generated mappings
+      const mapping = formAnalysis.mapping;
+      
+      // Map business data to form fields
+      const fieldData = {
+        businessName: content.customizedData?.businessName || content.businessName,
+        email: content.customizedData?.email || content.email,
+        phone: content.customizedData?.phone || content.phone,
+        website: content.customizedData?.website || content.website,
+        address: content.customizedData?.address || content.address,
+        city: content.customizedData?.city || content.city,
+        state: content.customizedData?.state || content.state,
+        zip: content.customizedData?.zip || content.zip,
+        description: content.customizedData?.description || content.description,
+        category: content.customizedData?.category || content.category
+      };
+      
+      // Step 4: Fill each mapped field
+      for (const [fieldName, fieldInfo] of Object.entries(mapping)) {
+        if (fieldData[fieldName] && fieldInfo.selector) {
+          try {
+            logger.info(`📝 Filling field: ${fieldName}`, { 
+              selector: fieldInfo.selector, 
+              component: 'form-filler' 
+            });
+            
+            await page.fill(fieldInfo.selector, String(fieldData[fieldName]));
+            
+            // Add human-like delay between fields
+            await page.waitForTimeout(Math.random() * 500 + 300);
+            
+          } catch (error) {
+            logger.warn(`⚠️ Failed to fill field: ${fieldName}`, { 
+              selector: fieldInfo.selector,
+              error: error instanceof Error ? error.message : String(error),
+              component: 'form-filler'
+            });
+          }
+        }
+      }
+      
+      logger.info('✅ Form filling complete', { 
+        filledFields: Object.keys(mapping).length,
+        component: 'form-filler'
+      });
+      
+    } catch (error) {
+      logger.error('❌ Form filling failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        component: 'form-filler'
+      });
+      throw error;
+    }
   }
 
   private async handleCaptcha(page: Page): Promise<void> {
