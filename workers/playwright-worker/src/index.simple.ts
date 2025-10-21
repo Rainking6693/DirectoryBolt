@@ -35,10 +35,10 @@ async function processJobSimple(job: JobPayload, api: any) {
   await api.completeJob(job.id, { 
     finalStatus: 'complete', 
     summary: { 
-      total: 1, 
-      submitted: 1, 
-      failed: 0, 
-      success_rate: 1.0 
+      totalDirectories: 1, 
+      successfulSubmissions: 1, 
+      failedSubmissions: 0, 
+      processingTimeSeconds: 0 
     } 
   });
 }
