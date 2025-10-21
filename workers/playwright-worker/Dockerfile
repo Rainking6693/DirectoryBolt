@@ -15,7 +15,12 @@ COPY workers/playwright-worker/src ./src
 COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
 
 # Copy AI services that the worker depends on
-COPY lib/ai-services ./lib/ai-services
+# The compiled code expects them at ../../../lib/ai-services from /app/dist/
+# So we need to create the directory structure that matches the import paths
+# From /app/dist/, the path ../../../lib/ai-services resolves to /lib/ai-services
+# Let's create the expected directory structure
+RUN mkdir -p /lib
+COPY lib/ai-services /lib/ai-services
 
 # Note: directories folder is NOT required for worker operation
 # The worker loads directory data from the database via API
