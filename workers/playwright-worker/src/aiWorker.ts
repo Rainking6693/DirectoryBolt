@@ -7,7 +7,7 @@ import { getNextJob, updateProgress, completeJob } from './apiClient';
 import { AIJobProcessor } from './aiJobProcessor';
 import type { JobPayload } from './types';
 import http from 'http';
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const POLL_INTERVAL = Number(process.env.POLL_INTERVAL || '5000');
 const PORT = process.env.PORT || 3000;

@@ -7,14 +7,14 @@ import { getNextJob, updateProgress, completeJob } from './apiClient';
 import { chromium, Browser, Page } from 'playwright';
 import type { JobPayload } from './types';
 
-// AI Services (will be imported from lib/ai-services/)
-import AISubmissionOrchestrator from '../../../lib/ai-services/AISubmissionOrchestrator';
-import AIEnhancedQueueManager from '../../../lib/ai-services/AIEnhancedQueueManager';
-import SuccessProbabilityCalculator from '../../../lib/ai-services/SuccessProbabilityCalculator';
-import SubmissionTimingOptimizer from '../../../lib/ai-services/SubmissionTimingOptimizer';
-import DescriptionCustomizer from '../../../lib/ai-services/DescriptionCustomizer';
-import IntelligentRetryAnalyzer from '../../../lib/ai-services/IntelligentRetryAnalyzer';
-import AIFormMapper from '../../../lib/ai-services/AIFormMapper';
+// AI Services (imported from lib/ai-services/)
+const AISubmissionOrchestrator = require('../../../lib/ai-services/AISubmissionOrchestrator');
+const AIEnhancedQueueManager = require('../../../lib/ai-services/AIEnhancedQueueManager');
+const SuccessProbabilityCalculator = require('../../../lib/ai-services/SuccessProbabilityCalculator');
+const SubmissionTimingOptimizer = require('../../../lib/ai-services/SubmissionTimingOptimizer');
+const DescriptionCustomizer = require('../../../lib/ai-services/DescriptionCustomizer');
+const IntelligentRetryAnalyzer = require('../../../lib/ai-services/IntelligentRetryAnalyzer');
+const AIFormMapper = require('../../../lib/ai-services/AIFormMapper');
 
 interface DirectorySubmissionResult {
   directoryName: string;
