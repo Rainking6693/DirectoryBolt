@@ -1,4 +1,4 @@
-import type { JobPayload } from './jobProcessor';
+// import type { JobPayload } from './jobProcessor';
 
 interface GeminiSubmissionResponse {
   success: boolean;
