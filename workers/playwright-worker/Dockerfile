@@ -7,8 +7,11 @@ WORKDIR /app
 COPY workers/playwright-worker/package.json ./package.json
 COPY workers/playwright-worker/package-lock.json ./package-lock.json
 
-# Install dependencies
+# Install ALL dependencies (including devDependencies for TypeScript)
 RUN npm ci --no-audit --no-fund
+
+# Verify TypeScript is installed
+RUN npx tsc --version
 
 # Copy source files
 COPY workers/playwright-worker/src ./src
@@ -16,6 +19,9 @@ COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
 
 # Build TypeScript
 RUN npm run build
+
+# Verify build output exists
+RUN ls -la dist/
 
 # Install Playwright browsers
 RUN npx playwright install chromium --with-deps
