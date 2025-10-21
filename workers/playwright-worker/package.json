@@ -16,10 +16,7 @@
     "@anthropic-ai/sdk": "^0.30.1",
     "@google/generative-ai": "^0.21.0",
     "@supabase/supabase-js": "^2.76.1",
-    "2captcha": "^1.0.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "puppeteer-extra-plugin-recaptcha": "^2.4.1"
+    "2captcha": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
