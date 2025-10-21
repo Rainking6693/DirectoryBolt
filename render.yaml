@@ -10,16 +10,26 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: POLL_INTERVAL
-        value: 5000
       - key: PORT
         value: 3000
-      - key: API_BASE_URL
+      - key: POLL_INTERVAL
+        value: 5000
+      - key: WORKER_ID
+        value: render-worker-1
+      - key: AUTOBOLT_API_KEY
         sync: false
-      - key: API_KEY
+      - key: AUTOBOLT_API_BASE
         sync: false
-      - key: SUPABASE_URL
+      - key: NETLIFY_FUNCTIONS_URL
         sync: false
-      - key: SUPABASE_SERVICE_KEY
+      - key: WORKER_AUTH_TOKEN
         sync: false
+      - key: PLAYWRIGHT_HEADLESS
+        value: true
+      - key: HEADLESS
+        value: true
+      - key: TWOCAPTCHA_API_KEY
+        sync: false
+      - key: LOG_LEVEL
+        value: info
 
