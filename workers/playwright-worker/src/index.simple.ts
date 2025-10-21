@@ -30,17 +30,31 @@ server.listen(PORT, () => {
 async function processJobSimple(job: JobPayload, api: any) {
   logger.info('Processing job without AI services', { jobId: job.id });
   
-  // Basic job processing logic here
-  // For now, just mark as completed
-  await api.completeJob(job.id, { 
-    finalStatus: 'complete', 
-    summary: { 
-      totalDirectories: 1, 
-      successfulSubmissions: 1, 
-      failedSubmissions: 0, 
-      processingTimeSeconds: 0 
-    } 
-  });
+  try {
+    // Step 1: Update job status to in_progress
+    logger.info('Updating job status to in_progress', { jobId: job.id });
+    await api.updateProgress(job.id, [], { status: 'in_progress' });
+    
+    // Step 2: Simulate some processing time
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Step 3: Complete the job
+    logger.info('Completing job', { jobId: job.id });
+    await api.completeJob(job.id, { 
+      finalStatus: 'complete', 
+      summary: { 
+        totalDirectories: 1, 
+        successfulSubmissions: 1, 
+        failedSubmissions: 0, 
+        processingTimeSeconds: 1 
+      } 
+    });
+    
+    logger.info('Job completed successfully', { jobId: job.id });
+  } catch (error) {
+    logger.error('Job processing failed', { jobId: job.id, error: error.message });
+    throw error;
+  }
 }
 
 async function main() {
