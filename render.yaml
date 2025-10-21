@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: playwright-worker
+    name: ai-enhanced-playwright-worker
     runtime: docker
     dockerfilePath: ./workers/playwright-worker/Dockerfile
     dockerContext: ./
@@ -15,21 +15,28 @@ services:
       - key: POLL_INTERVAL
         value: 5000
       - key: WORKER_ID
-        value: render-worker-1
+        value: ai-enhanced-worker-1
       - key: AUTOBOLT_API_KEY
-        sync: false
+        sync: false # Render will prompt for this value
       - key: AUTOBOLT_API_BASE
-        sync: false
+        sync: false # Render will prompt for this value
       - key: NETLIFY_FUNCTIONS_URL
-        sync: false
+        sync: false # Render will prompt for this value
       - key: WORKER_AUTH_TOKEN
-        sync: false
+        sync: false # Render will prompt for this value
       - key: PLAYWRIGHT_HEADLESS
         value: true
       - key: HEADLESS
         value: true
+      - key: ANTHROPIC_API_KEY
+        sync: false # AI service API key
+      - key: GEMINI_API_KEY
+        sync: false # AI service API key
       - key: TWO_CAPTCHA_API_KEY
-        sync: false
+        sync: false # CAPTCHA solving service
+      - key: SUPABASE_URL
+        sync: false # Database connection
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Database authentication
       - key: LOG_LEVEL
         value: info
-

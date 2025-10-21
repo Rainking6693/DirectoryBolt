@@ -1,0 +1,33 @@
+# AI-Enhanced Playwright Worker Environment Variables for Render
+# Copy and paste this into Render's bulk environment variable editor
+
+# Basic Configuration
+NODE_ENV=production
+PORT=3000
+POLL_INTERVAL=5000
+WORKER_ID=ai-enhanced-worker-1
+
+# API Configuration - REQUIRED
+AUTOBOLT_API_KEY=718e8866b81ecc6527dfc1b640e103e6741d844f4438286210d652ca02ee4622
+AUTOBOLT_API_BASE=https://directorybolt.netlify.app
+NETLIFY_FUNCTIONS_URL=https://directorybolt.netlify.app
+WORKER_AUTH_TOKEN=718e8866b81ecc6527dfc1b640e103e6741d844f4438286210d652ca02ee4622
+
+# Playwright Configuration
+PLAYWRIGHT_HEADLESS=true
+PLAYWRIGHT_TIMEOUT=30000
+HEADLESS=true
+
+# AI Services - REQUIRED for full functionality
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# CAPTCHA Service
+TWO_CAPTCHA_API_KEY=49c0890fbd8c1506c04b58e53752cf2f
+
+# Database Configuration
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+
+# Logging
+LOG_LEVEL=info
