@@ -150,6 +150,36 @@ export default function RealTimeQueue(): JSX.Element {
     }
   };
 
+  const resetJob = async (jobId: string, customerId: string) => {
+    if (!confirm(`Reset job for ${customerId} back to pending? This will clear all progress and allow the worker to pick it up again.`)) {
+      return;
+    }
+    
+    try {
+      const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+      const csrfData = await csrfResponse.json()
+      if (!csrfData.success) throw new Error('Failed to get CSRF token')
+      
+      const response = await fetch('/api/staff/jobs/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfData.csrfToken },
+        credentials: 'include',
+        body: JSON.stringify({ job_id: jobId, customer_id: customerId })
+      })
+      
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(text || `HTTP ${response.status}`)
+      }
+      
+      notifyApiSuccess('Job reset', [`Job ${jobId} reset to pending`])
+      await fetchQueueData()
+    } catch (err) {
+      console.error('Reset job error:', err)
+      notifyApiError('Reset Job', err instanceof Error ? err.message : 'Unknown error')
+    }
+  };
+
   const getStatusColor = (status: string) => {
     const s = (status || '').toLowerCase().replace('_','-')
     switch (s) {
@@ -577,6 +607,15 @@ export default function RealTimeQueue(): JSX.Element {
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                             </>
                           )}
+                        </button>
+                      )}
+                      {(customer.status === 'in-progress' || customer.status === 'failed' || customer.status === 'completed') && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); resetJob(customer.id, customer.customer_id); }}
+                          className="text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1"
+                        >
+                          <span>Reset</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         </button>
                       )}
                       <button
