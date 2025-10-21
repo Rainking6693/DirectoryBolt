@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { logger } from './logger'
 import { getNextJob, updateProgress, completeJob } from './apiClient'
-// import { processJob } from './jobProcessor'
+import type { JobPayload } from './types';
 import http from 'http';
 
 const POLL_INTERVAL = Number(process.env.POLL_INTERVAL || '5000')
@@ -27,7 +27,7 @@ server.listen(PORT, () => {
 });
 
 // Simple job processor without AI services
-async function processJobSimple(job: any, api: any) {
+async function processJobSimple(job: JobPayload, api: any) {
   logger.info('Processing job without AI services', { jobId: job.id });
   
   // Basic job processing logic here
