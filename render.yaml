@@ -28,7 +28,7 @@ services:
         value: true
       - key: HEADLESS
         value: true
-      - key: TWOCAPTCHA_API_KEY
+      - key: TWO_CAPTCHA_API_KEY
         sync: false
       - key: LOG_LEVEL
         value: info
