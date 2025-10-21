@@ -2,8 +2,29 @@ import 'dotenv/config';
 import { logger } from './logger'
 import { getNextJob, updateProgress, completeJob } from './apiClient'
 import { processJob } from './jobProcessor'
+import http from 'http';
 
 const POLL_INTERVAL = Number(process.env.POLL_INTERVAL || '5000')
+const PORT = process.env.PORT || 3000;
+
+// Create HTTP server for health checks
+const server = http.createServer((req, res) => {
+  if (req.url === '/health' || req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      status: 'healthy', 
+      service: 'playwright-worker',
+      timestamp: new Date().toISOString()
+    }));
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not found' }));
+  }
+});
+
+server.listen(PORT, () => {
+  logger.info(`Health check server listening on port ${PORT}`, { component: 'health' });
+});
 
 async function main() {
   logger.info('Playwright Worker starting...', { component: 'main' })
