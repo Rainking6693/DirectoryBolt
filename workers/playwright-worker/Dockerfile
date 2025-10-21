@@ -10,24 +10,12 @@ COPY workers/playwright-worker/package.json workers/playwright-worker/package-lo
 # Install dependencies
 RUN npm ci --no-audit --no-fund
 
-# Copy worker source files individually to avoid symlink issues
-COPY workers/playwright-worker/src ./src
-COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
-
-# Copy AI services that the worker depends on
-# The compiled code expects them at ../../../lib/ai-services from /app/dist/
-# So we need to create the directory structure that matches the import paths
-# From /app/dist/, the path ../../../lib/ai-services resolves to /lib/ai-services
-# Let's create the expected directory structure
-RUN mkdir -p /lib
-COPY lib/ai-services /lib/ai-services
-
-# Also copy AI services to the app directory so they can access node_modules
-# This ensures they have access to the installed dependencies
+# Copy AI services FIRST (they need to be available during build)
 COPY lib/ai-services ./lib/ai-services
 
-# Note: directories folder is NOT required for worker operation
-# The worker loads directory data from the database via API
+# Copy worker source files
+COPY workers/playwright-worker/src ./src
+COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
 
 # Build TypeScript and install Playwright
 RUN npm run build && npx playwright install chromium --with-deps
