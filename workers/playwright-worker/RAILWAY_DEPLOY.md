@@ -41,11 +41,14 @@ POLL_INTERVAL=5000
 WORKER_ID=railway-worker-1
 HEADLESS=true
 TWOCAPTCHA_API_KEY=49c0890fbd8c1506c04b58e53752cf2f
+
 ```
+
+
 
 ## Step 5: Deploy
 
-Railway will automatically deploy! Monitor logs in the "Deployments" tab.
+
 
 ## Verify It's Working
 
