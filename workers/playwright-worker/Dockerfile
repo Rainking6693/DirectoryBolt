@@ -10,8 +10,12 @@ COPY workers/playwright-worker/package.json workers/playwright-worker/package-lo
 # Install dependencies
 RUN npm ci --no-audit --no-fund
 
-# Copy worker source code
-COPY workers/playwright-worker/ ./
+# Copy worker source files individually to avoid symlink issues
+COPY workers/playwright-worker/src ./src
+COPY workers/playwright-worker/tsconfig.json ./tsconfig.json
+COPY workers/playwright-worker/complete-directory-database.json ./complete-directory-database.json
+COPY workers/playwright-worker/railway.json ./railway.json
+COPY workers/playwright-worker/nixpacks.toml ./nixpacks.toml
 
 # Note: directories folder is NOT required for worker operation
 # The worker loads directory data from the database via API
