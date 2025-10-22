@@ -8,8 +8,8 @@ WORKER_ID=render-worker-1
 
 # API Configuration - REQUIRED
 AUTOBOLT_API_KEY=718e8866b81ecc6527dfc1b640e103e6741d844f4438286210d652ca02ee4622
-AUTOBOLT_API_BASE=https://directorybolt.netlify.app
-NETLIFY_FUNCTIONS_URL=https://directorybolt.netlify.app
+AUTOBOLT_API_BASE=https://directorybolt.com
+NETLIFY_FUNCTIONS_URL=https://directorybolt.com
 WORKER_AUTH_TOKEN=718e8866b81ecc6527dfc1b640e103e6741d844f4438286210d652ca02ee4622
 
 # Playwright Configuration
