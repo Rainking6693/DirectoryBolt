@@ -8,7 +8,7 @@ async function testSupabaseConnection() {
     // Test 1: Direct connection
     console.log('\n1. Testing direct Supabase client connection...');
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('❌ Missing Supabase environment variables');
