@@ -39,6 +39,12 @@ export default function Header({ showBackButton = false }: HeaderProps) {
             >
               Pricing
             </Link>
+            <Link 
+              href="/customer-portal"
+              className="text-secondary-300 hover:text-volt-400 transition-colors font-medium tap-target p-2"
+            >
+              Customer Portal
+            </Link>
             <StartTrialButton
               plan="growth"
               size="md"

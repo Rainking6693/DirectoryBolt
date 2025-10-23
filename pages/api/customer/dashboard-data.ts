@@ -1,320 +1,162 @@
-// @ts-nocheck
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { createSupabaseService } from '../../../lib/services/supabase';
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from '@supabase/supabase-js'
 
-interface CustomerDashboardData {
-  dashboard: {
-    totalDirectories: number;
-    submitted: number;
-    live: number;
-    pending: number;
-    lastUpdated: string;
-    userId: string;
-    businessName: string;
-  };
-  directories: Array<{
-    id: string;
-    name: string;
-    status: 'pending' | 'submitted' | 'processing' | 'live' | 'rejected';
-    submittedAt?: string;
-    liveAt?: string;
-    category: string;
-    tier: 'standard' | 'premium';
-    domainAuthority: number;
-    estimatedTraffic: number;
-    listingUrl?: string;
-    rejectedReason?: string;
-  }>;
-  businessInfo: {
-    id: string;
-    businessName: string;
-    description: string;
-    website: string;
-    phone: string;
-    email: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zipCode: string;
-      country: string;
-    };
-    categories: string[];
-    socialMedia: {
-      facebook?: string;
-      twitter?: string;
-      linkedin?: string;
-    };
-  };
-  notifications: Array<{
-    id: string;
-    type: 'success' | 'warning' | 'info' | 'error';
-    title: string;
-    message: string;
-    timestamp: string;
-    read: boolean;
-    actionUrl?: string;
-    actionText?: string;
-  }>;
-  actions: Array<{
-    id: string;
-    title: string;
-    description: string;
-    type: 'verification' | 'approval' | 'update';
-    priority: 'high' | 'medium' | 'low';
-    dueDate?: string;
-    actionUrl: string;
-    actionText: string;
-    status: 'pending' | 'completed';
-    directoryName?: string;
-  }>;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Supabase credentials not configured')
 }
 
-function authenticateRequest(req: NextApiRequest): boolean {
-  const authHeader = req.headers.authorization;
-  const customerKey = process.env.CUSTOMER_API_KEY;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return false;
-  }
-  
-  const token = authHeader.substring(7);
-  return token === customerKey;
-}
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-function applyCors(res: NextApiResponse) {
-  const allowedOrigins = [
-    'https://directorybolt.com',
-    'https://www.directorybolt.com',
-    'https://directorybolt.netlify.app',
-    'http://localhost:3000',
-    'http://localhost:3001'
-  ];
-  
-  const origin = res.req?.headers.origin;
-  
-  if (process.env.NODE_ENV === 'production') {
-    const prodOrigins = allowedOrigins.filter(o => o.startsWith('https://'));
-    if (origin && prodOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
+interface DashboardDataResponse {
+  success: boolean
+  data?: {
+    customer: {
+      id: string
+      business_name: string
+      email: string
+      package_type: string
     }
-  } else {
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
+    jobs: Array<{
+      id: string
+      status: string
+      progress_percentage: number
+      directories_completed: number
+      directories_failed: number
+      directories_to_process: number
+      created_at: string
+      updated_at: string
+    }>
+    submissions: Array<{
+      id: string
+      directory_name: string
+      status: string
+      submitted_at?: string
+      approved_at?: string
+      failed_at?: string
+      error_message?: string
+    }>
+    stats: {
+      total_submissions: number
+      completed_submissions: number
+      failed_submissions: number
+      pending_submissions: number
+      success_rate: number
     }
   }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  error?: string
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  applyCors(res);
-
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse<DashboardDataResponse>) {
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET, OPTIONS');
-    return res.status(405).json({
-      ok: false,
-      code: 'METHOD_NOT_ALLOWED',
-      message: 'Method not allowed'
-    });
-  }
-
-  // Check authentication
-  if (!authenticateRequest(req)) {
-    return res.status(401).json({
-      ok: false,
-      code: 'UNAUTHORIZED',
-      message: 'Customer authentication required'
-    });
+    res.setHeader('Allow', ['GET'])
+    return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
   try {
-    const { customerId } = req.query;
+    const { customerId } = req.query
 
-    if (!customerId) {
-      return res.status(400).json({
-        ok: false,
-        code: 'MISSING_CUSTOMER_ID',
-        message: 'Customer ID is required'
-      });
+    if (!customerId || typeof customerId !== 'string') {
+      return res.status(400).json({ success: false, error: 'Customer ID is required' })
     }
 
-    const supabaseService = createSupabaseService();
-    
-    // Fetch customer data from Supabase
-    const customerResult = await supabaseService.findByCustomerId(customerId.toString());
-    
-    if (!customerResult) {
+    // Get customer info
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('id, business_name, email, business_data')
+      .eq('id', customerId)
+      .single()
+
+    if (customerError || !customer) {
       return res.status(404).json({
-        ok: false,
-        code: 'CUSTOMER_NOT_FOUND',
-        message: 'Customer not found'
-      });
+        success: false, 
+        error: 'Customer not found' 
+      })
     }
 
-    // Build dashboard data with real customer information
-    const dashboardData: CustomerDashboardData = {
-      dashboard: {
-        totalDirectories: 5, // This would come from directory submissions
-        submitted: 2,
-        live: 1,
-        pending: 2,
-        lastUpdated: new Date().toISOString(),
-        userId: customerResult.customerId,
-        businessName: customerResult.businessName
+    // Get customer's jobs
+    const { data: jobs, error: jobsError } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false })
+
+    if (jobsError) {
+      console.error('Error fetching jobs:', jobsError)
+    }
+
+    // Get customer's submissions
+    const { data: submissions, error: submissionsError } = await supabase
+      .from('directory_submissions')
+      .select(`
+        *,
+        directories:directory_id (
+          name,
+          website
+        )
+      `)
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false })
+
+    if (submissionsError) {
+      console.error('Error fetching submissions:', submissionsError)
+    }
+
+    // Calculate stats
+    const totalSubmissions = submissions?.length || 0
+    const completedSubmissions = submissions?.filter(s => s.status === 'submitted' || s.status === 'approved').length || 0
+    const failedSubmissions = submissions?.filter(s => s.status === 'failed').length || 0
+    const pendingSubmissions = submissions?.filter(s => s.status === 'pending' || s.status === 'submitting').length || 0
+    const successRate = totalSubmissions > 0 ? Math.round((completedSubmissions / totalSubmissions) * 100) : 0
+
+    // Format response
+    const dashboardData = {
+      customer: {
+        id: customer.id,
+        business_name: customer.business_name,
+        email: customer.email,
+        package_type: customer.business_data?.package_type || 'starter'
       },
-      directories: [
-        {
-          id: '1',
-          name: 'Google My Business',
-          status: 'live',
-          submittedAt: '2024-01-15T10:00:00Z',
-          liveAt: '2024-01-18T14:30:00Z',
-          category: 'Search Engine',
-          tier: 'premium',
-          domainAuthority: 95,
-          estimatedTraffic: 50000,
-          listingUrl: 'https://business.google.com/dashboard'
-        },
-        {
-          id: '2',
-          name: 'Yelp Business',
-          status: 'submitted',
-          submittedAt: '2024-01-20T09:15:00Z',
-          category: 'Review Platform',
-          tier: 'premium',
-          domainAuthority: 89,
-          estimatedTraffic: 25000
-        },
-        {
-          id: '3',
-          name: 'Better Business Bureau',
-          status: 'pending',
-          category: 'Trust & Verification',
-          tier: 'premium',
-          domainAuthority: 82,
-          estimatedTraffic: 15000
-        },
-        {
-          id: '4',
-          name: 'Local Chamber of Commerce',
-          status: 'processing',
-          submittedAt: '2024-01-22T11:45:00Z',
-          category: 'Local Business',
-          tier: 'standard',
-          domainAuthority: 65,
-          estimatedTraffic: 5000
-        },
-        {
-          id: '5',
-          name: 'Industry Directory XYZ',
-          status: 'rejected',
-          submittedAt: '2024-01-18T16:20:00Z',
-          rejectedReason: 'Incomplete business verification. Please provide additional documentation.',
-          category: 'Industry Specific',
-          tier: 'standard',
-          domainAuthority: 58,
-          estimatedTraffic: 3000
-        }
-      ],
-      businessInfo: {
-        id: customerResult.customerId,
-        businessName: customerResult.businessName,
-        description: 'A leading provider of innovative business solutions and services.',
-        website: customerResult.website || 'https://example.com',
-        phone: customerResult.phone || '(555) 123-4567',
-        email: customerResult.email,
-        address: {
-          street: customerResult.address || '123 Business Ave',
-          city: customerResult.city || 'Enterprise City',
-          state: customerResult.state || 'CA',
-          zipCode: customerResult.zip || '90210',
-          country: 'USA'
-        },
-        categories: ['Technology', 'Business Services', 'Consulting'],
-        socialMedia: {
-          facebook: 'https://facebook.com/company',
-          twitter: 'https://twitter.com/company',
-          linkedin: 'https://linkedin.com/company/company'
-        }
-      },
-      notifications: [
-        {
-          id: '1',
-          type: 'success',
-          title: 'Google My Business Approved',
-          message: 'Your Google My Business listing is now live and receiving traffic.',
-          timestamp: '2024-01-18T14:30:00Z',
-          read: false,
-          actionUrl: '/dashboard/directories/1',
-          actionText: 'View Listing'
-        },
-        {
-          id: '2',
-          type: 'warning',
-          title: 'Verification Required',
-          message: 'Industry Directory XYZ requires additional documentation for approval.',
-          timestamp: '2024-01-19T09:15:00Z',
-          read: false,
-          actionUrl: '/dashboard/actions/verify-business',
-          actionText: 'Complete Verification'
-        },
-        {
-          id: '3',
-          type: 'info',
-          title: 'Processing Update',
-          message: 'Local Chamber of Commerce submission is currently being reviewed.',
-          timestamp: '2024-01-22T11:45:00Z',
-          read: true
-        }
-      ],
-      actions: [
-        {
-          id: '1',
-          title: 'Complete SMS Verification',
-          description: 'Verify your business phone number via SMS code for Industry Directory XYZ.',
-          type: 'verification',
-          priority: 'high',
-          dueDate: '2024-01-25T23:59:59Z',
-          actionUrl: '/dashboard/actions',
-          actionText: 'Verify Now',
-          status: 'pending',
-          directoryName: 'Industry Directory XYZ'
-        },
-        {
-          id: '2',
-          title: 'Upload Business Documents',
-          description: 'Submit required business license and tax documentation for Better Business Bureau verification.',
-          type: 'verification',
-          priority: 'high',
-          dueDate: '2024-01-28T23:59:59Z',
-          actionUrl: '/dashboard/actions',
-          actionText: 'Upload Files',
-          status: 'pending',
-          directoryName: 'Better Business Bureau'
-        }
-      ]
-    };
+      jobs: (jobs || []).map(job => ({
+        id: job.id,
+        status: job.status,
+        progress_percentage: job.progress_percentage || 0,
+        directories_completed: job.directories_completed || 0,
+        directories_failed: job.directories_failed || 0,
+        directories_to_process: job.directories_to_process || 0,
+        created_at: job.created_at,
+        updated_at: job.updated_at
+      })),
+      submissions: (submissions || []).map(submission => ({
+        id: submission.id,
+        directory_name: submission.directories?.name || 'Unknown Directory',
+        status: submission.status,
+        submitted_at: submission.submitted_at,
+        approved_at: submission.approved_at,
+        failed_at: submission.failed_at,
+        error_message: submission.error_message
+      })),
+      stats: {
+        total_submissions: totalSubmissions,
+        completed_submissions: completedSubmissions,
+        failed_submissions: failedSubmissions,
+        pending_submissions: pendingSubmissions,
+        success_rate: successRate
+      }
+    }
 
     return res.status(200).json({
-      ok: true,
+      success: true,
       data: dashboardData
-    });
+    })
 
-  } catch (error: unknown) {
-    const err = error as { message?: string };
-    console.error('[customer.dashboard-data] error', { name: err?.message });
-    
+  } catch (error) {
+    console.error('[customer.dashboard-data] error', error)
     return res.status(500).json({
-      ok: false,
-      code: 'SERVER_ERROR',
-      message: 'Failed to fetch dashboard data'
-    });
+      success: false, 
+      error: 'Internal server error' 
+    })
   }
 }
