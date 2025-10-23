@@ -204,8 +204,111 @@ async function processJobWithAI(job: JobPayload): Promise<void> {
   }
 }
 
+// Get next pending job from new queue system
+async function getNextPendingJob(): Promise<any> {
+  try {
+    // Query for pending jobs with their submissions
+    const { data: pendingJobs, error: jobError } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+      .limit(1);
+
+    if (jobError) {
+      logger.error('❌ Failed to fetch pending jobs', { 
+        error: jobError.message,
+        component: 'queue'
+      });
+      return null;
+    }
+
+    if (!pendingJobs || pendingJobs.length === 0) {
+      return null;
+    }
+
+    const job = pendingJobs[0];
+    logger.info('📋 Found pending job', { 
+      jobId: job.id,
+      customerId: job.customer_id,
+      component: 'queue'
+    });
+
+    // Get pending submissions for this job
+    const { data: submissions, error: submissionError } = await supabase
+      .from('directory_submissions')
+      .select(`
+        *,
+        directories:directory_id (
+          id,
+          name,
+          website,
+          da_score,
+          submission_requirements,
+          form_fields
+        )
+      `)
+      .eq('submission_queue_id', job.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true });
+
+    if (submissionError) {
+      logger.error('❌ Failed to fetch submissions', { 
+        jobId: job.id,
+        error: submissionError.message,
+        component: 'queue'
+      });
+      return null;
+    }
+
+    if (!submissions || submissions.length === 0) {
+      logger.warn('⚠️ Job has no pending submissions, marking as completed', { 
+        jobId: job.id,
+        component: 'queue'
+      });
+      
+      // Mark job as completed
+      await supabase
+        .from('jobs')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', job.id);
+      
+      return null;
+    }
+
+    logger.info(`📊 Job has ${submissions.length} pending submissions`, { 
+      jobId: job.id,
+      submissionCount: submissions.length,
+      component: 'queue'
+    });
+
+    // Format job data for processor
+    return {
+      id: job.id,
+      customer_id: job.customer_id,
+      customer_name: job.customer_name,
+      customer_email: job.customer_email,
+      business_name: job.customer_name,
+      package_type: job.package_type,
+      directory_limit: job.directory_limit,
+      business_data: job.business_data,
+      submissions: submissions
+    };
+  } catch (error) {
+    logger.error('❌ Error fetching next job', { 
+      error: error instanceof Error ? error.message : String(error),
+      component: 'queue'
+    });
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
   logger.info('🚀 AI-Enhanced Playwright Worker starting...', { component: 'main' });
+  logger.info('📡 Using new queue system with Supabase direct polling', { component: 'main' });
 
   try {
     // Initialize AI services
@@ -227,23 +330,27 @@ async function main(): Promise<void> {
           continue;
         }
         
-        logger.info('🔍 Polling for jobs...', { component: 'poller' });
+        logger.info('🔍 Polling for pending jobs...', { component: 'poller' });
         
-        const response = await getNextJob();
+        const job = await getNextPendingJob();
         
-        if (response && response.success && response.data) {
-          const job: JobPayload = response.data;
-          logger.info('📋 Job received', { 
+        if (job) {
+          logger.info('📋 Job received from new queue system', { 
             jobId: job.id, 
             customerId: job.customer_id,
             businessName: job.business_name,
+            submissionCount: job.submissions?.length || 0,
             component: 'poller'
           });
 
           try {
             await processJobWithAI(job);
             jobsProcessedCount++; // Increment job counter
-            logger.info('✅ Job processed successfully', { jobId: job.id, totalProcessed: jobsProcessedCount });
+            logger.info('✅ Job processed successfully', { 
+              jobId: job.id, 
+              totalProcessed: jobsProcessedCount,
+              component: 'poller'
+            });
           } catch (jobError) {
             logger.error('❌ Job processing failed', { 
               jobId: job.id, 
@@ -252,7 +359,7 @@ async function main(): Promise<void> {
             });
           }
         } else {
-          logger.info('⏳ No jobs available, waiting...', { component: 'poller' });
+          logger.info('⏳ No pending jobs available, waiting...', { component: 'poller' });
         }
         
       } catch (pollingError) {
