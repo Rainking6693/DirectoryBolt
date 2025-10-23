@@ -515,6 +515,97 @@ async function handleSubscriptionTrialWillEnd(subscription, requestId) {
 
 // Database helper functions
 
+/**
+ * Queue directory submissions for a customer after successful purchase
+ * This function creates a master job and individual submission tasks for the AI worker poller
+ */
+async function queueSubmissionsForCustomer({ customerId, businessData, packageTier, packageSize }) {
+  const { createClient } = require('@supabase/supabase-js');
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  // Step 1: Create the main job record in the `jobs` table
+  const { data: newJob, error: jobError } = await supabase
+    .from('jobs')
+    .insert({
+      customer_id: customerId.toString(), // Convert UUID to string for VARCHAR field
+      customer_name: businessData.business_name || 'Customer',
+      customer_email: businessData.email || '',
+      package_type: packageTier,
+      directory_limit: packageSize,
+      directories_to_process: packageSize,
+      business_data: businessData,
+      status: 'pending',
+      priority_level: 4 // Default priority
+    })
+    .select('id')
+    .single();
+  
+  if (jobError) {
+    console.error('❌ Error creating customer job:', jobError);
+    throw jobError;
+  }
+  
+  const newCustomerJobId = newJob.id;
+  console.log(`✅ Master job created: ${newCustomerJobId}`);
+  
+  // Step 2: Determine tier number for directory filtering
+  const tierMap = {
+    'starter': 1,
+    'growth': 2,
+    'professional': 3,
+    'enterprise': 5
+  };
+  const tierNumber = tierMap[packageTier] || 2;
+  
+  // Step 3: Select the correct directories from our `directories` table
+  const { data: directoriesToSubmit, error: dirError } = await supabase
+    .from('directories')
+    .select('id, name, website, submission_requirements, form_fields, da_score')
+    .lte('priority_tier', tierNumber) // Filter by tier access
+    .eq('is_active', true) // Only active directories
+    .order('da_score', { ascending: false }) // Highest authority first
+    .limit(packageSize);
+  
+  if (dirError) {
+    console.error('❌ Error selecting directories:', dirError);
+    throw dirError;
+  }
+  
+  console.log(`📋 Selected ${directoriesToSubmit.length} directories for tier ${packageTier}`);
+  
+  // Step 4: Create the individual submission tasks in the `directory_submissions` table
+  const submissionsToInsert = directoriesToSubmit.map(directory => ({
+    customer_id: customerId, // UUID reference to customers table
+    directory_id: directory.id, // UUID reference to directories table
+    submission_queue_id: newCustomerJobId, // UUID link to master job
+    status: 'pending', // The AI worker poller will look for this status
+    listing_data: businessData // Store business data for submission
+  }));
+  
+  const { error: submissionError } = await supabase
+    .from('directory_submissions')
+    .insert(submissionsToInsert);
+  
+  if (submissionError) {
+    console.error('❌ Error inserting submissions:', submissionError);
+    throw submissionError;
+  }
+  
+  console.log(`✅ Successfully queued ${submissionsToInsert.length} submissions for job ${newCustomerJobId}`);
+  
+  return {
+    jobId: newCustomerJobId,
+    directoriesQueued: submissionsToInsert.length
+  };
+}
+
 async function processPackagePurchase(data) {
   console.log(`💾 Processing DirectoryBolt package purchase:`, data);
   
@@ -531,100 +622,95 @@ async function processPackagePurchase(data) {
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // 1. Create or update customer record
-    const customerId = `CUST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // First check if customer already exists by email
+    const customerEmail = data.custom_fields?.email || '';
+    let customerId = null;
     
-    const { data: customerData, error: customerError } = await supabase
-      .from('customers')
-      .upsert({
-        customer_id: customerId,
-        first_name: data.custom_fields?.first_name || 'Customer',
-        last_name: data.custom_fields?.last_name || '',
-        email: data.custom_fields?.email || '',
-        phone: data.custom_fields?.phone || '',
-        business_name: data.custom_fields?.business_name || '',
-        website: data.custom_fields?.website || '',
-        address: data.custom_fields?.address || '',
-        city: data.custom_fields?.city || '',
-        state: data.custom_fields?.state || '',
-        zip: data.custom_fields?.zip || '',
-        package_type: data.package_id,
-        status: 'active',
-        directories_submitted: 0,
-        failed_directories: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'customer_id'
-      })
-      .select()
-      .single();
-    
-    if (customerError) {
-      console.error('❌ Error creating customer:', customerError);
-      throw customerError;
+    if (customerEmail) {
+      const { data: existingCustomer } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('email', customerEmail)
+        .single();
+      
+      if (existingCustomer) {
+        customerId = existingCustomer.id;
+        console.log(`✅ Found existing customer: ${customerId}`);
+      }
     }
     
-    console.log(`✅ Customer record created/updated: ${customerId}`);
-    
-    // 2. Create job record
-    const jobId = `JOB-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    const { data: jobData, error: jobError } = await supabase
-      .from('jobs')
-      .insert({
-        id: jobId,
-        customer_id: customerId,
-        package_size: data.total_directories || 0,
-        status: 'pending',
-        priority_level: 'medium',
-        business_name: data.custom_fields?.business_name || '',
-        email: data.custom_fields?.email || '',
-        phone: data.custom_fields?.phone || '',
-        website: data.custom_fields?.website || '',
-        address: data.custom_fields?.address || '',
-        city: data.custom_fields?.city || '',
-        state: data.custom_fields?.state || '',
-        zip: data.custom_fields?.zip || '',
-        category: data.custom_fields?.category || '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-    
-    if (jobError) {
-      console.error('❌ Error creating job:', jobError);
-      throw jobError;
+    // Create new customer if doesn't exist
+    if (!customerId) {
+      const { data: newCustomer, error: customerError } = await supabase
+        .from('customers')
+        .insert({
+          email: customerEmail,
+          full_name: `${data.custom_fields?.first_name || ''} ${data.custom_fields?.last_name || ''}`.trim() || 'Customer',
+          company_name: data.custom_fields?.business_name || '',
+          business_data: {
+            phone: data.custom_fields?.phone || '',
+            website: data.custom_fields?.website || '',
+            address: data.custom_fields?.address || '',
+            city: data.custom_fields?.city || '',
+            state: data.custom_fields?.state || '',
+            zip: data.custom_fields?.zip || '',
+            category: data.custom_fields?.category || '',
+            description: data.custom_fields?.description || ''
+          },
+          subscription_tier: data.package_id || 'growth',
+          subscription_status: 'active',
+          password_hash: 'STRIPE_CUSTOMER', // Placeholder - customer signed up via Stripe
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select('id')
+        .single();
+      
+      if (customerError) {
+        console.error('❌ Error creating customer:', customerError);
+        throw customerError;
+      }
+      
+      customerId = newCustomer.id;
+      console.log(`✅ New customer created: ${customerId}`);
     }
     
-    console.log(`✅ Job record created: ${jobId}`);
+    // 2. Prepare business data for submission
+    const businessData = {
+      business_name: data.custom_fields?.business_name || '',
+      email: data.custom_fields?.email || '',
+      phone: data.custom_fields?.phone || '',
+      website: data.custom_fields?.website || '',
+      address: data.custom_fields?.address || '',
+      city: data.custom_fields?.city || '',
+      state: data.custom_fields?.state || '',
+      zip: data.custom_fields?.zip || '',
+      category: data.custom_fields?.category || '',
+      description: data.custom_fields?.description || ''
+    };
     
-    // 3. Log the creation
-    const { error: logError } = await supabase
-      .from('autobolt_test_logs')
-      .insert({
-        customer_id: customerId,
-        job_id: jobId,
-        directory_name: 'System',
-        status: 'job_created',
-        created_at: new Date().toISOString()
-      });
+    // 3. Determine package tier and size
+    const packageTier = data.package_id || 'growth'; // starter, growth, professional, enterprise
+    const packageSize = parseInt(data.total_directories || '100');
     
-    if (logError) {
-      console.warn('⚠️ Error creating log entry:', logError);
-      // Don't throw - logging is not critical
-    }
+    // 4. Queue submissions for the AI worker poller
+    const queueResult = await queueSubmissionsForCustomer({
+      customerId,
+      businessData,
+      packageTier,
+      packageSize
+    });
     
     console.log(`✅ Package purchase processed successfully`);
     console.log(`   Customer ID: ${customerId}`);
-    console.log(`   Job ID: ${jobId}`);
-    console.log(`   Directories: ${data.total_directories || 0}`);
+    console.log(`   Master Job ID: ${queueResult.jobId}`);
+    console.log(`   Directories Queued: ${queueResult.directoriesQueued}`);
     
     return {
       success: true,
       customerId,
-      jobId,
-      directories: data.total_directories || 0
+      jobId: queueResult.jobId,
+      directories: queueResult.directoriesQueued
     };
     
   } catch (error) {
