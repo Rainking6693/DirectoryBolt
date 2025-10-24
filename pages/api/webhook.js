@@ -537,22 +537,16 @@ async function queueSubmissionsForCustomer({ customerUuid, customerCode, busines
   const { data: newJob, error: jobError } = await supabase
     .from('jobs')
     .insert({
-      customer_id: customerCode,
+      customer_id: customerCode, // legacy string code
+      customer_uuid: customerUuid, // new UUID FK for consistency
       package_size: packageSize,
       package_type: packageTier,
       directory_limit: packageSize,
       status: 'pending',
       priority_level: 4,
-      business_name: businessData.business_name || 'Customer',
-      email: businessData.email || '',
-      phone: businessData.phone || '',
-      website: businessData.website || '',
-      address: businessData.address || '',
-      city: businessData.city || '',
-      state: businessData.state || '',
-      zip: businessData.zip || '',
-      description: businessData.description || '',
-      category: businessData.category || '',
+      customer_name: businessData.business_name || 'Customer',
+      customer_email: businessData.email || '',
+      business_data: businessData,
       metadata: {
         customer_uuid: customerUuid,
         raw_business_data: businessData
@@ -604,7 +598,9 @@ async function queueSubmissionsForCustomer({ customerUuid, customerCode, busines
       return {
         directory_url: directoryUrl,
         status: 'pending',
-        customer_job_id: customerCode
+        submission_queue_id: newCustomerJobId, // link to jobs.id
+        customer_id: customerUuid,            // link to customers.id (UUID)
+        listing_data: businessData            // per-submission payload
       };
     })
     .filter(Boolean);

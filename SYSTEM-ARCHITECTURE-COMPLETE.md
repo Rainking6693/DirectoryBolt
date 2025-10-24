@@ -88,7 +88,7 @@ DirectoryBolt is now a fully automated, AI-enhanced directory submission platfor
                          │ Polling for 'pending' submissions
                          ↓
 ┌─────────────────────────────────────────────────────────────────────┐
-│                   AI WORKER (Render.com)                             │
+│                   AI WORKER (DB-Worker Repo)                        │
 │  ┌──────────────────────────────────────────────────────────────┐  │
 │  │  workers/playwright-worker/src/aiWorker.ts                    │  │
 │  │  ┌──────────────────────────────────────────────────────┐    │  │

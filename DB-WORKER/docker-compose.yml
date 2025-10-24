@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  playwright-worker:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - NETLIFY_FUNCTIONS_URL=${NETLIFY_FUNCTIONS_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - NODE_ENV=${NODE_ENV:-production}
+      - POLL_INTERVAL=${POLL_INTERVAL:-5000}
+      - DIRECTORY_LIST_PATH=${DIRECTORY_LIST_PATH}
+    restart: on-failure
+    deploy:
+      replicas: 3
