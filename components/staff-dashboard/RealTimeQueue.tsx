@@ -70,6 +70,23 @@ interface QueueData {
   };
 }
 
+const STAFF_API_KEY = process.env.NEXT_PUBLIC_STAFF_API_KEY || '';
+
+async function authFetch(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+): Promise<Response> {
+  const headers = new Headers(init.headers || {});
+  if (STAFF_API_KEY && !headers.has('X-Staff-Key')) {
+    headers.set('X-Staff-Key', STAFF_API_KEY);
+  }
+  return fetch(input, {
+    ...init,
+    headers,
+    credentials: init.credentials ?? 'include',
+  });
+}
+
 export default function RealTimeQueue(): JSX.Element {
   const [queueData, setQueueData] = useState<QueueData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -99,7 +116,7 @@ export default function RealTimeQueue(): JSX.Element {
   const fetchQueueData = async () => {
     try {
       // Use same-origin cookie; no localStorage token required
-      const response = await fetch("/api/staff/queue", { credentials: 'include' });
+      const response = await authFetch("/api/staff/queue");
       if (!response.ok) {
         throw new Error("Failed to fetch queue data");
       }
@@ -127,10 +144,10 @@ export default function RealTimeQueue(): JSX.Element {
     }
     try {
       setPushingCustomers(prev => new Set(prev).add(jobId));
-      const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+      const csrfResponse = await authFetch('/api/csrf-token')
       const csrfData = await csrfResponse.json()
       if (!csrfData.success) throw new Error('Failed to get CSRF token')
-      const response = await fetch('/api/staff/jobs/push-to-autobolt', {
+      const response = await authFetch('/api/staff/jobs/push-to-autobolt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfData.csrfToken },
         credentials: 'include',
@@ -156,11 +173,11 @@ export default function RealTimeQueue(): JSX.Element {
     }
     
     try {
-      const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+      const csrfResponse = await authFetch('/api/csrf-token')
       const csrfData = await csrfResponse.json()
       if (!csrfData.success) throw new Error('Failed to get CSRF token')
       
-      const response = await fetch('/api/staff/jobs/reset', {
+      const response = await authFetch('/api/staff/jobs/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfData.csrfToken },
         credentials: 'include',
@@ -623,7 +640,7 @@ export default function RealTimeQueue(): JSX.Element {
                           e.stopPropagation();
                           if (!confirm('Delete this customer and all their jobs? This cannot be undone.')) return;
                           try {
-                            const r = await fetch('/api/staff/customers/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: customer.id, customer_id: customer.customer_id }) })
+                  const r = await authFetch('/api/staff/customers/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: customer.id, customer_id: customer.customer_id }) })
                             const j = await r.json()
                             if (!r.ok || !j.success) throw new Error(j.error || `HTTP ${r.status}`)
                             await fetchQueueData()
@@ -785,11 +802,11 @@ export default function RealTimeQueue(): JSX.Element {
                 try {
                   setCreating(true)
                   // Get CSRF token first
-                  const csrfResponse = await fetch('/api/csrf-token', { credentials: 'include' })
+                  const csrfResponse = await authFetch('/api/csrf-token')
                   const csrfData = await csrfResponse.json()
                   if (!csrfData.success) throw new Error('Failed to get CSRF token')
                   
-                  const res = await fetch('/api/staff/customers/create', {
+                  const res = await authFetch('/api/staff/customers/create', {
                     method: 'POST',
                     headers: { 
                       'Content-Type': 'application/json',
