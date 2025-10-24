@@ -519,87 +519,124 @@ async function handleSubscriptionTrialWillEnd(subscription, requestId) {
  * Queue directory submissions for a customer after successful purchase
  * This function creates a master job and individual submission tasks for the AI worker poller
  */
-async function queueSubmissionsForCustomer({ customerId, businessData, packageTier, packageSize }) {
+async function queueSubmissionsForCustomer({ customerUuid, customerCode, businessData, packageTier, packageSize }) {
   const { createClient } = require('@supabase/supabase-js');
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-  
+
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Supabase credentials not configured');
   }
-  
+
+  if (!customerCode) {
+    throw new Error('Customer is missing external customer_id (DB identifier)');
+  }
+
   const supabase = createClient(supabaseUrl, supabaseKey);
-  
-  // Step 1: Create the main job record in the `jobs` table
+
   const { data: newJob, error: jobError } = await supabase
     .from('jobs')
     .insert({
-      customer_id: customerId.toString(), // Convert UUID to string for VARCHAR field
-      customer_name: businessData.business_name || 'Customer',
-      customer_email: businessData.email || '',
+      customer_id: customerCode,
+      package_size: packageSize,
       package_type: packageTier,
       directory_limit: packageSize,
-      directories_to_process: packageSize,
-      business_data: businessData,
       status: 'pending',
-      priority_level: 4 // Default priority
+      priority_level: 4,
+      business_name: businessData.business_name || 'Customer',
+      email: businessData.email || '',
+      phone: businessData.phone || '',
+      website: businessData.website || '',
+      address: businessData.address || '',
+      city: businessData.city || '',
+      state: businessData.state || '',
+      zip: businessData.zip || '',
+      description: businessData.description || '',
+      category: businessData.category || '',
+      metadata: {
+        customer_uuid: customerUuid,
+        raw_business_data: businessData
+      }
     })
     .select('id')
     .single();
-  
+
   if (jobError) {
     console.error('❌ Error creating customer job:', jobError);
     throw jobError;
   }
-  
+
   const newCustomerJobId = newJob.id;
-  console.log(`✅ Master job created: ${newCustomerJobId}`);
-  
-  // Step 2: Determine tier number for directory filtering
+  console.log('? Master job created: ' + newCustomerJobId);
+
   const tierMap = {
-    'starter': 1,
-    'growth': 2,
-    'professional': 3,
-    'enterprise': 5
+    starter: 1,
+    growth: 2,
+    professional: 3,
+    enterprise: 5
   };
   const tierNumber = tierMap[packageTier] || 2;
-  
-  // Step 3: Select the correct directories from our `directories` table
+
   const { data: directoriesToSubmit, error: dirError } = await supabase
     .from('directories')
-    .select('id, name, website, submission_requirements, form_fields, da_score')
-    .lte('priority_tier', tierNumber) // Filter by tier access
-    .eq('is_active', true) // Only active directories
-    .order('da_score', { ascending: false }) // Highest authority first
+    .select('id, name, website, submission_url, tier_required, active, domain_authority')
+    .eq('active', true)
+    .lte('tier_required', tierNumber)
+    .order('domain_authority', { ascending: false })
     .limit(packageSize);
-  
+
   if (dirError) {
     console.error('❌ Error selecting directories:', dirError);
     throw dirError;
   }
-  
-  console.log(`📋 Selected ${directoriesToSubmit.length} directories for tier ${packageTier}`);
-  
-  // Step 4: Create the individual submission tasks in the `directory_submissions` table
-  const submissionsToInsert = directoriesToSubmit.map(directory => ({
-    customer_id: customerId, // UUID reference to customers table
-    directory_id: directory.id, // UUID reference to directories table
-    submission_queue_id: newCustomerJobId, // UUID link to master job
-    status: 'pending', // The AI worker poller will look for this status
-    listing_data: businessData // Store business data for submission
-  }));
-  
+
+  console.log('?? Selected ' + directoriesToSubmit.length + ' directories for tier ' + packageTier);
+
+  const submissionsToInsert = directoriesToSubmit
+    .map(directory => {
+      const directoryUrl = directory.submission_url || directory.website;
+
+      if (!directoryUrl) {
+        console.warn('⚠️ Directory ' + directory.id + ' (' + directory.name + ') has no URL. Skipping.');
+        return null;
+      }
+
+      return {
+        directory_url: directoryUrl,
+        status: 'pending',
+        customer_job_id: customerCode
+      };
+    })
+    .filter(Boolean);
+
+  if (submissionsToInsert.length === 0) {
+    console.error('❌ No directories with URLs available to queue.');
+    await supabase
+      .from('jobs')
+      .update({
+        status: 'failed',
+        completed_at: new Date().toISOString(),
+        error_message: 'No directories with URLs available to queue'
+      })
+      .eq('id', newCustomerJobId);
+
+    return {
+      jobId: newCustomerJobId,
+      directoriesQueued: 0
+    };
+  }
+
   const { error: submissionError } = await supabase
     .from('directory_submissions')
     .insert(submissionsToInsert);
-  
+
   if (submissionError) {
     console.error('❌ Error inserting submissions:', submissionError);
     throw submissionError;
   }
-  
-  console.log(`✅ Successfully queued ${submissionsToInsert.length} submissions for job ${newCustomerJobId}`);
-  
+
+  console.log('? Successfully queued ' + submissionsToInsert.length + ' submissions for job ' + newCustomerJobId);
+
   return {
     jobId: newCustomerJobId,
     directoriesQueued: submissionsToInsert.length
@@ -607,10 +644,9 @@ async function queueSubmissionsForCustomer({ customerId, businessData, packageTi
 }
 
 async function processPackagePurchase(data) {
-  console.log(`💾 Processing DirectoryBolt package purchase:`, data);
+  console.log('?? Processing DirectoryBolt package purchase:', data);
   
   try {
-    // Import Supabase client
     const { createClient } = require('@supabase/supabase-js');
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
@@ -621,26 +657,25 @@ async function processPackagePurchase(data) {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // 1. Create or update customer record
-    // First check if customer already exists by email
     const customerEmail = data.custom_fields?.email || '';
-    let customerId = null;
+    let customerUuid = null;
+    let customerCode = null;
     
     if (customerEmail) {
       const { data: existingCustomer } = await supabase
         .from('customers')
-        .select('id')
+        .select('id, customer_id')
         .eq('email', customerEmail)
         .single();
       
       if (existingCustomer) {
-        customerId = existingCustomer.id;
-        console.log(`✅ Found existing customer: ${customerId}`);
+        customerUuid = existingCustomer.id;
+        customerCode = existingCustomer.customer_id;
+        console.log('?? Found existing customer: ' + customerUuid + ' (' + customerCode + ')');
       }
     }
     
-    // Create new customer if doesn't exist
-    if (!customerId) {
+    if (!customerUuid) {
       const { data: newCustomer, error: customerError } = await supabase
         .from('customers')
         .insert({
@@ -659,11 +694,11 @@ async function processPackagePurchase(data) {
           },
           subscription_tier: data.package_id || 'growth',
           subscription_status: 'active',
-          password_hash: 'STRIPE_CUSTOMER', // Placeholder - customer signed up via Stripe
+          password_hash: 'STRIPE_CUSTOMER',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .select('id')
+        .select('id, customer_id')
         .single();
       
       if (customerError) {
@@ -671,11 +706,15 @@ async function processPackagePurchase(data) {
         throw customerError;
       }
       
-      customerId = newCustomer.id;
-      console.log(`✅ New customer created: ${customerId}`);
+      customerUuid = newCustomer.id;
+      customerCode = newCustomer.customer_id;
+      console.log('?? New customer created: ' + customerUuid + ' (' + customerCode + ')');
     }
     
-    // 2. Prepare business data for submission
+    if (!customerCode) {
+      throw new Error('Customer record missing customer_id (DB identifier)');
+    }
+    
     const businessData = {
       business_name: data.custom_fields?.business_name || '',
       email: data.custom_fields?.email || '',
@@ -689,26 +728,27 @@ async function processPackagePurchase(data) {
       description: data.custom_fields?.description || ''
     };
     
-    // 3. Determine package tier and size
-    const packageTier = data.package_id || 'growth'; // starter, growth, professional, enterprise
-    const packageSize = parseInt(data.total_directories || '100');
+    const packageTier = data.package_id || 'growth';
+    const packageSize = parseInt(data.total_directories || '100', 10);
     
-    // 4. Queue submissions for the AI worker poller
     const queueResult = await queueSubmissionsForCustomer({
-      customerId,
+      customerUuid,
+      customerCode,
       businessData,
       packageTier,
       packageSize
     });
     
-    console.log(`✅ Package purchase processed successfully`);
-    console.log(`   Customer ID: ${customerId}`);
-    console.log(`   Master Job ID: ${queueResult.jobId}`);
-    console.log(`   Directories Queued: ${queueResult.directoriesQueued}`);
+    console.log('?? Package purchase processed successfully');
+    console.log('   Customer UUID: ' + customerUuid);
+    console.log('   Customer Code: ' + customerCode);
+    console.log('   Master Job ID: ' + queueResult.jobId);
+    console.log('   Directories Queued: ' + queueResult.directoriesQueued);
     
     return {
       success: true,
-      customerId,
+      customerId: customerUuid,
+      customerCode,
       jobId: queueResult.jobId,
       directories: queueResult.directoriesQueued
     };
