@@ -291,7 +291,7 @@ async function getNextPendingJob(): Promise<any> {
       submissionCount: submissions.length,
       component: 'queue'
     });
-    submissions.slice(0,3).forEach(s => logger.info('🔎 Submission preview', { submissionId: s.id, customerId: s.customer_id, hasListingData: !!s.listing_data }));
+   submissions.slice(0,3).forEach((s: any) => logger.info('🔎 Submission preview', { submissionId: s.id, customerId: s.customer_id, hasListingData: !!s.listing_data }));
 
     // Format job data for processor
     return {

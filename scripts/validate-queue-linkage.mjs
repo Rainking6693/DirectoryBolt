@@ -1,9 +1,5 @@
-// Fixed: Manual joins using ACTUAL table names
-// jobs (not autobolt_processing_queue)
-// directory_submissions (not directory_submissions)
-
-const dotenv = require('dotenv');
-const { createClient } = require('@supabase/supabase-js');
+import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -13,10 +9,9 @@ const supabase = createClient(
 );
 
 async function validateQueueLinkage() {
-  console.log('\n--- Latest 10 jobs with customers (MANUAL JOIN) ---\n');
+  console.log('\n--- Latest 10 jobs with customers ---\n');
   
   try {
-    // Get latest jobs
     const { data: jobs, error: jobsError } = await supabase
       .from('jobs')
       .select('*')
@@ -28,7 +23,6 @@ async function validateQueueLinkage() {
       return;
     }
 
-    // For each job, fetch customer data separately
     const jobsWithCustomers = await Promise.all(
       jobs.map(async (job) => {
         const { data: customer } = await supabase
@@ -41,8 +35,7 @@ async function validateQueueLinkage() {
           id: job.id,
           status: job.status,
           customer_id: job.customer_id,
-          customer_uuid: customer?.id,
-          customer_name: customer?.['business-name'] || customer?.business_name,
+          customer_name: customer?.business_name,
           customer_email: customer?.email,
           created_at: job.created_at
         };
@@ -51,8 +44,7 @@ async function validateQueueLinkage() {
 
     console.table(jobsWithCustomers);
 
-    // Now get directory submissions with manual joins
-    console.log('\n--- Latest 20 submissions with customer data (MANUAL JOINS) ---\n');
+    console.log('\n--- Latest 20 submissions with customer data ---\n');
 
     const { data: submissions, error: submissionsError } = await supabase
       .from('directory_submissions')
@@ -65,34 +57,26 @@ async function validateQueueLinkage() {
       return;
     }
 
-    // Enrich submissions with customer and job data
+    if (submissions.length === 0) {
+      console.log('No submissions yet.');
+      return;
+    }
+
     const enrichedSubmissions = await Promise.all(
       submissions.map(async (submission) => {
-        // Get job info first
-        const { data: job } = await supabase
-          .from('jobs')
-          .select('*')
-          .eq('id', submission.submission_queue_id)
-          .single();
-
-        // Get customer info
-        const customerId = submission.customer_id || job?.customer_id;
         const { data: customer } = await supabase
           .from('customers')
           .select('*')
-          .eq('customer_id', customerId)
+          .eq('customer_id', submission.customer_id)
           .single();
 
         return {
           submission_id: submission.id,
           directory: submission.directory_url,
           status: submission.status,
-          queue_id: submission.submission_queue_id,
-          customer_id: customerId,
-          customer_name: customer?.['business-name'] || customer?.business_name,
+          customer_id: submission.customer_id,
+          customer_name: customer?.business_name,
           customer_email: customer?.email,
-          error: submission.result_message,
-          processed_at: submission.updated_at,
           created_at: submission.created_at
         };
       })
@@ -100,29 +84,15 @@ async function validateQueueLinkage() {
 
     console.table(enrichedSubmissions);
 
-    // Summary statistics
-    console.log('\n--- Mapping Quality Report ---\n');
-    const totalSubmissions = enrichedSubmissions.length;
+    console.log('\n--- Summary ---\n');
     const withCustomers = enrichedSubmissions.filter(s => s.customer_name).length;
-    const mappingRate = ((withCustomers / totalSubmissions) * 100).toFixed(1);
-
-    console.log(`Total submissions checked: ${totalSubmissions}`);
-    console.log(`Submissions with customer data: ${withCustomers}`);
-    console.log(`Mapping success rate: ${mappingRate}%`);
-
-    if (mappingRate < 100) {
-      console.log('\n⚠️ WARNING: Some submissions missing customer data');
-      console.log('This usually means:');
-      console.log('  1. customer_id is NULL in directory_submissions');
-      console.log('  2. submission_queue_id reference is broken');
-      console.log('  3. Customer record was deleted');
-    } else {
-      console.log('\n✅ All mappings successful!');
-    }
+    console.log(`Total submissions: ${enrichedSubmissions.length}`);
+    console.log(`With customer data: ${withCustomers}`);
+    console.log(`Success rate: ${((withCustomers / enrichedSubmissions.length) * 100).toFixed(1)}%`);
 
   } catch (error) {
-    console.error('Validation error:', error);
+    console.error('Error:', error);
   }
 }
 
-validateQueueLinkage().catch(console.error);
+validateQueueLinkage();
