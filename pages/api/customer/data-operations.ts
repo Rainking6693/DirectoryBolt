@@ -1,6 +1,5 @@
 // @ts-nocheck
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { validateCustomerId, generateCustomerId, getPackageLimit, validatePackageType } from '../../../lib/googleSheets';
 import { createSupabaseService } from '../../../lib/services/supabase';
 
 interface CustomerData {
@@ -18,6 +17,34 @@ interface CustomerData {
   packageType: string;
   status?: string;
   created?: string;
+}
+
+// Utility functions (previously from googleSheets)
+function validateCustomerId(id: string): boolean {
+  return /^DIR-\d{8}-\d{6}$/.test(id);
+}
+
+function generateCustomerId(): string {
+  const date = new Date();
+  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+  const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+  return `DIR-${dateStr}-${randomNum}`;
+}
+
+function getPackageLimit(packageType: string): number {
+  const limits: Record<string, number> = {
+    'starter': 50,
+    'growth': 150,
+    'professional': 300,
+    'pro': 300,
+    'enterprise': 500
+  };
+  return limits[packageType.toLowerCase()] || 50;
+}
+
+function validatePackageType(packageType: string): boolean {
+  const validTypes = ['starter', 'growth', 'professional', 'pro', 'enterprise'];
+  return validTypes.includes(packageType.toLowerCase());
 }
 
 function authenticateRequest(req: NextApiRequest): boolean {
