@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../../lib/middleware/staff-auth'
 import { createClient } from '@supabase/supabase-js'
+import { randomUUID } from 'crypto'
 
 interface CreateCustomerBody {
   business_name: string
@@ -74,10 +75,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     const year = new Date().getFullYear()
     const customerId = `DB-${year}-${rand}`
 
-    // Create customer record in the customers table (uses UUID for id, custom format for customer_id)
+    const customerUuid = randomUUID()
+
+// Create customer record in the customers table (uses UUID for id, custom format for customer_id)
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .insert({
+        id: customerUuid,
         customer_id: customerId,
         business_name: body.business_name,
         email: body.email || null,
@@ -116,7 +120,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_id,
+        customer_id: customer_uuid,
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
@@ -151,8 +155,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     return res.status(200).json({
       success: true,
       data: {
-        id: customer_id,
-        customer_id: customer_id,
+        id: customer_uuid,
+        customer_id: customer_uuid,
         job_id: job_id || undefined,
         business_name: body.business_name,
         job_error: jobErr ? jobErr.message : null
@@ -165,3 +169,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 }
 
 export default withStaffAuth(handler)
+
