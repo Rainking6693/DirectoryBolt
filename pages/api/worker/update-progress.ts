@@ -1,15 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
-const WORKER_AUTH_TOKEN = process.env.WORKER_AUTH_TOKEN
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_KEY;
+const workerAuthToken = process.env.WORKER_AUTH_TOKEN;
 
-if (!supabaseUrl || !supabaseServiceKey || !WORKER_AUTH_TOKEN) {
-  console.error('Missing required environment variables for worker API')
+if (!supabaseUrl) {
+  throw new Error('Missing SUPABASE_URL environment variable');
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+if (!supabaseServiceKey) {
+  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
+}
+
+if (!workerAuthToken) {
+  throw new Error('Missing WORKER_AUTH_TOKEN environment variable');
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface ProgressUpdatePayload {
   job_id: string
@@ -36,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   // Authenticate worker
   const authHeader = req.headers['authorization']
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WORKER_AUTH_TOKEN) {
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== workerAuthToken) {
     console.warn('Unauthorized worker access attempt', { ip: req.socket.remoteAddress })
     return res.status(401).json({ success: false, error: 'Unauthorized' })
   }
@@ -122,3 +130,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     })
   }
 }
+
