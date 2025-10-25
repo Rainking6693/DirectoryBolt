@@ -6,7 +6,7 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdminClient } from '../../../lib/server/supabaseAdmin'
 
 interface CreateTestCustomerResponse {
   success: boolean
@@ -21,13 +21,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
   }
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return res.status(503).json({ success: false, error: 'Supabase not configured in this environment' })
+    const supabase = getSupabaseAdminClient()
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Supabase admin client not available' })
     }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const {
       name = 'Ben Stone',
@@ -41,17 +38,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       package_size = 50,
     } = (req.body || {}) as Record<string, any>
 
-    // Generate a required customer_id per DB schema (e.g., DB-YYYY-XXXXXX)
-    const rand = Math.random().toString(36).slice(2, 8).toUpperCase()
-    const year = new Date().getFullYear()
-    const customer_id = `DB-${year}-${rand}`
+    // Generate a required customer_id per DB schema (e.g., DIR-YYYYMMDD-XXXXXX)
+    const rand = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+    const customer_id = `DIR-${date}-${rand}`
 
     // Insert customer (ensure customer_id satisfies NOT NULL constraint)
     const { data: customer, error: custErr } = await supabase
       .from('customers')
       .insert({
-        id: customer_id, // Use customer_id as the primary key
-        customer_id, // required business identifier
+        customer_id, // required business identifier with custom format
         business_name: name,
         email,
         phone,
@@ -61,6 +57,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
         state,
         zip,
         status: 'pending',
+        package_type: 'starter',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -75,7 +72,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_id, // Use the customer_id (DB-YYYY-XXXXXX format) for foreign key relationship
+        customer_id: customer_id, // Use the customer_id (DIR-YYYYMMDD-XXXXXX format) for foreign key relationship
         business_name: name,
         email: email,
         package_size: package_size,
