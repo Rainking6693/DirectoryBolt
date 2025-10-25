@@ -25,10 +25,22 @@ ALTER COLUMN customer_id TYPE TEXT;
 
 -- Step 3: Update existing records to use customer_id instead of UUID if needed
 -- This is a safety check to ensure data consistency
-UPDATE jobs 
-SET customer_id = customers.customer_id
-FROM customers
-WHERE jobs.customer_id::UUID = customers.id;
+-- First, let's check if the customers table has the id column
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'customers' AND column_name = 'id') THEN
+        -- If customers.id exists, update jobs to use customer_id format
+        UPDATE jobs 
+        SET customer_id = customers.customer_id
+        FROM customers
+        WHERE jobs.customer_id = customers.id::TEXT OR jobs.customer_id = customers.id;
+    ELSE
+        -- If customers.id doesn't exist, we need to handle this differently
+        RAISE NOTICE 'customers.id column does not exist, skipping update';
+    END IF;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Error updating jobs.customer_id: %', SQLERRM;
+END $$;
 
 -- Step 4: Add foreign key constraint to reference customers.customer_id
 ALTER TABLE IF EXISTS jobs 

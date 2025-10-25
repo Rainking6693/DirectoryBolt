@@ -277,7 +277,7 @@ async function submitWithPlaywright(directory_url, mapping, businessData) {
     }
 
     await randomDelay(200, 500);
-    const submitButton = page.locator('input[type="submit"], button[type="submit"], [role="button"]:has-text(/submit/i)');
+    const submitButton = page.locator('input[type="submit"], button[type="submit"], button:has-text("Submit"), button:has-text("submit")');
     await submitButton.first().click();
 
     log('Form submitted.');
