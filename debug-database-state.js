@@ -70,7 +70,7 @@ async function debugDatabase() {
   // Get a customer and see if it has related jobs
   const { data: customer, error: customerError } = await supabase
     .from('customers')
-    .select('id, customer_id, business_name')
+    .select('customer_id, business_name')
     .limit(1)
     .single();
   
@@ -94,15 +94,18 @@ async function debugDatabase() {
   
   // Check current job statuses
   console.log('\n5. Current job statuses:');
-  const { data: jobStatuses, error: statusError } = await supabase
+  const { data: allJobs, error: allJobsError } = await supabase
     .from('jobs')
-    .select('status, COUNT(*) as count')
-    .group('status');
+    .select('status');
   
-  if (statusError) {
-    console.log('Error fetching job statuses:', statusError.message);
+  if (allJobsError) {
+    console.log('Error fetching jobs:', allJobsError.message);
   } else {
-    console.log('Job statuses:', JSON.stringify(jobStatuses, null, 2));
+    const statusCounts = {};
+    allJobs.forEach(job => {
+      statusCounts[job.status] = (statusCounts[job.status] || 0) + 1;
+    });
+    console.log('Job statuses:', JSON.stringify(statusCounts, null, 2));
   }
   
   // Check for pending jobs with no submissions
@@ -120,13 +123,45 @@ async function debugDatabase() {
       const { data: submissions, error: subsError } = await supabase
         .from('directory_submissions')
         .select('id, status')
-        .eq('customer_id', job.customer_id);
+        .eq('submission_queue_id', job.id);
       
       if (subsError) {
         console.log(`Error checking submissions for job ${job.id}:`, subsError.message);
       } else {
         console.log(`Job ${job.id} has ${submissions.length} submissions`);
+        if (submissions.length > 0) {
+          console.log(`  Submission statuses:`, submissions.map(s => s.status));
+        }
       }
+    }
+  }
+  
+  // Check the failed job in detail
+  console.log('\n7. Checking failed job in detail:');
+  const { data: failedJob, error: failedJobError } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('id', '0cdc233e-78ea-4032-9b65-52932a84835e')
+    .single();
+  
+  if (failedJobError) {
+    console.log('Error fetching failed job:', failedJobError.message);
+  } else {
+    console.log('Failed job details:', JSON.stringify(failedJob, null, 2));
+    
+    // Check submissions for this failed job
+    const { data: failedSubmissions, error: failedSubsError } = await supabase
+      .from('directory_submissions')
+      .select('*')
+      .eq('submission_queue_id', failedJob.id);
+    
+    if (failedSubsError) {
+      console.log('Error fetching failed job submissions:', failedSubsError.message);
+    } else {
+      console.log(`Failed job has ${failedSubmissions.length} submissions:`);
+      failedSubmissions.forEach(sub => {
+        console.log(`  Submission ${sub.id}: status=${sub.status}, message=${sub.result_message}`);
+      });
     }
   }
   
