@@ -1,6 +1,6 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -12,8 +12,9 @@ const HEARTBEAT_INTERVAL = 10000; // 10 seconds
 const WORKER_ID = os.hostname();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 // 2Captcha solver (optional - only initialize if API key is provided)
 let solver = null;
@@ -203,9 +204,12 @@ async function submitWithPlaywright(directory_url, mapping, businessData) {
 
     const pageContent = await page.content();
     const prompt = `Analyze the following HTML content... Determine if the submission was successful. Respond with only "success" or "failure".\n\nHTML:${pageContent}`;
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const prediction = response.text().trim().toLowerCase();
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }]
+    });
+    const prediction = response.content[0].text.trim().toLowerCase();
 
     log(`AI prediction for submission: ${prediction}`);
     return prediction === 'success' 
@@ -313,9 +317,14 @@ async function pollForJobs() {
           `Analyze the following HTML form and produce a JSON object that maps business data keys ` +
           `(business_name, email, phone, website, address, city, state, zip, description, category) to CSS selectors ` +
           `that should be filled when submitting the form. Return ONLY valid JSON.\n\nHTML:\n${formHtml}`;
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        
+        const response = await anthropic.messages.create({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 1024,
+          messages: [{ role: "user", content: prompt }]
+        });
+        
+        const text = response.content[0].text;
 
         try {
           mapping = JSON.parse(text);

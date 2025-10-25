@@ -1,28 +1,27 @@
 [build]
   command = "npm run build"
   publish = ".next"
-  # functions = "netlify/functions"  # Removed to disable legacy functions
 
-# [functions]  # Removed entire section
-#   directory = "netlify/functions"
-#   node_bundler = "esbuild"
-#   external_node_modules = [
-#     "@supabase/supabase-js",
-#     "@supabase/postgrest-js",
-#     "@supabase/auth-js",
-#     "@anthropic-ai/sdk",
-#     "openai",
-#     "puppeteer",
-#     "@sparticuz/chromium",
-#     "airtable",
-#     "stripe"
-#   ]
-#   included_files = [
-#     "netlify/functions/**/*",
-#     "lib/**/*",
-#     "directories/**/*.json",
-#     "public/**/*.json"
-#   ]
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = [
+    "@supabase/supabase-js",
+    "@supabase/postgrest-js",
+    "@supabase/auth-js",
+    "@anthropic-ai/sdk",
+    "openai",
+    "puppeteer",
+    "@sparticuz/chromium",
+    "airtable",
+    "stripe"
+  ]
+  included_files = [
+    "netlify/functions/**/*",
+    "lib/**/*",
+    "directories/**/*.json",
+    "public/**/*.json"
+  ]
 
 [build.environment]
   NODE_VERSION = "18.20.0"

@@ -1,20 +1,21 @@
 # Customer Tables
 
-"customer_id": "DB-2025-xxxx",
-     "business_name": "Test Company LLC",
-     "email": "test@example.com",
-     "phone": "555-1234",
-     "website": "https://example.com",
-     "address": "123 Test St",
-     "city": "Salt Lake City",
-     "state": "UT",
-     "zip": "84101",
-     "country": "USA"
-     "description": "Business services company",
-     "category": "Business Services",
-     "package_type": "starter",
-     "directory_limit": 50
-     "created at":  Time
+"customer\_id": "DB-2025-xxxx",
+"business\_name": "Test Company LLC",
+"email": "test@example.com",
+"phone": "555-1234",
+"website": "https://example.com",
+"address": "123 Test St",
+"city": "Salt Lake City",
+"state": "UT",
+"zip": "84101",
+"country": "USA"
+"description": "Business services company",
+"category": "Business Services",
+"package\_type": "starter",
+"directory\_limit": 50
+"created at":  Time
+
 
 
 Jobs Table
@@ -34,6 +35,7 @@ Country
 Description
 Category
 created at
+
 
 
 Jobs results
