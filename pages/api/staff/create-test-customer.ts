@@ -50,6 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: customer, error: custErr } = await supabase
       .from('customers')
       .insert({
+        id: customer_id, // Use customer_id as the primary key
         customer_id, // required business identifier
         business_name: name,
         email,
@@ -74,7 +75,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer.customer_id, // Use the custom DB-YYYY-XXXXXX format, not the UUID
+        customer_id: customer_id, // Use the customer_id (DB-YYYY-XXXXXX format) for foreign key relationship
         business_name: name,
         email: email,
         package_size: package_size,
@@ -101,7 +102,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       return res.status(500).json({ success: false, error: `Failed to create job: ${jobErr?.message || 'Unknown error'}` })
     }
 
-    return res.status(200).json({ success: true, data: { customer_id: customer.customer_id || customer.id, job_id: job.id }, message: 'Test customer and job created' })
+    return res.status(200).json({ success: true, data: { customer_id: customer_id, job_id: job.id }, message: 'Test customer and job created' })
   } catch (error) {
     console.error('[staff.create-test-customer] error', error)
     return res.status(500).json({ success: false, error: 'Internal server error' })

@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../../lib/middleware/staff-auth'
 import { createClient } from '@supabase/supabase-js'
-import { randomUUID } from 'crypto'
 
 interface CreateCustomerBody {
   business_name: string
@@ -75,14 +74,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     const year = new Date().getFullYear()
     const customerId = `DB-${year}-${rand}`
 
-    const customerUuid = randomUUID()
-
-// Create customer record in the customers table (uses UUID for id, custom format for customer_id)
+    // Create customer record in the customers table
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .insert({
-        id: customerUuid,
-        customer_id: customerId,
+        id: customerId, // Use the customer_id format as the primary key
+        customer_id: customerId, // Also store in customer_id field for consistency
         business_name: body.business_name,
         email: body.email || null,
         phone: body.phone || null,
@@ -107,20 +104,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
       })
     }
 
-    const customer_id = customer.customer_id
-    const customer_uuid = customer.id
-    console.log('✅ Customer created:', customer_id, 'UUID:', customer_uuid)
+    console.log('✅ Customer created:', customerId)
 
     let job_id: string | undefined
     const pkg = Number(body.package_size) || 50
 
-    console.log('Creating job with customer ID:', customer_id)
+    console.log('Creating job with customer ID:', customerId)
 
-    // Create job with customer custom ID (VARCHAR format)
+    // Create job with customer ID (DB-YYYY-XXXXXX format)
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_uuid,
+        customer_id: customerId, // Use customer_id (DB-YYYY-XXXXXX format) for foreign key relationship
         business_name: body.business_name,
         email: body.email || '',
         package_size: pkg,
@@ -145,7 +140,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 
     if (!jobErr && job) {
       job_id = job.id
-      console.log('✅ Job created:', job_id, 'for customer:', customer_id)
+      console.log('✅ Job created:', job_id, 'for customer:', customerId)
     } else {
       console.error('❌ Failed to create job')
       console.error('Job Error:', JSON.stringify(jobErr, null, 2))
@@ -155,8 +150,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     return res.status(200).json({
       success: true,
       data: {
-        id: customer_uuid,
-        customer_id: customer_uuid,
+        id: customerId, // Return the customer_id (DB-YYYY-XXXXXX format)
+        customer_id: customerId,
         job_id: job_id || undefined,
         business_name: body.business_name,
         job_error: jobErr ? jobErr.message : null
@@ -169,4 +164,3 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
 }
 
 export default withStaffAuth(handler)
-

@@ -1,13 +1,14 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const playwright = require('playwright');
 
 // Config
-const POLL_INTERVAL = 5000; // 5 seconds
+const POLL_INTERVAL = 30000; // 30 seconds
 const HEARTBEAT_INTERVAL = 10000; // 10 seconds
 const WORKER_ID = os.hostname();
 
@@ -15,6 +16,8 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // 2Captcha solver (optional - only initialize if API key is provided)
 let solver = null;
@@ -318,13 +321,8 @@ async function pollForJobs() {
           `(business_name, email, phone, website, address, city, state, zip, description, category) to CSS selectors ` +
           `that should be filled when submitting the form. Return ONLY valid JSON.\n\nHTML:\n${formHtml}`;
         
-        const response = await anthropic.messages.create({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 1024,
-          messages: [{ role: "user", content: prompt }]
-        });
-        
-        const text = response.content[0].text;
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
 
         try {
           mapping = JSON.parse(text);
