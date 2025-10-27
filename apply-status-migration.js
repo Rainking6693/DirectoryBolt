@@ -1,6 +1,6 @@
 /**
- * Apply Directories Migration Script
- * Applies the directories schema migration to Supabase database
+ * Apply Status Column Migration Script
+ * Adds status column to customers table
  */
 
 const { Client } = require('pg');
@@ -9,7 +9,7 @@ const path = require('path');
 require('dotenv').config();
 
 async function applyMigration() {
-  console.log('🚀 Starting directories migration...\n');
+  console.log('🚀 Starting status column migration...\n');
 
   // Parse Supabase connection string
   const connectionString = process.env.DATABASE_URL || 
@@ -27,42 +27,52 @@ async function applyMigration() {
     console.log('✅ Connected successfully\n');
 
     // Read migration file
-    const migrationPath = path.join(__dirname, 'supabase/migrations/20251025_fix_directories_schema.sql');
+    const migrationPath = path.join(__dirname, 'supabase/migrations/20251025_add_status_to_customers.sql');
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
 
-    console.log('📄 Applying migration: 20251025_fix_directories_schema.sql');
+    console.log('📄 Applying migration: 20251025_add_status_to_customers.sql');
     
     // Execute migration
     await client.query(migrationSQL);
     console.log('✅ Migration applied successfully\n');
 
-    // Verify table exists
+    // Verify column exists
     const verifyResult = await client.query(`
-      SELECT table_name, column_name, data_type 
+      SELECT column_name, data_type, column_default, is_nullable
       FROM information_schema.columns 
-      WHERE table_name = 'directories'
-      ORDER BY ordinal_position;
+      WHERE table_name = 'customers' AND column_name = 'status';
     `);
 
-    console.log('📊 Directories table schema:');
-    console.table(verifyResult.rows);
+    if (verifyResult.rows.length > 0) {
+      console.log('📊 Status column details:');
+      console.table(verifyResult.rows);
+    } else {
+      throw new Error('Status column was not created');
+    }
 
-    // Check row count
-    const countResult = await client.query('SELECT COUNT(*) as count FROM directories');
-    console.log(`\n📈 Total directories in table: ${countResult.rows[0].count}`);
+    // Check customer count with status
+    const countResult = await client.query(`
+      SELECT status, COUNT(*) as count 
+      FROM customers 
+      GROUP BY status;
+    `);
 
-    // Verify indexes
+    console.log('\n📈 Customer status distribution:');
+    console.table(countResult.rows);
+
+    // Verify index
     const indexResult = await client.query(`
       SELECT indexname, indexdef 
       FROM pg_indexes 
-      WHERE tablename = 'directories';
+      WHERE tablename = 'customers' AND indexname = 'idx_customers_status';
     `);
 
-    console.log('\n🔍 Indexes created:');
-    console.table(indexResult.rows);
+    if (indexResult.rows.length > 0) {
+      console.log('\n🔍 Index created:');
+      console.table(indexResult.rows);
+    }
 
     console.log('\n✨ Migration completed successfully!');
-    console.log('\n💡 Next step: Run "node scripts/import-directories.js" to import CSV data');
 
   } catch (error) {
     console.error('❌ Migration failed:', error.message);
