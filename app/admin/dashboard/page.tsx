@@ -43,6 +43,7 @@ interface JobStatusData {
   name: string;
   value: number;
   color: string;
+  [key: string]: string | number;
 }
 
 interface RevenueData {
