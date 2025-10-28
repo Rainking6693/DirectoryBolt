@@ -72,7 +72,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        customer_id: customer_id, // Use the customer_id (DIR-YYYYMMDD-XXXXXX format) for foreign key relationship
+        // Use the internal UUID id for proper FK relationship
+        customer_id: customer.id,
         business_name: name,
         email: email,
         package_size: package_size,
@@ -99,7 +100,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       return res.status(500).json({ success: false, error: `Failed to create job: ${jobErr?.message || 'Unknown error'}` })
     }
 
-    return res.status(200).json({ success: true, data: { customer_id: customer_id, job_id: job.id }, message: 'Test customer and job created' })
+    return res.status(200).json({ success: true, data: { customer_id: customer.customer_id, job_id: job.id }, message: 'Test customer and job created' })
   } catch (error) {
     console.error('[staff.create-test-customer] error', error)
     return res.status(500).json({ success: false, error: 'Internal server error' })

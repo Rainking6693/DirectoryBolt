@@ -124,16 +124,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const jobIds: string[] = (jobs || []).map((j: any) => j.id)
     const countsByJob: Record<string, { total: number; completed: number; failed: number }> = {}
     if (jobIds.length > 0) {
-      const { data: jr } = await supabase
-        .from('job_results')
-        .select('job_id, status')
-        .in('job_id', jobIds)
-      for (const row of jr || []) {
-        const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
-        current.total += 1
-        if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
-        if (row.status === 'failed') current.failed += 1
-        countsByJob[row.job_id] = current
+      try {
+        const { data: jr, error: jrErr } = await supabase
+          .from('job_results')
+          .select('job_id, status')
+          .in('job_id', jobIds)
+        if (!jrErr) {
+          for (const row of jr || []) {
+            const current = countsByJob[row.job_id] || { total: 0, completed: 0, failed: 0 }
+            current.total += 1
+            if (row.status === 'submitted' || row.status === 'approved') current.completed += 1
+            if (row.status === 'failed') current.failed += 1
+            countsByJob[row.job_id] = current
+          }
+        }
+      } catch (e) {
+        // If job_results missing, proceed with zero counts
       }
     }
 

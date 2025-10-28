@@ -28,6 +28,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
 
     // Get live counts for dashboard
+    // Safe count helper to avoid throwing when table is missing
+    const safeCount = async (fn: () => Promise<{ count: number | null; error: any }>) => {
+      try {
+        const { count, error } = await fn();
+        if (error) {
+          // If table doesn't exist, return 0 instead of failing the whole endpoint
+          if (String(error.message || '').includes('does not exist')) return { count: 0 } as any;
+          console.warn('[staff:realtime-status] count error', error);
+          return { count: 0 } as any;
+        }
+        return { count: count || 0 } as any;
+      } catch (e) {
+        return { count: 0 } as any;
+      }
+    };
+
     const [
       { count: totalCustomers },
       { count: activeCustomers },
@@ -36,12 +52,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       { count: queuedJobs },
       { count: processingJobs }
     ] = await Promise.all([
-      supabase.from('customers').select('*', { count: 'exact', head: true }),
-      supabase.from('customers').select('*', { count: 'exact', head: true }).in('status', ['active', 'in-progress', 'queued']),
-      supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-      supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'queued'),
-      supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'processing')
+      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true })),
+      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).in('status', ['active', 'in-progress', 'queued'])),
+      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'completed')),
+      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
+      safeCount(() => supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'queued')),
+      safeCount(() => supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'processing'))
     ])
 
     // Get recent activity (customers updated in last hour)
