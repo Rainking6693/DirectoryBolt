@@ -217,7 +217,7 @@ export default function JobsPage() {
   /**
    * Initialize table
    */
-  const table = useReactTable({
+  const table = useReactTable<Job>({
     data: jobs,
     columns,
     state: {

@@ -160,7 +160,7 @@ export default function CustomersPage() {
   /**
    * Initialize table
    */
-  const table = useReactTable({
+  const table = useReactTable<Customer>({
     data: customers,
     columns,
     state: {
