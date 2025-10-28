@@ -3,7 +3,7 @@
   publish = ".next"
 
 [functions]
-  directory = "netlify/functions"
+  directory = "backend/functions"
   node_bundler = "esbuild"
   external_node_modules = [
     "@supabase/supabase-js",
@@ -17,7 +17,7 @@
     "stripe"
   ]
   included_files = [
-    "netlify/functions/**/*",
+    "backend/functions/**/*",
     "lib/**/*",
     "directories/**/*.json",
     "public/**/*.json"
@@ -56,4 +56,35 @@
 [[redirects]]
   from = "/api/health"
   to = "/.netlify/functions/healthz"
+  status = 200
+
+# Autobolt API redirects
+[[redirects]]
+  from = "/api/autobolt/jobs/next"
+  to = "/.netlify/functions/jobs-next"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt/jobs/update"
+  to = "/.netlify/functions/jobs-update"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt/jobs/complete"
+  to = "/.netlify/functions/jobs-complete"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt/jobs/retry"
+  to = "/.netlify/functions/jobs-retry"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt/metrics"
+  to = "/.netlify/functions/metrics"
+  status = 200
+
+[[redirects]]
+  from = "/api/autobolt/status"
+  to = "/.netlify/functions/autobolt-status"
   status = 200
