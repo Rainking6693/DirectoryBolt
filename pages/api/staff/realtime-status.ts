@@ -29,9 +29,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     // Get live counts for dashboard
     // Safe count helper to avoid throwing when table is missing
-    const safeCount = async (fn: () => Promise<{ count: number | null; error: any }>) => {
+    const safeCount = async (fn: () => any) => {
       try {
-        const { count, error } = await fn();
+        // Supabase query builders are thenable; await to get { count, error }
+        const resp = await fn();
+        const { count, error } = (resp || {}) as { count: number | null; error: any };
         if (error) {
           // If table doesn't exist, return 0 instead of failing the whole endpoint
           if (String(error.message || '').includes('does not exist')) return { count: 0 } as any;
