@@ -72,7 +72,7 @@ export default function CustomersPage() {
       accessorKey: 'customer_id',
       header: 'Customer ID',
       cell: ({ row }) => (
-        <span className="font-mono text-sm">{row.getValue('customer_id')}</span>
+        <span className="font-mono text-sm">{String(row.getValue('customer_id'))}</span>
       ),
     },
     {
@@ -80,7 +80,7 @@ export default function CustomersPage() {
       header: 'Business Name',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium">{row.getValue('business_name')}</div>
+          <div className="font-medium">{String(row.getValue('business_name'))}</div>
           <div className="text-sm text-gray-500">{row.original.email}</div>
         </div>
       ),
@@ -92,16 +92,19 @@ export default function CustomersPage() {
     {
       accessorKey: 'website',
       header: 'Website',
-      cell: ({ row }) => (
-        <a
-          href={row.getValue('website')}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          {row.getValue('website')}
-        </a>
-      ),
+      cell: ({ row }) => {
+        const website = String(row.getValue('website'));
+        return (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            {website}
+          </a>
+        );
+      },
     },
     {
       accessorKey: 'status',
@@ -127,7 +130,7 @@ export default function CustomersPage() {
     {
       accessorKey: 'created_at',
       header: 'Created',
-      cell: ({ row }) => new Date(row.getValue('created_at')).toLocaleDateString(),
+      cell: ({ row }) => new Date(String(row.getValue('created_at'))).toLocaleDateString(),
     },
     {
       id: 'actions',

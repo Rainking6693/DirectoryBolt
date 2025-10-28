@@ -114,7 +114,7 @@ export default function JobsPage() {
       accessorKey: 'id',
       header: 'Job ID',
       cell: ({ row }) => (
-        <span className="font-mono text-xs">{row.getValue('id').substring(0, 8)}...</span>
+        <span className="font-mono text-xs">{String(row.getValue('id')).substring(0, 8)}...</span>
       ),
     },
     {
@@ -122,7 +122,7 @@ export default function JobsPage() {
       header: 'Business',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium">{row.getValue('business_name')}</div>
+          <div className="font-medium">{String(row.getValue('business_name'))}</div>
           <div className="text-sm text-gray-500">{row.original.email}</div>
         </div>
       ),
@@ -153,7 +153,7 @@ export default function JobsPage() {
       accessorKey: 'directory_limit',
       header: 'Directories',
       cell: ({ row }) => (
-        <span className="font-medium">{row.getValue('directory_limit')}</span>
+        <span className="font-medium">{String(row.getValue('directory_limit'))}</span>
       ),
     },
     {
@@ -181,14 +181,17 @@ export default function JobsPage() {
     {
       accessorKey: 'created_at',
       header: 'Created',
-      cell: ({ row }) => (
-        <div className="text-sm">
-          <div>{new Date(row.getValue('created_at')).toLocaleDateString()}</div>
-          <div className="text-gray-500">
-            {new Date(row.getValue('created_at')).toLocaleTimeString()}
+      cell: ({ row }) => {
+        const createdAt = String(row.getValue('created_at'));
+        return (
+          <div className="text-sm">
+            <div>{new Date(createdAt).toLocaleDateString()}</div>
+            <div className="text-gray-500">
+              {new Date(createdAt).toLocaleTimeString()}
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       id: 'actions',
