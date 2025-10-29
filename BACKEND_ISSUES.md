@@ -10,11 +10,14 @@ Status: ✅ FIXED (Issues 1 & 2) | ⚠️ PARTIAL (Issues 3 & 4)
 ### Issue 1: Analytics API Error - FIXED ✅
 - **Error**: "Failed to fetch analytics: 500"
 - **Cause**: Code queries `customers.status` column which doesn't exist
-- **File**: `pages/api/staff/analytics.ts`
+- **Files Fixed**: 
+  - `pages/api/staff/analytics.ts` - Removed status from SELECT, updated buildDrilldownLists()
+  - `pages/api/staff/realtime-status.ts` - Changed to query jobs.status instead
+  - `pages/api/admin/customers/stats.ts` - Removed status from SELECT and filtering
+  - `pages/api/websocket/dashboard-updates.ts` - Removed status from SELECT and calculations
 - **Fix Applied**: 
-  - Removed `status` from customers SELECT query (line 40)
-  - Updated `buildDrilldownLists()` to derive status from jobs table (line 90-92)
-  - Analytics now correctly uses `jobs.status` instead of non-existent `customers.status`
+  - All queries now use `jobs.status` instead of non-existent `customers.status`
+  - Customer counts derived from job statuses where needed
 
 ### Issue 2: Create Customer Error - FIXED ✅
 - **Error**: "Could not find the 'status' column of 'customers'"

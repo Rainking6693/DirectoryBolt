@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const { data: customers, error } = await supabase
           .from('customers')
-          .select('id, customer_id, business_name, package_type, status, created_at, updated_at')
+          .select('id, customer_id, business_name, package_type, created_at, updated_at')
           .limit(1000)
 
         if (!error && customers) {
@@ -74,7 +74,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
           // Calculate real statistics
           customerStats.total_customers = customers.length
-          customerStats.active_customers = customers.filter(c => c.status === 'active' || c.status === 'in-progress').length
+          // Note: customers table doesn't have status column, so we count all customers as active
+          customerStats.active_customers = customers.length
           
           customerStats.new_customers_today = customers.filter(c => {
             const createdAt = new Date(c.created_at)

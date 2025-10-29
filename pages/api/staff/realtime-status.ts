@@ -48,16 +48,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const [
       { count: totalCustomers },
-      { count: activeCustomers },
-      { count: completedCustomers },
-      { count: pendingCustomers },
+      { count: activeJobs },
+      { count: completedJobs },
+      { count: pendingJobs },
       { count: queuedJobs },
       { count: processingJobs }
     ] = await Promise.all([
       safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true })),
-      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).in('status', ['active', 'in-progress', 'queued'])),
-      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'completed')),
-      safeCount(() => supabase.from('customers').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
+      safeCount(() => supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'in_progress')),
+      safeCount(() => supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed')),
+      safeCount(() => supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
       safeCount(() => supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'queued')),
       safeCount(() => supabase.from('autobolt_processing_queue').select('*', { count: 'exact', head: true }).eq('status', 'processing'))
     ])
@@ -98,9 +98,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       data: {
         overview: {
           total_customers: totalCustomers || 0,
-          active_customers: activeCustomers || 0,
-          completed_customers: completedCustomers || 0,
-          pending_customers: pendingCustomers || 0,
+          active_customers: activeJobs || 0,
+          completed_customers: completedJobs || 0,
+          pending_customers: pendingJobs || 0,
           recent_activity: recentActivity || 0
         },
         queue: {

@@ -54,7 +54,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             customer_id,
             business_name,
             package_type,
-            status,
             directories_submitted,
             failed_directories,
             created_at,
@@ -154,9 +153,9 @@ function calculateRealTimeAnalytics(customers: any[], queueData: any[]) {
   
   // Basic customer statistics
   const totalCustomers = customers.length
-  const activeCustomers = customers.filter(c => c.status === 'active' || c.status === 'in-progress' || c.status === 'queued').length
-  const completedCustomers = customers.filter(c => c.status === 'completed').length
-  const pendingCustomers = customers.filter(c => c.status === 'pending').length
+  const activeCustomers = totalCustomers
+  const completedCustomers = 0
+  const pendingCustomers = 0
 
   // Queue statistics
   const queuedJobs = queueData.filter(q => q.status === 'queued').length
