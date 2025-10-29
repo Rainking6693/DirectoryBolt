@@ -7,6 +7,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../lib/middleware/staff-auth'
 import { getSupabaseAdminClient } from '../../../lib/server/supabaseAdmin'
+import { createDirectorySubmissions } from '../../../lib/server/createDirectorySubmissions'
 
 interface CreateTestCustomerResponse {
   success: boolean
@@ -100,7 +101,28 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       return res.status(500).json({ success: false, error: `Failed to create job: ${jobErr?.message || 'Unknown error'}` })
     }
 
-    return res.status(200).json({ success: true, data: { customer_id: customer.customer_id, job_id: job.id }, message: 'Test customer and job created' })
+    // Create directory submissions for the job
+    const submissionsResult = await createDirectorySubmissions({
+      supabase,
+      jobId: job.id,
+      customerId: customer.customer_id,
+      packageSize: package_size
+    })
+
+    if (!submissionsResult.success) {
+      console.warn('⚠️ Failed to create directory submissions:', submissionsResult.error)
+      return res.status(200).json({ 
+        success: true, 
+        data: { customer_id: customer.customer_id, job_id: job.id }, 
+        message: `Test customer and job created, but failed to create directory submissions: ${submissionsResult.error}` 
+      })
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      data: { customer_id: customer.customer_id, job_id: job.id }, 
+      message: `Test customer, job, and ${submissionsResult.count} directory submissions created successfully` 
+    })
   } catch (error) {
     console.error('[staff.create-test-customer] error', error)
     return res.status(500).json({ success: false, error: 'Internal server error' })

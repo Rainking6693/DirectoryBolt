@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { withStaffAuth } from '../../../../lib/middleware/staff-auth'
 import { getSupabaseAdminClient } from '../../../../lib/server/supabaseAdmin'
+import { createDirectorySubmissions } from '../../../../lib/server/createDirectorySubmissions'
 
 interface CreateCustomerBody {
   business_name: string
@@ -84,12 +85,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
         city: body.city || null,
         state: body.state || null,
         zip: body.zip || null,
-        status: 'pending',
         package_type: 'starter',
+        directory_limit: body.package_size || 50,
         created_at: now,
         updated_at: now,
       })
-      .select('id, customer_id')
+      .select('customer_id')
       .single()
 
     if (customerError) {
@@ -137,6 +138,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     if (!jobErr && job) {
       job_id = job.id
       console.log('✅ Job created:', job_id, 'for customer:', customerId)
+
+      // Create directory submissions for the job
+      const submissionsResult = await createDirectorySubmissions({
+        supabase,
+        jobId: job.id,
+        customerId: customerId,
+        packageSize: pkg
+      })
+
+      if (!submissionsResult.success) {
+        console.warn('⚠️ Failed to create directory submissions:', submissionsResult.error)
+      } else {
+        console.log(`✅ Created ${submissionsResult.count} directory submissions`)
+      }
     } else {
       console.error('❌ Failed to create job')
       console.error('Job Error:', JSON.stringify(jobErr, null, 2))
@@ -146,8 +161,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateCustomerR
     return res.status(200).json({
       success: true,
       data: {
-        id: customer.id, // Return the actual UUID id
-        customer_id: customerId, // And the business identifier
+        id: customerId, // Return the customer_id (business identifier)
+        customer_id: customerId,
         job_id: job_id || undefined,
         business_name: body.business_name,
         job_error: jobErr ? jobErr.message : null

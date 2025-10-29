@@ -78,7 +78,6 @@ export default async function handler(
           website: data.website || null,
           packageType: data.packageType || 'STARTER',
           directoryLimit: data.directoryLimit || 25,
-          status: 'pending',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })
@@ -131,7 +130,6 @@ export default async function handler(
       website: data.website || null,
       packageType: data.packageType || 'STARTER',
       directoryLimit: data.directoryLimit || 25,
-      status: 'pending',
     });
     store.set(customerId, customer);
 
