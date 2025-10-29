@@ -56,10 +56,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
         city,
         state,
         zip,
-        status: 'pending',
         package_type: 'starter',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        directory_limit: package_size,
+        description: 'Test customer created from staff dashboard',
+        category: 'Business Services',
       })
       .select('id, customer_id')
       .single()

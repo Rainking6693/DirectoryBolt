@@ -37,7 +37,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         business_name,
         email,
         package_type,
-        status,
         created_at,
         updated_at,
         jobs!inner(id, status, created_at, package_size)
@@ -87,9 +86,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 function buildDrilldownLists(customers: any[]) {
-  const active = customers.filter((c: any) => ['active','in-progress','in_progress'].includes((c.status||'').toLowerCase()))
-  const completed = customers.filter((c: any) => ['completed','complete'].includes((c.status||'').toLowerCase()))
-  const pending = customers.filter((c: any) => ['pending'].includes((c.status||'').toLowerCase()))
+  // Derive customer status from their jobs
+  const active = customers.filter((c: any) => c.jobs?.some((j: any) => j.status === 'in_progress'))
+  const completed = customers.filter((c: any) => c.jobs?.some((j: any) => j.status === 'completed'))
+  const pending = customers.filter((c: any) => c.jobs?.some((j: any) => j.status === 'pending'))
   return {
     total_customers: customers,
     active_customers: active,
