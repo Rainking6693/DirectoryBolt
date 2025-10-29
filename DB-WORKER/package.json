@@ -6,9 +6,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node custom-poller.js",
-    "postinstall": "npx playwright install --with-deps"
+    "postinstall": "npx playwright install --with-deps",
+    "diagnose": "node diagnose-connections.js",
+    "test:connection": "node test-supabase-connection.js",
+    "check:jobs": "node check-job-submissions.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
     "@google/generative-ai": "^0.15.0",
     "@supabase/supabase-js": "^2.44.4",
     "2captcha": "^3.0.5",

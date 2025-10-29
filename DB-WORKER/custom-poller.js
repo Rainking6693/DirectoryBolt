@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 const Anthropic = require('@anthropic-ai/sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -8,9 +8,23 @@ const os = require('os');
 const playwright = require('playwright');
 
 // Config
-const POLL_INTERVAL = 30000; // 30 seconds
+const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL) || 30000; // 30 seconds default
 const HEARTBEAT_INTERVAL = 10000; // 10 seconds
-const WORKER_ID = os.hostname();
+const WORKER_ID = process.env.WORKER_ID || os.hostname();
+
+// Validate required environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
+  process.exit(1);
+}
+
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.warn('WARNING: ANTHROPIC_API_KEY not set. AI submission analysis will fail.');
+}
+
+if (!process.env.GEMINI_API_KEY) {
+  console.warn('WARNING: GEMINI_API_KEY not set. Form mapping will use fallback only.');
+}
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const anthropic = new Anthropic({
@@ -253,14 +267,23 @@ async function submitWithPlaywright(directory_url, mapping, businessData) {
     const recaptchaElement = await page.$('.g-recaptcha');
     if (recaptchaElement) {
       log('reCAPTCHA detected. Attempting to solve...');
+      if (!solver) {
+        log('ERROR: CAPTCHA detected but 2Captcha solver not configured. Set TWO_CAPTCHA_API_KEY.');
+        throw new Error('CAPTCHA detected but solver not available');
+      }
       const sitekey = await recaptchaElement.getAttribute('data-sitekey');
       if (sitekey) {
-        const result = await solver.recaptcha(sitekey, directory_url);
-        const captchaSolution = result.data;
-        await page.evaluate((token) => {
-          document.getElementById('g-recaptcha-response').innerHTML = token;
-        }, captchaSolution);
-        log('CAPTCHA solution injected.');
+        try {
+          const result = await solver.recaptcha(sitekey, directory_url);
+          const captchaSolution = result.data;
+          await page.evaluate((token) => {
+            document.getElementById('g-recaptcha-response').innerHTML = token;
+          }, captchaSolution);
+          log('CAPTCHA solution injected.');
+        } catch (captchaError) {
+          log(`CAPTCHA solving failed: ${captchaError.message}`);
+          throw captchaError;
+        }
       } else {
         log('Could not find sitekey for reCAPTCHA.');
       }
@@ -499,6 +522,21 @@ Return only the JSON object, nothing else.
 }
 
 // Run poller and heartbeat
+log(`Poller starting with WORKER_ID: ${WORKER_ID}`);
+log(`Poll interval: ${POLL_INTERVAL}ms, Heartbeat interval: ${HEARTBEAT_INTERVAL}ms`);
+
+// Send initial heartbeat
+sendHeartbeat();
+
+// Execute first poll immediately
+pollForJobs().then(() => {
+  log('Initial poll completed. Starting interval polling...');
+}).catch(err => {
+  log(`Initial poll failed: ${err.message}`);
+});
+
+// Set up intervals
 setInterval(pollForJobs, POLL_INTERVAL);
 setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
-log(`Poller started with WORKER_ID: ${WORKER_ID}`);
+
+log(`Poller started successfully`);

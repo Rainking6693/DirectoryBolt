@@ -4,7 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function createTestJob() {
-  console.log('Creating test job with fixed schema assumptions, unique email, and valid package_size...');
+  console.log('Creating test job with fixed schema assumptions, unique email, valid package_size, and customer_job_id...');
 
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.error('SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set');
@@ -16,9 +16,9 @@ async function createTestJob() {
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .insert({
-        customer_id: 'TEST-CUSTOMER-003',
-        business_name: 'Test Business LLC 3',
-        email: 'test3@example.com',
+        customer_id: 'TEST-CUSTOMER-004',
+        business_name: 'Test Business LLC 4',
+        email: 'test4@example.com',
         package_type: 'starter',
         directory_limit: 50,
         created_at: new Date().toISOString()
@@ -40,15 +40,15 @@ async function createTestJob() {
         priority_level: 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        business_name: 'Test Business LLC 3',
-        email: 'test3@example.com',
+        business_name: 'Test Business LLC 4',
+        email: 'test4@example.com',
         description: 'Test business description',
         category: 'Test Category',
         directory_limit: 50,
         package_type: 'starter',
         business_data: {
-          business_name: 'Test Business LLC 3',
-          email: 'test3@example.com',
+          business_name: 'Test Business LLC 4',
+          email: 'test4@example.com',
           phone: '555-1234',
           website: 'https://test.com',
           address: '123 Test St',
@@ -76,6 +76,7 @@ async function createTestJob() {
     ];
 
     const submissions = testDirectories.map(dir => ({
+      customer_job_id: job.customer_id, // Add this to satisfy potential constraints
       directory_url: dir.url,
       status: 'pending',
       created_at: new Date().toISOString(),
@@ -83,8 +84,8 @@ async function createTestJob() {
       submission_queue_id: job.id,
       customer_id: customer.customer_id,
       listing_data: {
-        business_name: 'Test Business LLC 3',
-        email: 'test3@example.com'
+        business_name: 'Test Business LLC 4',
+        email: 'test4@example.com'
       }
     }));
 
@@ -95,6 +96,15 @@ async function createTestJob() {
     if (subError) throw subError;
 
     console.log(`Created ${submissions.length} test submissions for job ${job.id}`);
+
+    // Verify submissions were inserted correctly
+    const { data: verifySubs } = await supabase
+      .from('directory_submissions')
+      .select('id, status, submission_queue_id, customer_job_id')
+      .eq('submission_queue_id', job.id)
+      .limit(5);
+
+    console.log('Verified submissions:', verifySubs);
 
     console.log('\nTest setup complete. The poller should now detect and process the job.');
     console.log('Monitor the poller logs for activity.');
