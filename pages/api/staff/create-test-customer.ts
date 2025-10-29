@@ -27,6 +27,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       return res.status(503).json({ success: false, error: 'Supabase admin client not available' })
     }
 
+    // Generate unique identifiers
+    const rand = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+    const customer_id = `DIR-${date}-${rand}`
+    const timestamp = Date.now()
+    
     const {
       name = 'Ben Stone',
       website = 'https://www.directorybolt.com',
@@ -35,14 +41,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
       state = 'UT',
       zip = '84043',
       phone = '385-225-1199',
-      email = 'ben@directorybolt.com',
+      email = `test-${timestamp}@directorybolt.com`, // Generate unique email
       package_size = 50,
     } = (req.body || {}) as Record<string, any>
-
-    // Generate a required customer_id per DB schema (e.g., DIR-YYYYMMDD-XXXXXX)
-    const rand = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
-    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-    const customer_id = `DIR-${date}-${rand}`
 
     // Insert customer (ensure customer_id satisfies NOT NULL constraint)
     const { data: customer, error: custErr } = await supabase
