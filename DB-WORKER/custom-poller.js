@@ -7,9 +7,6 @@ const path = require('path');
 const os = require('os');
 const playwright = require('playwright');
 
-// Start health check server for Railway monitoring
-require('./health-check');
-
 // Config
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL) || 30000; // 30 seconds default
 const HEARTBEAT_INTERVAL = 10000; // 10 seconds

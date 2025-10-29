@@ -8,7 +8,7 @@ cmds = [
 ]
 
 [phases.build]
-cmds = ['echo "No build step required"']
+cmds = ['npm run build']
 
 [start]
-cmd = 'node custom-poller.js'
+cmd = 'node dist/index.js'
