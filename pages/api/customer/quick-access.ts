@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Find customer by email
     const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .select('id, business_name, email, created_at')
+      .select('customer_id, business_name, email, created_at')
       .eq('email', email.toLowerCase().trim())
       .single()
 
@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Return customer data for quick access
     return res.status(200).json({
       success: true,
-      customerId: customer.id,
+      customerId: customer.customer_id,
       customerName: customer.business_name || 'Customer'
     })
 

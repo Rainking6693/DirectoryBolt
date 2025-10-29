@@ -36,8 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Validate customer exists
     const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .select('id, business_name, email, created_at')
-      .eq('id', customerId)
+      .select('customer_id, business_name, email, created_at')
+      .eq('customer_id', customerId)
       .single()
 
     if (customerError || !customer) {
@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(200).json({
       success: true,
       customer: {
-        id: customer.id,
+        id: customer.customer_id,
         business_name: customer.business_name,
         email: customer.email
       }

@@ -140,57 +140,47 @@ export default async function handler(
 
 async function findCustomerInSupabase(customerId: string): Promise<CustomerLookupResponse['customer'] | null> {
   try {
-    // Performance optimized query with selective fields and indexed lookup
-    // Using RLS optimization techniques for 2025 best practices
+    // Query only fields that exist in the actual customers table schema
     let { data, error } = await supabase
       .from('customers')
-      .select('id,customer_id,full_name,business_name,email,subscription_tier,subscription_status,credits_remaining,credits_limit,is_active,is_verified,created_at,business_data,metadata')
+      .select('customer_id,business_name,email,phone,website,address,city,state,zip,package_type,created_at,description,category')
       .eq('customer_id', customerId.trim().toUpperCase())
       .single();
 
-    // If not found by direct customer_id, try metadata search with optimized query
-    if (error && error.code === 'PGRST116') {
-      const { data: metaData, error: metaError } = await supabase
-        .from('customers')
-        .select('id,customer_id,full_name,business_name,email,subscription_tier,subscription_status,credits_remaining,credits_limit,is_active,is_verified,created_at,business_data,metadata')
-        .or(`metadata->>original_customer_id.eq.${customerId},business_data->>original_customer_id.eq.${customerId}`)
-        .single();
-      
-      data = metaData;
-      error = metaError;
-    }
+    // If not found by direct customer_id match, return null
+    // (removed metadata search as those fields don't exist in current schema)
 
     if (error || !data) {
       return null;
     }
 
-    // Transform Supabase customer to expected format
-    const businessData = data.business_data || {};
-    const metadata = data.metadata || {};
-    
+    // Transform Supabase customer to expected format using actual schema fields
     return {
-      id: data.id,
-      customerId: businessData.original_customer_id || metadata.original_customer_id || customerId,
-      firstName: extractFirstName(data.full_name),
-      lastName: extractLastName(data.full_name),
-      fullName: data.full_name,
+      id: data.customer_id, // Use customer_id as the ID
+      customerId: data.customer_id,
+      firstName: '', // Not stored separately in current schema
+      lastName: '', // Not stored separately in current schema
+      fullName: data.business_name, // Use business name as full name
       businessName: data.business_name || '',
-      email: data.email,
-      phone: businessData.phone || '',
-      website: businessData.website || '',
-      address: businessData.address || '',
-      city: businessData.city || '',
-      state: businessData.state || '',
-      zip: businessData.zip || '',
-      packageType: businessData.original_package_type || mapTierToPackage(data.subscription_tier),
-      subscriptionTier: data.subscription_tier,
-      status: mapSupabaseStatus(data.subscription_status),
-      creditsRemaining: data.credits_remaining || 0,
-      creditsLimit: data.credits_limit || 0,
-      isActive: data.is_active || false,
-      isVerified: data.is_verified || false,
+      email: data.email || '',
+      phone: data.phone || '',
+      website: data.website || '',
+      address: data.address || '',
+      city: data.city || '',
+      state: data.state || '',
+      zip: data.zip || '',
+      packageType: data.package_type || 'starter',
+      subscriptionTier: mapPackageToTier(data.package_type || 'starter'),
+      status: 'active', // Default to active since status column doesn't exist
+      creditsRemaining: 0, // Not tracked in current schema
+      creditsLimit: 0, // Not tracked in current schema
+      isActive: true, // Default to true
+      isVerified: true, // Default to true
       created: data.created_at,
-      businessData: businessData
+      businessData: {
+        description: data.description,
+        category: data.category
+      }
     };
 
   } catch (error) {

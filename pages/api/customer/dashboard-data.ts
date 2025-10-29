@@ -65,8 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Get customer info
     const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .select('id, business_name, email, business_data')
-      .eq('id', customerId)
+      .select('customer_id, business_name, email, package_type')
+      .eq('customer_id', customerId)
       .single()
 
     if (customerError || !customer) {
@@ -114,10 +114,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Format response
     const dashboardData = {
       customer: {
-        id: customer.id,
+        id: customer.customer_id,
         business_name: customer.business_name,
         email: customer.email,
-        package_type: customer.business_data?.package_type || 'starter'
+        package_type: customer.package_type || 'starter'
       },
       jobs: (jobs || []).map(job => ({
         id: job.id,
