@@ -61,7 +61,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
         description: 'Test customer created from staff dashboard',
         category: 'Business Services',
       })
-      .select('id, customer_id')
+      .select('customer_id')
       .single()
 
     if (custErr || !customer) {
@@ -72,8 +72,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<CreateTestCusto
     const { data: job, error: jobErr } = await supabase
       .from('jobs')
       .insert({
-        // Use the internal UUID id for proper FK relationship
-        customer_id: customer.id,
+        // Use customer_id (business ID) for FK relationship
+        customer_id: customer.customer_id,
         business_name: name,
         email: email,
         package_size: package_size,

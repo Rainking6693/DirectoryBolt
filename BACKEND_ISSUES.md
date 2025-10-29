@@ -28,6 +28,16 @@ Status: ✅ FIXED (Issues 1 & 2) | ⚠️ PARTIAL (Issues 3 & 4)
   - Added `directory_limit`, `description`, and `category` fields instead
   - Customer creation now works correctly
 
+### Issue 5: Create Customer - "column customers.id does not exist" - FIXED ✅
+- **Error**: "Failed to create customer: column customers.id does not exist"
+- **Cause**: Code tries to SELECT `id` from customers table and use `customer.id` as FK
+- **Root Cause**: Your actual database schema uses `customer_id` as the primary key, NOT `id`
+- **File**: `pages/api/staff/create-test-customer.ts`
+- **Fix Applied**:
+  - Changed `.select('id, customer_id')` to `.select('customer_id')` (line 64)
+  - Changed `customer_id: customer.id` to `customer_id: customer.customer_id` (line 76)
+  - Jobs table FK now correctly references customer_id
+
 ---
 
 ## ⚠️ Remaining Issues (Require Database Changes)
