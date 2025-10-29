@@ -136,19 +136,37 @@ async function testAnthropicAPI() {
       apiKey: process.env.ANTHROPIC_API_KEY,
     });
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 50,
-      messages: [{ role: "user", content: "Reply with 'OK' if you can read this." }]
-    });
+    // Try multiple models in order of preference
+    const modelsToTry = [
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-20240620',
+      'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307'
+    ];
 
-    if (response.content && response.content[0]) {
-      logSuccess('Anthropic API connection successful');
-      return true;
-    } else {
-      logError('Anthropic API returned unexpected response');
-      return false;
+    for (const model of modelsToTry) {
+      try {
+        const response = await anthropic.messages.create({
+          model: model,
+          max_tokens: 50,
+          messages: [{ role: "user", content: "Reply with 'OK' if you can read this." }]
+        });
+
+        if (response.content && response.content[0]) {
+          logSuccess(`Anthropic API connection successful (using model: ${model})`);
+          logInfo(`Update custom-poller.js to use model: "${model}"`);
+          return true;
+        }
+      } catch (modelError) {
+        // Try next model
+        continue;
+      }
     }
+
+    logError('Anthropic API: No compatible models found for your API key');
+    logWarning('Your API key may not have access to Claude models. Check your Anthropic account.');
+    return false;
   } catch (error) {
     logError(`Anthropic API test failed: ${error.message}`);
     return false;
