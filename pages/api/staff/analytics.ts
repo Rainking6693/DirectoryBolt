@@ -33,12 +33,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { data: customers, error: customerError } = await supabase
       .from('customers')
       .select(`
-        id,
+        customer_id,
         business_name,
         email,
         package_type,
         created_at,
-        updated_at,
         jobs!inner(id, status, created_at, package_size)
       `)
 
