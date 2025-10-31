@@ -91,7 +91,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       ? Math.round(((totalDirectoriesSubmitted - totalDirectoriesFailed) / totalDirectoriesSubmitted) * 10000) / 100
       : 100
 
-    console.log('?o. Real-time status data retrieved successfully')
+    console.log('✅ Real-time status data retrieved successfully')
 
     res.status(200).json({
       success: true,
